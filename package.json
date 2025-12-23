@@ -1,0 +1,58 @@
+{
+  "name": "confectionery-loyalty-system",
+  "version": "1.0.0",
+  "description": "Blockchain-based loyalty system for confectioneries using TON smart contracts",
+  "private": true,
+  "workspaces": [
+    "contracts",
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "contracts:build": "npm run build --workspace=contracts",
+    "contracts:test": "npm run test --workspace=contracts",
+    "contracts:deploy": "npm run deploy --workspace=contracts",
+    "backend:dev": "npm run dev --workspace=backend",
+    "backend:build": "npm run build --workspace=backend",
+    "backend:start": "npm run start --workspace=backend",
+    "backend:test": "npm run test --workspace=backend",
+    "frontend:dev": "npm run dev --workspace=frontend",
+    "frontend:build": "npm run build --workspace=frontend",
+    "frontend:preview": "npm run preview --workspace=frontend",
+    "db:migrate": "npm run db:migrate --workspace=backend",
+    "db:generate": "npm run db:generate --workspace=backend",
+    "db:seed": "npm run db:seed --workspace=backend",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:build": "docker-compose build",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\""
+  },
+  "devDependencies": {
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aitu-loyalty/confectionery-loyalty-system.git"
+  },
+  "keywords": [
+    "ton",
+    "blockchain",
+    "loyalty",
+    "confectionery",
+    "smart-contracts",
+    "telegram-mini-app"
+  ],
+  "author": "AITU Diploma Team",
+  "license": "MIT"
+}
+
+
+
+

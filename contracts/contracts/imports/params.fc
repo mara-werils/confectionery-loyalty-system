@@ -1,0 +1,30 @@
+;; ============================================================================
+;; PARAMETERS - Constants and configuration parameters
+;; ============================================================================
+
+;; Workchain
+int workchain() asm "0 PUSHINT";
+
+;; Message modes
+int SEND_MODE_REGULAR() asm "0 PUSHINT";
+int SEND_MODE_PAY_FEES_SEPARATELY() asm "1 PUSHINT";
+int SEND_MODE_IGNORE_ERRORS() asm "2 PUSHINT";
+int SEND_MODE_DESTROY() asm "32 PUSHINT";
+int SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE() asm "64 PUSHINT";
+int SEND_MODE_CARRY_ALL_BALANCE() asm "128 PUSHINT";
+
+;; Reserve modes
+int RESERVE_REGULAR() asm "0 PUSHINT";
+int RESERVE_ALL_EXCEPT() asm "1 PUSHINT";
+int RESERVE_AT_MOST() asm "2 PUSHINT";
+int RESERVE_ADD_BALANCE() asm "4 PUSHINT";
+int RESERVE_BOUNCE_ON_ACTION_FAIL() asm "16 PUSHINT";
+
+;; Gas constants
+int MIN_TON_FOR_STORAGE() asm "10000000 PUSHINT";      ;; 0.01 TON
+int GAS_CONSUMPTION() asm "15000000 PUSHINT";          ;; 0.015 TON
+int JETTON_MIN_TRANSFER_FEE() asm "30000000 PUSHINT";  ;; 0.03 TON
+
+
+
+

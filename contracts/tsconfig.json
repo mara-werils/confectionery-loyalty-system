@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": ".",
+    "types": ["jest", "node"]
+  },
+  "include": ["scripts", "tests", "wrappers"],
+  "exclude": ["node_modules", "build", "dist"]
+}
+
+
+
+

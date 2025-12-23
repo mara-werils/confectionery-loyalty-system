@@ -1,0 +1,41 @@
+;; ============================================================================
+;; OPERATION CODES - All op codes for the loyalty system contracts
+;; ============================================================================
+
+;; Jetton Standard Operations (TEP-74)
+int op::transfer() asm "0x0f8a7ea5 PUSHINT";
+int op::transfer_notification() asm "0x7362d09c PUSHINT";
+int op::internal_transfer() asm "0x178d4519 PUSHINT";
+int op::excesses() asm "0xd53276db PUSHINT";
+int op::burn() asm "0x595f07bc PUSHINT";
+int op::burn_notification() asm "0x7bdd97de PUSHINT";
+
+;; Jetton Minter Operations
+int op::mint() asm "0x642b7d07 PUSHINT";
+int op::change_admin() asm "0x6501f354 PUSHINT";
+int op::change_content() asm "0x5773d1f5 PUSHINT";
+
+;; Partner Registry Operations
+int op::register_partner() asm "0x1 PUSHINT";
+int op::update_partner_tier() asm "0x2 PUSHINT";
+int op::update_partner_status() asm "0x3 PUSHINT";
+int op::record_earning() asm "0x4 PUSHINT";
+
+;; Redemption Manager Operations
+int op::add_reward() asm "0x10 PUSHINT";
+int op::update_reward() asm "0x11 PUSHINT";
+int op::request_redemption() asm "0x12 PUSHINT";
+int op::process_redemption() asm "0x13 PUSHINT";
+int op::set_loyalty_token() asm "0x14 PUSHINT";
+
+;; Revenue Distribution Operations
+int op::record_transaction() asm "0x20 PUSHINT";
+int op::distribute_commission() asm "0x21 PUSHINT";
+int op::batch_distribute() asm "0x22 PUSHINT";
+int op::withdraw_platform_fee() asm "0x23 PUSHINT";
+int op::set_partner_registry() asm "0x24 PUSHINT";
+int op::commission_payout() asm "0x25 PUSHINT";
+
+
+
+

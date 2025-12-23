@@ -1,0 +1,401 @@
+;; ============================================================================
+;; REDEMPTION MANAGER - Reward redemption for loyalty system
+;; ============================================================================
+;; Manages reward catalog and redemption processing
+;; Author: AITU Diploma Team
+;; ============================================================================
+
+#include "imports/stdlib.fc";
+#include "imports/op-codes.fc";
+
+;; ============================================================================
+;; CONSTANTS
+;; ============================================================================
+
+;; Redemption status
+const int REDEMPTION_PENDING = 0;
+const int REDEMPTION_APPROVED = 1;
+const int REDEMPTION_REJECTED = 2;
+const int REDEMPTION_FULFILLED = 3;
+
+;; Reward categories
+const int CATEGORY_DISCOUNT = 1;
+const int CATEGORY_PRODUCT = 2;
+const int CATEGORY_CASHBACK = 3;
+const int CATEGORY_SPECIAL = 4;
+
+;; Minimum points for redemption
+const int MIN_REDEMPTION_POINTS = 100;
+
+;; ============================================================================
+;; STORAGE LAYOUT
+;; ============================================================================
+
+global slice storage::admin_address;
+global slice storage::loyalty_token_address;
+global int storage::reward_count;
+global int storage::redemption_count;
+global cell storage::rewards;      ;; Dict: reward_id -> reward_data
+global cell storage::redemptions;  ;; Dict: redemption_id -> redemption_data
+
+;; ============================================================================
+;; STORAGE FUNCTIONS
+;; ============================================================================
+
+() load_data() impure inline {
+    slice ds = get_data().begin_parse();
+    storage::admin_address = ds~load_msg_addr();
+    storage::loyalty_token_address = ds~load_msg_addr();
+    storage::reward_count = ds~load_uint(32);
+    storage::redemption_count = ds~load_uint(32);
+    storage::rewards = ds~load_dict();
+    storage::redemptions = ds~load_dict();
+}
+
+() save_data() impure inline {
+    set_data(begin_cell()
+        .store_slice(storage::admin_address)
+        .store_slice(storage::loyalty_token_address)
+        .store_uint(storage::reward_count, 32)
+        .store_uint(storage::redemption_count, 32)
+        .store_dict(storage::rewards)
+        .store_dict(storage::redemptions)
+    .end_cell());
+}
+
+;; ============================================================================
+;; HELPER FUNCTIONS
+;; ============================================================================
+
+;; Pack reward data
+cell pack_reward_data(int points_required, int category, int available, int total_claimed, int max_claims, int active) inline {
+    return begin_cell()
+        .store_coins(points_required)
+        .store_uint(category, 8)
+        .store_uint(available, 32)
+        .store_uint(total_claimed, 32)
+        .store_uint(max_claims, 32)
+        .store_int(active, 1)
+    .end_cell();
+}
+
+;; Unpack reward data
+(int, int, int, int, int, int) unpack_reward_data(cell data) inline {
+    slice ds = data.begin_parse();
+    return (
+        ds~load_coins(),    ;; points_required
+        ds~load_uint(8),    ;; category
+        ds~load_uint(32),   ;; available
+        ds~load_uint(32),   ;; total_claimed
+        ds~load_uint(32),   ;; max_claims
+        ds~load_int(1)      ;; active
+    );
+}
+
+;; Pack redemption data
+cell pack_redemption_data(slice partner, int reward_id, int points_spent, int status, int created_at) inline {
+    return begin_cell()
+        .store_slice(partner)
+        .store_uint(reward_id, 32)
+        .store_coins(points_spent)
+        .store_uint(status, 8)
+        .store_uint(created_at, 64)
+    .end_cell();
+}
+
+;; Unpack redemption data
+(slice, int, int, int, int) unpack_redemption_data(cell data) inline {
+    slice ds = data.begin_parse();
+    return (
+        ds~load_msg_addr(), ;; partner
+        ds~load_uint(32),   ;; reward_id
+        ds~load_coins(),    ;; points_spent
+        ds~load_uint(8),    ;; status
+        ds~load_uint(64)    ;; created_at
+    );
+}
+
+;; ============================================================================
+;; INTERNAL MESSAGE HANDLERS
+;; ============================================================================
+
+() recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
+    if (in_msg_body.slice_empty?()) {
+        return ();
+    }
+
+    slice cs = in_msg_full.begin_parse();
+    int flags = cs~load_uint(4);
+    if (flags & 1) {
+        return ();
+    }
+
+    slice sender_address = cs~load_msg_addr();
+    
+    load_data();
+
+    int op = in_msg_body~load_uint(32);
+    int query_id = in_msg_body~load_uint(64);
+
+    ;; ========================================================================
+    ;; OP: ADD REWARD - Add new reward to catalog (admin only)
+    ;; ========================================================================
+    if (op == op::add_reward()) {
+        throw_unless(73, equal_slices(sender_address, storage::admin_address));
+        
+        int points_required = in_msg_body~load_coins();
+        int category = in_msg_body~load_uint(8);
+        int available = in_msg_body~load_uint(32);
+        int max_claims = in_msg_body~load_uint(32);
+        
+        throw_unless(200, points_required >= MIN_REDEMPTION_POINTS);
+        throw_unless(201, (category >= CATEGORY_DISCOUNT) & (category <= CATEGORY_SPECIAL));
+        
+        storage::reward_count += 1;
+        int reward_id = storage::reward_count;
+        
+        cell reward_data = pack_reward_data(
+            points_required,
+            category,
+            available,
+            0,  ;; total_claimed
+            max_claims,
+            -1  ;; active = true
+        );
+        
+        storage::rewards~udict_set_ref(32, reward_id, reward_data);
+        
+        save_data();
+        return ();
+    }
+
+    ;; ========================================================================
+    ;; OP: UPDATE REWARD - Update reward details (admin only)
+    ;; ========================================================================
+    if (op == op::update_reward()) {
+        throw_unless(73, equal_slices(sender_address, storage::admin_address));
+        
+        int reward_id = in_msg_body~load_uint(32);
+        int points_required = in_msg_body~load_coins();
+        int available = in_msg_body~load_uint(32);
+        int active = in_msg_body~load_int(1);
+        
+        (cell reward_cell, int found) = storage::rewards.udict_get_ref?(32, reward_id);
+        throw_unless(202, found);
+        
+        (_, int category, _, int total_claimed, int max_claims, _) = unpack_reward_data(reward_cell);
+        
+        cell updated_data = pack_reward_data(
+            points_required,
+            category,
+            available,
+            total_claimed,
+            max_claims,
+            active
+        );
+        
+        storage::rewards~udict_set_ref(32, reward_id, updated_data);
+        
+        save_data();
+        return ();
+    }
+
+    ;; ========================================================================
+    ;; OP: REQUEST REDEMPTION - Partner requests to redeem points
+    ;; ========================================================================
+    if (op == op::request_redemption()) {
+        int reward_id = in_msg_body~load_uint(32);
+        
+        ;; Get reward data
+        (cell reward_cell, int found) = storage::rewards.udict_get_ref?(32, reward_id);
+        throw_unless(202, found);
+        
+        (int points_required, int category, int available, int total_claimed, int max_claims, int active) = unpack_reward_data(reward_cell);
+        
+        ;; Validate reward
+        throw_unless(203, active);
+        throw_unless(204, available > 0);
+        throw_unless(205, (max_claims == 0) | (total_claimed < max_claims));
+        
+        ;; Create redemption record
+        storage::redemption_count += 1;
+        int redemption_id = storage::redemption_count;
+        
+        cell redemption_data = pack_redemption_data(
+            sender_address,
+            reward_id,
+            points_required,
+            REDEMPTION_PENDING,
+            now()
+        );
+        
+        storage::redemptions~udict_set_ref(32, redemption_id, redemption_data);
+        
+        ;; Update reward available count
+        cell updated_reward = pack_reward_data(
+            points_required,
+            category,
+            available - 1,
+            total_claimed,
+            max_claims,
+            active
+        );
+        storage::rewards~udict_set_ref(32, reward_id, updated_reward);
+        
+        save_data();
+        return ();
+    }
+
+    ;; ========================================================================
+    ;; OP: PROCESS REDEMPTION - Approve/reject redemption (admin only)
+    ;; ========================================================================
+    if (op == op::process_redemption()) {
+        throw_unless(73, equal_slices(sender_address, storage::admin_address));
+        
+        int redemption_id = in_msg_body~load_uint(32);
+        int new_status = in_msg_body~load_uint(8);
+        
+        throw_unless(206, (new_status == REDEMPTION_APPROVED) | (new_status == REDEMPTION_REJECTED));
+        
+        (cell redemption_cell, int found) = storage::redemptions.udict_get_ref?(32, redemption_id);
+        throw_unless(207, found);
+        
+        (slice partner, int reward_id, int points_spent, int status, int created_at) = unpack_redemption_data(redemption_cell);
+        
+        throw_unless(208, status == REDEMPTION_PENDING);
+        
+        ;; Update redemption status
+        cell updated_redemption = pack_redemption_data(
+            partner,
+            reward_id,
+            points_spent,
+            new_status,
+            created_at
+        );
+        storage::redemptions~udict_set_ref(32, redemption_id, updated_redemption);
+        
+        ;; If approved, update reward claimed count and send burn request
+        if (new_status == REDEMPTION_APPROVED) {
+            (cell reward_cell, _) = storage::rewards.udict_get_ref?(32, reward_id);
+            (int points_required, int category, int available, int total_claimed, int max_claims, int active) = unpack_reward_data(reward_cell);
+            
+            cell updated_reward = pack_reward_data(
+                points_required,
+                category,
+                available,
+                total_claimed + 1,
+                max_claims,
+                active
+            );
+            storage::rewards~udict_set_ref(32, reward_id, updated_reward);
+            
+            ;; TODO: Send burn request to loyalty token contract
+        }
+        
+        ;; If rejected, restore available count
+        if (new_status == REDEMPTION_REJECTED) {
+            (cell reward_cell, _) = storage::rewards.udict_get_ref?(32, reward_id);
+            (int points_required, int category, int available, int total_claimed, int max_claims, int active) = unpack_reward_data(reward_cell);
+            
+            cell updated_reward = pack_reward_data(
+                points_required,
+                category,
+                available + 1,
+                total_claimed,
+                max_claims,
+                active
+            );
+            storage::rewards~udict_set_ref(32, reward_id, updated_reward);
+        }
+        
+        save_data();
+        return ();
+    }
+
+    ;; ========================================================================
+    ;; OP: CHANGE ADMIN
+    ;; ========================================================================
+    if (op == op::change_admin()) {
+        throw_unless(73, equal_slices(sender_address, storage::admin_address));
+        slice new_admin = in_msg_body~load_msg_addr();
+        storage::admin_address = new_admin;
+        save_data();
+        return ();
+    }
+
+    ;; ========================================================================
+    ;; OP: SET LOYALTY TOKEN ADDRESS
+    ;; ========================================================================
+    if (op == op::set_loyalty_token()) {
+        throw_unless(73, equal_slices(sender_address, storage::admin_address));
+        storage::loyalty_token_address = in_msg_body~load_msg_addr();
+        save_data();
+        return ();
+    }
+
+    throw(0xffff);
+}
+
+;; ============================================================================
+;; GET METHODS
+;; ============================================================================
+
+;; Get admin address
+slice get_admin() method_id {
+    load_data();
+    return storage::admin_address;
+}
+
+;; Get reward count
+int get_reward_count() method_id {
+    load_data();
+    return storage::reward_count;
+}
+
+;; Get redemption count
+int get_redemption_count() method_id {
+    load_data();
+    return storage::redemption_count;
+}
+
+;; Get reward by ID
+(int, int, int, int, int, int) get_reward(int reward_id) method_id {
+    load_data();
+    
+    (cell reward_cell, int found) = storage::rewards.udict_get_ref?(32, reward_id);
+    if (~ found) {
+        return (0, 0, 0, 0, 0, 0);
+    }
+    
+    return unpack_reward_data(reward_cell);
+}
+
+;; Get redemption by ID
+(slice, int, int, int, int) get_redemption(int redemption_id) method_id {
+    load_data();
+    
+    (cell redemption_cell, int found) = storage::redemptions.udict_get_ref?(32, redemption_id);
+    if (~ found) {
+        return (null(), 0, 0, 0, 0);
+    }
+    
+    return unpack_redemption_data(redemption_cell);
+}
+
+;; Validate redemption (check if partner can redeem)
+int validate_redemption(slice partner, int reward_id) method_id {
+    load_data();
+    
+    (cell reward_cell, int found) = storage::rewards.udict_get_ref?(32, reward_id);
+    if (~ found) {
+        return 0;
+    }
+    
+    (int points_required, int category, int available, int total_claimed, int max_claims, int active) = unpack_reward_data(reward_cell);
+    
+    return active & (available > 0) & ((max_claims == 0) | (total_claimed < max_claims));
+}
+
+
+
+

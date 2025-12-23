@@ -1,0 +1,236 @@
+;; ============================================================================
+;; JETTON WALLET - Individual wallet for loyalty tokens
+;; ============================================================================
+;; Standard: TEP-74 (Jetton Standard)
+;; Author: AITU Diploma Team
+;; ============================================================================
+
+#include "imports/stdlib.fc";
+#include "imports/jetton-utils.fc";
+#include "imports/op-codes.fc";
+#include "imports/params.fc";
+
+;; ============================================================================
+;; STORAGE LAYOUT
+;; ============================================================================
+;; balance:Coins owner_address:MsgAddress jetton_master_address:MsgAddress jetton_wallet_code:^Cell
+
+global int storage::balance;
+global slice storage::owner_address;
+global slice storage::jetton_master_address;
+global cell storage::jetton_wallet_code;
+
+;; ============================================================================
+;; STORAGE FUNCTIONS
+;; ============================================================================
+
+() load_data() impure inline {
+    slice ds = get_data().begin_parse();
+    storage::balance = ds~load_coins();
+    storage::owner_address = ds~load_msg_addr();
+    storage::jetton_master_address = ds~load_msg_addr();
+    storage::jetton_wallet_code = ds~load_ref();
+}
+
+() save_data() impure inline {
+    set_data(begin_cell()
+        .store_coins(storage::balance)
+        .store_slice(storage::owner_address)
+        .store_slice(storage::jetton_master_address)
+        .store_ref(storage::jetton_wallet_code)
+    .end_cell());
+}
+
+;; ============================================================================
+;; HELPER FUNCTIONS
+;; ============================================================================
+
+{-
+  Calculate state init for jetton wallet
+-}
+cell calculate_jetton_wallet_state_init(slice owner_address, slice jetton_master_address, cell jetton_wallet_code) inline {
+    return begin_cell()
+        .store_uint(0, 2)
+        .store_dict(jetton_wallet_code)
+        .store_dict(pack_jetton_wallet_data(0, owner_address, jetton_master_address, jetton_wallet_code))
+        .store_uint(0, 1)
+    .end_cell();
+}
+
+slice calculate_jetton_wallet_address(cell state_init) inline {
+    return begin_cell()
+        .store_uint(4, 3)
+        .store_int(workchain(), 8)
+        .store_uint(cell_hash(state_init), 256)
+    .end_cell().begin_parse();
+}
+
+;; ============================================================================
+;; INTERNAL MESSAGE HANDLERS
+;; ============================================================================
+
+() recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
+    if (in_msg_body.slice_empty?()) {
+        return (); ;; accept TON transfers
+    }
+
+    slice cs = in_msg_full.begin_parse();
+    int flags = cs~load_uint(4);
+    if (flags & 1) {
+        return (); ;; ignore bounced messages
+    }
+
+    slice sender_address = cs~load_msg_addr();
+    
+    load_data();
+
+    int op = in_msg_body~load_uint(32);
+    int query_id = in_msg_body~load_uint(64);
+
+    ;; ========================================================================
+    ;; OP: TRANSFER - Send tokens to another address
+    ;; ========================================================================
+    if (op == op::transfer()) {
+        throw_unless(705, equal_slices(sender_address, storage::owner_address));
+        
+        int amount = in_msg_body~load_coins();
+        slice destination = in_msg_body~load_msg_addr();
+        slice response_destination = in_msg_body~load_msg_addr();
+        in_msg_body~skip_bits(1); ;; custom_payload
+        int forward_ton_amount = in_msg_body~load_coins();
+        slice forward_payload = in_msg_body;
+        
+        throw_unless(706, storage::balance >= amount);
+        
+        storage::balance -= amount;
+        
+        cell state_init = calculate_jetton_wallet_state_init(destination, storage::jetton_master_address, storage::jetton_wallet_code);
+        slice to_wallet_address = calculate_jetton_wallet_address(state_init);
+        
+        var msg = begin_cell()
+            .store_uint(0x18, 6)
+            .store_slice(to_wallet_address)
+            .store_coins(0)
+            .store_uint(4 + 2 + 1, 1 + 4 + 4 + 64 + 32 + 1 + 1 + 1)
+            .store_ref(state_init)
+            .store_ref(
+                begin_cell()
+                    .store_uint(op::internal_transfer(), 32)
+                    .store_uint(query_id, 64)
+                    .store_coins(amount)
+                    .store_slice(storage::owner_address)
+                    .store_slice(response_destination)
+                    .store_coins(forward_ton_amount)
+                    .store_slice(forward_payload)
+                .end_cell()
+            );
+        
+        send_raw_message(msg.end_cell(), 64);
+        save_data();
+        return ();
+    }
+
+    ;; ========================================================================
+    ;; OP: INTERNAL TRANSFER - Receive tokens from another wallet
+    ;; ========================================================================
+    if (op == op::internal_transfer()) {
+        int amount = in_msg_body~load_coins();
+        slice from_address = in_msg_body~load_msg_addr();
+        slice response_address = in_msg_body~load_msg_addr();
+        int forward_ton_amount = in_msg_body~load_coins();
+        slice forward_payload = in_msg_body;
+        
+        ;; Verify sender is valid jetton wallet or master
+        if (~ equal_slices(sender_address, storage::jetton_master_address)) {
+            cell state_init = calculate_jetton_wallet_state_init(from_address, storage::jetton_master_address, storage::jetton_wallet_code);
+            slice expected_sender = calculate_jetton_wallet_address(state_init);
+            throw_unless(707, equal_slices(sender_address, expected_sender));
+        }
+        
+        storage::balance += amount;
+        
+        ;; Send notification to owner if requested
+        if (forward_ton_amount > 0) {
+            var msg = begin_cell()
+                .store_uint(0x10, 6)
+                .store_slice(storage::owner_address)
+                .store_coins(forward_ton_amount)
+                .store_uint(1, 1 + 4 + 4 + 64 + 32 + 1 + 1)
+                .store_ref(
+                    begin_cell()
+                        .store_uint(op::transfer_notification(), 32)
+                        .store_uint(query_id, 64)
+                        .store_coins(amount)
+                        .store_slice(from_address)
+                        .store_slice(forward_payload)
+                    .end_cell()
+                );
+            send_raw_message(msg.end_cell(), 1);
+        }
+        
+        ;; Send excess back
+        if ((~ response_address.preload_uint(2) == 0) & (msg_value > forward_ton_amount)) {
+            var msg = begin_cell()
+                .store_uint(0x10, 6)
+                .store_slice(response_address)
+                .store_coins(msg_value - forward_ton_amount)
+                .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
+                .store_uint(op::excesses(), 32)
+                .store_uint(query_id, 64);
+            send_raw_message(msg.end_cell(), 2);
+        }
+        
+        save_data();
+        return ();
+    }
+
+    ;; ========================================================================
+    ;; OP: BURN - Destroy tokens
+    ;; ========================================================================
+    if (op == op::burn()) {
+        throw_unless(705, equal_slices(sender_address, storage::owner_address));
+        
+        int amount = in_msg_body~load_coins();
+        slice response_address = in_msg_body~load_msg_addr();
+        
+        throw_unless(706, storage::balance >= amount);
+        
+        storage::balance -= amount;
+        
+        var msg = begin_cell()
+            .store_uint(0x18, 6)
+            .store_slice(storage::jetton_master_address)
+            .store_coins(0)
+            .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
+            .store_uint(op::burn_notification(), 32)
+            .store_uint(query_id, 64)
+            .store_coins(amount)
+            .store_slice(storage::owner_address)
+            .store_slice(response_address);
+        
+        send_raw_message(msg.end_cell(), 64);
+        save_data();
+        return ();
+    }
+
+    throw(0xffff); ;; Unknown operation
+}
+
+;; ============================================================================
+;; GET METHODS
+;; ============================================================================
+
+;; Get wallet data (TEP-74 standard)
+(int, slice, slice, cell) get_wallet_data() method_id {
+    load_data();
+    return (
+        storage::balance,
+        storage::owner_address,
+        storage::jetton_master_address,
+        storage::jetton_wallet_code
+    );
+}
+
+
+
+

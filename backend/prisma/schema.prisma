@@ -1,0 +1,243 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum PartnerTier {
+  BRONZE
+  SILVER
+  GOLD
+}
+
+enum PartnerStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  BANNED
+}
+
+enum TransactionType {
+  PURCHASE
+  BONUS
+  REFERRAL
+  PROMOTION
+}
+
+enum RewardCategory {
+  DISCOUNT
+  PRODUCT
+  CASHBACK
+  SPECIAL
+}
+
+enum ClaimStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  FULFILLED
+}
+
+enum PayoutStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+// ============================================================================
+// MODELS
+// ============================================================================
+
+/// Partner (B2B customer - confectionery shops, cafes, bakeries)
+model Partner {
+  id            String        @id @default(cuid())
+  walletAddress String        @unique @map("wallet_address")
+  companyName   String        @map("company_name")
+  email         String?       @unique
+  phone         String?
+  tier          PartnerTier   @default(BRONZE)
+  status        PartnerStatus @default(PENDING)
+  kycHash       String?       @map("kyc_hash")
+  
+  // Metadata
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+  lastLoginAt   DateTime?     @map("last_login_at")
+  
+  // Relations
+  loyaltyPoints LoyaltyPoints?
+  transactions  Transaction[]
+  claimedRewards ClaimedReward[]
+  commissionPayouts CommissionPayout[]
+
+  @@map("partners")
+}
+
+/// Loyalty points balance for each partner
+model LoyaltyPoints {
+  id              String   @id @default(cuid())
+  partnerId       String   @unique @map("partner_id")
+  balance         BigInt   @default(0)
+  lifetimeEarned  BigInt   @default(0) @map("lifetime_earned")
+  lifetimeRedeemed BigInt  @default(0) @map("lifetime_redeemed")
+  
+  // Timestamps
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  partner         Partner  @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  @@map("loyalty_points")
+}
+
+/// Transaction record
+model Transaction {
+  id            String          @id @default(cuid())
+  partnerId     String          @map("partner_id")
+  amount        BigInt          // Amount in KZT (or smallest unit)
+  pointsEarned  BigInt          @map("points_earned")
+  type          TransactionType
+  description   String?
+  
+  // Blockchain reference
+  txHash        String?         @map("tx_hash")
+  blockNumber   BigInt?         @map("block_number")
+  
+  // Timestamps
+  createdAt     DateTime        @default(now()) @map("created_at")
+  
+  // Relations
+  partner       Partner         @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  @@index([partnerId])
+  @@index([createdAt])
+  @@map("transactions")
+}
+
+/// Available rewards in the catalog
+model Reward {
+  id              String         @id @default(cuid())
+  title           String
+  description     String?
+  pointsRequired  BigInt         @map("points_required")
+  category        RewardCategory
+  imageUrl        String?        @map("image_url")
+  
+  // Availability
+  available       Int            @default(0)
+  maxClaims       Int            @default(0) @map("max_claims") // 0 = unlimited
+  totalClaimed    Int            @default(0) @map("total_claimed")
+  isActive        Boolean        @default(true) @map("is_active")
+  
+  // Validity period
+  validFrom       DateTime?      @map("valid_from")
+  validUntil      DateTime?      @map("valid_until")
+  
+  // Timestamps
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+  
+  // Relations
+  claimedRewards  ClaimedReward[]
+
+  @@map("rewards")
+}
+
+/// Claimed rewards by partners
+model ClaimedReward {
+  id          String      @id @default(cuid())
+  partnerId   String      @map("partner_id")
+  rewardId    String      @map("reward_id")
+  pointsSpent BigInt      @map("points_spent")
+  status      ClaimStatus @default(PENDING)
+  
+  // Processing info
+  processedAt DateTime?   @map("processed_at")
+  processedBy String?     @map("processed_by")
+  notes       String?
+  
+  // Blockchain reference
+  txHash      String?     @map("tx_hash")
+  
+  // Timestamps
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  
+  // Relations
+  partner     Partner     @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  reward      Reward      @relation(fields: [rewardId], references: [id], onDelete: Cascade)
+
+  @@index([partnerId])
+  @@index([status])
+  @@map("claimed_rewards")
+}
+
+/// Commission payouts to partners
+model CommissionPayout {
+  id          String       @id @default(cuid())
+  partnerId   String       @map("partner_id")
+  amount      BigInt       // Amount in nanoTON
+  tier        PartnerTier
+  period      String       // e.g., "2024-01", "2024-Q1"
+  status      PayoutStatus @default(PENDING)
+  
+  // Blockchain reference
+  txHash      String?      @map("tx_hash")
+  
+  // Timestamps
+  createdAt   DateTime     @default(now()) @map("created_at")
+  processedAt DateTime?    @map("processed_at")
+  
+  // Relations
+  partner     Partner      @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  @@index([partnerId])
+  @@index([status])
+  @@map("commission_payouts")
+}
+
+/// Admin users
+model Admin {
+  id            String   @id @default(cuid())
+  walletAddress String   @unique @map("wallet_address")
+  name          String
+  role          String   @default("admin") // admin, superadmin
+  isActive      Boolean  @default(true) @map("is_active")
+  
+  // Timestamps
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  lastLoginAt   DateTime? @map("last_login_at")
+
+  @@map("admins")
+}
+
+/// System settings
+model SystemSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  type      String   @default("string") // string, number, boolean, json
+  
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("system_settings")
+}
+
+
+

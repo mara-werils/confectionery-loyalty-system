@@ -1,0 +1,313 @@
+;; ============================================================================
+;; PARTNER REGISTRY - Partner management for loyalty system
+;; ============================================================================
+;; Manages partner registration, tiers, and KYC verification
+;; Author: AITU Diploma Team
+;; ============================================================================
+
+#include "imports/stdlib.fc";
+#include "imports/op-codes.fc";
+
+;; ============================================================================
+;; CONSTANTS
+;; ============================================================================
+
+;; Partner tiers
+const int TIER_BRONZE = 1;
+const int TIER_SILVER = 2;
+const int TIER_GOLD = 3;
+
+;; Partner status
+const int STATUS_PENDING = 0;
+const int STATUS_ACTIVE = 1;
+const int STATUS_SUSPENDED = 2;
+const int STATUS_BANNED = 3;
+
+;; Tier multipliers (in basis points, 10000 = 1x)
+const int MULTIPLIER_BRONZE = 10000;  ;; 1x
+const int MULTIPLIER_SILVER = 15000;  ;; 1.5x
+const int MULTIPLIER_GOLD = 20000;    ;; 2x
+
+;; ============================================================================
+;; STORAGE LAYOUT
+;; ============================================================================
+;; admin_address:MsgAddress partner_count:uint32 partners:^Dict<Address->Partner>
+
+global slice storage::admin_address;
+global int storage::partner_count;
+global cell storage::partners; ;; Dictionary: address hash -> partner data
+
+;; ============================================================================
+;; STORAGE FUNCTIONS
+;; ============================================================================
+
+() load_data() impure inline {
+    slice ds = get_data().begin_parse();
+    storage::admin_address = ds~load_msg_addr();
+    storage::partner_count = ds~load_uint(32);
+    storage::partners = ds~load_dict();
+}
+
+() save_data() impure inline {
+    set_data(begin_cell()
+        .store_slice(storage::admin_address)
+        .store_uint(storage::partner_count, 32)
+        .store_dict(storage::partners)
+    .end_cell());
+}
+
+;; ============================================================================
+;; HELPER FUNCTIONS
+;; ============================================================================
+
+int get_multiplier(int tier) inline {
+    if (tier == TIER_GOLD) {
+        return MULTIPLIER_GOLD;
+    }
+    if (tier == TIER_SILVER) {
+        return MULTIPLIER_SILVER;
+    }
+    return MULTIPLIER_BRONZE;
+}
+
+;; Pack partner data into cell
+cell pack_partner_data(int tier, int status, int kyc_hash, int registered_at, int total_earned) inline {
+    return begin_cell()
+        .store_uint(tier, 8)
+        .store_uint(status, 8)
+        .store_uint(kyc_hash, 256)
+        .store_uint(registered_at, 64)
+        .store_coins(total_earned)
+    .end_cell();
+}
+
+;; Unpack partner data from cell
+(int, int, int, int, int) unpack_partner_data(cell data) inline {
+    slice ds = data.begin_parse();
+    return (
+        ds~load_uint(8),    ;; tier
+        ds~load_uint(8),    ;; status
+        ds~load_uint(256),  ;; kyc_hash
+        ds~load_uint(64),   ;; registered_at
+        ds~load_coins()     ;; total_earned
+    );
+}
+
+;; ============================================================================
+;; INTERNAL MESSAGE HANDLERS
+;; ============================================================================
+
+() recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
+    if (in_msg_body.slice_empty?()) {
+        return ();
+    }
+
+    slice cs = in_msg_full.begin_parse();
+    int flags = cs~load_uint(4);
+    if (flags & 1) {
+        return ();
+    }
+
+    slice sender_address = cs~load_msg_addr();
+    
+    load_data();
+
+    int op = in_msg_body~load_uint(32);
+    int query_id = in_msg_body~load_uint(64);
+
+    ;; ========================================================================
+    ;; OP: REGISTER PARTNER - Register new partner (admin only)
+    ;; ========================================================================
+    if (op == op::register_partner()) {
+        throw_unless(73, equal_slices(sender_address, storage::admin_address));
+        
+        slice partner_address = in_msg_body~load_msg_addr();
+        int tier = in_msg_body~load_uint(8);
+        int kyc_hash = in_msg_body~load_uint(256);
+        
+        ;; Validate tier
+        throw_unless(100, (tier >= TIER_BRONZE) & (tier <= TIER_GOLD));
+        
+        ;; Check if partner already exists
+        int partner_hash = slice_hash(partner_address);
+        (cell existing, int found) = storage::partners.udict_get_ref?(256, partner_hash);
+        throw_if(101, found);
+        
+        ;; Create partner data
+        cell partner_data = pack_partner_data(
+            tier,
+            STATUS_ACTIVE,
+            kyc_hash,
+            now(),
+            0
+        );
+        
+        ;; Store partner
+        storage::partners~udict_set_ref(256, partner_hash, partner_data);
+        storage::partner_count += 1;
+        
+        save_data();
+        return ();
+    }
+
+    ;; ========================================================================
+    ;; OP: UPDATE PARTNER TIER - Change partner tier (admin only)
+    ;; ========================================================================
+    if (op == op::update_partner_tier()) {
+        throw_unless(73, equal_slices(sender_address, storage::admin_address));
+        
+        slice partner_address = in_msg_body~load_msg_addr();
+        int new_tier = in_msg_body~load_uint(8);
+        
+        throw_unless(100, (new_tier >= TIER_BRONZE) & (new_tier <= TIER_GOLD));
+        
+        int partner_hash = slice_hash(partner_address);
+        (cell partner_cell, int found) = storage::partners.udict_get_ref?(256, partner_hash);
+        throw_unless(102, found);
+        
+        (int tier, int status, int kyc_hash, int registered_at, int total_earned) = unpack_partner_data(partner_cell);
+        
+        cell updated_data = pack_partner_data(
+            new_tier,
+            status,
+            kyc_hash,
+            registered_at,
+            total_earned
+        );
+        
+        storage::partners~udict_set_ref(256, partner_hash, updated_data);
+        
+        save_data();
+        return ();
+    }
+
+    ;; ========================================================================
+    ;; OP: UPDATE PARTNER STATUS - Suspend/activate partner (admin only)
+    ;; ========================================================================
+    if (op == op::update_partner_status()) {
+        throw_unless(73, equal_slices(sender_address, storage::admin_address));
+        
+        slice partner_address = in_msg_body~load_msg_addr();
+        int new_status = in_msg_body~load_uint(8);
+        
+        throw_unless(103, (new_status >= STATUS_PENDING) & (new_status <= STATUS_BANNED));
+        
+        int partner_hash = slice_hash(partner_address);
+        (cell partner_cell, int found) = storage::partners.udict_get_ref?(256, partner_hash);
+        throw_unless(102, found);
+        
+        (int tier, int status, int kyc_hash, int registered_at, int total_earned) = unpack_partner_data(partner_cell);
+        
+        cell updated_data = pack_partner_data(
+            tier,
+            new_status,
+            kyc_hash,
+            registered_at,
+            total_earned
+        );
+        
+        storage::partners~udict_set_ref(256, partner_hash, updated_data);
+        
+        save_data();
+        return ();
+    }
+
+    ;; ========================================================================
+    ;; OP: RECORD EARNING - Record partner earning (from loyalty token)
+    ;; ========================================================================
+    if (op == op::record_earning()) {
+        ;; This can be called by the loyalty token contract or admin
+        slice partner_address = in_msg_body~load_msg_addr();
+        int amount = in_msg_body~load_coins();
+        
+        int partner_hash = slice_hash(partner_address);
+        (cell partner_cell, int found) = storage::partners.udict_get_ref?(256, partner_hash);
+        throw_unless(102, found);
+        
+        (int tier, int status, int kyc_hash, int registered_at, int total_earned) = unpack_partner_data(partner_cell);
+        throw_unless(104, status == STATUS_ACTIVE);
+        
+        cell updated_data = pack_partner_data(
+            tier,
+            status,
+            kyc_hash,
+            registered_at,
+            total_earned + amount
+        );
+        
+        storage::partners~udict_set_ref(256, partner_hash, updated_data);
+        
+        save_data();
+        return ();
+    }
+
+    ;; ========================================================================
+    ;; OP: CHANGE ADMIN - Transfer admin rights
+    ;; ========================================================================
+    if (op == op::change_admin()) {
+        throw_unless(73, equal_slices(sender_address, storage::admin_address));
+        slice new_admin = in_msg_body~load_msg_addr();
+        storage::admin_address = new_admin;
+        save_data();
+        return ();
+    }
+
+    throw(0xffff);
+}
+
+;; ============================================================================
+;; GET METHODS
+;; ============================================================================
+
+;; Get admin address
+slice get_admin() method_id {
+    load_data();
+    return storage::admin_address;
+}
+
+;; Get total partner count
+int get_partner_count() method_id {
+    load_data();
+    return storage::partner_count;
+}
+
+;; Get partner info by address
+(int, int, int, int, int, int) get_partner_info(slice partner_address) method_id {
+    load_data();
+    
+    int partner_hash = slice_hash(partner_address);
+    (cell partner_cell, int found) = storage::partners.udict_get_ref?(256, partner_hash);
+    
+    if (~ found) {
+        return (0, 0, 0, 0, 0, 0);
+    }
+    
+    (int tier, int status, int kyc_hash, int registered_at, int total_earned) = unpack_partner_data(partner_cell);
+    int multiplier = get_multiplier(tier);
+    
+    return (tier, status, kyc_hash, registered_at, total_earned, multiplier);
+}
+
+;; Check if partner is active
+int is_partner_active(slice partner_address) method_id {
+    load_data();
+    
+    int partner_hash = slice_hash(partner_address);
+    (cell partner_cell, int found) = storage::partners.udict_get_ref?(256, partner_hash);
+    
+    if (~ found) {
+        return 0;
+    }
+    
+    (int tier, int status, int kyc_hash, int registered_at, int total_earned) = unpack_partner_data(partner_cell);
+    return status == STATUS_ACTIVE;
+}
+
+;; Get tier multiplier
+int get_tier_multiplier(int tier) method_id {
+    return get_multiplier(tier);
+}
+
+
+
+

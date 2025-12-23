@@ -1,0 +1,367 @@
+;; ============================================================================
+;; REVENUE DISTRIBUTION - Commission calculation and distribution
+;; ============================================================================
+;; Manages platform revenue and partner commissions
+;; Author: AITU Diploma Team
+;; ============================================================================
+
+#include "imports/stdlib.fc";
+#include "imports/op-codes.fc";
+
+;; ============================================================================
+;; CONSTANTS
+;; ============================================================================
+
+;; Commission rates in basis points (10000 = 100%)
+const int COMMISSION_BRONZE = 300;   ;; 3%
+const int COMMISSION_SILVER = 500;   ;; 5%
+const int COMMISSION_GOLD = 700;     ;; 7%
+
+;; Platform fee in basis points
+const int PLATFORM_FEE = 100;        ;; 1%
+
+;; Minimum payout amount (in nanoTON)
+const int MIN_PAYOUT = 1000000000;   ;; 1 TON
+
+;; ============================================================================
+;; STORAGE LAYOUT
+;; ============================================================================
+
+global slice storage::admin_address;
+global slice storage::partner_registry_address;
+global int storage::total_distributed;
+global int storage::platform_balance;
+global int storage::payout_count;
+global cell storage::pending_payouts;  ;; Dict: partner_hash -> pending_amount
+global cell storage::payout_history;   ;; Dict: payout_id -> payout_data
+
+;; ============================================================================
+;; STORAGE FUNCTIONS
+;; ============================================================================
+
+() load_data() impure inline {
+    slice ds = get_data().begin_parse();
+    storage::admin_address = ds~load_msg_addr();
+    storage::partner_registry_address = ds~load_msg_addr();
+    storage::total_distributed = ds~load_coins();
+    storage::platform_balance = ds~load_coins();
+    storage::payout_count = ds~load_uint(32);
+    storage::pending_payouts = ds~load_dict();
+    storage::payout_history = ds~load_dict();
+}
+
+() save_data() impure inline {
+    set_data(begin_cell()
+        .store_slice(storage::admin_address)
+        .store_slice(storage::partner_registry_address)
+        .store_coins(storage::total_distributed)
+        .store_coins(storage::platform_balance)
+        .store_uint(storage::payout_count, 32)
+        .store_dict(storage::pending_payouts)
+        .store_dict(storage::payout_history)
+    .end_cell());
+}
+
+;; ============================================================================
+;; HELPER FUNCTIONS
+;; ============================================================================
+
+;; Get commission rate by tier
+int get_commission_rate(int tier) inline {
+    if (tier == 3) {  ;; GOLD
+        return COMMISSION_GOLD;
+    }
+    if (tier == 2) {  ;; SILVER
+        return COMMISSION_SILVER;
+    }
+    return COMMISSION_BRONZE;  ;; BRONZE or default
+}
+
+;; Calculate commission amount
+(int, int) calculate_commission(int amount, int tier) inline {
+    int rate = get_commission_rate(tier);
+    int commission = muldiv(amount, rate, 10000);
+    int platform_fee = muldiv(amount, PLATFORM_FEE, 10000);
+    return (commission, platform_fee);
+}
+
+;; Pack payout data
+cell pack_payout_data(slice partner, int amount, int tier, int timestamp) inline {
+    return begin_cell()
+        .store_slice(partner)
+        .store_coins(amount)
+        .store_uint(tier, 8)
+        .store_uint(timestamp, 64)
+    .end_cell();
+}
+
+;; Unpack payout data
+(slice, int, int, int) unpack_payout_data(cell data) inline {
+    slice ds = data.begin_parse();
+    return (
+        ds~load_msg_addr(),  ;; partner
+        ds~load_coins(),     ;; amount
+        ds~load_uint(8),     ;; tier
+        ds~load_uint(64)     ;; timestamp
+    );
+}
+
+;; ============================================================================
+;; INTERNAL MESSAGE HANDLERS
+;; ============================================================================
+
+() recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
+    if (in_msg_body.slice_empty?()) {
+        ;; Accept plain TON transfers (for funding)
+        load_data();
+        storage::platform_balance += msg_value;
+        save_data();
+        return ();
+    }
+
+    slice cs = in_msg_full.begin_parse();
+    int flags = cs~load_uint(4);
+    if (flags & 1) {
+        return ();
+    }
+
+    slice sender_address = cs~load_msg_addr();
+    
+    load_data();
+
+    int op = in_msg_body~load_uint(32);
+    int query_id = in_msg_body~load_uint(64);
+
+    ;; ========================================================================
+    ;; OP: RECORD TRANSACTION - Record transaction and calculate commission
+    ;; ========================================================================
+    if (op == op::record_transaction()) {
+        slice partner_address = in_msg_body~load_msg_addr();
+        int amount = in_msg_body~load_coins();
+        int tier = in_msg_body~load_uint(8);
+        
+        ;; Calculate commission and platform fee
+        (int commission, int platform_fee) = calculate_commission(amount, tier);
+        
+        ;; Add to pending payouts
+        int partner_hash = slice_hash(partner_address);
+        (slice pending_slice, int found) = storage::pending_payouts.udict_get?(256, partner_hash);
+        
+        int current_pending = 0;
+        if (found) {
+            current_pending = pending_slice~load_coins();
+        }
+        
+        storage::pending_payouts~udict_set_builder(256, partner_hash, 
+            begin_cell().store_coins(current_pending + commission)
+        );
+        
+        ;; Add platform fee to balance
+        storage::platform_balance += platform_fee;
+        
+        save_data();
+        return ();
+    }
+
+    ;; ========================================================================
+    ;; OP: DISTRIBUTE COMMISSION - Send pending commission to partner
+    ;; ========================================================================
+    if (op == op::distribute_commission()) {
+        slice partner_address = in_msg_body~load_msg_addr();
+        
+        int partner_hash = slice_hash(partner_address);
+        (slice pending_slice, int found) = storage::pending_payouts.udict_get?(256, partner_hash);
+        
+        throw_unless(300, found);
+        
+        int pending_amount = pending_slice~load_coins();
+        throw_unless(301, pending_amount >= MIN_PAYOUT);
+        throw_unless(302, my_balance > pending_amount + 100000000); ;; Keep 0.1 TON reserve
+        
+        ;; Clear pending amount
+        storage::pending_payouts~udict_delete?(256, partner_hash);
+        
+        ;; Record payout
+        storage::payout_count += 1;
+        cell payout_data = pack_payout_data(
+            partner_address,
+            pending_amount,
+            0, ;; tier not stored in pending
+            now()
+        );
+        storage::payout_history~udict_set_ref(32, storage::payout_count, payout_data);
+        
+        ;; Update total distributed
+        storage::total_distributed += pending_amount;
+        
+        ;; Send payout
+        var msg = begin_cell()
+            .store_uint(0x10, 6)
+            .store_slice(partner_address)
+            .store_coins(pending_amount)
+            .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
+            .store_uint(op::commission_payout(), 32)
+            .store_uint(query_id, 64);
+        
+        send_raw_message(msg.end_cell(), 1);
+        
+        save_data();
+        return ();
+    }
+
+    ;; ========================================================================
+    ;; OP: BATCH DISTRIBUTE - Distribute to multiple partners (admin only)
+    ;; ========================================================================
+    if (op == op::batch_distribute()) {
+        throw_unless(73, equal_slices(sender_address, storage::admin_address));
+        
+        int count = in_msg_body~load_uint(8);
+        
+        repeat(count) {
+            slice partner_address = in_msg_body~load_msg_addr();
+            
+            int partner_hash = slice_hash(partner_address);
+            (slice pending_slice, int found) = storage::pending_payouts.udict_get?(256, partner_hash);
+            
+            if (found) {
+                int pending_amount = pending_slice~load_coins();
+                
+                if ((pending_amount >= MIN_PAYOUT) & (my_balance > pending_amount + 100000000)) {
+                    ;; Clear pending
+                    storage::pending_payouts~udict_delete?(256, partner_hash);
+                    
+                    ;; Record payout
+                    storage::payout_count += 1;
+                    cell payout_data = pack_payout_data(partner_address, pending_amount, 0, now());
+                    storage::payout_history~udict_set_ref(32, storage::payout_count, payout_data);
+                    
+                    storage::total_distributed += pending_amount;
+                    
+                    ;; Send payout
+                    var msg = begin_cell()
+                        .store_uint(0x10, 6)
+                        .store_slice(partner_address)
+                        .store_coins(pending_amount)
+                        .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
+                        .store_uint(op::commission_payout(), 32)
+                        .store_uint(query_id, 64);
+                    
+                    send_raw_message(msg.end_cell(), 1);
+                }
+            }
+        }
+        
+        save_data();
+        return ();
+    }
+
+    ;; ========================================================================
+    ;; OP: WITHDRAW PLATFORM FEE - Withdraw accumulated platform fees (admin)
+    ;; ========================================================================
+    if (op == op::withdraw_platform_fee()) {
+        throw_unless(73, equal_slices(sender_address, storage::admin_address));
+        
+        int amount = in_msg_body~load_coins();
+        throw_unless(303, storage::platform_balance >= amount);
+        throw_unless(304, my_balance > amount + 100000000);
+        
+        storage::platform_balance -= amount;
+        
+        var msg = begin_cell()
+            .store_uint(0x10, 6)
+            .store_slice(storage::admin_address)
+            .store_coins(amount)
+            .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1);
+        
+        send_raw_message(msg.end_cell(), 1);
+        
+        save_data();
+        return ();
+    }
+
+    ;; ========================================================================
+    ;; OP: CHANGE ADMIN
+    ;; ========================================================================
+    if (op == op::change_admin()) {
+        throw_unless(73, equal_slices(sender_address, storage::admin_address));
+        slice new_admin = in_msg_body~load_msg_addr();
+        storage::admin_address = new_admin;
+        save_data();
+        return ();
+    }
+
+    ;; ========================================================================
+    ;; OP: SET PARTNER REGISTRY
+    ;; ========================================================================
+    if (op == op::set_partner_registry()) {
+        throw_unless(73, equal_slices(sender_address, storage::admin_address));
+        storage::partner_registry_address = in_msg_body~load_msg_addr();
+        save_data();
+        return ();
+    }
+
+    throw(0xffff);
+}
+
+;; ============================================================================
+;; GET METHODS
+;; ============================================================================
+
+;; Get admin
+slice get_admin() method_id {
+    load_data();
+    return storage::admin_address;
+}
+
+;; Get total distributed
+int get_total_distributed() method_id {
+    load_data();
+    return storage::total_distributed;
+}
+
+;; Get platform balance
+int get_platform_balance() method_id {
+    load_data();
+    return storage::platform_balance;
+}
+
+;; Get pending payout for partner
+int get_pending_payout(slice partner_address) method_id {
+    load_data();
+    
+    int partner_hash = slice_hash(partner_address);
+    (slice pending_slice, int found) = storage::pending_payouts.udict_get?(256, partner_hash);
+    
+    if (~ found) {
+        return 0;
+    }
+    
+    return pending_slice~load_coins();
+}
+
+;; Get payout history entry
+(slice, int, int, int) get_payout(int payout_id) method_id {
+    load_data();
+    
+    (cell payout_cell, int found) = storage::payout_history.udict_get_ref?(32, payout_id);
+    if (~ found) {
+        return (null(), 0, 0, 0);
+    }
+    
+    return unpack_payout_data(payout_cell);
+}
+
+;; Calculate commission for amount and tier
+(int, int) calculate_commission_preview(int amount, int tier) method_id {
+    return calculate_commission(amount, tier);
+}
+
+;; Get payout count
+int get_payout_count() method_id {
+    load_data();
+    return storage::payout_count;
+}
+
+
+
+
