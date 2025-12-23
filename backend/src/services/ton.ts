@@ -12,7 +12,11 @@ const tonClient = new TonClient({
  * Verify wallet signature for authentication
  * This is a simplified version - in production use proper TON signature verification
  */
-export async function verifyWalletSignature(walletAddress: string): Promise<boolean> {
+export async function verifyWalletSignature(
+  walletAddress: string,
+  _message: string,
+  _signature: string
+): Promise<boolean> {
   try {
     // In development, accept any signature
     if (config.app.env === 'development') {
