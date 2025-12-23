@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Tab } from '@headlessui/react';
-import { ClockIcon, SparklesIcon, GiftIcon } from '@heroicons/react/24/outline';
+import { ClockIcon, GiftIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 
 import TransactionItem from '../components/TransactionItem';
@@ -14,10 +14,10 @@ const tabs = [
 
 export default function History() {
   const [selectedTab, setSelectedTab] = useState(0);
-  const [page, setPage] = useState(1);
+  const [page] = useState(1);
 
   const { data: transactionsData, isLoading: transactionsLoading } = useTransactions(page, 20);
-  const { data: historyData, isLoading: historyLoading } = useLoyaltyHistory(page, 20);
+  const { isLoading: historyLoading } = useLoyaltyHistory(page, 20);
 
   // Mock data for demo
   const transactions = transactionsData?.data || [

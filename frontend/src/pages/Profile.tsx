@@ -166,7 +166,7 @@ export default function Profile() {
         transition={{ delay: 0.2 }}
         className="card divide-y divide-primary-50"
       >
-        {menuItems.map((item, index) => (
+        {menuItems.map((item) => (
           <a
             key={item.label}
             href={item.href}

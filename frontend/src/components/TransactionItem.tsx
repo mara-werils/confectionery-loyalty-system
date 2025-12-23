@@ -58,7 +58,6 @@ const typeConfig = {
 };
 
 export default function TransactionItem({
-  id,
   amount,
   pointsEarned,
   type,

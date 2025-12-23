@@ -1,4 +1,4 @@
-import { TonClient, Address, Cell, beginCell } from '@ton/ton';
+import { TonClient, Address } from '@ton/ton';
 import { config } from '../config';
 import { logger } from '../utils/logger';
 
@@ -14,8 +14,8 @@ const tonClient = new TonClient({
  */
 export async function verifyWalletSignature(
   walletAddress: string,
-  message: string,
-  signature: string
+  _message: string,
+  _signature: string
 ): Promise<boolean> {
   try {
     // In development, accept any signature
@@ -93,7 +93,7 @@ export async function getJettonBalance(
  */
 export async function subscribeToContract(
   contractAddress: string,
-  callback: (tx: unknown) => void
+  _callback: (tx: unknown) => void
 ): Promise<() => void> {
   // This would set up a subscription to monitor contract transactions
   // In production, use a proper TON indexer like TON API or similar

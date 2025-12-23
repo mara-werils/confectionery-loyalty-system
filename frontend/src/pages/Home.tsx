@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { useTonConnectUI, useTonWallet } from '@tonconnect/ui-react';
+import { useTonWallet } from '@tonconnect/ui-react';
 import { motion } from 'framer-motion';
 import { SparklesIcon, GiftIcon, ChartBarIcon } from '@heroicons/react/24/outline';
 
@@ -27,7 +27,6 @@ const features = [
 export default function Home() {
   const navigate = useNavigate();
   const wallet = useTonWallet();
-  const [tonConnectUI] = useTonConnectUI();
 
   // Redirect to dashboard if wallet is connected
   useEffect(() => {

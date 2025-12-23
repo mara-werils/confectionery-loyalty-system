@@ -1,10 +1,8 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useTonWallet } from '@tonconnect/ui-react';
-import { useAuthStore } from '../store/authStore';
 
 export default function ProtectedRoute() {
   const wallet = useTonWallet();
-  const { isAuthenticated } = useAuthStore();
   const location = useLocation();
 
   // If no wallet connected, redirect to home

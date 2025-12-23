@@ -3,11 +3,10 @@ import { motion } from 'framer-motion';
 import { WalletIcon } from '@heroicons/react/24/outline';
 
 interface WalletConnectProps {
-  onConnect?: (address: string) => void;
   className?: string;
 }
 
-export default function WalletConnect({ onConnect, className }: WalletConnectProps) {
+export default function WalletConnect({ className }: WalletConnectProps) {
   const [tonConnectUI] = useTonConnectUI();
   const wallet = useTonWallet();
 

@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { prisma } from '../utils/prisma';
 import { successResponse } from '../utils/response';
-import { authenticate, requireAdmin, requirePartner } from '../middleware/auth';
+import { authenticate } from '../middleware/auth';
 
 const router = Router();
 

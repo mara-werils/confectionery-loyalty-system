@@ -36,7 +36,7 @@ export async function awardBonusPoints(
   reason: string
 ): Promise<void> {
   try {
-    const [transaction, updatedPoints] = await prisma.$transaction([
+    const [, updatedPoints] = await prisma.$transaction([
       prisma.transaction.create({
         data: {
           partnerId,

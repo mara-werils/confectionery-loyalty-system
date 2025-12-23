@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { useTonConnectUI, useTonWallet } from '@tonconnect/ui-react';
+import { useTonWallet } from '@tonconnect/ui-react';
 import { useEffect } from 'react';
 
 // Pages
@@ -20,7 +20,7 @@ import { useAuthStore } from './store/authStore';
 function App() {
   const { tg, isExpanded } = useTelegram();
   const wallet = useTonWallet();
-  const { isAuthenticated, setWalletAddress } = useAuthStore();
+  const { setWalletAddress } = useAuthStore();
 
   // Expand Telegram Mini App
   useEffect(() => {

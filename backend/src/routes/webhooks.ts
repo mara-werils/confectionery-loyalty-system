@@ -1,5 +1,4 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { config } from '../config';
 import { logger } from '../utils/logger';
 
 const router = Router();
@@ -8,7 +7,7 @@ const router = Router();
  * Telegram Bot Webhook
  * Receives updates from Telegram
  */
-router.post('/telegram', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/telegram', async (req: Request, res: Response, _next: NextFunction) => {
   try {
     const update = req.body;
     
