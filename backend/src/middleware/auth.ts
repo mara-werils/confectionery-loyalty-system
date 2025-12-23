@@ -118,17 +118,17 @@ export const optionalAuth = async (
 };
 
 export const generateToken = (payload: Omit<JwtPayload, 'iat' | 'exp'>): string => {
-  return jwt.sign(payload, config.jwt.secret, {
+  return jwt.sign(payload, config.jwt.secret as jwt.Secret, {
     expiresIn: config.jwt.expiresIn,
-  });
+  } as jwt.SignOptions);
 };
 
 export const generateRefreshToken = (
   payload: Omit<JwtPayload, 'iat' | 'exp'>
 ): string => {
-  return jwt.sign(payload, config.jwt.refreshSecret, {
+  return jwt.sign(payload, config.jwt.refreshSecret as jwt.Secret, {
     expiresIn: config.jwt.refreshExpiresIn,
-  });
+  } as jwt.SignOptions);
 };
 
 

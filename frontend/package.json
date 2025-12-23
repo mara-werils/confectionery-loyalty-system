@@ -9,8 +9,8 @@
     "preview": "vite preview",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint src --ext ts,tsx --fix",
-    "test": "vitest",
-    "test:coverage": "vitest --coverage"
+    "test": "vitest --run --passWithNoTests",
+    "test:coverage": "vitest --coverage --passWithNoTests"
   },
   "dependencies": {
     "@headlessui/react": "^2.0.4",
