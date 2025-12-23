@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: contracts
+        working-directory: .
 
     steps:
       - name: Checkout code
@@ -29,16 +29,16 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: contracts/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --workspace contracts
 
       - name: Build contracts
-        run: npm run build
+        run: npm run build --workspace contracts
 
       - name: Run tests
-        run: npm run test
+        run: npm run test --workspace contracts
 
       - name: Upload coverage
         uses: codecov/codecov-action@v4
@@ -55,7 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: backend
+        working-directory: .
 
     services:
       postgres:
@@ -81,27 +81,27 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: backend/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --workspace backend
 
       - name: Generate Prisma Client
-        run: npx prisma generate
+        run: npm run db:generate --workspace backend
 
       - name: Run database migrations
-        run: npx prisma migrate deploy
+        run: npm run db:migrate --workspace backend
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/loyalty_test?schema=public
 
       - name: Lint
-        run: npm run lint
+        run: npm run lint --workspace backend
 
       - name: Build
-        run: npm run build
+        run: npm run build --workspace backend
 
       - name: Run tests
-        run: npm run test:coverage
+        run: npm run test:coverage --workspace backend
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/loyalty_test?schema=public
           JWT_SECRET: test-secret-key-for-ci-testing-minimum-32-chars
@@ -122,7 +122,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: frontend
+        working-directory: .
 
     steps:
       - name: Checkout code
@@ -133,22 +133,22 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --workspace frontend
 
       - name: Lint
-        run: npm run lint
+        run: npm run lint --workspace frontend
 
       - name: Build
-        run: npm run build
+        run: npm run build --workspace frontend
         env:
           VITE_API_URL: http://localhost:3001/api/v1
           VITE_TON_NETWORK: testnet
 
       - name: Run tests
-        run: npm run test -- --run
+        run: npm run test --workspace frontend -- --run
 
       - name: Upload coverage
         uses: codecov/codecov-action@v4
