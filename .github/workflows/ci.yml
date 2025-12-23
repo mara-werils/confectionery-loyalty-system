@@ -37,8 +37,8 @@ jobs:
       - name: Build contracts
         run: npm run build --workspace contracts
 
-      - name: Run tests
-        run: npm run test --workspace contracts
+      - name: Run tests (serial, lower memory)
+        run: NODE_OPTIONS="--max-old-space-size=2048" npm run test --workspace contracts -- --runInBand
 
       - name: Upload coverage
         uses: codecov/codecov-action@v4
