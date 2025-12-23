@@ -7,7 +7,7 @@ const router = Router();
  * Telegram Bot Webhook
  * Receives updates from Telegram
  */
-router.post('/telegram', async (req: Request, res: Response, _next: NextFunction) => {
+router.post('/telegram', async (req: Request, res: Response) => {
   try {
     const update = req.body;
     

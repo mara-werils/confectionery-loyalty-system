@@ -23,7 +23,7 @@ export const notFoundHandler = (req: Request, res: Response) => {
   return errorResponse(res, `Route ${req.originalUrl} not found`, 'NOT_FOUND', 404);
 };
 
-export const errorHandler = (err: Error, req: Request, res: Response, _next?: NextFunction) => {
+export const errorHandler = (err: Error, req: Request, res: Response) => {
   logger.error(err);
 
   // Handle Zod validation errors
