@@ -223,7 +223,7 @@ router.post(
         201
       );
     } catch (error) {
-      next(error);
+      return next(error);
     }
   }
 );
@@ -284,7 +284,7 @@ router.patch(
         available: reward.available,
       });
     } catch (error) {
-      next(error);
+      return next(error);
     }
   }
 );
@@ -360,7 +360,7 @@ router.post(
         prisma.claimedReward.create({
           data: {
             partnerId,
-            rewardId: id,
+            rewardId: id as string,
             pointsSpent: reward.pointsRequired,
             status: 'PENDING',
           },
@@ -385,7 +385,7 @@ router.post(
         newBalance: updatedPoints.balance.toString(),
       });
     } catch (error) {
-      next(error);
+      return next(error);
     }
   }
 );

@@ -129,7 +129,7 @@ router.post(
         201
       );
     } catch (error) {
-      next(error);
+      return next(error);
     }
   }
 );

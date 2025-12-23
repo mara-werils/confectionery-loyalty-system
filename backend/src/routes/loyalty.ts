@@ -41,7 +41,7 @@ router.get(
         lastUpdated: loyaltyPoints.updatedAt,
       });
     } catch (error) {
-      next(error);
+      return next(error);
     }
   }
 );
@@ -124,7 +124,7 @@ router.get(
 
       return paginatedResponse(res, formattedTransactions, query.page, query.limit, total);
     } catch (error) {
-      next(error);
+      return next(error);
     }
   }
 );
@@ -249,7 +249,7 @@ router.post(
         'Redemption request submitted'
       );
     } catch (error) {
-      next(error);
+      return next(error);
     }
   }
 );

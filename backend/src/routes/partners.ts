@@ -108,7 +108,7 @@ router.get(
 
       return paginatedResponse(res, formattedPartners, query.page, query.limit, total);
     } catch (error) {
-      next(error);
+      return next(error);
     }
   }
 );

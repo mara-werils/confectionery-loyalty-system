@@ -16,6 +16,15 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
   ],
   ignorePatterns: ['dist', 'node_modules'],
-  rules: {},
+  rules: {
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        caughtErrorsIgnorePattern: '^_',
+      },
+    ],
+  },
 };
 

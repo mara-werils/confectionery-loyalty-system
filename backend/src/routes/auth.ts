@@ -132,7 +132,7 @@ router.post(
         201
       );
     } catch (error) {
-      next(error);
+      return next(error);
     }
   }
 );
@@ -242,7 +242,7 @@ router.post(
         refreshToken,
       });
     } catch (error) {
-      next(error);
+      return next(error);
     }
   }
 );

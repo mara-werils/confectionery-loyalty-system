@@ -133,7 +133,7 @@ router.get(
         });
       }
     } catch (error) {
-      next(error);
+      return next(error);
     }
   }
 );
@@ -233,7 +233,7 @@ router.get(
         chartData,
       });
     } catch (error) {
-      next(error);
+      return next(error);
     }
   }
 );
