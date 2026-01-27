@@ -2,14 +2,13 @@
 
 > Blockchain-based loyalty system for confectioneries using TON smart contracts
 
-[![CI](https://github.com/aitu-loyalty/loyalty-system/actions/workflows/ci.yml/badge.svg)](https://github.com/aitu-loyalty/loyalty-system/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## 📋 Overview
 
 This project implements a complete loyalty system for confectionery businesses (bakeries, cafes, pastry shops) in Kazakhstan. Partners earn loyalty points on purchases and can redeem them for rewards. The system is built on the TON blockchain for transparency and security.
 
-**AITU Diploma Project 2025**
+**AITU Diploma Project 2026**
 
 ### ✨ Key Features
 
@@ -249,19 +248,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👥 Team
 
-**AITU Diploma Project Team 2025**
+**AITU Diploma Project Team 2026**
 
-- Smart Contracts Developer
-- Backend Developer  
-- Frontend Developer
+- Smart Contracts Developer - Marlen Amanbayev 
+- Backend Developer - Sayan Aukatov
+- Frontend Developer - Azamat Nagumanov
 
 ## 📞 Support
 
 For support, please open an issue or contact the team.
-
----
-
-Made with ❤️ at Astana IT University
 
 
 
