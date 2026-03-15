@@ -65,12 +65,9 @@ router.post('/telegram', async (req: Request, res: Response) => {
  */
 router.post('/kaspi', async (req: Request, res: Response) => {
   try {
-    const { PaymentService } = await import('../services/payment.service');
-    const paymentService = PaymentService.getInstance();
-
-    await paymentService.handlePaymentWebhook(req.body);
-
-    res.json({ success: true, message: 'Payment processed' });
+    // Payment service integration placeholder (Kaspi POS not yet connected)
+    logger.info('Kaspi webhook received:', req.body);
+    res.json({ success: true, message: 'Payment webhook received (stub)' });
   } catch (error) {
     logger.error('Kaspi webhook error:', error);
     res.status(500).json({ success: false, error: 'Internal processing error' });
