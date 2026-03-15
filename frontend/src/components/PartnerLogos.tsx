@@ -1,12 +1,12 @@
 import { motion } from 'framer-motion';
 
 const partners = [
-    { name: 'Sweet Corner', emoji: '🧁', color: 'from-pink-500 to-rose-500' },
-    { name: 'Bakehouse', emoji: '🥐', color: 'from-amber-500 to-orange-500' },
-    { name: 'Cafe Almaty', emoji: '☕', color: 'from-brown-500 to-amber-700' },
-    { name: 'Pastry Palace', emoji: '🎂', color: 'from-purple-500 to-pink-500' },
-    { name: 'Choco Heaven', emoji: '🍫', color: 'from-amber-700 to-yellow-600' },
-    { name: 'Sugar Rush', emoji: '🍭', color: 'from-cyan-400 to-blue-500' },
+    { name: 'Sweet Corner', emoji: '🧁', color: 'from-zinc-800 to-zinc-900 border border-white/5' },
+    { name: 'Bakehouse', emoji: '🥐', color: 'from-zinc-800 to-zinc-900 border border-white/5' },
+    { name: 'Cafe Almaty', emoji: '☕', color: 'from-zinc-800 to-zinc-900 border border-white/5' },
+    { name: 'Pastry Palace', emoji: '🎂', color: 'from-zinc-800 to-zinc-900 border border-white/5' },
+    { name: 'Choco Heaven', emoji: '🍫', color: 'from-zinc-800 to-zinc-900 border border-white/5' },
+    { name: 'Sugar Rush', emoji: '🍭', color: 'from-zinc-800 to-zinc-900 border border-white/5' },
 ];
 
 export default function PartnerLogos() {
@@ -44,10 +44,10 @@ export default function PartnerLogos() {
                     transition={{ delay: partners.length * 0.1 }}
                     className="flex-shrink-0 flex flex-col items-center gap-2 group cursor-pointer"
                 >
-                    <div className="w-16 h-16 rounded-2xl border-2 border-dashed border-gray-600 flex items-center justify-center text-2xl group-hover:border-purple-500 group-hover:bg-purple-500/10 transition-all duration-300">
-                        <span className="text-gray-600 group-hover:text-purple-400 transition-colors">+</span>
+                    <div className="w-16 h-16 rounded-2xl border-2 border-dashed border-zinc-700 flex items-center justify-center text-2xl group-hover:border-white/30 group-hover:bg-white/5 transition-all duration-300">
+                        <span className="text-zinc-600 group-hover:text-white transition-colors">+</span>
                     </div>
-                    <span className="text-xs text-gray-500 group-hover:text-purple-400 transition-colors whitespace-nowrap">
+                    <span className="text-xs text-zinc-500 group-hover:text-white transition-colors whitespace-nowrap">
                         Join Us
                     </span>
                 </motion.div>

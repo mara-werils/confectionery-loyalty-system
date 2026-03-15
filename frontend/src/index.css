@@ -62,18 +62,24 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
   }
   
-  /* Accent buttons (for primary actions) */
+  /* Accent buttons (for primary actions) - Minimalist White */
   .glass-button-primary {
-    @apply glass-button;
-    background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%), #7c3aed; /* Tailwind purple-600 */
-    border: 1px solid theme('colors.purple.500');
-    box-shadow: 0 4px 20px rgba(124, 58, 237, 0.3);
+    @apply relative overflow-hidden rounded-2xl px-6 py-3 font-semibold text-black transition-all duration-300;
+    background: #ffffff;
+    border: 1px solid #e4e4e7;
+    box-shadow: 0 4px 12px rgba(255,255,255,0.1);
   }
   
   .glass-button-primary:hover {
-    background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 100%), #8b5cf6; /* Tailwind purple-500 */
-    border-color: theme('colors.purple.400');
-    box-shadow: 0 8px 30px rgba(124, 58, 237, 0.5);
+    background: #e4e4e7;
+    border-color: #d4d4d8;
+    box-shadow: 0 8px 20px rgba(255,255,255,0.2);
+    transform: translateY(-1px);
+  }
+  
+  .glass-button-primary:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 8px rgba(255,255,255,0.1);
   }
 
   /* Typography utilities */

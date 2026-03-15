@@ -35,12 +35,12 @@ export default function LiveActivity() {
     const getActionColor = (action: string) => {
         switch (action) {
             case 'earned': return 'text-green-400';
-            case 'claimed': return 'text-purple-400';
-            case 'joined': return 'text-blue-400';
-            case 'staked': return 'text-cyan-400';
-            case 'minted': return 'text-amber-400';
-            case 'swapped': return 'text-pink-400';
-            default: return 'text-gray-400';
+            case 'claimed': return 'text-white';
+            case 'joined': return 'text-zinc-300';
+            case 'staked': return 'text-zinc-300';
+            case 'minted': return 'text-zinc-300';
+            case 'swapped': return 'text-white';
+            default: return 'text-zinc-400';
         }
     };
 
@@ -57,7 +57,7 @@ export default function LiveActivity() {
     };
 
     return (
-        <div className="relative overflow-hidden bg-gradient-to-r from-purple-500/10 via-blue-500/10 to-cyan-500/10 rounded-2xl border border-white/10 p-4">
+        <div className="relative overflow-hidden bg-white/5 rounded-2xl border border-white/10 p-4">
             <div className="flex items-center gap-2 mb-2">
                 <div className="relative">
                     <div className="w-2 h-2 bg-green-400 rounded-full" />

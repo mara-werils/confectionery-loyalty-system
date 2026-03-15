@@ -181,7 +181,7 @@ export default function Blockchain() {
                       href={`https://testnet.tonscan.org/address/${address}`} 
                       target="_blank" 
                       rel="noreferrer"
-                      className="font-mono text-sm text-blue-400 hover:text-blue-300 transition-colors block break-all"
+                      className="font-mono text-sm text-zinc-300 hover:text-white transition-colors block break-all"
                     >
                       {address}
                     </a>
@@ -194,7 +194,7 @@ export default function Blockchain() {
                         <div className="animate-pulse bg-zinc-700 h-6 w-24 rounded" />
                       ) : (
                         <p className="font-mono font-bold text-white">
-                          {state.balance} <span className="text-blue-500">TON</span>
+                          {state.balance} <span className="text-zinc-500">TON</span>
                         </p>
                       )}
                     </div>

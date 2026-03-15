@@ -13,7 +13,7 @@ const Opcodes = {
 };
 
 const transferSchema = z.object({
-  clientWallet: z.string().min(48).max(48), // Basic TON address length check
+  clientWallet: z.string().min(48).max(66), // Allow both Base64 (48 chars) and Raw HEX (66 chars)
   amount: z.number().positive(),
 });
 
@@ -82,7 +82,9 @@ export const transferLoyaltyTokens = async (req: Request, res: Response) => {
     }
 
     // 2. Prepare the transfer message to the Partner's Jetton Wallet
-    const toAddress = Address.parse(clientWallet);
+    const toAddress = clientWallet.includes(':') 
+      ? Address.parseRaw(clientWallet) 
+      : Address.parse(clientWallet);
     const forwardPayload = beginCell()
         .storeUint(0, 32) // text comment flag
         .storeStringTail("Kaspi cashback")

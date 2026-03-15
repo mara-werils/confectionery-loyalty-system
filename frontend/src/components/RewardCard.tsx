@@ -24,10 +24,10 @@ const categoryIcons = {
 };
 
 const categoryColors = {
-  DISCOUNT: 'bg-blue-500/10 text-blue-400 border border-blue-500/20',
-  PRODUCT: 'bg-purple-500/10 text-purple-400 border border-purple-500/20',
-  CASHBACK: 'bg-green-500/10 text-green-400 border border-green-500/20',
-  SPECIAL: 'bg-amber-500/10 text-amber-400 border border-amber-500/20',
+  DISCOUNT: 'bg-white/5 text-zinc-300 border border-white/10',
+  PRODUCT: 'bg-white/5 text-zinc-300 border border-white/10',
+  CASHBACK: 'bg-white/5 text-zinc-300 border border-white/10',
+  SPECIAL: 'bg-white/5 text-zinc-300 border border-white/10',
 };
 
 export default function RewardCard({
@@ -106,7 +106,7 @@ export default function RewardCard({
         {/* Points and action */}
         <div className="flex items-center justify-between pt-2">
           <div>
-            <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400">
+            <span className="text-2xl font-bold text-white">
               {points.toLocaleString()}
             </span>
             <span className="text-sm text-zinc-500 ml-1 font-medium">pts</span>

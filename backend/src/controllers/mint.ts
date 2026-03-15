@@ -57,13 +57,13 @@ export const mintLoyaltyTokens = async (req: Request, res: Response, next: NextF
     const seqno = await retryFn(() => walletContract.getSeqno());
     
     // TEP-74 Mint payload
-    // OP Code for mint in our contract is 21 (0x15 in hex, per op::mint())
+    // OP Code for mint in our contract is 0x642b7d07
     const amountToMint = toNano(amount);
     
     const mintPayload = beginCell()
-      .storeUint(21, 32) // op::mint
+      .storeUint(0x642b7d07, 32) // op::mint
       .storeUint(0, 64)  // query_id
-      .storeAddress(Address.parse(targetWallet)) // to_address
+      .storeAddress(targetWallet.includes(':') ? Address.parseRaw(targetWallet) : Address.parse(targetWallet)) // to_address
       .storeCoins(amountToMint) // amount
       .storeRef(
         beginCell() // forward_payload (empty or default for simple mint)

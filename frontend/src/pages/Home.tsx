@@ -40,8 +40,8 @@ export default function Home() {
     <div className="min-h-screen text-white relative overflow-hidden flex flex-col items-center justify-center p-6">
 
       {/* Background decorations */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500/20 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/20 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute top-0 right-0 w-96 h-96 bg-zinc-800/20 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-zinc-800/10 rounded-full blur-[100px] pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-lg mx-auto flex flex-col items-center text-center">
 
@@ -51,14 +51,11 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-12"
         >
-          <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-3xl shadow-2xl shadow-purple-500/30 mb-6">
-            <SparklesIcon className="w-12 h-12 text-white" />
+          <div className="inline-flex items-center justify-center w-24 h-24 bg-white/5 rounded-3xl shadow-xl ring-1 ring-white/10 mb-6 backdrop-blur-md">
+            <SparklesIcon className="w-12 h-12 text-zinc-200" />
           </div>
-          <h1 className="text-5xl font-extrabold tracking-tight mb-3">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-red-400">
-              Sweet
-            </span>{' '}
-            Loyalty
+          <h1 className="text-5xl font-extrabold tracking-tight mb-3 text-white">
+            Sweet Loyalty
           </h1>
           <p className="text-zinc-400 text-lg">
             The future of rewards. Powered by TON.
@@ -68,7 +65,7 @@ export default function Home() {
         {/* Hero section */}
         <GlassCard className="w-full mb-12 p-8 border-t border-white/10" delay={0.1}>
           <div className="mb-6 inline-flex p-4 bg-white/5 rounded-2xl ring-1 ring-white/10">
-            <GiftIcon className="w-10 h-10 text-purple-400" />
+            <GiftIcon className="w-10 h-10 text-zinc-300" />
           </div>
           <h2 className="text-2xl font-bold text-white mb-3">
             Start Earning Crypto
@@ -90,8 +87,8 @@ export default function Home() {
               delay={0.2 + index * 0.1}
               className="flex items-center gap-4 p-4 text-left hover:bg-white/5 transition-colors"
             >
-              <div className="p-3 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-xl">
-                <feature.icon className="w-6 h-6 text-purple-300" />
+              <div className="p-3 bg-white/5 border border-white/5 rounded-xl">
+                <feature.icon className="w-6 h-6 text-zinc-300" />
               </div>
               <div>
                 <h3 className="font-bold text-white mb-0.5">{feature.title}</h3>

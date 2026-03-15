@@ -101,10 +101,10 @@ export default function Profile() {
                 className={clsx(
                   'px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border',
                   user?.tier === 'GOLD'
-                    ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                    ? 'bg-white/10 text-white border-white/20'
                     : user?.tier === 'SILVER'
-                      ? 'bg-zinc-300/10 text-zinc-300 border-zinc-400/20'
-                      : 'bg-orange-500/10 text-orange-400 border-orange-500/20'
+                      ? 'bg-zinc-800 text-zinc-300 border-zinc-700'
+                      : 'bg-black/40 text-zinc-400 border-white/5'
                 )}
               >
                 {user?.tier || 'BRONZE'}
@@ -113,8 +113,8 @@ export default function Profile() {
                 className={clsx(
                   'px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border',
                   user?.status === 'ACTIVE'
-                    ? 'bg-green-500/10 text-green-400 border-green-500/20'
-                    : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                    ? 'bg-white/5 text-zinc-300 border-white/10'
+                    : 'bg-black/50 text-zinc-500 border-white/5'
                 )}
               >
                 {user?.status || 'ACTIVE'}

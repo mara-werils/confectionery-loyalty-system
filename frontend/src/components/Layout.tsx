@@ -11,9 +11,11 @@ import {
   HomeIcon as HomeIconSolid,
   GiftIcon as GiftIconSolid,
   ClockIcon as ClockIconSolid,
+  ArrowsRightLeftIcon as ArrowsRightLeftIconSolid,
   UserCircleIcon as UserCircleIconSolid,
   CubeTransparentIcon as CubeTransparentIconSolid,
 } from '@heroicons/react/24/solid';
+import { ArrowsRightLeftIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 
 const navItems = [
@@ -34,6 +36,12 @@ const navItems = [
     label: 'History',
     icon: ClockIcon,
     activeIcon: ClockIconSolid,
+  },
+  {
+    path: '/swap',
+    label: 'Exchange',
+    icon: ArrowsRightLeftIcon,
+    activeIcon: ArrowsRightLeftIconSolid,
   },
   {
     path: '/blockchain',

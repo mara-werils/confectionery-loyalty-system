@@ -9,6 +9,7 @@ import Rewards from './pages/Rewards';
 import History from './pages/History';
 import Profile from './pages/Profile';
 import Blockchain from './pages/Blockchain';
+import Swap from './pages/Swap';
 
 // Components
 import Layout from './components/Layout';
@@ -60,6 +61,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/rewards" element={<Rewards />} />
           <Route path="/history" element={<History />} />
+          <Route path="/swap" element={<Swap />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/blockchain" element={<Blockchain />} />
         </Route>
