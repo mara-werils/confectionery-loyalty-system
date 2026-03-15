@@ -113,7 +113,7 @@ export default function Dashboard() {
             Sweet Loyalty
           </span>
         </h1>
-        <p className="text-gray-500 mt-2 text-base">B2B Loyalty Token Management</p>
+        <p className="text-zinc-400 mt-2 text-base">B2B Loyalty Token Management</p>
       </motion.div>
 
       {/* Stats Grid — staggered entrance */}
@@ -130,7 +130,7 @@ export default function Dashboard() {
               <div className="p-2 rounded-lg bg-purple-500/10">
                 <BanknotesIcon className="w-5 h-5 text-purple-400" />
               </div>
-              <h3 className="text-sm text-gray-400 font-medium">Total Balance</h3>
+              <h3 className="text-sm text-zinc-400 font-medium">Total Balance</h3>
             </div>
             <div className="flex items-baseline gap-2">
               <span className="text-3xl font-bold font-mono">
@@ -138,7 +138,7 @@ export default function Dashboard() {
               </span>
               <span className="text-purple-400 text-sm font-semibold">SWEET</span>
             </div>
-            <p className="text-xs text-gray-600 mt-2">
+            <p className="text-xs text-zinc-500 mt-2">
               {balance ? `${balance.kztEquivalent.toLocaleString()} KZT` : '—'}
             </p>
           </GlassCard>
@@ -151,7 +151,7 @@ export default function Dashboard() {
               <div className="p-2 rounded-lg bg-amber-500/10">
                 <ShieldCheckIcon className="w-5 h-5 text-amber-400" />
               </div>
-              <h3 className="text-sm text-gray-400 font-medium">Voting Power</h3>
+              <h3 className="text-sm text-zinc-400 font-medium">Voting Power</h3>
             </div>
             <div className="flex items-baseline gap-2">
               <span className="text-3xl font-bold font-mono text-amber-400">
@@ -159,7 +159,7 @@ export default function Dashboard() {
               </span>
               <span className="text-amber-500/80 text-sm font-semibold">GOV</span>
             </div>
-            <p className="text-xs text-gray-600 mt-2">DAO Rights Active</p>
+            <p className="text-xs text-zinc-500 mt-2">DAO Rights Active</p>
           </GlassCard>
         </motion.div>
 
@@ -170,7 +170,7 @@ export default function Dashboard() {
               <div className="p-2 rounded-lg bg-cyan-500/10">
                 <ChartBarIcon className="w-5 h-5 text-cyan-400" />
               </div>
-              <h3 className="text-sm text-gray-400 font-medium">Staked Liquidity</h3>
+              <h3 className="text-sm text-zinc-400 font-medium">Staked Liquidity</h3>
             </div>
             <div className="flex items-baseline gap-2">
               <span className="text-3xl font-bold font-mono text-cyan-400">
@@ -178,7 +178,7 @@ export default function Dashboard() {
               </span>
               <span className="text-cyan-500/80 text-sm font-semibold">LP</span>
             </div>
-            <p className="text-xs text-green-500/80 mt-2">+25% APY</p>
+            <p className="text-xs text-green-400/80 mt-2">+25% APY</p>
           </GlassCard>
         </motion.div>
       </motion.div>
@@ -196,13 +196,13 @@ export default function Dashboard() {
             <div className="flex justify-between items-start mb-5">
               <div>
                 <h3 className="text-lg font-semibold">Partner Treasury</h3>
-                <p className="text-xs text-gray-500 mt-0.5">Server-custodial demo wallet</p>
+                <p className="text-xs text-zinc-500 mt-0.5">Server-custodial demo wallet</p>
               </div>
-              <span className="bg-purple-500/10 text-purple-400 px-2.5 py-1 rounded-md text-xs font-mono">
+              <span className="bg-purple-500/10 text-purple-400 px-2.5 py-1 rounded-md text-xs font-mono border border-purple-500/20">
                 B2B
               </span>
             </div>
-            <p className="text-sm text-gray-500 mb-5 leading-relaxed">
+            <p className="text-sm text-zinc-400 mb-5 leading-relaxed">
               Mint 5,000 SWEET to the partner treasury to simulate the platform distributing loyalty tokens to a registered confectionery.
             </p>
             <button
@@ -231,21 +231,21 @@ export default function Dashboard() {
             <div className="flex justify-between items-start mb-5">
               <div>
                 <h3 className="text-lg font-semibold">POS Payment Simulation</h3>
-                <p className="text-xs text-gray-500 mt-0.5">Cashback transfer to client wallet</p>
+                <p className="text-xs text-zinc-500 mt-0.5">Cashback transfer to client wallet</p>
               </div>
-              <span className="bg-red-500/10 text-red-400 px-2.5 py-1 rounded-md text-xs font-mono">
+              <span className="bg-red-500/10 text-red-500 px-2.5 py-1 rounded-md text-xs font-mono border border-red-500/20">
                 B2C
               </span>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-xs text-gray-500 mb-1.5 font-medium">
+                <label className="block text-xs text-zinc-500 mb-1.5 font-medium">
                   Purchase Amount (KZT)
                 </label>
                 <input
                   type="number"
-                  className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 py-3 text-white text-sm font-mono focus:outline-none focus:border-purple-500/50 transition-colors"
+                  className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 py-3 text-white text-sm font-mono focus:outline-none focus:border-red-500/50 transition-colors"
                   placeholder="1500"
                   value={posAmount}
                   onChange={(e) => setPosAmount(Number(e.target.value))}
@@ -253,7 +253,7 @@ export default function Dashboard() {
               </div>
 
               <div className="bg-white/[0.03] border border-white/[0.06] px-4 py-3 rounded-xl flex justify-between items-center">
-                <span className="text-xs text-gray-500">Cashback (10%)</span>
+                <span className="text-xs text-zinc-500">Cashback (10%)</span>
                 <span className="font-mono text-sm font-semibold text-green-400">
                   +{Math.floor(posAmount * 0.1)} SWEET
                 </span>
@@ -279,7 +279,7 @@ export default function Dashboard() {
         transition={{ duration: 0.6, delay: 0.4, ease: 'easeOut' }}
       >
         <GlassCard className="h-[360px]">
-          <h3 className="text-sm font-semibold text-gray-400 mb-6">Ecosystem Growth (TVL)</h3>
+          <h3 className="text-sm font-semibold text-zinc-400 mb-6">Ecosystem Growth (TVL)</h3>
           <ResponsiveContainer width="100%" height="90%">
             <AreaChart data={chartData}>
               <defs>

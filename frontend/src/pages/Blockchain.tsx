@@ -63,7 +63,7 @@ export default function Blockchain() {
           </span>
           <span className="ml-2">Live</span>
         </h1>
-        <p className="text-gray-400 text-lg flex items-center justify-center gap-2">
+        <p className="text-zinc-400 text-lg flex items-center justify-center gap-2 mt-2">
           <span className="relative flex h-3 w-3">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
@@ -77,9 +77,9 @@ export default function Blockchain() {
         <GlassCard delay={0.1}>
           <div className="flex items-start justify-between">
             <div>
-              <h3 className="text-gray-400 font-medium">Network Status</h3>
+              <h3 className="text-zinc-400 font-medium tracking-tight">Network Status</h3>
               <p className="text-2xl font-bold mt-1 text-white">Operational</p>
-              <p className="text-sm text-gray-500 mt-2">API: testnet.toncenter.com</p>
+              <p className="text-sm text-zinc-500 mt-2 font-mono">API: testnet.toncenter.com</p>
             </div>
             <div className="p-3 bg-blue-500/20 rounded-xl">
               <CubeTransparentIcon className="w-8 h-8 text-blue-400" />
@@ -90,13 +90,13 @@ export default function Blockchain() {
         <GlassCard delay={0.2}>
           <div className="flex items-start justify-between">
             <div>
-              <h3 className="text-gray-400 font-medium">Your Wallet</h3>
+              <h3 className="text-zinc-400 font-medium tracking-tight">Your Wallet</h3>
               {wallet ? (
                 <>
-                  <p className="text-xl font-bold mt-1 font-mono text-white">
+                  <p className="text-xl font-bold mt-1 font-mono text-white bg-black/20 px-2 py-1 rounded inline-block">
                     {truncateAddress(wallet.account.address)}
                   </p>
-                  <p className="text-sm text-green-400 mt-2">Connected</p>
+                  <p className="text-sm text-green-400 mt-2 font-medium">Connected</p>
                 </>
               ) : (
                 <p className="text-xl font-bold mt-1 text-yellow-500">Not Connected</p>
@@ -169,14 +169,14 @@ export default function Blockchain() {
                   ) : (
                     <div className="flex items-center gap-2 bg-black/50 px-3 py-1 rounded-full border border-white/5">
                       <div className={`w-2 h-2 rounded-full ${getStatusColor(state.state)}`} />
-                      <span className="text-xs uppercase font-bold text-gray-300">{state.state}</span>
+                      <span className="text-xs uppercase font-bold text-zinc-300">{state.state}</span>
                     </div>
                   )}
                 </div>
 
                 <div className="space-y-3">
                   <div>
-                    <p className="text-xs text-gray-500 mb-1">Contract Address</p>
+                    <p className="text-xs text-zinc-500 mb-1">Contract Address</p>
                     <a 
                       href={`https://testnet.tonscan.org/address/${address}`} 
                       target="_blank" 
@@ -189,7 +189,7 @@ export default function Blockchain() {
                   
                   <div className="flex justify-between items-end">
                     <div>
-                      <p className="text-xs text-gray-500 mb-1">TON Balance</p>
+                      <p className="text-xs text-zinc-500 mb-1">TON Balance</p>
                       {isLoading ? (
                         <div className="animate-pulse bg-zinc-700 h-6 w-24 rounded" />
                       ) : (

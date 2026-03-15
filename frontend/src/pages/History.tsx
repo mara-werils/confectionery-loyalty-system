@@ -88,10 +88,10 @@ export default function History() {
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-6"
+        className="mb-8 pl-1"
       >
-        <h1 className="text-2xl font-bold text-accent-800">History</h1>
-        <p className="text-accent-500">Your activity and claimed rewards</p>
+        <h1 className="text-3xl font-bold text-white tracking-tight">History</h1>
+        <p className="text-zinc-400 mt-1">Your activity and claimed rewards</p>
       </motion.div>
 
       {/* Tabs */}
@@ -102,10 +102,10 @@ export default function History() {
               key={tab.key}
               className={({ selected }) =>
                 clsx(
-                  'flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-medium transition-all duration-200 focus:outline-none',
+                  'flex items-center justify-center gap-2 flex-1 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 focus:outline-none',
                   selected
-                    ? 'bg-primary-500 text-white shadow-lg shadow-primary-300/30'
-                    : 'bg-white text-accent-600 hover:bg-primary-50'
+                    ? 'bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.3)]'
+                    : 'bg-zinc-900/50 text-zinc-400 hover:text-zinc-200 border border-white/5 hover:border-white/10'
                 )
               }
             >
@@ -136,10 +136,10 @@ export default function History() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-12 text-accent-400">
-                  <ClockIcon className="w-16 h-16 mx-auto mb-4 text-accent-200" />
-                  <p className="text-lg font-medium">No transactions yet</p>
-                  <p className="text-sm">Your activity will appear here</p>
+                <div className="text-center py-12 text-zinc-500">
+                  <ClockIcon className="w-16 h-16 mx-auto mb-4 text-zinc-700" />
+                  <p className="text-lg font-medium text-white">No transactions yet</p>
+                  <p className="text-sm mt-1">Make a purchase to start earning points</p>
                 </div>
               )}
             </motion.div>
@@ -199,9 +199,9 @@ export default function History() {
                 ))
               ) : (
                 <div className="card text-center py-12 text-accent-400">
-                  <GiftIcon className="w-16 h-16 mx-auto mb-4 text-accent-200" />
-                  <p className="text-lg font-medium">No claims yet</p>
-                  <p className="text-sm">Redeem your points for rewards!</p>
+                  <GiftIcon className="w-16 h-16 mx-auto mb-4 text-zinc-700" />
+                  <p className="text-lg font-medium text-white">No claims yet</p>
+                  <p className="text-sm mt-1">Redeem your points for exciting rewards!</p>
                 </div>
               )}
             </motion.div>

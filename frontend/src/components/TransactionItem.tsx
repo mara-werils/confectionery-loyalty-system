@@ -22,36 +22,36 @@ interface TransactionItemProps {
 const typeConfig = {
   PURCHASE: {
     icon: ShoppingBagIcon,
-    color: 'text-blue-500',
-    bg: 'bg-blue-50',
+    color: 'text-blue-400',
+    bg: 'bg-blue-500/10 border border-blue-500/20',
     label: 'Purchase',
     isPositive: true,
   },
   BONUS: {
     icon: SparklesIcon,
-    color: 'text-amber-500',
-    bg: 'bg-amber-50',
+    color: 'text-amber-400',
+    bg: 'bg-amber-500/10 border border-amber-500/20',
     label: 'Bonus',
     isPositive: true,
   },
   REFERRAL: {
     icon: UserGroupIcon,
-    color: 'text-purple-500',
-    bg: 'bg-purple-50',
+    color: 'text-purple-400',
+    bg: 'bg-purple-500/10 border border-purple-500/20',
     label: 'Referral',
     isPositive: true,
   },
   PROMOTION: {
     icon: GiftIcon,
-    color: 'text-green-500',
-    bg: 'bg-green-50',
+    color: 'text-green-400',
+    bg: 'bg-green-500/10 border border-green-500/20',
     label: 'Promotion',
     isPositive: true,
   },
   REDEMPTION: {
     icon: GiftIcon,
-    color: 'text-red-500',
-    bg: 'bg-red-50',
+    color: 'text-red-400',
+    bg: 'bg-red-500/10 border border-red-500/20',
     label: 'Redemption',
     isPositive: false,
   },
@@ -100,7 +100,7 @@ export default function TransactionItem({
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.05 }}
-      className="flex items-center gap-4 py-4 border-b border-primary-50 last:border-0"
+      className="flex items-center gap-4 py-4 border-b border-white/5 last:border-0"
     >
       {/* Icon */}
       <div className={clsx('p-3 rounded-xl', config.bg)}>
@@ -110,14 +110,14 @@ export default function TransactionItem({
       {/* Details */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-accent-800">{config.label}</span>
+          <span className="font-semibold text-white tracking-tight">{config.label}</span>
           {description && (
-            <span className="text-xs text-accent-400 truncate">{description}</span>
+            <span className="text-xs text-zinc-400 truncate font-medium">{description}</span>
           )}
         </div>
-        <div className="flex items-center gap-2 text-xs text-accent-400 mt-0.5">
+        <div className="flex items-center gap-2 text-xs text-zinc-500 mt-1">
           <span>{formatDate(createdAt)}</span>
-          <span>•</span>
+          <span className="w-1 h-1 bg-zinc-700 rounded-full"></span>
           <span>{formatTime(createdAt)}</span>
         </div>
       </div>
@@ -127,7 +127,7 @@ export default function TransactionItem({
         <div
           className={clsx(
             'flex items-center gap-1 font-bold',
-            config.isPositive ? 'text-success-600' : 'text-red-500'
+            config.isPositive ? 'text-green-400' : 'text-red-400'
           )}
         >
           {config.isPositive ? (
@@ -141,7 +141,7 @@ export default function TransactionItem({
           </span>
         </div>
         {Number(amount) > 0 && (
-          <div className="text-xs text-accent-400 mt-0.5">
+          <div className="text-[11px] font-medium text-zinc-500 mt-1">
             {(Number(amount) / 100).toLocaleString()} KZT
           </div>
         )}

@@ -60,7 +60,7 @@ export default function Home() {
             </span>{' '}
             Loyalty
           </h1>
-          <p className="text-gray-400 text-lg">
+          <p className="text-zinc-400 text-lg">
             The future of rewards. Powered by TON.
           </p>
         </motion.div>
@@ -73,7 +73,7 @@ export default function Home() {
           <h2 className="text-2xl font-bold text-white mb-3">
             Start Earning Crypto
           </h2>
-          <p className="text-gray-400 mb-8 leading-relaxed">
+          <p className="text-zinc-400 mb-8 leading-relaxed">
             Connect your wallet to unlock exclusive tiers, trade rewards, and participate in the ecosystem.
           </p>
 
@@ -94,8 +94,8 @@ export default function Home() {
                 <feature.icon className="w-6 h-6 text-purple-300" />
               </div>
               <div>
-                <h3 className="font-bold text-white">{feature.title}</h3>
-                <p className="text-sm text-gray-500">{feature.description}</p>
+                <h3 className="font-bold text-white mb-0.5">{feature.title}</h3>
+                <p className="text-sm text-zinc-400">{feature.description}</p>
               </div>
             </GlassCard>
           ))}

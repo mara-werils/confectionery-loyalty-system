@@ -21,20 +21,20 @@ export default function WalletConnect({ className }: WalletConnectProps) {
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className={`flex items-center gap-3 px-4 py-3 bg-success-50 border-2 border-success-200 rounded-2xl ${className}`}
+        className={`flex items-center gap-3 px-4 py-3 bg-zinc-900/50 border border-white/10 rounded-2xl shadow-inner ${className}`}
       >
-        <div className="w-10 h-10 bg-success-100 rounded-full flex items-center justify-center">
-          <WalletIcon className="w-5 h-5 text-success-600" />
+        <div className="w-10 h-10 bg-green-500/10 border border-green-500/20 rounded-full flex items-center justify-center">
+          <WalletIcon className="w-5 h-5 text-green-400" />
         </div>
         <div className="flex-1">
-          <p className="text-xs text-success-600 font-medium">Connected</p>
-          <p className="text-sm font-semibold text-success-800">
+          <p className="text-xs text-green-400 font-medium">Connected</p>
+          <p className="text-sm font-mono text-white mt-0.5">
             {formatAddress(wallet.account.address)}
           </p>
         </div>
         <button
           onClick={() => tonConnectUI.disconnect()}
-          className="text-xs text-success-600 hover:text-success-800 font-medium"
+          className="text-xs text-zinc-400 hover:text-white font-medium bg-white/5 px-3 py-1.5 rounded-lg border border-white/5 transition-colors"
         >
           Disconnect
         </button>

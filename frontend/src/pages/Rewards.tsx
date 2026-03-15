@@ -106,12 +106,12 @@ export default function Rewards() {
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-6"
+        className="mb-8 pl-1"
       >
-        <h1 className="text-2xl font-bold text-accent-800">Rewards</h1>
-        <p className="text-accent-500">
+        <h1 className="text-3xl font-bold text-white tracking-tight">Rewards</h1>
+        <p className="text-zinc-400 mt-1">
           You have{' '}
-          <span className="font-bold text-primary-600">
+          <span className="font-semibold text-white bg-white/10 px-2 py-0.5 rounded-md">
             {currentBalance.toLocaleString()}
           </span>{' '}
           points to spend
@@ -120,17 +120,17 @@ export default function Rewards() {
 
       {/* Category Tabs */}
       <Tab.Group>
-        <Tab.List className="flex gap-2 overflow-x-auto no-scrollbar mb-6 -mx-4 px-4">
+        <Tab.List className="flex gap-2 overflow-x-auto no-scrollbar mb-8 -mx-4 px-4 pb-2">
           {categories.map((category) => (
             <Tab
               key={category.key}
               onClick={() => setSelectedCategory(category.key)}
               className={({ selected }) =>
                 clsx(
-                  'flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium whitespace-nowrap transition-all duration-200 focus:outline-none',
+                  'flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-300 focus:outline-none',
                   selected
-                    ? 'bg-primary-500 text-white shadow-lg shadow-primary-300/30'
-                    : 'bg-white text-accent-600 hover:bg-primary-50'
+                    ? 'bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.3)]'
+                    : 'bg-zinc-900/50 text-zinc-400 hover:text-zinc-200 border border-white/5 hover:border-white/10'
                 )
               }
             >

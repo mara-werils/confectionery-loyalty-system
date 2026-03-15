@@ -76,45 +76,45 @@ export default function Profile() {
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-2"
+        className="mb-4 pl-1"
       >
-        <h1 className="text-2xl font-bold text-accent-800">Profile</h1>
-        <p className="text-accent-500">Manage your account</p>
+        <h1 className="text-3xl font-bold text-white tracking-tight">Profile</h1>
+        <p className="text-zinc-400 mt-1">Manage your account settings</p>
       </motion.div>
 
       {/* Profile Card */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="card-elevated bg-gradient-to-br from-white to-primary-50"
+        className="glass-panel"
       >
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 bg-gradient-to-br from-primary-400 to-primary-600 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-300/30">
-            <UserCircleIcon className="w-8 h-8 text-white" />
+          <div className="w-16 h-16 bg-zinc-800 rounded-2xl flex items-center justify-center border border-white/5 shadow-inner">
+            <UserCircleIcon className="w-8 h-8 text-zinc-400" />
           </div>
           <div className="flex-1">
-            <h2 className="text-xl font-bold text-accent-800">
+            <h2 className="text-xl font-bold text-white tracking-tight">
               {user?.companyName || 'Partner Account'}
             </h2>
             <div className="flex items-center gap-2 mt-1">
               <span
                 className={clsx(
-                  'px-2.5 py-0.5 rounded-full text-xs font-bold',
+                  'px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border',
                   user?.tier === 'GOLD'
-                    ? 'badge-gold'
+                    ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
                     : user?.tier === 'SILVER'
-                      ? 'badge-silver'
-                      : 'badge-bronze'
+                      ? 'bg-zinc-300/10 text-zinc-300 border-zinc-400/20'
+                      : 'bg-orange-500/10 text-orange-400 border-orange-500/20'
                 )}
               >
                 {user?.tier || 'BRONZE'}
               </span>
               <span
                 className={clsx(
-                  'px-2.5 py-0.5 rounded-full text-xs font-medium',
+                  'px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border',
                   user?.status === 'ACTIVE'
-                    ? 'bg-success-100 text-success-700'
-                    : 'bg-amber-100 text-amber-700'
+                    ? 'bg-green-500/10 text-green-400 border-green-500/20'
+                    : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
                 )}
               >
                 {user?.status || 'ACTIVE'}
@@ -129,42 +129,42 @@ export default function Profile() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="card space-y-4"
+        className="glass-panel space-y-4"
       >
-        <h3 className="font-bold text-accent-800">Account Details</h3>
+        <h3 className="font-bold text-white tracking-tight">Account Details</h3>
 
         <div className="space-y-3">
           <div className="flex items-center gap-3 py-2">
-            <div className="p-2 bg-primary-50 rounded-lg">
-              <BuildingStorefrontIcon className="w-5 h-5 text-primary-600" />
+            <div className="p-2 bg-white/5 rounded-xl border border-white/5">
+              <BuildingStorefrontIcon className="w-5 h-5 text-zinc-300" />
             </div>
             <div className="flex-1">
-              <p className="text-xs text-accent-400">Company Name</p>
-              <p className="font-medium text-accent-800">
+              <p className="text-xs text-zinc-500">Company Name</p>
+              <p className="font-medium text-zinc-200">
                 {user?.companyName || 'Not set'}
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3 py-2">
-            <div className="p-2 bg-primary-50 rounded-lg">
-              <EnvelopeIcon className="w-5 h-5 text-primary-600" />
+            <div className="p-2 bg-white/5 rounded-xl border border-white/5">
+              <EnvelopeIcon className="w-5 h-5 text-zinc-300" />
             </div>
             <div className="flex-1">
-              <p className="text-xs text-accent-400">Email</p>
-              <p className="font-medium text-accent-800">
+              <p className="text-xs text-zinc-500">Email</p>
+              <p className="font-medium text-zinc-200">
                 {user?.email || 'Not set'}
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3 py-2">
-            <div className="p-2 bg-primary-50 rounded-lg">
-              <WalletIcon className="w-5 h-5 text-primary-600" />
+            <div className="p-2 bg-white/5 rounded-xl border border-white/5">
+              <WalletIcon className="w-5 h-5 text-zinc-300" />
             </div>
             <div className="flex-1">
-              <p className="text-xs text-accent-400">Wallet Address</p>
-              <p className="font-medium text-accent-800 font-mono text-sm">
+              <p className="text-xs text-zinc-500">Wallet Address</p>
+              <p className="font-medium text-zinc-200 font-mono text-xs mt-0.5 bg-black/20 px-2 py-0.5 rounded inline-block">
                 {wallet ? formatAddress(wallet.account.address) : 'Not connected'}
               </p>
             </div>
@@ -177,22 +177,22 @@ export default function Profile() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="card divide-y divide-primary-50"
+        className="glass-panel divide-y divide-white/5"
       >
         {menuItems.map((item) => (
           <button
             key={item.label}
             onClick={() => openSettings(item.tab)}
-            className="w-full flex items-center gap-3 py-4 first:pt-0 last:pb-0 hover:bg-primary-50/50 -mx-4 px-4 transition-colors text-left"
+            className="w-full flex items-center gap-4 py-4 first:pt-2 last:pb-2 hover:bg-white/5 -mx-6 px-6 transition-colors text-left"
           >
-            <div className="p-2 bg-accent-50 rounded-lg">
-              <item.icon className="w-5 h-5 text-accent-600" />
+            <div className="p-2 bg-white/5 rounded-xl border border-white/5">
+              <item.icon className="w-5 h-5 text-zinc-300" />
             </div>
             <div className="flex-1">
-              <p className="font-medium text-accent-800">{item.label}</p>
-              <p className="text-xs text-accent-400">{item.description}</p>
+              <p className="font-semibold text-white tracking-tight">{item.label}</p>
+              <p className="text-xs text-zinc-500 mt-0.5">{item.description}</p>
             </div>
-            <ChevronRightIcon className="w-5 h-5 text-accent-300" />
+            <ChevronRightIcon className="w-5 h-5 text-zinc-600" />
           </button>
         ))}
       </motion.div>
@@ -203,16 +203,16 @@ export default function Profile() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
         onClick={handleDisconnect}
-        className="w-full flex items-center justify-center gap-2 py-4 bg-red-50 text-red-600 rounded-2xl font-semibold hover:bg-red-100 transition-colors"
+        className="w-full flex items-center justify-center gap-2 py-4 bg-red-500/5 text-red-500 rounded-2xl font-bold hover:bg-red-500/10 border border-red-500/10 transition-colors"
       >
         <ArrowRightOnRectangleIcon className="w-5 h-5" />
         Disconnect Wallet
       </motion.button>
 
       {/* Footer */}
-      <div className="text-center pt-4">
-        <p className="text-xs text-accent-400">Sweet Loyalty v1.0.0</p>
-        <p className="text-xs text-accent-300">AITU Diploma Project 2025</p>
+      <div className="text-center pt-4 pb-8">
+        <p className="text-[10px] font-bold tracking-widest uppercase text-zinc-600">Sweet Loyalty v1.0.0</p>
+        <p className="text-[10px] text-zinc-700 mt-1">AITU Diploma Project 2025</p>
       </div>
     </div>
   );

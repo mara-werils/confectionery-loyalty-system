@@ -28,30 +28,56 @@
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
-    @apply antialiased;
-    /* Premium dark gradient background */
-    background-image: radial-gradient(circle at 50% 0%, #2a1b3d 0%, #0d0d12 100%);
+    @apply antialiased selection:bg-primary-500/30 selection:text-white;
+    /* Deep slate/zinc background - professional, no heavy purple gradient */
+    background: #09090b;
     min-height: 100vh;
   }
 }
 
 @layer components {
 
-  /* Glassmorphism utility */
+  /* Modern, subtle glassmorphism */
   .glass-panel {
-    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl rounded-2xl;
+    @apply bg-zinc-900/50 backdrop-blur-2xl border border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-3xl;
   }
 
+  /* Premium Buttons */
   .glass-button {
-    @apply px-6 py-3 rounded-xl font-bold transition-all duration-300 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white relative overflow-hidden;
-    box-shadow: 0 0 20px rgba(124, 58, 237, 0.5);
+    @apply relative overflow-hidden rounded-2xl px-6 py-3 font-semibold text-white transition-all duration-300;
+    background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 100%), #18181b;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   }
 
   .glass-button:hover {
-    box-shadow: 0 0 30px rgba(124, 58, 237, 0.7);
+    background: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.02) 100%), #27272a;
+    border-color: rgba(255,255,255,0.2);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    transform: translateY(-1px);
   }
 
+  .glass-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  
+  /* Accent buttons (for primary actions) */
+  .glass-button-primary {
+    @apply glass-button;
+    background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%), #7c3aed; /* Tailwind purple-600 */
+    border: 1px solid theme('colors.purple.500');
+    box-shadow: 0 4px 20px rgba(124, 58, 237, 0.3);
+  }
+  
+  .glass-button-primary:hover {
+    background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 100%), #8b5cf6; /* Tailwind purple-500 */
+    border-color: theme('colors.purple.400');
+    box-shadow: 0 8px 30px rgba(124, 58, 237, 0.5);
+  }
+
+  /* Typography utilities */
   .text-gradient-gold {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-600;
+    @apply bg-clip-text text-transparent bg-gradient-to-br from-amber-200 via-amber-400 to-amber-600;
   }
 }
