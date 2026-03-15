@@ -20,6 +20,10 @@ import transactionRoutes from './routes/transactions';
 import rewardRoutes from './routes/rewards';
 import analyticsRoutes from './routes/analytics';
 import webhookRoutes from './routes/webhooks';
+import adminRoutes from './routes/admin';
+import referralRoutes from './routes/referrals';
+import achievementRoutes from './routes/achievements';
+
 
 // Initialize Express app
 const app = express();
@@ -41,9 +45,36 @@ export { io };
 // ============================================================================
 
 // Security
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+}));
 app.use(cors({
-  origin: config.cors.origin,
+  origin: (origin, callback) => {
+    // Разрешаем запросы без origin (мобильные приложения, Postman)
+    if (!origin) return callback(null, true);
+    
+    // Разрешаем запросы с localhost
+    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      return callback(null, true);
+    }
+    
+    // Allow Cloudflare Tunnel
+    if (origin.includes('.trycloudflare.com')) {
+      return callback(null, true);
+    }
+
+    // Allow deployed services (Vercel, Render)
+    if (origin.includes('.vercel.app') || origin.includes('.onrender.com')) {
+      return callback(null, true);
+    }
+    
+    // Проверяем разрешенные origins из конфига
+    if (config.cors.origin.includes(origin) || config.cors.origin.includes('*')) {
+      return callback(null, true);
+    }
+    
+    callback(null, true); // В development разрешаем все
+  },
   credentials: true,
 }));
 
@@ -87,6 +118,9 @@ app.use(`${apiPrefix}/loyalty`, loyaltyRoutes);
 app.use(`${apiPrefix}/transactions`, transactionRoutes);
 app.use(`${apiPrefix}/rewards`, rewardRoutes);
 app.use(`${apiPrefix}/analytics`, analyticsRoutes);
+app.use(`${apiPrefix}/referrals`, referralRoutes);
+app.use(`${apiPrefix}/achievements`, achievementRoutes);
+app.use(`${apiPrefix}/admin`, adminRoutes);
 app.use('/webhook', webhookRoutes);
 
 // ============================================================================
@@ -123,12 +157,15 @@ app.use(errorHandler);
 
 const PORT = config.app.port;
 
-httpServer.listen(PORT, () => {
-  logger.info(`🚀 Server running on port ${PORT}`);
-  logger.info(`📚 API Documentation: http://localhost:${PORT}/api/docs`);
-  logger.info(`🔗 API Prefix: ${apiPrefix}`);
-  logger.info(`🌐 Environment: ${config.app.env}`);
-});
+if (config.app.env !== 'test') {
+  httpServer.listen(PORT, () => {
+    logger.info(`🚀 Server running on port ${PORT}`);
+    logger.info(`📚 API Documentation: http://localhost:${PORT}/api/docs`);
+    logger.info(`🔗 API Prefix: ${apiPrefix}`);
+    logger.info(`🌐 Environment: ${config.app.env}`);
+  });
+}
+
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
@@ -140,6 +177,9 @@ process.on('SIGTERM', () => {
 });
 
 export default app;
+
+
+
 
 
 

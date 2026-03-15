@@ -1,10 +1,11 @@
+
 import { useNavigate } from 'react-router-dom';
 import { useTonWallet } from '@tonconnect/ui-react';
 import { motion } from 'framer-motion';
 import { SparklesIcon, GiftIcon, ChartBarIcon } from '@heroicons/react/24/outline';
-
 import WalletConnect from '../components/WalletConnect';
 import { useEffect } from 'react';
+import { GlassCard } from '../components/GlassCard';
 
 const features = [
   {
@@ -36,92 +37,70 @@ export default function Home() {
   }, [wallet, navigate]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-accent-50 relative overflow-hidden">
-      {/* Background decorations */}
-      <div className="absolute inset-0 bg-confetti-pattern opacity-30" />
-      <div className="absolute top-20 -right-20 w-72 h-72 bg-primary-200 rounded-full blur-3xl opacity-30" />
-      <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-accent-200 rounded-full blur-3xl opacity-30" />
+    <div className="min-h-screen text-white relative overflow-hidden flex flex-col items-center justify-center p-6">
 
-      <div className="relative z-10 min-h-screen flex flex-col px-6 py-12 safe-area-inset-top">
+      {/* Background decorations */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500/20 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/20 rounded-full blur-[100px] pointer-events-none" />
+
+      <div className="relative z-10 w-full max-w-lg mx-auto flex flex-col items-center text-center">
+
         {/* Logo and header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
+          className="mb-12"
         >
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary-400 to-primary-600 rounded-3xl shadow-xl shadow-primary-300/40 mb-4">
-            <SparklesIcon className="w-10 h-10 text-white" />
+          <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-3xl shadow-2xl shadow-purple-500/30 mb-6">
+            <SparklesIcon className="w-12 h-12 text-white" />
           </div>
-          <h1 className="text-3xl font-display font-bold text-gradient mb-2">
-            Sweet Loyalty
+          <h1 className="text-5xl font-extrabold tracking-tight mb-3">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-red-400">
+              Sweet
+            </span>{' '}
+            Loyalty
           </h1>
-          <p className="text-accent-500 text-lg">
-            Rewards for confectionery lovers
+          <p className="text-gray-400 text-lg">
+            The future of rewards. Powered by TON.
           </p>
         </motion.div>
 
         {/* Hero section */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1 }}
-          className="card-elevated bg-gradient-to-br from-white to-primary-50 p-6 mb-8 text-center"
-        >
-          <div className="animate-float mb-4">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-100 rounded-2xl">
-              <GiftIcon className="w-8 h-8 text-primary-600" />
-            </div>
+        <GlassCard className="w-full mb-12 p-8 border-t border-white/10" delay={0.1}>
+          <div className="mb-6 inline-flex p-4 bg-white/5 rounded-2xl ring-1 ring-white/10">
+            <GiftIcon className="w-10 h-10 text-purple-400" />
           </div>
-          <h2 className="text-xl font-bold text-accent-800 mb-2">
-            Start earning rewards today!
+          <h2 className="text-2xl font-bold text-white mb-3">
+            Start Earning Crypto
           </h2>
-          <p className="text-accent-500 mb-6">
-            Connect your TON wallet to join our loyalty program and start earning points at participating confectioneries.
+          <p className="text-gray-400 mb-8 leading-relaxed">
+            Connect your wallet to unlock exclusive tiers, trade rewards, and participate in the ecosystem.
           </p>
-          
-          <WalletConnect className="flex justify-center" />
-        </motion.div>
+
+          <div className="flex justify-center transform scale-110">
+            <WalletConnect />
+          </div>
+        </GlassCard>
 
         {/* Features */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="space-y-4 mb-8"
-        >
+        <div className="grid gap-4 w-full">
           {features.map((feature, index) => (
-            <motion.div
+            <GlassCard
               key={feature.title}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 + index * 0.1 }}
-              className="flex items-start gap-4 p-4 bg-white/70 backdrop-blur-sm rounded-2xl border border-primary-100"
+              delay={0.2 + index * 0.1}
+              className="flex items-center gap-4 p-4 text-left hover:bg-white/5 transition-colors"
             >
-              <div className="p-2.5 bg-primary-100 rounded-xl">
-                <feature.icon className="w-6 h-6 text-primary-600" />
+              <div className="p-3 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-xl">
+                <feature.icon className="w-6 h-6 text-purple-300" />
               </div>
               <div>
-                <h3 className="font-bold text-accent-800">{feature.title}</h3>
-                <p className="text-sm text-accent-500">{feature.description}</p>
+                <h3 className="font-bold text-white">{feature.title}</h3>
+                <p className="text-sm text-gray-500">{feature.description}</p>
               </div>
-            </motion.div>
+            </GlassCard>
           ))}
-        </motion.div>
-
-        {/* Footer */}
-        <div className="mt-auto text-center">
-          <p className="text-xs text-accent-400">
-            Powered by TON Blockchain
-          </p>
-          <p className="text-xs text-accent-300 mt-1">
-            AITU Diploma Project 2025
-          </p>
         </div>
       </div>
     </div>
   );
 }
-
-
-
-

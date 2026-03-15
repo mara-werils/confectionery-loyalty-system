@@ -1,0 +1,35 @@
+🌐 Cloudflare Tunnel URLs
+═══════════════════════════════════════════════════════════
+
+📱 FRONTEND (Telegram Mini App):
+   https://ordering-option-nuclear-necklace.trycloudflare.com
+
+🔧 BACKEND API:
+   https://employee-terminology-sponsor-activities.trycloudflare.com
+
+═══════════════════════════════════════════════════════════
+
+📋 Следующие шаги:
+
+1. Откройте @BotFather в Telegram
+2. Выберите вашего бота (или создайте нового: /newbot)
+3. Отправьте команду: /newapp
+4. Выберите вашего бота из списка
+5. В поле "Mini App URL" вставьте:
+   https://ordering-option-nuclear-necklace.trycloudflare.com
+6. Сохраните изменения
+
+💡 Для остановки туннелей:
+   ./scripts/tunnel-stop.sh
+
+💡 Для просмотра логов:
+   tail -f .tunnel-frontend.log
+   tail -f .tunnel-backend.log
+
+⚠️  ВАЖНО: URL меняется при каждом перезапуске туннеля!
+
+
+
+
+
+

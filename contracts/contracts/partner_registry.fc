@@ -1,3 +1,4 @@
+#include "imports/stdlib.fc";
 ;; ============================================================================
 ;; PARTNER REGISTRY - Partner management for loyalty system
 ;; ============================================================================
@@ -5,7 +6,7 @@
 ;; Author: AITU Diploma Team
 ;; ============================================================================
 
-#include "imports/stdlib.fc";
+
 #include "imports/op-codes.fc";
 
 ;; ============================================================================
@@ -307,6 +308,14 @@ int is_partner_active(slice partner_address) method_id {
 int get_tier_multiplier(int tier) method_id {
     return get_multiplier(tier);
 }
+
+
+
+
+
+
+
+
 
 
 

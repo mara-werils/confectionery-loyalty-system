@@ -5,7 +5,7 @@ import { successResponse } from '../utils/response';
 import { generateToken, generateRefreshToken, authenticate } from '../middleware/auth';
 import { authRateLimiter } from '../middleware/rateLimiter';
 import { AppError } from '../middleware/errorHandler';
-import { verifyWalletSignature } from '../services/ton';
+import { verifyWalletSignature, verifyNonce } from '../services/ton';
 
 const router = Router();
 
@@ -47,11 +47,14 @@ const router = Router();
  */
 const registerSchema = z.object({
   walletAddress: z.string().min(1),
+  publicKey: z.string().min(1),
   companyName: z.string().min(2).max(100),
   email: z.string().email().optional(),
   phone: z.string().optional(),
   signature: z.string(),
   message: z.string(),
+  nonce: z.string(),
+  timestamp: z.number(),
 });
 
 router.post(
@@ -61,9 +64,21 @@ router.post(
     try {
       const data = registerSchema.parse(req.body);
 
+      // Verify timestamp (max 5 minutes old)
+      const now = Math.floor(Date.now() / 1000);
+      if (Math.abs(now - data.timestamp) > 300) {
+        throw new AppError('Request expired', 401, 'EXPIRED_REQUEST');
+      }
+
+      // Verify nonce
+      const isNonceValid = await verifyNonce(data.nonce);
+      if (!isNonceValid) {
+        throw new AppError('Nonce already used', 401, 'REPLAY_ATTACK');
+      }
+
       // Verify wallet signature
       const isValid = await verifyWalletSignature(
-        data.walletAddress,
+        data.publicKey,
         data.message,
         data.signature
       );
@@ -151,15 +166,24 @@ router.post(
  *             type: object
  *             required:
  *               - walletAddress
+ *               - publicKey
  *               - signature
  *               - message
+ *               - nonce
+ *               - timestamp
  *             properties:
  *               walletAddress:
+ *                 type: string
+ *               publicKey:
  *                 type: string
  *               signature:
  *                 type: string
  *               message:
  *                 type: string
+ *               nonce:
+ *                 type: string
+ *               timestamp:
+ *                 type: number
  *     responses:
  *       200:
  *         description: Login successful
@@ -168,8 +192,11 @@ router.post(
  */
 const loginSchema = z.object({
   walletAddress: z.string().min(1),
+  publicKey: z.string().min(1),
   signature: z.string(),
   message: z.string(),
+  nonce: z.string(),
+  timestamp: z.number(),
 });
 
 router.post(
@@ -179,9 +206,21 @@ router.post(
     try {
       const data = loginSchema.parse(req.body);
 
+      // Verify timestamp (max 5 minutes old)
+      const now = Math.floor(Date.now() / 1000);
+      if (Math.abs(now - data.timestamp) > 300) {
+        throw new AppError('Request expired', 401, 'EXPIRED_REQUEST');
+      }
+
+      // Verify nonce
+      const isNonceValid = await verifyNonce(data.nonce);
+      if (!isNonceValid) {
+        throw new AppError('Nonce already used', 401, 'REPLAY_ATTACK');
+      }
+
       // Verify wallet signature
       const isValid = await verifyWalletSignature(
-        data.walletAddress,
+        data.publicKey,
         data.message,
         data.signature
       );
@@ -232,10 +271,10 @@ router.post(
           status: partner.status,
           loyaltyPoints: partner.loyaltyPoints
             ? {
-                balance: partner.loyaltyPoints.balance.toString(),
-                lifetimeEarned: partner.loyaltyPoints.lifetimeEarned.toString(),
-                lifetimeRedeemed: partner.loyaltyPoints.lifetimeRedeemed.toString(),
-              }
+              balance: partner.loyaltyPoints.balance.toString(),
+              lifetimeEarned: partner.loyaltyPoints.lifetimeEarned.toString(),
+              lifetimeRedeemed: partner.loyaltyPoints.lifetimeRedeemed.toString(),
+            }
             : null,
         },
         token,
@@ -284,10 +323,10 @@ router.get('/me', authenticate, async (req: Request, res: Response, next: NextFu
           status: partner.status,
           loyaltyPoints: partner.loyaltyPoints
             ? {
-                balance: partner.loyaltyPoints.balance.toString(),
-                lifetimeEarned: partner.loyaltyPoints.lifetimeEarned.toString(),
-                lifetimeRedeemed: partner.loyaltyPoints.lifetimeRedeemed.toString(),
-              }
+              balance: partner.loyaltyPoints.balance.toString(),
+              lifetimeEarned: partner.loyaltyPoints.lifetimeEarned.toString(),
+              lifetimeRedeemed: partner.loyaltyPoints.lifetimeRedeemed.toString(),
+            }
             : null,
           createdAt: partner.createdAt,
         },

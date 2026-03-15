@@ -5,7 +5,9 @@
     "rootDir": ".",
     "baseUrl": "./src",
     "target": "ES2022",
-    "lib": ["ES2022"],
+    "lib": [
+      "ES2022"
+    ],
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "esModuleInterop": true,
@@ -15,21 +17,44 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "strictNullChecks": false,
+    "isolatedModules": true,
     "paths": {
-      "@/*": ["./*"],
-      "@config/*": ["./config/*"],
-      "@controllers/*": ["./controllers/*"],
-      "@middleware/*": ["./middleware/*"],
-      "@routes/*": ["./routes/*"],
-      "@services/*": ["./services/*"],
-      "@utils/*": ["./utils/*"],
-      "@types/*": ["./types/*"]
+      "@/*": [
+        "./*"
+      ],
+      "@config/*": [
+        "./config/*"
+      ],
+      "@controllers/*": [
+        "./controllers/*"
+      ],
+      "@middleware/*": [
+        "./middleware/*"
+      ],
+      "@routes/*": [
+        "./routes/*"
+      ],
+      "@services/*": [
+        "./services/*"
+      ],
+      "@utils/*": [
+        "./utils/*"
+      ],
+      "@types/*": [
+        "./types/*"
+      ]
     },
-    "types": ["node", "jest"]
+    "types": [
+      "node",
+      "jest"
+    ]
   },
-  "include": ["src/**/*", "prisma/seed.ts"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "src/**/*",
+    "prisma/seed.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }
-
-
-

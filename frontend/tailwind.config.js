@@ -4,8 +4,19 @@ export default {
   theme: {
     extend: {
       colors: {
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background) / <alpha-value>)",
+        foreground: "hsl(var(--foreground) / <alpha-value>)",
+        card: {
+          DEFAULT: "hsl(var(--card) / <alpha-value>)",
+          foreground: "hsl(var(--card-foreground) / <alpha-value>)",
+        },
         // Primary palette - warm confectionery colors
         primary: {
+          DEFAULT: "hsl(var(--primary) / <alpha-value>)",
+          foreground: "hsl(var(--primary-foreground) / <alpha-value>)",
           50: '#fef7f0',
           100: '#fdebd9',
           200: '#fad4b1',
@@ -99,6 +110,14 @@ export default {
   },
   plugins: [],
 };
+
+
+
+
+
+
+
+
 
 
 

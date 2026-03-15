@@ -5,12 +5,14 @@ import {
   GiftIcon,
   ClockIcon,
   UserCircleIcon,
+  CubeTransparentIcon,
 } from '@heroicons/react/24/outline';
 import {
   HomeIcon as HomeIconSolid,
   GiftIcon as GiftIconSolid,
   ClockIcon as ClockIconSolid,
   UserCircleIcon as UserCircleIconSolid,
+  CubeTransparentIcon as CubeTransparentIconSolid,
 } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
 
@@ -34,6 +36,12 @@ const navItems = [
     activeIcon: ClockIconSolid,
   },
   {
+    path: '/blockchain',
+    label: 'Blockchain',
+    icon: CubeTransparentIcon,
+    activeIcon: CubeTransparentIconSolid,
+  },
+  {
     path: '/profile',
     label: 'Profile',
     icon: UserCircleIcon,
@@ -45,7 +53,7 @@ export default function Layout() {
   const location = useLocation();
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-primary-50 via-white to-accent-50">
+    <div className="min-h-screen flex flex-col">
       {/* Main content area */}
       <main className="flex-1 pb-20 overflow-auto">
         <AnimatePresence mode="wait">
@@ -63,7 +71,7 @@ export default function Layout() {
       </main>
 
       {/* Bottom navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t border-primary-100 safe-area-inset-bottom z-50">
+      <nav className="fixed bottom-0 left-0 right-0 bg-black/40 backdrop-blur-xl border-t border-white/10 safe-area-inset-bottom z-50">
         <div className="flex items-center justify-around px-2 py-2">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
@@ -103,6 +111,14 @@ export default function Layout() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
 
 
 

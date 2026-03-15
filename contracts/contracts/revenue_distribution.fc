@@ -1,3 +1,4 @@
+#include "imports/stdlib.fc";
 ;; ============================================================================
 ;; REVENUE DISTRIBUTION - Commission calculation and distribution
 ;; ============================================================================
@@ -5,7 +6,7 @@
 ;; Author: AITU Diploma Team
 ;; ============================================================================
 
-#include "imports/stdlib.fc";
+
 #include "imports/op-codes.fc";
 
 ;; ============================================================================
@@ -361,6 +362,14 @@ int get_payout_count() method_id {
     load_data();
     return storage::payout_count;
 }
+
+
+
+
+
+
+
+
 
 
 

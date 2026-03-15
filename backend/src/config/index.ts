@@ -35,6 +35,8 @@ const envSchema = z.object({
   PARTNER_REGISTRY_ADDRESS: z.string().optional(),
   REDEMPTION_MANAGER_ADDRESS: z.string().optional(),
   REVENUE_DISTRIBUTION_ADDRESS: z.string().optional(),
+  ADMIN_MNEMONIC: z.string().optional(),
+  JETTON_DECIMALS: z.string().transform(Number).default('9'),
 
   // Telegram
   TELEGRAM_BOT_TOKEN: z.string().optional(),
@@ -42,6 +44,11 @@ const envSchema = z.object({
 
   // Logging
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'http', 'debug']).default('info'),
+
+  // Redis
+  REDIS_HOST: z.string().default(''),
+  REDIS_PORT: z.string().transform(Number).default('6379'),
+  REDIS_PASSWORD: z.string().optional(),
 });
 
 const env = envSchema.parse(process.env);
@@ -73,6 +80,8 @@ export const config = {
     endpoint: env.TON_ENDPOINT || (env.TON_NETWORK === 'mainnet'
       ? 'https://toncenter.com/api/v2/jsonRPC'
       : 'https://testnet.toncenter.com/api/v2/jsonRPC'),
+    adminMnemonic: env.ADMIN_MNEMONIC,
+    jettonDecimals: env.JETTON_DECIMALS,
     contracts: {
       loyaltyToken: env.LOYALTY_TOKEN_ADDRESS,
       partnerRegistry: env.PARTNER_REGISTRY_ADDRESS,
@@ -87,9 +96,22 @@ export const config = {
   logging: {
     level: env.LOG_LEVEL,
   },
+  redis: {
+    host: env.REDIS_HOST,
+    port: env.REDIS_PORT,
+    password: env.REDIS_PASSWORD,
+  },
 };
 
 export type Config = typeof config;
+
+
+
+
+
+
+
+
 
 
 

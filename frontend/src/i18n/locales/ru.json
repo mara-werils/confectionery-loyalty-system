@@ -1,0 +1,87 @@
+{
+    "common": {
+        "loading": "Загрузка...",
+        "error": "Ошибка",
+        "success": "Успешно",
+        "cancel": "Отмена",
+        "confirm": "Подтвердить",
+        "save": "Сохранить",
+        "delete": "Удалить",
+        "edit": "Редактировать",
+        "back": "Назад",
+        "next": "Далее",
+        "submit": "Отправить",
+        "search": "Поиск",
+        "noData": "Нет данных"
+    },
+    "nav": {
+        "home": "Главная",
+        "dashboard": "Панель",
+        "loyalty": "Лояльность",
+        "rewards": "Награды",
+        "transactions": "Транзакции",
+        "referrals": "Рефералы",
+        "achievements": "Достижения",
+        "settings": "Настройки",
+        "logout": "Выйти"
+    },
+    "auth": {
+        "connectWallet": "Подключить кошелёк",
+        "disconnectWallet": "Отключить",
+        "login": "Войти",
+        "register": "Регистрация",
+        "companyName": "Название компании",
+        "email": "Электронная почта",
+        "walletAddress": "Адрес кошелька"
+    },
+    "dashboard": {
+        "welcome": "Добро пожаловать",
+        "balance": "Баланс",
+        "points": "Баллы",
+        "tier": "Уровень",
+        "lifetimeEarned": "Всего заработано",
+        "recentTransactions": "Последние транзакции",
+        "viewAll": "Показать все"
+    },
+    "loyalty": {
+        "earnPoints": "Получить баллы",
+        "redeemPoints": "Потратить баллы",
+        "currentBalance": "Текущий баланс",
+        "pointsHistory": "История баллов"
+    },
+    "rewards": {
+        "title": "Каталог наград",
+        "claim": "Получить награду",
+        "pointsRequired": "Требуется баллов",
+        "available": "Доступно",
+        "outOfStock": "Нет в наличии",
+        "claimSuccess": "Награда успешно получена!"
+    },
+    "referrals": {
+        "title": "Реферальная программа",
+        "yourCode": "Ваш реферальный код",
+        "copyCode": "Копировать код",
+        "totalReferrals": "Всего рефералов",
+        "bonusEarned": "Заработанный бонус",
+        "inviteFriends": "Приглашайте друзей и получайте бонусные баллы!",
+        "leaderboard": "Рейтинг рефералов"
+    },
+    "achievements": {
+        "title": "Достижения",
+        "unlocked": "Разблокировано",
+        "locked": "Заблокировано",
+        "progress": "Прогресс",
+        "newAchievement": "Новое достижение разблокировано!"
+    },
+    "tiers": {
+        "BRONZE": "Бронза",
+        "SILVER": "Серебро",
+        "GOLD": "Золото"
+    },
+    "status": {
+        "PENDING": "Ожидание",
+        "ACTIVE": "Активен",
+        "SUSPENDED": "Приостановлен",
+        "BANNED": "Заблокирован"
+    }
+}

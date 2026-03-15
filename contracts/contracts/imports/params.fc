@@ -3,7 +3,7 @@
 ;; ============================================================================
 
 ;; Workchain
-int workchain() asm "0 PUSHINT";
+;; int workchain() asm "0 PUSHINT";
 
 ;; Message modes
 int SEND_MODE_REGULAR() asm "0 PUSHINT";
@@ -24,6 +24,14 @@ int RESERVE_BOUNCE_ON_ACTION_FAIL() asm "16 PUSHINT";
 int MIN_TON_FOR_STORAGE() asm "10000000 PUSHINT";      ;; 0.01 TON
 int GAS_CONSUMPTION() asm "15000000 PUSHINT";          ;; 0.015 TON
 int JETTON_MIN_TRANSFER_FEE() asm "30000000 PUSHINT";  ;; 0.03 TON
+
+
+
+
+
+
+
+
 
 
 

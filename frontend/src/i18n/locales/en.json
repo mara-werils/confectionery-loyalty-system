@@ -1,0 +1,87 @@
+{
+    "common": {
+        "loading": "Loading...",
+        "error": "Error",
+        "success": "Success",
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "save": "Save",
+        "delete": "Delete",
+        "edit": "Edit",
+        "back": "Back",
+        "next": "Next",
+        "submit": "Submit",
+        "search": "Search",
+        "noData": "No data available"
+    },
+    "nav": {
+        "home": "Home",
+        "dashboard": "Dashboard",
+        "loyalty": "Loyalty",
+        "rewards": "Rewards",
+        "transactions": "Transactions",
+        "referrals": "Referrals",
+        "achievements": "Achievements",
+        "settings": "Settings",
+        "logout": "Logout"
+    },
+    "auth": {
+        "connectWallet": "Connect Wallet",
+        "disconnectWallet": "Disconnect",
+        "login": "Login",
+        "register": "Register",
+        "companyName": "Company Name",
+        "email": "Email",
+        "walletAddress": "Wallet Address"
+    },
+    "dashboard": {
+        "welcome": "Welcome",
+        "balance": "Balance",
+        "points": "Points",
+        "tier": "Tier",
+        "lifetimeEarned": "Lifetime Earned",
+        "recentTransactions": "Recent Transactions",
+        "viewAll": "View All"
+    },
+    "loyalty": {
+        "earnPoints": "Earn Points",
+        "redeemPoints": "Redeem Points",
+        "currentBalance": "Current Balance",
+        "pointsHistory": "Points History"
+    },
+    "rewards": {
+        "title": "Rewards Catalog",
+        "claim": "Claim Reward",
+        "pointsRequired": "Points Required",
+        "available": "Available",
+        "outOfStock": "Out of Stock",
+        "claimSuccess": "Reward claimed successfully!"
+    },
+    "referrals": {
+        "title": "Referral Program",
+        "yourCode": "Your Referral Code",
+        "copyCode": "Copy Code",
+        "totalReferrals": "Total Referrals",
+        "bonusEarned": "Bonus Earned",
+        "inviteFriends": "Invite friends and earn bonus points!",
+        "leaderboard": "Referral Leaderboard"
+    },
+    "achievements": {
+        "title": "Achievements",
+        "unlocked": "Unlocked",
+        "locked": "Locked",
+        "progress": "Progress",
+        "newAchievement": "New Achievement Unlocked!"
+    },
+    "tiers": {
+        "BRONZE": "Bronze",
+        "SILVER": "Silver",
+        "GOLD": "Gold"
+    },
+    "status": {
+        "PENDING": "Pending",
+        "ACTIVE": "Active",
+        "SUSPENDED": "Suspended",
+        "BANNED": "Banned"
+    }
+}

@@ -10,7 +10,7 @@ const router = Router();
 router.post('/telegram', async (req: Request, res: Response) => {
   try {
     const update = req.body;
-    
+
     logger.info('Received Telegram update:', update);
 
     // Handle different update types
@@ -60,13 +60,31 @@ router.post('/telegram', async (req: Request, res: Response) => {
 });
 
 /**
+ * Kaspi Payment Webhook
+ * Receives payment notifications from Kaspi POS (Mock)
+ */
+router.post('/kaspi', async (req: Request, res: Response) => {
+  try {
+    const { PaymentService } = await import('../services/payment.service');
+    const paymentService = PaymentService.getInstance();
+
+    await paymentService.handlePaymentWebhook(req.body);
+
+    res.json({ success: true, message: 'Payment processed' });
+  } catch (error) {
+    logger.error('Kaspi webhook error:', error);
+    res.status(500).json({ success: false, error: 'Internal processing error' });
+  }
+});
+
+/**
  * TON Blockchain Webhook
  * Receives transaction notifications
  */
 router.post('/ton', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const event = req.body;
-    
+
     logger.info('Received TON event:', event);
 
     // Process blockchain events

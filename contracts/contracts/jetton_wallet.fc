@@ -1,3 +1,4 @@
+#include "imports/stdlib.fc";
 ;; ============================================================================
 ;; JETTON WALLET - Individual wallet for loyalty tokens
 ;; ============================================================================
@@ -5,7 +6,7 @@
 ;; Author: AITU Diploma Team
 ;; ============================================================================
 
-#include "imports/stdlib.fc";
+
 #include "imports/jetton-utils.fc";
 #include "imports/op-codes.fc";
 #include "imports/params.fc";
@@ -45,25 +46,6 @@ global cell storage::jetton_wallet_code;
 ;; HELPER FUNCTIONS
 ;; ============================================================================
 
-{-
-  Calculate state init for jetton wallet
--}
-cell calculate_jetton_wallet_state_init(slice owner_address, slice jetton_master_address, cell jetton_wallet_code) inline {
-    return begin_cell()
-        .store_uint(0, 2)
-        .store_dict(jetton_wallet_code)
-        .store_dict(pack_jetton_wallet_data(0, owner_address, jetton_master_address, jetton_wallet_code))
-        .store_uint(0, 1)
-    .end_cell();
-}
-
-slice calculate_jetton_wallet_address(cell state_init) inline {
-    return begin_cell()
-        .store_uint(4, 3)
-        .store_int(workchain(), 8)
-        .store_uint(cell_hash(state_init), 256)
-    .end_cell().begin_parse();
-}
 
 ;; ============================================================================
 ;; INTERNAL MESSAGE HANDLERS
@@ -230,6 +212,14 @@ slice calculate_jetton_wallet_address(cell state_init) inline {
         storage::jetton_wallet_code
     );
 }
+
+
+
+
+
+
+
+
 
 
 

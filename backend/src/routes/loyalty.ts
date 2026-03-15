@@ -5,6 +5,8 @@ import { successResponse, paginatedResponse } from '../utils/response';
 import { authenticate, requirePartner } from '../middleware/auth';
 import { AppError } from '../middleware/errorHandler';
 import { io } from '../index';
+import { mintLoyaltyTokens } from '../controllers/mint';
+import { transferLoyaltyTokens } from '../controllers/transfer';
 
 const router = Router();
 
@@ -254,7 +256,69 @@ router.post(
   }
 );
 
+/**
+ * @swagger
+ * /loyalty/mint:
+ *   post:
+ *     summary: Mint new tokens to a user's wallet (Demo functionality)
+ *     tags: [Loyalty]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - targetWallet
+ *               - amount
+ *             properties:
+ *               targetWallet:
+ *                 type: string
+ *               amount:
+ *                 type: number
+ *     responses:
+ *       200:
+ *         description: Minting initiated
+ */
+router.post('/mint', mintLoyaltyTokens);
+
+/**
+ * @swagger
+ * /loyalty/transfer:
+ *   post:
+ *     summary: Simulate a POS payment by transferring SWEET tokens to a customer (Demo functionality)
+ *     tags: [Loyalty]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - clientWallet
+ *               - amount
+ *             properties:
+ *               clientWallet:
+ *                 type: string
+ *               amount:
+ *                 type: number
+ *     responses:
+ *       200:
+ *         description: Transfer initiated
+ */
+router.post('/transfer', transferLoyaltyTokens);
+
 export default router;
+
+
+
+
+
+
+
+
 
 
 

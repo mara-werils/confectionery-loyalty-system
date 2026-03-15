@@ -1,0 +1,11 @@
+{
+  "network": "testnet",
+  "adminAddress": "kQAOFMfMOeu7WTVfROzwMfNSKNesma8dQ37nQOb2dkqohECz",
+  "contracts": {
+    "LoyaltyToken": "kQBNOiJ4aToE-Ea12DpY5nBmu1bKT0axt81JmS9BFPh8nCio",
+    "PartnerRegistry": "kQCtFd8sLhJDFQiSd8Zgct6Z8ODtMy5A6-CYaaBuIClffsIg",
+    "RedemptionManager": "kQBChxrJHHMwqy0gL9DqPmcsM_K1FS7WGIz_pt00AJp_fVjw",
+    "RevenueDistribution": "kQCSaOfJrZncDkbYD_bzSxEVksQzuC8JoAUDWXPffwhYu39w"
+  },
+  "deployedAt": "2026-03-15T11:51:22.504Z"
+}

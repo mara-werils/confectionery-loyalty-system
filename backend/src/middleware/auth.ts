@@ -21,6 +21,12 @@ declare global {
         walletAddress: string;
         type: 'partner' | 'admin';
       };
+      partner?: {
+        id: string;
+        companyName: string;
+        tier: string;
+        walletAddress: string;
+      };
     }
   }
 }
@@ -54,6 +60,13 @@ export const authenticate = async (
       if (!partner || partner.status === 'BANNED') {
         throw new AppError('Account not found or banned', 401, 'ACCOUNT_INVALID');
       }
+
+      req.partner = {
+        id: partner.id,
+        companyName: partner.companyName,
+        tier: partner.tier,
+        walletAddress: partner.walletAddress,
+      };
     } else if (decoded.type === 'admin') {
       const admin = await prisma.admin.findUnique({
         where: { id: decoded.sub },

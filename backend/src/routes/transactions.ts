@@ -99,7 +99,6 @@ router.post(
         }),
       ]);
 
-      // Emit real-time update
       io.to(`partner:${partnerId}`).emit('transaction:created', {
         id: transaction.id,
         amount: transaction.amount.toString(),

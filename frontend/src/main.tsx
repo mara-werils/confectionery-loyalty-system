@@ -7,6 +7,8 @@ import { Toaster } from 'react-hot-toast';
 
 import App from './App';
 import './index.css';
+import './i18n'; // Initialize i18n
+
 
 // Create a query client
 const queryClient = new QueryClient({
@@ -19,9 +21,20 @@ const queryClient = new QueryClient({
   },
 });
 
-// TonConnect manifest URL - update this with your actual URL
-const manifestUrl = import.meta.env.VITE_TONCONNECT_MANIFEST_URL || 
-  'https://raw.githubusercontent.com/aitu-loyalty/loyalty-system/main/frontend/public/tonconnect-manifest.json';
+// TonConnect manifest URL - используем текущий хост
+// Манифест должен быть доступен по HTTPS
+const getManifestUrl = () => {
+  // Если указана переменная окружения, используем её
+  if (import.meta.env.VITE_TONCONNECT_MANIFEST_URL) {
+    return import.meta.env.VITE_TONCONNECT_MANIFEST_URL;
+  }
+
+  // Иначе используем текущий хост
+  const origin = window.location.origin;
+  return `${origin}/tonconnect-manifest.json`;
+};
+
+const manifestUrl = getManifestUrl();
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

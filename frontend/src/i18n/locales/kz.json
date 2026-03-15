@@ -1,0 +1,87 @@
+{
+    "common": {
+        "loading": "Жүктелуде...",
+        "error": "Қате",
+        "success": "Сәтті",
+        "cancel": "Болдырмау",
+        "confirm": "Растау",
+        "save": "Сақтау",
+        "delete": "Жою",
+        "edit": "Өзгерту",
+        "back": "Артқа",
+        "next": "Келесі",
+        "submit": "Жіберу",
+        "search": "Іздеу",
+        "noData": "Деректер жоқ"
+    },
+    "nav": {
+        "home": "Басты бет",
+        "dashboard": "Панель",
+        "loyalty": "Адалдық",
+        "rewards": "Марапаттар",
+        "transactions": "Транзакциялар",
+        "referrals": "Рефералдар",
+        "achievements": "Жетістіктер",
+        "settings": "Параметрлер",
+        "logout": "Шығу"
+    },
+    "auth": {
+        "connectWallet": "Әмиянды қосу",
+        "disconnectWallet": "Ажырату",
+        "login": "Кіру",
+        "register": "Тіркелу",
+        "companyName": "Компания атауы",
+        "email": "Электрондық пошта",
+        "walletAddress": "Әмиян мекенжайы"
+    },
+    "dashboard": {
+        "welcome": "Қош келдіңіз",
+        "balance": "Баланс",
+        "points": "Ұпайлар",
+        "tier": "Деңгей",
+        "lifetimeEarned": "Барлық жиналған",
+        "recentTransactions": "Соңғы транзакциялар",
+        "viewAll": "Барлығын көру"
+    },
+    "loyalty": {
+        "earnPoints": "Ұпай жинау",
+        "redeemPoints": "Ұпай жұмсау",
+        "currentBalance": "Ағымдағы баланс",
+        "pointsHistory": "Ұпайлар тарихы"
+    },
+    "rewards": {
+        "title": "Марапаттар каталогы",
+        "claim": "Марапат алу",
+        "pointsRequired": "Қажетті ұпайлар",
+        "available": "Қол жетімді",
+        "outOfStock": "Қоймада жоқ",
+        "claimSuccess": "Марапат сәтті алынды!"
+    },
+    "referrals": {
+        "title": "Реферал бағдарламасы",
+        "yourCode": "Сіздің реферал кодыңыз",
+        "copyCode": "Кодты көшіру",
+        "totalReferrals": "Жалпы рефералдар",
+        "bonusEarned": "Жиналған бонус",
+        "inviteFriends": "Достарыңызды шақырыңыз және бонустық ұпайлар алыңыз!",
+        "leaderboard": "Реферал рейтингі"
+    },
+    "achievements": {
+        "title": "Жетістіктер",
+        "unlocked": "Ашылған",
+        "locked": "Жабық",
+        "progress": "Прогресс",
+        "newAchievement": "Жаңа жетістік ашылды!"
+    },
+    "tiers": {
+        "BRONZE": "Қола",
+        "SILVER": "Күміс",
+        "GOLD": "Алтын"
+    },
+    "status": {
+        "PENDING": "Күтуде",
+        "ACTIVE": "Белсенді",
+        "SUSPENDED": "Тоқтатылған",
+        "BANNED": "Бұғатталған"
+    }
+}

@@ -1,6 +1,8 @@
 import { prisma } from '../utils/prisma';
 import { logger } from '../utils/logger';
 import { io } from '../index';
+import { cache } from './redis';
+import { config } from '../config';
 
 /**
  * Calculate points earned from transaction amount
@@ -156,6 +158,14 @@ export async function getLeaderboard(limit = 10): Promise<
     tier: string;
   }>
 > {
+  const cacheKey = `leaderboard:${limit}`;
+  const cached = await cache.get(cacheKey);
+
+  if (cached) {
+    logger.debug(`Leaderboard hit from cache: ${cacheKey}`);
+    return JSON.parse(cached);
+  }
+
   const topPartners = await prisma.loyaltyPoints.findMany({
     take: limit,
     orderBy: { lifetimeEarned: 'desc' },
@@ -170,13 +180,18 @@ export async function getLeaderboard(limit = 10): Promise<
     },
   });
 
-  return topPartners.map((lp, index) => ({
+  const result = topPartners.map((lp: any, index: number) => ({
     rank: index + 1,
     partnerId: lp.partner.id,
     companyName: lp.partner.companyName,
     lifetimeEarned: lp.lifetimeEarned.toString(),
     tier: lp.partner.tier,
   }));
+
+  // Cache for 5 minutes
+  await cache.set(cacheKey, JSON.stringify(result), 300);
+
+  return result;
 }
 
 

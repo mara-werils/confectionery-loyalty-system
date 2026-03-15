@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard';
 import Rewards from './pages/Rewards';
 import History from './pages/History';
 import Profile from './pages/Profile';
+import Blockchain from './pages/Blockchain';
 
 // Components
 import Layout from './components/Layout';
@@ -60,6 +61,7 @@ function App() {
           <Route path="/rewards" element={<Rewards />} />
           <Route path="/history" element={<History />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/blockchain" element={<Blockchain />} />
         </Route>
       </Route>
 

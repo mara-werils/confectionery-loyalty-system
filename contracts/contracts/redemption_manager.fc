@@ -1,3 +1,4 @@
+#include "imports/stdlib.fc";
 ;; ============================================================================
 ;; REDEMPTION MANAGER - Reward redemption for loyalty system
 ;; ============================================================================
@@ -5,7 +6,7 @@
 ;; Author: AITU Diploma Team
 ;; ============================================================================
 
-#include "imports/stdlib.fc";
+
 #include "imports/op-codes.fc";
 
 ;; ============================================================================
@@ -395,6 +396,14 @@ int validate_redemption(slice partner, int reward_id) method_id {
     
     return active & (available > 0) & ((max_claims == 0) | (total_claimed < max_claims));
 }
+
+
+
+
+
+
+
+
 
 
 

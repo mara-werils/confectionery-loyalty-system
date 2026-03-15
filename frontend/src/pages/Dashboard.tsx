@@ -1,190 +1,317 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { GlassCard } from '../components/GlassCard';
+import { EcosystemService } from '../services/ecosystem';
 import { useTonWallet } from '@tonconnect/ui-react';
-import { Link } from 'react-router-dom';
 import {
-  ArrowRightIcon,
-  SparklesIcon,
+  BuildingLibraryIcon,
+  CreditCardIcon,
+  BanknotesIcon,
+  ShieldCheckIcon,
   ChartBarIcon,
 } from '@heroicons/react/24/outline';
+import toast from 'react-hot-toast';
 
-import BalanceCard from '../components/BalanceCard';
-import TransactionItem from '../components/TransactionItem';
-import { useBalance, useTransactions, useAnalyticsSummary } from '../hooks/useApi';
+// Mock Data for the chart
+const chartData = [
+  { name: 'Mon', value: 4000 },
+  { name: 'Tue', value: 3000 },
+  { name: 'Wed', value: 7000 },
+  { name: 'Thu', value: 5000 },
+  { name: 'Fri', value: 11000 },
+  { name: 'Sat', value: 15420 },
+  { name: 'Sun', value: 18900 },
+];
+
+// Framer Motion variants for staggered animations
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 16 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] },
+  },
+};
 
 export default function Dashboard() {
+  const [balance, setBalance] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [posAmount, setPosAmount] = useState(1500);
   const wallet = useTonWallet();
-  const { data: balanceData, isLoading: balanceLoading } = useBalance();
-  const { data: transactionsData, isLoading: transactionsLoading } = useTransactions(1, 5);
-  const { data: summaryData } = useAnalyticsSummary();
 
-  // Mock data for demo when API is not available
-  const balance = balanceData?.data || {
-    balance: '2500',
-    lifetimeEarned: '5000',
-    lifetimeRedeemed: '2500',
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    const bal = await EcosystemService.getBalance();
+    setBalance(bal);
   };
 
-  const tier = summaryData?.data?.tier || 'BRONZE';
+  const handleMintTokens = async () => {
+    if (!wallet) {
+      toast.error('Connect your TON wallet first');
+      return;
+    }
+    setLoading(true);
+    try {
+      toast.loading('Broadcasting mint transaction...', { id: 'mint' });
+      const res = await EcosystemService.mintTokens(5000, wallet.account.address);
+      if (res.success) {
+        toast.success('Mint broadcasted successfully', { id: 'mint' });
+      } else {
+        toast.error('Mint broadcast failed', { id: 'mint' });
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Mint transaction error', { id: 'mint' });
+    }
+    setLoading(false);
+  };
 
-  const transactions = transactionsData?.data || [
-    {
-      id: '1',
-      amount: '150000',
-      pointsEarned: '150',
-      type: 'PURCHASE' as const,
-      description: 'Cake order',
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: '2',
-      amount: '0',
-      pointsEarned: '500',
-      type: 'BONUS' as const,
-      description: 'Welcome bonus',
-      createdAt: new Date(Date.now() - 86400000).toISOString(),
-    },
-  ];
+  const handleTransfer = async () => {
+    if (!wallet) return;
+    const purchaseAmt = posAmount;
+    if (purchaseAmt <= 0) {
+      toast.error('Enter a valid purchase amount');
+      return;
+    }
+    const cashback = Math.floor(purchaseAmt * 0.1);
+    setLoading(true);
+    try {
+      toast.loading(`Transferring ${cashback} SWEET to client...`, { id: 'transfer' });
+      await EcosystemService.transferToClient(cashback, wallet.account.address);
+      toast.success(`${cashback} SWEET sent to client wallet`, { id: 'transfer' });
+    } catch {
+      toast.error('Transfer failed', { id: 'transfer' });
+    }
+    setLoading(false);
+  };
 
   return (
-    <div className="px-4 py-6 space-y-6">
+    <div className="min-h-screen p-4 md:p-8 pb-24 text-white">
       {/* Header */}
       <motion.div
-        initial={{ opacity: 0, y: -10 }}
+        initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-between"
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        className="mb-10"
       >
-        <div>
-          <h1 className="text-2xl font-bold text-accent-800">Welcome back!</h1>
-          <p className="text-accent-500 text-sm">
-            {wallet
-              ? `${wallet.account.address.slice(0, 6)}...${wallet.account.address.slice(-4)}`
-              : 'Partner Dashboard'}
-          </p>
-        </div>
-        <div className="w-12 h-12 bg-gradient-to-br from-primary-400 to-primary-600 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-300/30">
-          <SparklesIcon className="w-6 h-6 text-white" />
-        </div>
+        <h1 className="text-3xl md:text-5xl font-bold tracking-tight">
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-violet-500">
+            Sweet Loyalty
+          </span>
+        </h1>
+        <p className="text-gray-500 mt-2 text-base">B2B Loyalty Token Management</p>
       </motion.div>
 
-      {/* Balance Card */}
-      <BalanceCard
-        balance={balance.balance}
-        lifetimeEarned={balance.lifetimeEarned}
-        lifetimeRedeemed={balance.lifetimeRedeemed}
-        tier={tier}
-        isLoading={balanceLoading}
-      />
-
-      {/* Quick Actions */}
+      {/* Stats Grid — staggered entrance */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="grid grid-cols-2 gap-4"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10"
       >
-        <Link
-          to="/rewards"
-          className="card flex items-center gap-3 p-4 hover:shadow-lg transition-shadow"
-        >
-          <div className="p-2.5 bg-primary-100 rounded-xl">
-            <SparklesIcon className="w-5 h-5 text-primary-600" />
-          </div>
-          <div className="flex-1">
-            <span className="font-semibold text-accent-800">Rewards</span>
-            <p className="text-xs text-accent-400">Redeem points</p>
-          </div>
-          <ArrowRightIcon className="w-4 h-4 text-accent-300" />
-        </Link>
+        {/* Token Balance */}
+        <motion.div variants={itemVariants}>
+          <GlassCard className="relative overflow-hidden">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2 rounded-lg bg-purple-500/10">
+                <BanknotesIcon className="w-5 h-5 text-purple-400" />
+              </div>
+              <h3 className="text-sm text-gray-400 font-medium">Total Balance</h3>
+            </div>
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-bold font-mono">
+                {balance ? balance.sweet.toLocaleString() : '—'}
+              </span>
+              <span className="text-purple-400 text-sm font-semibold">SWEET</span>
+            </div>
+            <p className="text-xs text-gray-600 mt-2">
+              {balance ? `${balance.kztEquivalent.toLocaleString()} KZT` : '—'}
+            </p>
+          </GlassCard>
+        </motion.div>
 
-        <Link
-          to="/history"
-          className="card flex items-center gap-3 p-4 hover:shadow-lg transition-shadow"
-        >
-          <div className="p-2.5 bg-accent-100 rounded-xl">
-            <ChartBarIcon className="w-5 h-5 text-accent-600" />
-          </div>
-          <div className="flex-1">
-            <span className="font-semibold text-accent-800">History</span>
-            <p className="text-xs text-accent-400">View all</p>
-          </div>
-          <ArrowRightIcon className="w-4 h-4 text-accent-300" />
-        </Link>
+        {/* Governance */}
+        <motion.div variants={itemVariants}>
+          <GlassCard>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2 rounded-lg bg-amber-500/10">
+                <ShieldCheckIcon className="w-5 h-5 text-amber-400" />
+              </div>
+              <h3 className="text-sm text-gray-400 font-medium">Voting Power</h3>
+            </div>
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-bold font-mono text-amber-400">
+                {balance ? balance.gov : '—'}
+              </span>
+              <span className="text-amber-500/80 text-sm font-semibold">GOV</span>
+            </div>
+            <p className="text-xs text-gray-600 mt-2">DAO Rights Active</p>
+          </GlassCard>
+        </motion.div>
+
+        {/* Liquidity Pool */}
+        <motion.div variants={itemVariants}>
+          <GlassCard>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2 rounded-lg bg-cyan-500/10">
+                <ChartBarIcon className="w-5 h-5 text-cyan-400" />
+              </div>
+              <h3 className="text-sm text-gray-400 font-medium">Staked Liquidity</h3>
+            </div>
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-bold font-mono text-cyan-400">
+                {balance ? balance.lp.toLocaleString() : '—'}
+              </span>
+              <span className="text-cyan-500/80 text-sm font-semibold">LP</span>
+            </div>
+            <p className="text-xs text-green-500/80 mt-2">+25% APY</p>
+          </GlassCard>
+        </motion.div>
       </motion.div>
 
-      {/* Recent Transactions */}
+      {/* Demo Controls  — staggered entrance */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="card"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10"
       >
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-bold text-accent-800">Recent Activity</h2>
-          <Link
-            to="/history"
-            className="text-sm text-primary-600 font-medium hover:text-primary-700"
-          >
-            View all
-          </Link>
-        </div>
-
-        {transactionsLoading ? (
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="skeleton h-16 rounded-xl" />
-            ))}
-          </div>
-        ) : transactions.length > 0 ? (
-          <div>
-            {transactions.map((tx: typeof transactions[0], index: number) => (
-              <TransactionItem key={tx.id} {...tx} index={index} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-8 text-accent-400">
-            <SparklesIcon className="w-12 h-12 mx-auto mb-3 text-accent-200" />
-            <p>No transactions yet</p>
-            <p className="text-sm">Start earning points with your first purchase!</p>
-          </div>
-        )}
-      </motion.div>
-
-      {/* Tier Progress */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="card bg-gradient-to-r from-accent-50 to-primary-50"
-      >
-        <h2 className="font-bold text-accent-800 mb-3">Tier Progress</h2>
-        <div className="flex items-center gap-4">
-          <div className="flex-1">
-            <div className="flex justify-between text-sm mb-2">
-              <span className="text-accent-500">Current: {tier}</span>
-              <span className="text-primary-600 font-medium">
-                {tier === 'GOLD' ? 'Max level!' : `Next: ${tier === 'BRONZE' ? 'SILVER' : 'GOLD'}`}
+        {/* B2B Mint */}
+        <motion.div variants={itemVariants}>
+          <GlassCard>
+            <div className="flex justify-between items-start mb-5">
+              <div>
+                <h3 className="text-lg font-semibold">Partner Treasury</h3>
+                <p className="text-xs text-gray-500 mt-0.5">Server-custodial demo wallet</p>
+              </div>
+              <span className="bg-purple-500/10 text-purple-400 px-2.5 py-1 rounded-md text-xs font-mono">
+                B2B
               </span>
             </div>
-            <div className="h-3 bg-white rounded-full overflow-hidden shadow-inner">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: tier === 'BRONZE' ? '30%' : tier === 'SILVER' ? '65%' : '100%' }}
-                transition={{ delay: 0.5, duration: 0.8, ease: 'easeOut' }}
-                className="h-full bg-gradient-to-r from-primary-400 to-primary-600 rounded-full"
-              />
+            <p className="text-sm text-gray-500 mb-5 leading-relaxed">
+              Mint 5,000 SWEET to the partner treasury to simulate the platform distributing loyalty tokens to a registered confectionery.
+            </p>
+            <button
+              onClick={handleMintTokens}
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-2.5 px-5 py-3 rounded-xl font-semibold text-sm bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-500 hover:to-violet-500 text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                'Processing...'
+              ) : (
+                <>
+                  <BuildingLibraryIcon className="w-4 h-4" />
+                  <span>Fund Partner Treasury</span>
+                  <span className="ml-auto bg-white/15 px-2 py-0.5 rounded text-xs font-mono">
+                    +5,000
+                  </span>
+                </>
+              )}
+            </button>
+          </GlassCard>
+        </motion.div>
+
+        {/* B2C Transfer */}
+        <motion.div variants={itemVariants}>
+          <GlassCard>
+            <div className="flex justify-between items-start mb-5">
+              <div>
+                <h3 className="text-lg font-semibold">POS Payment Simulation</h3>
+                <p className="text-xs text-gray-500 mt-0.5">Cashback transfer to client wallet</p>
+              </div>
+              <span className="bg-red-500/10 text-red-400 px-2.5 py-1 rounded-md text-xs font-mono">
+                B2C
+              </span>
             </div>
-          </div>
-        </div>
-        <p className="text-xs text-accent-400 mt-3">
-          {tier === 'GOLD'
-            ? 'You have the highest tier! Enjoy 2x points on all purchases.'
-            : `Earn ${tier === 'BRONZE' ? '10,000' : '50,000'} lifetime points to reach the next tier.`}
-        </p>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs text-gray-500 mb-1.5 font-medium">
+                  Purchase Amount (KZT)
+                </label>
+                <input
+                  type="number"
+                  className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 py-3 text-white text-sm font-mono focus:outline-none focus:border-purple-500/50 transition-colors"
+                  placeholder="1500"
+                  value={posAmount}
+                  onChange={(e) => setPosAmount(Number(e.target.value))}
+                />
+              </div>
+
+              <div className="bg-white/[0.03] border border-white/[0.06] px-4 py-3 rounded-xl flex justify-between items-center">
+                <span className="text-xs text-gray-500">Cashback (10%)</span>
+                <span className="font-mono text-sm font-semibold text-green-400">
+                  +{Math.floor(posAmount * 0.1)} SWEET
+                </span>
+              </div>
+
+              <button
+                disabled={loading || !wallet || posAmount <= 0}
+                onClick={handleTransfer}
+                className="w-full flex items-center justify-center gap-2.5 px-5 py-3 rounded-xl font-semibold text-sm bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <CreditCardIcon className="w-4 h-4" />
+                {!wallet ? 'Connect wallet first' : 'Process Payment'}
+              </button>
+            </div>
+          </GlassCard>
+        </motion.div>
+      </motion.div>
+
+      {/* Chart */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.4, ease: 'easeOut' }}
+      >
+        <GlassCard className="h-[360px]">
+          <h3 className="text-sm font-semibold text-gray-400 mb-6">Ecosystem Growth (TVL)</h3>
+          <ResponsiveContainer width="100%" height="90%">
+            <AreaChart data={chartData}>
+              <defs>
+                <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.4} />
+                  <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <XAxis dataKey="name" stroke="#3f3f46" tick={{ fontSize: 12 }} />
+              <YAxis stroke="#3f3f46" tick={{ fontSize: 12 }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#1e1e1e" />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: '#0a0a0a',
+                  border: '1px solid rgba(255,255,255,0.06)',
+                  borderRadius: '10px',
+                  fontSize: '13px',
+                }}
+                itemStyle={{ color: '#d4d4d8' }}
+              />
+              <Area
+                type="monotone"
+                dataKey="value"
+                stroke="#8b5cf6"
+                strokeWidth={2}
+                fillOpacity={1}
+                fill="url(#colorValue)"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </GlassCard>
       </motion.div>
     </div>
   );
 }
-
-
-
-

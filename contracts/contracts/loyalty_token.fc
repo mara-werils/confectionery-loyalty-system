@@ -5,6 +5,7 @@
 ;; Author: AITU Diploma Team
 ;; ============================================================================
 
+
 #include "imports/stdlib.fc";
 #include "imports/jetton-utils.fc";
 #include "imports/op-codes.fc";
@@ -45,18 +46,7 @@ global cell storage::jetton_wallet_code;
 ;; JETTON MINTER FUNCTIONS
 ;; ============================================================================
 
-;; Calculate jetton wallet address for owner
-cell calculate_jetton_wallet_address(slice owner_address) inline {
-    return begin_cell()
-        .store_uint(0, 2)
-        .store_dict(storage::jetton_wallet_code)
-        .store_dict(pack_jetton_wallet_data(0, owner_address, my_address(), storage::jetton_wallet_code))
-    .end_cell();
-}
 
-slice calculate_jetton_wallet_address_as_slice(slice owner_address) inline {
-    return calculate_jetton_wallet_address(owner_address).begin_parse();
-}
 
 ;; ============================================================================
 ;; INTERNAL MESSAGE HANDLERS
@@ -129,7 +119,7 @@ slice calculate_jetton_wallet_address_as_slice(slice owner_address) inline {
         
         ;; Verify sender is valid jetton wallet
         throw_unless(74,
-            equal_slices(calculate_jetton_wallet_address_as_slice(from_address), sender_address)
+            equal_slices(calculate_user_jetton_wallet_address(from_address, my_address(), storage::jetton_wallet_code), sender_address)
         );
         
         storage::total_supply -= amount;
@@ -194,8 +184,16 @@ slice calculate_jetton_wallet_address_as_slice(slice owner_address) inline {
 ;; Get wallet address for owner
 slice get_wallet_address(slice owner_address) method_id {
     load_data();
-    return calculate_jetton_wallet_address_as_slice(owner_address);
+    return calculate_user_jetton_wallet_address(owner_address, my_address(), storage::jetton_wallet_code);
 }
+
+
+
+
+
+
+
+
 
 
 

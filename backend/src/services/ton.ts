@@ -1,6 +1,8 @@
+import { signVerify } from '@ton/crypto';
 import { TonClient, Address } from '@ton/ton';
 import { config } from '../config';
 import { logger } from '../utils/logger';
+import { cache } from './redis';
 
 // Initialize TON client
 const tonClient = new TonClient({
@@ -10,35 +12,40 @@ const tonClient = new TonClient({
 
 /**
  * Verify wallet signature for authentication
- * This is a simplified version - in production use proper TON signature verification
  */
 export async function verifyWalletSignature(
-  walletAddress: string,
-  _message: string,
-  _signature: string
+  publicKey: string,
+  message: string,
+  signature: string
 ): Promise<boolean> {
   try {
-    // In development, accept any signature
-    if (config.app.env === 'development') {
-      logger.debug('Development mode: accepting signature');
-      return true;
-    }
+    const signatureBuffer = Buffer.from(signature, 'hex');
+    const messageBuffer = Buffer.from(message);
+    const publicKeyBuffer = Buffer.from(publicKey, 'hex');
 
-    // TODO: Implement proper TON signature verification
-    // This requires:
-    // 1. Getting the wallet's public key
-    // 2. Verifying the signature against the message
-    // 3. Checking the timestamp to prevent replay attacks
-
-    // For now, just validate the address format
-    Address.parse(walletAddress);
-    
-    return true;
+    return signVerify(messageBuffer, signatureBuffer, publicKeyBuffer);
   } catch (error) {
     logger.error('Signature verification failed:', error);
     return false;
   }
 }
+
+/**
+ * Verify nonce to prevent replay attacks
+ */
+export async function verifyNonce(nonce: string): Promise<boolean> {
+  const cacheKey = `nonce:${nonce}`;
+  const exists = await cache.exists(cacheKey);
+
+  if (exists) {
+    return false;
+  }
+
+  // Store nonce with 5 minutes TTL
+  await cache.set(cacheKey, '1', 300);
+  return true;
+}
+
 
 /**
  * Get wallet balance
@@ -78,7 +85,7 @@ export async function getJettonBalance(
   try {
     // This would call the get_wallet_address on the jetton master
     // Then call get_wallet_data on the wallet
-    
+
     // Placeholder implementation
     logger.debug(`Getting jetton balance for ${ownerAddress} from ${jettonMasterAddress}`);
     return 0n;
@@ -94,9 +101,9 @@ export async function getJettonBalance(
 export async function subscribeToContract(contractAddress: string): Promise<() => void> {
   // This would set up a subscription to monitor contract transactions
   // In production, use a proper TON indexer like TON API or similar
-  
+
   logger.info(`Subscribed to contract: ${contractAddress}`);
-  
+
   return () => {
     logger.info(`Unsubscribed from contract: ${contractAddress}`);
   };

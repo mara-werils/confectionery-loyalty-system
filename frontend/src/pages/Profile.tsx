@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTonConnectUI, useTonWallet } from '@tonconnect/ui-react';
 import {
@@ -15,25 +16,28 @@ import clsx from 'clsx';
 
 import { useAuthStore } from '../store/authStore';
 import { useTelegram } from '../hooks/useTelegram';
+import SettingsModal from '../components/SettingsModal';
+
+type SettingsTab = 'security' | 'notifications' | 'help';
 
 const menuItems = [
   {
     icon: ShieldCheckIcon,
     label: 'Security',
     description: 'Manage your account security',
-    href: '#',
+    tab: 'security' as SettingsTab,
   },
   {
     icon: BellIcon,
     label: 'Notifications',
     description: 'Notification preferences',
-    href: '#',
+    tab: 'notifications' as SettingsTab,
   },
   {
     icon: QuestionMarkCircleIcon,
     label: 'Help & Support',
     description: 'Get help or contact us',
-    href: '#',
+    tab: 'help' as SettingsTab,
   },
 ];
 
@@ -42,6 +46,16 @@ export default function Profile() {
   const wallet = useTonWallet();
   const { user, logout } = useAuthStore();
   const { hapticFeedback, showConfirm } = useTelegram();
+
+  // Settings modal state
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [settingsTab, setSettingsTab] = useState<SettingsTab>('security');
+
+  const openSettings = (tab: SettingsTab) => {
+    setSettingsTab(tab);
+    setIsSettingsOpen(true);
+    hapticFeedback('light');
+  };
 
   const handleDisconnect = async () => {
     hapticFeedback('medium');
@@ -90,8 +104,8 @@ export default function Profile() {
                   user?.tier === 'GOLD'
                     ? 'badge-gold'
                     : user?.tier === 'SILVER'
-                    ? 'badge-silver'
-                    : 'badge-bronze'
+                      ? 'badge-silver'
+                      : 'badge-bronze'
                 )}
               >
                 {user?.tier || 'BRONZE'}
@@ -167,10 +181,10 @@ export default function Profile() {
         className="card divide-y divide-primary-50"
       >
         {menuItems.map((item) => (
-          <a
+          <button
             key={item.label}
-            href={item.href}
-            className="flex items-center gap-3 py-4 first:pt-0 last:pb-0 hover:bg-primary-50/50 -mx-4 px-4 transition-colors"
+            onClick={() => openSettings(item.tab)}
+            className="w-full flex items-center gap-3 py-4 first:pt-0 last:pb-0 hover:bg-primary-50/50 -mx-4 px-4 transition-colors text-left"
           >
             <div className="p-2 bg-accent-50 rounded-lg">
               <item.icon className="w-5 h-5 text-accent-600" />
@@ -180,7 +194,7 @@ export default function Profile() {
               <p className="text-xs text-accent-400">{item.description}</p>
             </div>
             <ChevronRightIcon className="w-5 h-5 text-accent-300" />
-          </a>
+          </button>
         ))}
       </motion.div>
 
