@@ -16,7 +16,6 @@ import clsx from 'clsx';
 
 import { useAuthStore } from '../store/authStore';
 import { useTelegram } from '../hooks/useTelegram';
-import SettingsModal from '../components/SettingsModal';
 
 type SettingsTab = 'security' | 'notifications' | 'help';
 
@@ -48,8 +47,8 @@ export default function Profile() {
   const { hapticFeedback, showConfirm } = useTelegram();
 
   // Settings modal state
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [settingsTab, setSettingsTab] = useState<SettingsTab>('security');
+  const [, setIsSettingsOpen] = useState(false);
+  const [, setSettingsTab] = useState<SettingsTab>('security');
 
   const openSettings = (tab: SettingsTab) => {
     setSettingsTab(tab);
