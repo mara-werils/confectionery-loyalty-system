@@ -14,7 +14,9 @@ const resources = {
 // Detect user language from Telegram or browser
 const detectLanguage = (): string => {
     // Try Telegram WebApp language
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (typeof window !== 'undefined' && (window as any).Telegram?.WebApp?.initDataUnsafe?.user?.language_code) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const tgLang = (window as any).Telegram.WebApp.initDataUnsafe.user.language_code;
         if (['en', 'ru', 'kz'].includes(tgLang)) return tgLang;
         if (tgLang === 'kk') return 'kz'; // Kazakh language code

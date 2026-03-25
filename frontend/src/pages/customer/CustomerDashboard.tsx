@@ -48,6 +48,7 @@ export default function CustomerDashboard() {
 
         if (data.balances && data.balances.length > 0) {
           const sweet = data.balances.find(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (b: any) =>
               b.jetton?.address?.toLowerCase() ===
               '0:4d3a2278693a04f846b5d83a58e67066bb56ca4f46b1b7cd49992f4114f87c9c'
@@ -66,9 +67,13 @@ export default function CustomerDashboard() {
         const txData = await txRes.json();
 
         if (txData.events) {
+           
           const parsed: Transaction[] = txData.events
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .filter((e: any) => e.actions?.some((a: any) => a.type === 'JettonTransfer'))
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .map((e: any) => {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const action = e.actions.find((a: any) => a.type === 'JettonTransfer');
               return {
                 hash: e.event_id,

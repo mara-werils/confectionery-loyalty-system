@@ -51,7 +51,7 @@ const itemVariants = {
 };
 
 export default function Dashboard() {
-  const [balance, setBalance] = useState<any>(null);
+  const [balance, setBalance] = useState<{ sweet: number; kztEquivalent: number; gov: number; lp: number } | null>(null);
   const [loading, setLoading] = useState(false);
   const [posAmount, setPosAmount] = useState(1500);
   const wallet = useTonWallet();
@@ -87,8 +87,10 @@ export default function Dashboard() {
       } else {
         toast.error('Mint broadcast failed', { id: 'mint' });
       }
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Mint transaction error', { id: 'mint' });
+    } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const err = error as any;
+      toast.error(err.response?.data?.message || 'Mint transaction error', { id: 'mint' });
     }
     setLoading(false);
   };

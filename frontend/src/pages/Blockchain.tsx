@@ -9,7 +9,7 @@ import toast from 'react-hot-toast';
 export default function Blockchain() {
   const wallet = useTonWallet();
   const [contractStates, setContractStates] = useState<Record<string, ContractState>>({});
-  const [tokenData, setTokenData] = useState<any>(null);
+  const [tokenData, setTokenData] = useState<{ name?: string; symbol?: string; balance?: string; decimals?: number; totalSupply?: number; mintable?: boolean; adminAddress?: string; address?: string } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
