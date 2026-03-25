@@ -1,5 +1,6 @@
 import { Outlet, NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import {
   HomeIcon,
   GiftIcon,
@@ -18,71 +19,32 @@ import {
 import { ArrowsRightLeftIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 
-const businessNavItems = [
-  {
-    path: '/business/dashboard',
-    label: 'POS',
-    icon: HomeIcon,
-    activeIcon: HomeIconSolid,
-  },
-  {
-    path: '/swap',
-    label: 'Exchange',
-    icon: ArrowsRightLeftIcon,
-    activeIcon: ArrowsRightLeftIconSolid,
-  },
-  {
-    path: '/blockchain',
-    label: 'Blockchain',
-    icon: CubeTransparentIcon,
-    activeIcon: CubeTransparentIconSolid,
-  },
-  {
-    path: '/profile',
-    label: 'Profile',
-    icon: UserCircleIcon,
-    activeIcon: UserCircleIconSolid,
-  },
-];
-
-const customerNavItems = [
-  {
-    path: '/customer/dashboard',
-    label: 'Wallet',
-    icon: HomeIcon,
-    activeIcon: HomeIconSolid,
-  },
-  {
-    path: '/customer/rewards',
-    label: 'Rewards',
-    icon: GiftIcon,
-    activeIcon: GiftIconSolid,
-  },
-  {
-    path: '/history',
-    label: 'History',
-    icon: ClockIcon,
-    activeIcon: ClockIconSolid,
-  },
-  {
-    path: '/profile',
-    label: 'Profile',
-    icon: UserCircleIcon,
-    activeIcon: UserCircleIconSolid,
-  },
-];
-
 interface LayoutProps {
   variant?: 'business' | 'customer';
 }
 
 export default function Layout({ variant = 'business' }: LayoutProps) {
   const location = useLocation();
+  const { t } = useTranslation();
+
+  const businessNavItems = [
+    { path: '/business/dashboard', label: t('nav.pos'), icon: HomeIcon, activeIcon: HomeIconSolid },
+    { path: '/swap', label: t('nav.exchange'), icon: ArrowsRightLeftIcon, activeIcon: ArrowsRightLeftIconSolid },
+    { path: '/blockchain', label: t('nav.blockchain'), icon: CubeTransparentIcon, activeIcon: CubeTransparentIconSolid },
+    { path: '/profile', label: t('nav.profile'), icon: UserCircleIcon, activeIcon: UserCircleIconSolid },
+  ];
+
+  const customerNavItems = [
+    { path: '/customer/dashboard', label: t('nav.wallet'), icon: HomeIcon, activeIcon: HomeIconSolid },
+    { path: '/customer/rewards', label: t('nav.rewards'), icon: GiftIcon, activeIcon: GiftIconSolid },
+    { path: '/history', label: t('nav.history'), icon: ClockIcon, activeIcon: ClockIconSolid },
+    { path: '/profile', label: t('nav.profile'), icon: UserCircleIcon, activeIcon: UserCircleIconSolid },
+  ];
+
   const navItems = variant === 'customer' ? customerNavItems : businessNavItems;
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-[#09090b]">
-      {/* Main content area */}
       <main className="flex-1 w-full max-w-2xl pb-24 overflow-x-hidden">
         <AnimatePresence mode="wait">
           <motion.div
@@ -98,7 +60,6 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
         </AnimatePresence>
       </main>
 
-      {/* Floating pill navigation */}
       <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
         <div className="bg-zinc-900/80 backdrop-blur-2xl border border-white/10 shadow-[0_8px_32px_rgb(0,0,0,0.2)] rounded-full px-2 py-2 flex items-center justify-center gap-1">
           {navItems.map((item) => {

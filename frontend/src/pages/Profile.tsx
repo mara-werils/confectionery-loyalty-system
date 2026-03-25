@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTonConnectUI, useTonWallet } from '@tonconnect/ui-react';
+import { useTranslation } from 'react-i18next';
 import {
   UserCircleIcon,
   BuildingStorefrontIcon,
@@ -12,35 +13,16 @@ import {
   BellIcon,
   QuestionMarkCircleIcon,
   ArrowsRightLeftIcon,
+  LanguageIcon,
 } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 
 import { useAuthStore } from '../store/authStore';
 import { useTelegram } from '../hooks/useTelegram';
 import { useNavigate } from 'react-router-dom';
+import { changeLanguage, languages } from '../i18n';
 
 type SettingsTab = 'security' | 'notifications' | 'help';
-
-const menuItems = [
-  {
-    icon: ShieldCheckIcon,
-    label: 'Security',
-    description: 'Manage your account security',
-    tab: 'security' as SettingsTab,
-  },
-  {
-    icon: BellIcon,
-    label: 'Notifications',
-    description: 'Notification preferences',
-    tab: 'notifications' as SettingsTab,
-  },
-  {
-    icon: QuestionMarkCircleIcon,
-    label: 'Help & Support',
-    description: 'Get help or contact us',
-    tab: 'help' as SettingsTab,
-  },
-];
 
 export default function Profile() {
   const [tonConnectUI] = useTonConnectUI();
@@ -48,10 +30,31 @@ export default function Profile() {
   const { user, role, setRole, logout } = useAuthStore();
   const { hapticFeedback, showConfirm } = useTelegram();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
 
-  // Settings modal state
   const [, setIsSettingsOpen] = useState(false);
   const [, setSettingsTab] = useState<SettingsTab>('security');
+
+  const menuItems = [
+    {
+      icon: ShieldCheckIcon,
+      label: 'Security',
+      description: 'Manage your account security',
+      tab: 'security' as SettingsTab,
+    },
+    {
+      icon: BellIcon,
+      label: 'Notifications',
+      description: 'Notification preferences',
+      tab: 'notifications' as SettingsTab,
+    },
+    {
+      icon: QuestionMarkCircleIcon,
+      label: 'Help & Support',
+      description: 'Get help or contact us',
+      tab: 'help' as SettingsTab,
+    },
+  ];
 
   const openSettings = (tab: SettingsTab) => {
     setSettingsTab(tab);
@@ -61,7 +64,7 @@ export default function Profile() {
 
   const handleDisconnect = async () => {
     hapticFeedback('medium');
-    const confirmed = await showConfirm('Are you sure you want to disconnect your wallet?');
+    const confirmed = await showConfirm(t('profile.disconnect') + '?');
     if (confirmed) {
       await tonConnectUI.disconnect();
       logout();
@@ -92,8 +95,8 @@ export default function Profile() {
         animate={{ opacity: 1, y: 0 }}
         className="mb-4 pl-1"
       >
-        <h1 className="text-3xl font-bold text-white tracking-tight">Profile</h1>
-        <p className="text-zinc-400 mt-1">Manage your account settings</p>
+        <h1 className="text-3xl font-bold text-white tracking-tight">{t('profile.title')}</h1>
+        <p className="text-zinc-400 mt-1">{t('profile.subtitle')}</p>
       </motion.div>
 
       {/* Profile Card */}
@@ -108,31 +111,26 @@ export default function Profile() {
           </div>
           <div className="flex-1">
             <h2 className="text-xl font-bold text-white tracking-tight">
-              {user?.companyName || 'Partner Account'}
+              {user?.companyName || 'Account'}
             </h2>
             <div className="flex items-center gap-2 mt-1">
-              <span
-                className={clsx(
-                  'px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border',
-                  user?.tier === 'GOLD'
-                    ? 'bg-white/10 text-white border-white/20'
-                    : user?.tier === 'SILVER'
-                      ? 'bg-zinc-800 text-zinc-300 border-zinc-700'
-                      : 'bg-black/40 text-zinc-400 border-white/5'
-                )}
-              >
-                {user?.tier || 'BRONZE'}
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border bg-white/5 text-zinc-300 border-white/10">
+                {role === 'business' ? '🏪 Business' : '👤 Customer'}
               </span>
-              <span
-                className={clsx(
-                  'px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border',
-                  user?.status === 'ACTIVE'
-                    ? 'bg-white/5 text-zinc-300 border-white/10'
-                    : 'bg-black/50 text-zinc-500 border-white/5'
-                )}
-              >
-                {user?.status || 'ACTIVE'}
-              </span>
+              {user?.tier && (
+                <span
+                  className={clsx(
+                    'px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border',
+                    user?.tier === 'GOLD'
+                      ? 'bg-white/10 text-white border-white/20'
+                      : user?.tier === 'SILVER'
+                        ? 'bg-zinc-800 text-zinc-300 border-zinc-700'
+                        : 'bg-black/40 text-zinc-400 border-white/5'
+                  )}
+                >
+                  {user?.tier || 'BRONZE'}
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -145,30 +143,28 @@ export default function Profile() {
         transition={{ delay: 0.1 }}
         className="glass-panel space-y-4"
       >
-        <h3 className="font-bold text-white tracking-tight">Account Details</h3>
+        <h3 className="font-bold text-white tracking-tight">{t('profile.accountDetails')}</h3>
 
         <div className="space-y-3">
-          <div className="flex items-center gap-3 py-2">
-            <div className="p-2 bg-white/5 rounded-xl border border-white/5">
-              <BuildingStorefrontIcon className="w-5 h-5 text-zinc-300" />
+          {user?.companyName && (
+            <div className="flex items-center gap-3 py-2">
+              <div className="p-2 bg-white/5 rounded-xl border border-white/5">
+                <BuildingStorefrontIcon className="w-5 h-5 text-zinc-300" />
+              </div>
+              <div className="flex-1">
+                <p className="text-xs text-zinc-500">{t('profile.companyName')}</p>
+                <p className="font-medium text-zinc-200">{user.companyName}</p>
+              </div>
             </div>
-            <div className="flex-1">
-              <p className="text-xs text-zinc-500">Company Name</p>
-              <p className="font-medium text-zinc-200">
-                {user?.companyName || 'Not set'}
-              </p>
-            </div>
-          </div>
+          )}
 
           <div className="flex items-center gap-3 py-2">
             <div className="p-2 bg-white/5 rounded-xl border border-white/5">
               <EnvelopeIcon className="w-5 h-5 text-zinc-300" />
             </div>
             <div className="flex-1">
-              <p className="text-xs text-zinc-500">Email</p>
-              <p className="font-medium text-zinc-200">
-                {user?.email || 'Not set'}
-              </p>
+              <p className="text-xs text-zinc-500">{t('profile.email')}</p>
+              <p className="font-medium text-zinc-200">{user?.email || t('profile.notSet')}</p>
             </div>
           </div>
 
@@ -177,12 +173,44 @@ export default function Profile() {
               <WalletIcon className="w-5 h-5 text-zinc-300" />
             </div>
             <div className="flex-1">
-              <p className="text-xs text-zinc-500">Wallet Address</p>
+              <p className="text-xs text-zinc-500">{t('profile.walletAddress')}</p>
               <p className="font-medium text-zinc-200 font-mono text-xs mt-0.5 bg-black/20 px-2 py-0.5 rounded inline-block">
-                {wallet ? formatAddress(wallet.account.address) : 'Not connected'}
+                {wallet ? formatAddress(wallet.account.address) : t('profile.notSet')}
               </p>
             </div>
           </div>
+        </div>
+      </motion.div>
+
+      {/* Language Selector */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15 }}
+        className="glass-panel"
+      >
+        <div className="flex items-center gap-3 mb-3">
+          <div className="p-2 bg-white/5 rounded-xl border border-white/5">
+            <LanguageIcon className="w-5 h-5 text-zinc-300" />
+          </div>
+          <h3 className="font-bold text-white tracking-tight">{t('profile.language')}</h3>
+        </div>
+        <div className="flex gap-2">
+          {languages.map((lang) => (
+            <button
+              key={lang.code}
+              onClick={() => changeLanguage(lang.code)}
+              className={clsx(
+                'flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all border',
+                i18n.language === lang.code
+                  ? 'bg-white text-black border-white'
+                  : 'bg-white/5 text-zinc-400 border-white/5 hover:bg-white/10'
+              )}
+            >
+              <span>{lang.flag}</span>
+              <span className="text-xs">{lang.name}</span>
+            </button>
+          ))}
         </div>
       </motion.div>
 
@@ -220,7 +248,7 @@ export default function Profile() {
         className="w-full flex items-center justify-center gap-2 py-4 bg-white/5 text-zinc-300 rounded-2xl font-bold hover:bg-white/10 border border-white/10 transition-colors"
       >
         <ArrowsRightLeftIcon className="w-5 h-5" />
-        {role === 'business' ? 'Switch to Customer View' : 'Switch to Business View'}
+        {role === 'business' ? t('profile.switchToCustomer') : t('profile.switchToBusiness')}
       </motion.button>
 
       {/* Disconnect Button */}
@@ -232,18 +260,14 @@ export default function Profile() {
         className="w-full flex items-center justify-center gap-2 py-4 bg-red-500/5 text-red-500 rounded-2xl font-bold hover:bg-red-500/10 border border-red-500/10 transition-colors"
       >
         <ArrowRightOnRectangleIcon className="w-5 h-5" />
-        Disconnect Wallet
+        {t('profile.disconnect')}
       </motion.button>
 
       {/* Footer */}
       <div className="text-center pt-4 pb-8">
-        <p className="text-[10px] font-bold tracking-widest uppercase text-zinc-600">Sweet Loyalty v1.0.0</p>
-        <p className="text-[10px] text-zinc-700 mt-1">AITU Diploma Project 2025</p>
+        <p className="text-[10px] font-bold tracking-widest uppercase text-zinc-600">{t('profile.version')}</p>
+        <p className="text-[10px] text-zinc-700 mt-1">{t('profile.diploma')}</p>
       </div>
     </div>
   );
 }
-
-
-
-

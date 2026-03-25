@@ -1,87 +1,106 @@
 {
-    "common": {
-        "loading": "Loading...",
-        "error": "Error",
-        "success": "Success",
-        "cancel": "Cancel",
-        "confirm": "Confirm",
-        "save": "Save",
-        "delete": "Delete",
-        "edit": "Edit",
-        "back": "Back",
-        "next": "Next",
-        "submit": "Submit",
-        "search": "Search",
-        "noData": "No data available"
-    },
-    "nav": {
-        "home": "Home",
-        "dashboard": "Dashboard",
-        "loyalty": "Loyalty",
-        "rewards": "Rewards",
-        "transactions": "Transactions",
-        "referrals": "Referrals",
-        "achievements": "Achievements",
-        "settings": "Settings",
-        "logout": "Logout"
-    },
-    "auth": {
-        "connectWallet": "Connect Wallet",
-        "disconnectWallet": "Disconnect",
-        "login": "Login",
-        "register": "Register",
-        "companyName": "Company Name",
-        "email": "Email",
-        "walletAddress": "Wallet Address"
-    },
-    "dashboard": {
-        "welcome": "Welcome",
-        "balance": "Balance",
-        "points": "Points",
-        "tier": "Tier",
-        "lifetimeEarned": "Lifetime Earned",
-        "recentTransactions": "Recent Transactions",
-        "viewAll": "View All"
-    },
-    "loyalty": {
-        "earnPoints": "Earn Points",
-        "redeemPoints": "Redeem Points",
-        "currentBalance": "Current Balance",
-        "pointsHistory": "Points History"
-    },
-    "rewards": {
-        "title": "Rewards Catalog",
-        "claim": "Claim Reward",
-        "pointsRequired": "Points Required",
-        "available": "Available",
-        "outOfStock": "Out of Stock",
-        "claimSuccess": "Reward claimed successfully!"
-    },
-    "referrals": {
-        "title": "Referral Program",
-        "yourCode": "Your Referral Code",
-        "copyCode": "Copy Code",
-        "totalReferrals": "Total Referrals",
-        "bonusEarned": "Bonus Earned",
-        "inviteFriends": "Invite friends and earn bonus points!",
-        "leaderboard": "Referral Leaderboard"
-    },
-    "achievements": {
-        "title": "Achievements",
-        "unlocked": "Unlocked",
-        "locked": "Locked",
-        "progress": "Progress",
-        "newAchievement": "New Achievement Unlocked!"
-    },
-    "tiers": {
-        "BRONZE": "Bronze",
-        "SILVER": "Silver",
-        "GOLD": "Gold"
-    },
-    "status": {
-        "PENDING": "Pending",
-        "ACTIVE": "Active",
-        "SUSPENDED": "Suspended",
-        "BANNED": "Banned"
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "back": "Back",
+    "noData": "No data available",
+    "sweet": "SWEET",
+    "kzt": "KZT"
+  },
+  "home": {
+    "title": "Sweet Loyalty",
+    "subtitle": "Blockchain loyalty system for confectioneries",
+    "connectWallet": "Connect your TON wallet to get started",
+    "chooseRole": "Choose how you want to use the platform",
+    "business": "I'm a Business",
+    "businessDesc": "Register your confectionery and send cashback to customers",
+    "customer": "I'm a Customer",
+    "customerDesc": "Check your SWEET balance, browse rewards, receive cashback"
+  },
+  "register": {
+    "title": "Business Registration",
+    "subtitle": "Register your confectionery on the platform",
+    "walletLabel": "TON Wallet",
+    "companyLabel": "Confectionery name *",
+    "companyPlaceholder": "e.g. Sweet Dreams",
+    "emailLabel": "Email (optional)",
+    "submitButton": "Register Business",
+    "footer": "Your wallet will be used to send cashback to customers",
+    "success": "Business registered successfully!",
+    "redirecting": "Redirecting to dashboard..."
+  },
+  "businessDashboard": {
+    "title": "Sweet Loyalty",
+    "subtitle": "B2B Loyalty Token Management",
+    "pos": {
+      "title": "POS Payment Simulation",
+      "subtitle": "Cashback transfer to client wallet",
+      "amountLabel": "Scan & Pay Amount (KZT)",
+      "walletLabel": "Client Wallet Address (QR Scan)",
+      "cashbackLabel": "Cashback Reward (10%)",
+      "processButton": "Process Payment & Airdrop",
+      "connectFirst": "Connect wallet first"
     }
+  },
+  "customerDashboard": {
+    "title": "My Wallet",
+    "subtitle": "Your SWEET loyalty balance",
+    "balance": "SWEET Balance",
+    "showQr": "Show this QR to the cashier to receive cashback",
+    "rewardsLink": "Rewards Catalog",
+    "rewardsDesc": "Exchange your SWEET for discounts and products",
+    "recentCashback": "Recent Cashback",
+    "noTransactions": "No transactions yet",
+    "noTransactionsHint": "Show your QR code at a partner confectionery to earn SWEET",
+    "cashback": "Cashback"
+  },
+  "rewards": {
+    "title": "Rewards Catalog",
+    "subtitle": "Exchange SWEET for real rewards at partner confectioneries",
+    "backToDashboard": "Back to Dashboard",
+    "redeem": "Redeem",
+    "available": "available",
+    "redeemed": "Redeemed!",
+    "showCoupon": "Show this code to the cashier",
+    "platformWide": "Platform-wide",
+    "couponTitle": "Your Coupon",
+    "couponReady": "Show this code to the cashier at",
+    "close": "Close",
+    "allPartners": "All Partners",
+    "partners": {
+      "homemacaron": "Home Macaron",
+      "shokoladnitsa": "Shokoladnitsa",
+      "pieceofcake": "Piece of Cake",
+      "coffeemania": "Coffee Mania",
+      "bonapart": "Bonapart"
+    }
+  },
+  "profile": {
+    "title": "Profile",
+    "subtitle": "Manage your account settings",
+    "accountDetails": "Account Details",
+    "companyName": "Company Name",
+    "email": "Email",
+    "walletAddress": "Wallet Address",
+    "notSet": "Not set",
+    "switchToCustomer": "Switch to Customer View",
+    "switchToBusiness": "Switch to Business View",
+    "disconnect": "Disconnect Wallet",
+    "language": "Language",
+    "version": "Sweet Loyalty v1.0.0",
+    "diploma": "AITU Diploma Project 2025"
+  },
+  "nav": {
+    "pos": "POS",
+    "wallet": "Wallet",
+    "rewards": "Rewards",
+    "history": "History",
+    "exchange": "Exchange",
+    "blockchain": "Blockchain",
+    "profile": "Profile"
+  }
 }

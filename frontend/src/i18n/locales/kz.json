@@ -1,87 +1,106 @@
 {
-    "common": {
-        "loading": "Жүктелуде...",
-        "error": "Қате",
-        "success": "Сәтті",
-        "cancel": "Болдырмау",
-        "confirm": "Растау",
-        "save": "Сақтау",
-        "delete": "Жою",
-        "edit": "Өзгерту",
-        "back": "Артқа",
-        "next": "Келесі",
-        "submit": "Жіберу",
-        "search": "Іздеу",
-        "noData": "Деректер жоқ"
-    },
-    "nav": {
-        "home": "Басты бет",
-        "dashboard": "Панель",
-        "loyalty": "Адалдық",
-        "rewards": "Марапаттар",
-        "transactions": "Транзакциялар",
-        "referrals": "Рефералдар",
-        "achievements": "Жетістіктер",
-        "settings": "Параметрлер",
-        "logout": "Шығу"
-    },
-    "auth": {
-        "connectWallet": "Әмиянды қосу",
-        "disconnectWallet": "Ажырату",
-        "login": "Кіру",
-        "register": "Тіркелу",
-        "companyName": "Компания атауы",
-        "email": "Электрондық пошта",
-        "walletAddress": "Әмиян мекенжайы"
-    },
-    "dashboard": {
-        "welcome": "Қош келдіңіз",
-        "balance": "Баланс",
-        "points": "Ұпайлар",
-        "tier": "Деңгей",
-        "lifetimeEarned": "Барлық жиналған",
-        "recentTransactions": "Соңғы транзакциялар",
-        "viewAll": "Барлығын көру"
-    },
-    "loyalty": {
-        "earnPoints": "Ұпай жинау",
-        "redeemPoints": "Ұпай жұмсау",
-        "currentBalance": "Ағымдағы баланс",
-        "pointsHistory": "Ұпайлар тарихы"
-    },
-    "rewards": {
-        "title": "Марапаттар каталогы",
-        "claim": "Марапат алу",
-        "pointsRequired": "Қажетті ұпайлар",
-        "available": "Қол жетімді",
-        "outOfStock": "Қоймада жоқ",
-        "claimSuccess": "Марапат сәтті алынды!"
-    },
-    "referrals": {
-        "title": "Реферал бағдарламасы",
-        "yourCode": "Сіздің реферал кодыңыз",
-        "copyCode": "Кодты көшіру",
-        "totalReferrals": "Жалпы рефералдар",
-        "bonusEarned": "Жиналған бонус",
-        "inviteFriends": "Достарыңызды шақырыңыз және бонустық ұпайлар алыңыз!",
-        "leaderboard": "Реферал рейтингі"
-    },
-    "achievements": {
-        "title": "Жетістіктер",
-        "unlocked": "Ашылған",
-        "locked": "Жабық",
-        "progress": "Прогресс",
-        "newAchievement": "Жаңа жетістік ашылды!"
-    },
-    "tiers": {
-        "BRONZE": "Қола",
-        "SILVER": "Күміс",
-        "GOLD": "Алтын"
-    },
-    "status": {
-        "PENDING": "Күтуде",
-        "ACTIVE": "Белсенді",
-        "SUSPENDED": "Тоқтатылған",
-        "BANNED": "Бұғатталған"
+  "common": {
+    "loading": "Жүктелуде...",
+    "error": "Қате",
+    "success": "Сәтті",
+    "cancel": "Болдырмау",
+    "confirm": "Растау",
+    "save": "Сақтау",
+    "back": "Артқа",
+    "noData": "Деректер жоқ",
+    "sweet": "SWEET",
+    "kzt": "KZT"
+  },
+  "home": {
+    "title": "Sweet Loyalty",
+    "subtitle": "Кондитерлік дүкендерге арналған блокчейн адалдық жүйесі",
+    "connectWallet": "Бастау үшін TON әмиянын қосыңыз",
+    "chooseRole": "Платформаны қалай пайдаланғыңыз келетінін таңдаңыз",
+    "business": "Мен — Бизнес",
+    "businessDesc": "Кондитерлік дүкеніңізді тіркеп, клиенттерге кэшбэк жіберіңіз",
+    "customer": "Мен — Клиент",
+    "customerDesc": "SWEET балансын тексеріп, кэшбэк алыңыз және сыйлықтарға айырбастаңыз"
+  },
+  "register": {
+    "title": "Бизнесті тіркеу",
+    "subtitle": "Кондитерлік дүкеніңізді платформада тіркеңіз",
+    "walletLabel": "TON әмияны",
+    "companyLabel": "Кондитерлік дүкеннің атауы *",
+    "companyPlaceholder": "мысалы: Sweet Dreams",
+    "emailLabel": "Email (міндетті емес)",
+    "submitButton": "Бизнесті тіркеу",
+    "footer": "Сіздің әмияныңыз клиенттерге кэшбэк жіберу үшін пайдаланылады",
+    "success": "Бизнес сәтті тіркелді!",
+    "redirecting": "Басқару панеліне бағыттау..."
+  },
+  "businessDashboard": {
+    "title": "Sweet Loyalty",
+    "subtitle": "B2B адалдық токендерін басқару",
+    "pos": {
+      "title": "POS-төлем симуляциясы",
+      "subtitle": "Клиент әмиянына кэшбэк аударымы",
+      "amountLabel": "Сатып алу сомасы (KZT)",
+      "walletLabel": "Клиент әмиянының мекенжайы (QR-скан)",
+      "cashbackLabel": "Кэшбэк (10%)",
+      "processButton": "Төлемді өңдеп, жіберу",
+      "connectFirst": "Алдымен әмиянды қосыңыз"
     }
+  },
+  "customerDashboard": {
+    "title": "Менің әмияным",
+    "subtitle": "Сіздің SWEET токен балансыңыз",
+    "balance": "SWEET балансы",
+    "showQr": "Кэшбэк алу үшін бұл QR кодты кассирге көрсетіңіз",
+    "rewardsLink": "Сыйлықтар каталогы",
+    "rewardsDesc": "SWEET токендерін жеңілдіктер мен өнімдерге айырбастаңыз",
+    "recentCashback": "Соңғы кэшбэк",
+    "noTransactions": "Әзірге транзакциялар жоқ",
+    "noTransactionsHint": "SWEET алу үшін серіктес кондитерлікте QR кодын көрсетіңіз",
+    "cashback": "Кэшбэк"
+  },
+  "rewards": {
+    "title": "Сыйлықтар каталогы",
+    "subtitle": "Серіктес кондитерліктерде SWEET-ті нақты сыйлықтарға айырбастаңыз",
+    "backToDashboard": "Әмиянға оралу",
+    "redeem": "Айырбастау",
+    "available": "қолжетімді",
+    "redeemed": "Алынды!",
+    "showCoupon": "Бұл кодты кассирге көрсетіңіз",
+    "platformWide": "Барлық серіктестер",
+    "couponTitle": "Сіздің купоныңыз",
+    "couponReady": "Бұл кодты кассирге көрсетіңіз",
+    "close": "Жабу",
+    "allPartners": "Барлық серіктестер",
+    "partners": {
+      "homemacaron": "Home Macaron",
+      "shokoladnitsa": "Шоколадница",
+      "pieceofcake": "Piece of Cake",
+      "coffeemania": "Coffee Mania",
+      "bonapart": "Бонапарт"
+    }
+  },
+  "profile": {
+    "title": "Профиль",
+    "subtitle": "Аккаунт параметрлерін басқару",
+    "accountDetails": "Аккаунт деректері",
+    "companyName": "Компания атауы",
+    "email": "Email",
+    "walletAddress": "Әмиян мекенжайы",
+    "notSet": "Көрсетілмеген",
+    "switchToCustomer": "Клиент көрінісіне ауысу",
+    "switchToBusiness": "Бизнес көрінісіне ауысу",
+    "disconnect": "Әмиянды ажырату",
+    "language": "Тіл",
+    "version": "Sweet Loyalty v1.0.0",
+    "diploma": "AITU дипломдық жоба 2025"
+  },
+  "nav": {
+    "pos": "Касса",
+    "wallet": "Әмиян",
+    "rewards": "Сыйлықтар",
+    "history": "Тарих",
+    "exchange": "Айырбас",
+    "blockchain": "Блокчейн",
+    "profile": "Профиль"
+  }
 }

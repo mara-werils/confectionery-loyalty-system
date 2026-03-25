@@ -1,87 +1,106 @@
 {
-    "common": {
-        "loading": "Загрузка...",
-        "error": "Ошибка",
-        "success": "Успешно",
-        "cancel": "Отмена",
-        "confirm": "Подтвердить",
-        "save": "Сохранить",
-        "delete": "Удалить",
-        "edit": "Редактировать",
-        "back": "Назад",
-        "next": "Далее",
-        "submit": "Отправить",
-        "search": "Поиск",
-        "noData": "Нет данных"
-    },
-    "nav": {
-        "home": "Главная",
-        "dashboard": "Панель",
-        "loyalty": "Лояльность",
-        "rewards": "Награды",
-        "transactions": "Транзакции",
-        "referrals": "Рефералы",
-        "achievements": "Достижения",
-        "settings": "Настройки",
-        "logout": "Выйти"
-    },
-    "auth": {
-        "connectWallet": "Подключить кошелёк",
-        "disconnectWallet": "Отключить",
-        "login": "Войти",
-        "register": "Регистрация",
-        "companyName": "Название компании",
-        "email": "Электронная почта",
-        "walletAddress": "Адрес кошелька"
-    },
-    "dashboard": {
-        "welcome": "Добро пожаловать",
-        "balance": "Баланс",
-        "points": "Баллы",
-        "tier": "Уровень",
-        "lifetimeEarned": "Всего заработано",
-        "recentTransactions": "Последние транзакции",
-        "viewAll": "Показать все"
-    },
-    "loyalty": {
-        "earnPoints": "Получить баллы",
-        "redeemPoints": "Потратить баллы",
-        "currentBalance": "Текущий баланс",
-        "pointsHistory": "История баллов"
-    },
-    "rewards": {
-        "title": "Каталог наград",
-        "claim": "Получить награду",
-        "pointsRequired": "Требуется баллов",
-        "available": "Доступно",
-        "outOfStock": "Нет в наличии",
-        "claimSuccess": "Награда успешно получена!"
-    },
-    "referrals": {
-        "title": "Реферальная программа",
-        "yourCode": "Ваш реферальный код",
-        "copyCode": "Копировать код",
-        "totalReferrals": "Всего рефералов",
-        "bonusEarned": "Заработанный бонус",
-        "inviteFriends": "Приглашайте друзей и получайте бонусные баллы!",
-        "leaderboard": "Рейтинг рефералов"
-    },
-    "achievements": {
-        "title": "Достижения",
-        "unlocked": "Разблокировано",
-        "locked": "Заблокировано",
-        "progress": "Прогресс",
-        "newAchievement": "Новое достижение разблокировано!"
-    },
-    "tiers": {
-        "BRONZE": "Бронза",
-        "SILVER": "Серебро",
-        "GOLD": "Золото"
-    },
-    "status": {
-        "PENDING": "Ожидание",
-        "ACTIVE": "Активен",
-        "SUSPENDED": "Приостановлен",
-        "BANNED": "Заблокирован"
+  "common": {
+    "loading": "Загрузка...",
+    "error": "Ошибка",
+    "success": "Успешно",
+    "cancel": "Отмена",
+    "confirm": "Подтвердить",
+    "save": "Сохранить",
+    "back": "Назад",
+    "noData": "Данные отсутствуют",
+    "sweet": "SWEET",
+    "kzt": "KZT"
+  },
+  "home": {
+    "title": "Sweet Loyalty",
+    "subtitle": "Блокчейн-система лояльности для кондитерских",
+    "connectWallet": "Подключите кошелёк TON для начала работы",
+    "chooseRole": "Выберите, как вы хотите использовать платформу",
+    "business": "Я — Бизнес",
+    "businessDesc": "Зарегистрируйте свою кондитерскую и начисляйте кэшбэк клиентам",
+    "customer": "Я — Клиент",
+    "customerDesc": "Проверяйте баланс SWEET, получайте кэшбэк и обменивайте на награды"
+  },
+  "register": {
+    "title": "Регистрация бизнеса",
+    "subtitle": "Зарегистрируйте вашу кондитерскую на платформе",
+    "walletLabel": "Кошелёк TON",
+    "companyLabel": "Название кондитерской *",
+    "companyPlaceholder": "например: Sweet Dreams",
+    "emailLabel": "Email (необязательно)",
+    "submitButton": "Зарегистрировать бизнес",
+    "footer": "Ваш кошелёк будет использоваться для отправки кэшбэка клиентам",
+    "success": "Бизнес успешно зарегистрирован!",
+    "redirecting": "Перенаправление в панель управления..."
+  },
+  "businessDashboard": {
+    "title": "Sweet Loyalty",
+    "subtitle": "Управление токенами лояльности B2B",
+    "pos": {
+      "title": "Симуляция POS-оплаты",
+      "subtitle": "Кэшбэк-перевод на кошелёк клиента",
+      "amountLabel": "Сумма покупки (KZT)",
+      "walletLabel": "Адрес кошелька клиента (QR-скан)",
+      "cashbackLabel": "Кэшбэк (10%)",
+      "processButton": "Провести оплату и отправить",
+      "connectFirst": "Сначала подключите кошелёк"
     }
+  },
+  "customerDashboard": {
+    "title": "Мой кошелёк",
+    "subtitle": "Ваш баланс SWEET токенов",
+    "balance": "Баланс SWEET",
+    "showQr": "Покажите этот QR кассиру для получения кэшбэка",
+    "rewardsLink": "Каталог наград",
+    "rewardsDesc": "Обменивайте SWEET на скидки и продукты",
+    "recentCashback": "Последний кэшбэк",
+    "noTransactions": "Транзакций пока нет",
+    "noTransactionsHint": "Покажите QR-код в партнёрской кондитерской для получения SWEET",
+    "cashback": "Кэшбэк"
+  },
+  "rewards": {
+    "title": "Каталог наград",
+    "subtitle": "Обменивайте SWEET на реальные награды в партнёрских кондитерских",
+    "backToDashboard": "Назад к кошельку",
+    "redeem": "Обменять",
+    "available": "в наличии",
+    "redeemed": "Получено!",
+    "showCoupon": "Покажите этот код кассиру",
+    "platformWide": "Для всех партнёров",
+    "couponTitle": "Ваш купон",
+    "couponReady": "Покажите этот код кассиру в",
+    "close": "Закрыть",
+    "allPartners": "Все партнёры",
+    "partners": {
+      "homemacaron": "Home Macaron",
+      "shokoladnitsa": "Шоколадница",
+      "pieceofcake": "Piece of Cake",
+      "coffeemania": "Coffee Mania",
+      "bonapart": "Бонапарт"
+    }
+  },
+  "profile": {
+    "title": "Профиль",
+    "subtitle": "Управление настройками аккаунта",
+    "accountDetails": "Данные аккаунта",
+    "companyName": "Название компании",
+    "email": "Email",
+    "walletAddress": "Адрес кошелька",
+    "notSet": "Не указано",
+    "switchToCustomer": "Переключить на клиента",
+    "switchToBusiness": "Переключить на бизнес",
+    "disconnect": "Отключить кошелёк",
+    "language": "Язык",
+    "version": "Sweet Loyalty v1.0.0",
+    "diploma": "Дипломный проект AITU 2025"
+  },
+  "nav": {
+    "pos": "Касса",
+    "wallet": "Кошелёк",
+    "rewards": "Награды",
+    "history": "История",
+    "exchange": "Обмен",
+    "blockchain": "Блокчейн",
+    "profile": "Профиль"
+  }
 }

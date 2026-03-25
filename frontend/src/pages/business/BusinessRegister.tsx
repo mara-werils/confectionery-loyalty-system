@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTonWallet } from '@tonconnect/ui-react';
+import { useTranslation } from 'react-i18next';
 import { BuildingStorefrontIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { GlassCard } from '../../components/GlassCard';
 import { useAuthStore } from '../../store/authStore';
@@ -11,6 +12,7 @@ export default function BusinessRegister() {
   const navigate = useNavigate();
   const wallet = useTonWallet();
   const { setUser, setToken } = useAuthStore();
+  const { t } = useTranslation();
   const [companyName, setCompanyName] = useState('');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
@@ -18,18 +20,16 @@ export default function BusinessRegister() {
 
   const handleRegister = async () => {
     if (!companyName.trim()) {
-      toast.error('Введите название компании');
+      toast.error(t('register.companyLabel'));
       return;
     }
     if (!wallet) {
-      toast.error('Подключите кошелек');
+      toast.error(t('register.walletLabel'));
       return;
     }
 
     setLoading(true);
     try {
-      // For MVP demo: simulate successful registration
-      // In production: calls POST /api/v1/auth/register with wallet signature
       await new Promise(r => setTimeout(r, 1200));
 
       const mockUser = {
@@ -44,13 +44,13 @@ export default function BusinessRegister() {
       setUser(mockUser);
       setToken('demo-jwt-' + Date.now());
       setRegistered(true);
-      toast.success('Бизнес успешно зарегистрирован!');
+      toast.success(t('register.success'));
 
       setTimeout(() => {
         navigate('/business/dashboard');
       }, 1500);
     } catch (error) {
-      toast.error('Ошибка регистрации');
+      toast.error(t('common.error'));
     }
     setLoading(false);
   };
@@ -64,8 +64,8 @@ export default function BusinessRegister() {
           className="text-center"
         >
           <CheckCircleIcon className="w-20 h-20 text-green-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-white mb-2">Регистрация завершена!</h2>
-          <p className="text-zinc-400 text-sm">Перенаправление в панель управления...</p>
+          <h2 className="text-2xl font-bold text-white mb-2">{t('register.success')}</h2>
+          <p className="text-zinc-400 text-sm">{t('register.redirecting')}</p>
         </motion.div>
       </div>
     );
@@ -82,40 +82,37 @@ export default function BusinessRegister() {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-white/5 rounded-2xl ring-1 ring-white/10 mb-4">
             <BuildingStorefrontIcon className="w-8 h-8 text-zinc-200" />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-1">Регистрация бизнеса</h1>
-          <p className="text-zinc-400 text-sm">Зарегистрируйте вашу кондитерскую на платформе</p>
+          <h1 className="text-3xl font-bold text-white mb-1">{t('register.title')}</h1>
+          <p className="text-zinc-400 text-sm">{t('register.subtitle')}</p>
         </div>
 
         <GlassCard className="p-6 border border-white/5">
           <div className="space-y-5">
-            {/* Wallet address (auto-filled) */}
             <div>
               <label className="block text-xs text-zinc-500 mb-1.5 font-medium">
-                Кошелек TON
+                {t('register.walletLabel')}
               </label>
               <div className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-zinc-500 text-xs font-mono truncate">
-                {wallet?.account.address || 'Подключите кошелек'}
+                {wallet?.account.address || t('home.connectWallet')}
               </div>
             </div>
 
-            {/* Company name */}
             <div>
               <label className="block text-xs text-zinc-500 mb-1.5 font-medium">
-                Название кондитерской *
+                {t('register.companyLabel')}
               </label>
               <input
                 type="text"
                 className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-white/30 transition-colors placeholder-zinc-600"
-                placeholder="например: Sweet Dreams"
+                placeholder={t('register.companyPlaceholder')}
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
               />
             </div>
 
-            {/* Email */}
             <div>
               <label className="block text-xs text-zinc-500 mb-1.5 font-medium">
-                Email (необязательно)
+                {t('register.emailLabel')}
               </label>
               <input
                 type="email"
@@ -126,7 +123,6 @@ export default function BusinessRegister() {
               />
             </div>
 
-            {/* Register button */}
             <button
               onClick={handleRegister}
               disabled={loading || !companyName.trim()}
@@ -137,7 +133,7 @@ export default function BusinessRegister() {
               ) : (
                 <>
                   <BuildingStorefrontIcon className="w-4 h-4" />
-                  Зарегистрировать бизнес
+                  {t('register.submitButton')}
                 </>
               )}
             </button>
@@ -145,7 +141,7 @@ export default function BusinessRegister() {
         </GlassCard>
 
         <p className="text-center text-xs text-zinc-600 mt-6">
-          Ваш кошелек будет использоваться для отправки кэшбэка клиентам
+          {t('register.footer')}
         </p>
       </motion.div>
     </div>

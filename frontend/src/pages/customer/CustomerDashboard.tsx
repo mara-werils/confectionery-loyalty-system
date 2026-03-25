@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTonWallet } from '@tonconnect/ui-react';
 import { QRCodeSVG } from 'qrcode.react';
+import { useTranslation } from 'react-i18next';
 import {
   SparklesIcon,
   ClockIcon,
@@ -10,8 +11,6 @@ import {
 } from '@heroicons/react/24/outline';
 import { GlassCard } from '../../components/GlassCard';
 import { useNavigate } from 'react-router-dom';
-
-const JETTON_MASTER = 'kQBNOiJ4aToE-Ea12DpY5nBmu1bKT0axt81JmS9BFPh8nCio';
 
 interface JettonBalance {
   balance: string;
@@ -29,32 +28,25 @@ interface Transaction {
 export default function CustomerDashboard() {
   const wallet = useTonWallet();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [balance, setBalance] = useState<JettonBalance | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
 
   const walletAddress = wallet?.account.address || '';
 
-  // Fetch real Jetton balance from TON Testnet
   useEffect(() => {
     if (!walletAddress) return;
 
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Convert raw address to user-friendly format for API
-        const friendlyAddr = walletAddress.includes(':')
-          ? toFriendly(walletAddress)
-          : walletAddress;
-
-        // Fetch Jetton balances
         const res = await fetch(
-          `https://testnet.tonapi.io/v2/accounts/${friendlyAddr}/jettons`
+          `https://testnet.tonapi.io/v2/accounts/${walletAddress}/jettons`
         );
         const data = await res.json();
 
         if (data.balances && data.balances.length > 0) {
-          // Find SWEET token
           const sweet = data.balances.find(
             (b: any) =>
               b.jetton?.address?.toLowerCase() ===
@@ -68,9 +60,8 @@ export default function CustomerDashboard() {
           }
         }
 
-        // Fetch recent events (transactions)
         const txRes = await fetch(
-          `https://testnet.tonapi.io/v2/accounts/${friendlyAddr}/events?limit=10`
+          `https://testnet.tonapi.io/v2/accounts/${walletAddress}/events?limit=10`
         );
         const txData = await txRes.json();
 
@@ -83,7 +74,7 @@ export default function CustomerDashboard() {
                 hash: e.event_id,
                 amount: action?.JettonTransfer?.amount || '0',
                 sender: action?.JettonTransfer?.sender?.address || 'unknown',
-                comment: action?.JettonTransfer?.comment || 'Cashback',
+                comment: action?.JettonTransfer?.comment || t('customerDashboard.cashback'),
                 timestamp: e.timestamp,
               };
             });
@@ -121,15 +112,14 @@ export default function CustomerDashboard() {
 
   return (
     <div className="min-h-screen p-4 md:p-8 pb-24 text-white">
-      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         className="mb-8"
       >
-        <h1 className="text-3xl md:text-4xl font-bold tracking-tight">My Wallet</h1>
-        <p className="text-zinc-400 mt-1 text-sm">Your SWEET loyalty balance</p>
+        <h1 className="text-3xl md:text-4xl font-bold tracking-tight">{t('customerDashboard.title')}</h1>
+        <p className="text-zinc-400 mt-1 text-sm">{t('customerDashboard.subtitle')}</p>
       </motion.div>
 
       {/* Balance Card */}
@@ -142,7 +132,7 @@ export default function CustomerDashboard() {
         <GlassCard className="p-6 border border-white/5 relative overflow-hidden">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs text-zinc-500 font-medium mb-1">SWEET Balance</p>
+              <p className="text-xs text-zinc-500 font-medium mb-1">{t('customerDashboard.balance')}</p>
               <p className="text-4xl font-extrabold tracking-tight">
                 {loading ? (
                   <span className="inline-block w-24 h-10 bg-white/5 rounded-lg animate-pulse" />
@@ -161,7 +151,7 @@ export default function CustomerDashboard() {
         </GlassCard>
       </motion.div>
 
-      {/* QR Code — for business to scan */}
+      {/* QR Code */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -170,7 +160,7 @@ export default function CustomerDashboard() {
       >
         <GlassCard className="p-6 border border-white/5 text-center">
           <p className="text-xs text-zinc-500 font-medium mb-4">
-            Show this QR to the cashier to receive cashback
+            {t('customerDashboard.showQr')}
           </p>
           <div className="inline-block bg-white p-4 rounded-2xl">
             <QRCodeSVG
@@ -194,17 +184,14 @@ export default function CustomerDashboard() {
         transition={{ delay: 0.3 }}
         className="mb-6"
       >
-        <button
-          onClick={() => navigate('/customer/rewards')}
-          className="w-full"
-        >
+        <button onClick={() => navigate('/customer/rewards')} className="w-full">
           <GlassCard className="flex items-center gap-4 p-5 border border-white/5 hover:bg-white/5 transition-colors cursor-pointer">
             <div className="p-3 bg-white/5 rounded-xl ring-1 ring-white/10">
               <GiftIcon className="w-5 h-5 text-zinc-300" />
             </div>
             <div className="text-left">
-              <h3 className="font-bold text-white">Rewards Catalog</h3>
-              <p className="text-xs text-zinc-400">Exchange your SWEET for discounts and products</p>
+              <h3 className="font-bold text-white">{t('customerDashboard.rewardsLink')}</h3>
+              <p className="text-xs text-zinc-400">{t('customerDashboard.rewardsDesc')}</p>
             </div>
           </GlassCard>
         </button>
@@ -218,7 +205,7 @@ export default function CustomerDashboard() {
       >
         <div className="flex items-center gap-2 mb-4">
           <ClockIcon className="w-4 h-4 text-zinc-500" />
-          <h3 className="text-sm font-semibold text-zinc-400">Recent Cashback</h3>
+          <h3 className="text-sm font-semibold text-zinc-400">{t('customerDashboard.recentCashback')}</h3>
         </div>
 
         {loading ? (
@@ -230,9 +217,9 @@ export default function CustomerDashboard() {
         ) : transactions.length === 0 ? (
           <GlassCard className="p-6 border border-white/5 text-center">
             <ArrowDownIcon className="w-8 h-8 text-zinc-600 mx-auto mb-2" />
-            <p className="text-sm text-zinc-500">No transactions yet</p>
+            <p className="text-sm text-zinc-500">{t('customerDashboard.noTransactions')}</p>
             <p className="text-xs text-zinc-600 mt-1">
-              Show your QR code at a partner confectionery to earn SWEET
+              {t('customerDashboard.noTransactionsHint')}
             </p>
           </GlassCard>
         ) : (
@@ -247,7 +234,7 @@ export default function CustomerDashboard() {
                     <ArrowDownIcon className="w-4 h-4 text-green-400" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-white">{tx.comment || 'Cashback'}</p>
+                    <p className="text-sm font-medium text-white">{tx.comment || t('customerDashboard.cashback')}</p>
                     <p className="text-xs text-zinc-500">
                       from {formatAddress(tx.sender)} · {timeAgo(tx.timestamp)}
                     </p>
@@ -263,10 +250,4 @@ export default function CustomerDashboard() {
       </motion.div>
     </div>
   );
-}
-
-// Helper: convert raw address (0:hex) to user-friendly format
-function toFriendly(raw: string): string {
-  // For API calls, the raw format works directly with tonapi
-  return raw;
 }
