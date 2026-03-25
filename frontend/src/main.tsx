@@ -24,14 +24,23 @@ const queryClient = new QueryClient({
 // TonConnect manifest URL - используем текущий хост
 // Манифест должен быть доступен по HTTPS
 const getManifestUrl = () => {
-  // Если указана переменная окружения, используем её
+  // 1. If explicitly set in env, use it
   if (import.meta.env.VITE_TONCONNECT_MANIFEST_URL) {
     return import.meta.env.VITE_TONCONNECT_MANIFEST_URL;
   }
 
-  // Иначе используем текущий хост и динамический API манифеста
-  // Это обходит проблему, когда Telegram строжайше сравнивает origin приложения и { url } манифеста
   const origin = window.location.origin;
+  
+  // 2. Try to derive from VITE_API_URL if it's an absolute URL
+  const apiUrl = import.meta.env.VITE_API_URL || '';
+  if (apiUrl.startsWith('http')) {
+    // If API is on a different domain, use the backend's dynamic manifest endpoint
+    // We strip /v1 if it exists at the end
+    const baseUrl = apiUrl.replace(/\/v1\/?$/, '');
+    return `${baseUrl}/api/tonconnect-manifest.json?origin=${encodeURIComponent(origin)}`;
+  }
+
+  // 3. Fallback: assume API is on the same origin (local or proxied)
   return `${origin}/api/tonconnect-manifest.json?origin=${encodeURIComponent(origin)}`;
 };
 
