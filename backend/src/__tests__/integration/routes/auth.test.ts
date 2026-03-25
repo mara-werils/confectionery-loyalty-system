@@ -5,9 +5,9 @@
  * Due to ESM module constraints in Jest, we use a simpler testing approach
  * that tests the Express app's request/response handling.
  */
-import { jest, describe, it, expect, beforeAll } from '@jest/globals';
+import { describe, it, expect, beforeAll } from '@jest/globals';
 import request from 'supertest';
-import express, { Router, Request, Response, NextFunction } from 'express';
+import express, { Router, Request, Response } from 'express';
 
 // Create a test Express app with mock auth routes
 const createTestApp = () => {
@@ -57,7 +57,7 @@ const createTestApp = () => {
 
     // Mock login endpoint
     router.post('/login', (req: Request, res: Response) => {
-        const { walletAddress, timestamp, nonce, signature, publicKey, message, simulateReplayAttack } = req.body;
+        const { walletAddress, timestamp, simulateReplayAttack } = req.body;
 
         // Check timestamp validity (5 min window)
         const now = Math.floor(Date.now() / 1000);

@@ -6,6 +6,7 @@ interface TelegramMessage {
     parseMode?: 'HTML' | 'Markdown';
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface EmailMessage {
     to: string;
     subject: string;

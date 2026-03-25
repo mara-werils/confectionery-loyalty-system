@@ -2,7 +2,6 @@ import { prisma } from '../utils/prisma';
 import { logger } from '../utils/logger';
 import { io } from '../index';
 import { cache } from './redis';
-import { config } from '../config';
 
 /**
  * Calculate points earned from transaction amount
@@ -180,6 +179,7 @@ export async function getLeaderboard(limit = 10): Promise<
     },
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const result = topPartners.map((lp: any, index: number) => ({
     rank: index + 1,
     partnerId: lp.partner.id,

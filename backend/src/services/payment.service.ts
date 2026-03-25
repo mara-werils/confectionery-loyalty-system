@@ -59,7 +59,7 @@ export class PaymentService {
     /**
      * Simulator: Manually trigger a "fake" payment event for testing
      */
-    public async simulateKaspiPayment(amount: number, partnerId: string, customerId?: string): Promise<any> {
+    public async simulateKaspiPayment(amount: number, partnerId: string, customerId?: string): Promise<boolean> {
         logger.info(`Simulating Kaspi Payment of ${amount} KZT for partner ${partnerId}`);
 
         // Simulate network delay

@@ -9,8 +9,10 @@ const createStub = () => ({
     setex: async (): Promise<void> => { },
     del: async (): Promise<number> => 0,
     exists: async (): Promise<number> => 0,
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 } as any);
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let redis: any;
 
 if (config.app.env === 'test' || !config.redis.host) {

@@ -126,6 +126,7 @@ router.get('/partners', adminAuth, async (req: Request, res: Response, next: Nex
         const tier = req.query.tier as string;
         const search = req.query.search as string;
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const where: any = {};
         if (status) where.status = status;
         if (tier) where.tier = tier;
@@ -299,6 +300,7 @@ router.patch('/rewards/:id', adminAuth, async (req: Request, res: Response, next
     try {
         const data = createRewardSchema.partial().parse(req.body);
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const updateData: any = { ...data };
         if (data.pointsRequired) updateData.pointsRequired = BigInt(data.pointsRequired);
         if (data.validFrom) updateData.validFrom = new Date(data.validFrom);

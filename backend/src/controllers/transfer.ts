@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Address, beginCell, internal, storeMessage, TonClient } from '@ton/ton';
+import { Address, beginCell, internal, TonClient } from '@ton/ton';
 import { mnemonicToPrivateKey } from '@ton/crypto';
 import { WalletContractV4 } from '@ton/ton';
 import { z } from 'zod';
@@ -21,7 +21,9 @@ const transferSchema = z.object({
 const retryFn = async <T,>(fn: () => Promise<T>, retries = 5, delay = 3000): Promise<T> => {
   try {
     return await fn();
-  } catch (error: any) {
+  } catch (err) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const error = err as any;
     if (retries > 0 && error?.response?.status === 429) {
       logger.warn(`Rate limited (429), waiting ${delay / 1000}s before retry ${6 - retries}/5...`);
       await new Promise((resolve) => setTimeout(resolve, delay));
@@ -76,7 +78,9 @@ export const transferLoyaltyTokens = async (req: Request, res: Response) => {
        
        partnerJettonWalletAddress = stack.readAddress();
        logger.info(`Resolved Partner's Jetton Wallet Address: ${partnerJettonWalletAddress.toString()}`);
-    } catch (err: any) {
+    } catch (e) {
+       // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       const err = e as any;
        logger.error('Failed to resolve Partner Jetton Wallet Address from Master', err);
        return errorResponse(res, 'Failed to resolve sender Jetton Wallet', 'BLOCKCHAIN_ERROR', 500, err.message);
     }
@@ -132,7 +136,9 @@ export const transferLoyaltyTokens = async (req: Request, res: Response) => {
         seqno: seqno
       }
     });
-  } catch (error: any) {
+  } catch (err) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const error = err as any;
     if (error instanceof z.ZodError) {
       return errorResponse(res, 'Invalid request data', 'VALIDATION_ERROR', 400, error.errors);
     }

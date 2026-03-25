@@ -29,7 +29,7 @@ jest.mock('@utils/prisma', () => ({
         partner: { findUnique: jest.fn(), create: jest.fn(), update: jest.fn() },
         loyaltyPoints: { findUnique: jest.fn(), findMany: jest.fn(), update: jest.fn() },
         transaction: { create: jest.fn() },
-        $transaction: jest.fn((promises: any) => Promise.all(promises)),
+        $transaction: jest.fn((promises: unknown[]) => Promise.all(promises)),
     },
 }));
 

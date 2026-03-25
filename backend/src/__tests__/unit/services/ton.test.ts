@@ -11,9 +11,9 @@ describe('TON Service', () => {
         });
 
         it('should return true if nonce is not used', async () => {
-            // @ts-ignore
+            // @ts-expect-error mocking coverage
             jest.spyOn(cache, 'exists').mockResolvedValue(false as never);
-            // @ts-ignore
+            // @ts-expect-error mocking coverage
             jest.spyOn(cache, 'set').mockResolvedValue(undefined as never);
 
             const result = await verifyNonce('new-nonce');
@@ -22,7 +22,7 @@ describe('TON Service', () => {
         });
 
         it('should return false if nonce is already used', async () => {
-            // @ts-ignore
+            // @ts-expect-error mocking coverage
             jest.spyOn(cache, 'exists').mockResolvedValue(true as never);
 
             const result = await verifyNonce('used-nonce');
