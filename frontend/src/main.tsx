@@ -35,12 +35,14 @@ const getManifestUrl = () => {
   const apiUrl = import.meta.env.VITE_API_URL || '';
   if (apiUrl.startsWith('http')) {
     // If API is on a different domain, use the backend's dynamic manifest endpoint
-    // We strip /v1 if it exists at the end
-    const baseUrl = apiUrl.replace(/\/v1\/?$/, '');
+    // We strip /api/v1 or /v1 or /api from the end to get the root
+    const baseUrl = apiUrl.replace(/\/(api\/v1|v1|api)\/?$/, '');
     return `${baseUrl}/api/tonconnect-manifest.json?origin=${encodeURIComponent(origin)}`;
   }
 
   // 3. Fallback: assume API is on the same origin (local or proxied)
+  // If the origin already ends with something, we just append. 
+  // But usually origin is clean.
   return `${origin}/api/tonconnect-manifest.json?origin=${encodeURIComponent(origin)}`;
 };
 
