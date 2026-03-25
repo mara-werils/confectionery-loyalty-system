@@ -143,14 +143,16 @@ export default function CustomerRewards() {
       try {
         const res = await fetch(`https://testnet.tonapi.io/v2/accounts/${wallet.account.address}/jettons`);
         const data = await res.json();
-        const sweet = data.balances?.find((b: any) => 
+        const sweet = data.balances?.find((b: { jetton: { address: string; decimals: number }; balance: string }) => 
           b.jetton?.address?.toLowerCase() === '0:4d3a2278693a04f846b5d83a58e67066bb56ca4f46b1b7cd49992f4114f87c9c'
         );
         if (sweet) {
           const raw = Number(BigInt(sweet.balance) / BigInt(10 ** sweet.jetton.decimals));
           setActualBalance(Math.max(0, raw - spentPoints));
         }
-      } catch (e) {}
+      } catch (e) {
+        console.warn('Failed to fetch actual balance', e);
+      }
     };
     fetchBal();
   }, [wallet, spentPoints]);
