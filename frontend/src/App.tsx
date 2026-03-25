@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 // Pages
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
-import Rewards from './pages/Rewards';
+
 import History from './pages/History';
 import Profile from './pages/Profile';
 import Blockchain from './pages/Blockchain';

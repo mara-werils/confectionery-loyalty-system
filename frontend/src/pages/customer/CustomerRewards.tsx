@@ -8,16 +8,16 @@ import {
   SparklesIcon,
   ArrowLeftIcon,
   TicketIcon,
-  XMarkIcon,
 } from '@heroicons/react/24/outline';
 import { GlassCard } from '../../components/GlassCard';
 
-// ─── Partner Confectioneries ────────────────────────────────────
+// ─── Real Partner Confectioneries in Kazakhstan ─────────────────
 interface Partner {
   id: string;
   name: string;
-  logo: string | null;  // path in /confectionary_logos/
+  logo: string | null;
   color: string;
+  city: string;
 }
 
 const partners: Partner[] = [
@@ -26,34 +26,39 @@ const partners: Partner[] = [
     name: 'Home Macaron',
     logo: '/confectionary_logos/home_macaron.jpg',
     color: 'from-pink-500/20 to-pink-900/10',
+    city: 'Алматы',
   },
   {
-    id: 'shokoladnitsa',
-    name: 'Шоколадница',
+    id: 'qulpynai',
+    name: 'Qulpynai',
     logo: null,
     color: 'from-amber-500/20 to-amber-900/10',
+    city: 'Алматы · 25 филиалов',
   },
   {
-    id: 'pieceofcake',
-    name: 'Piece of Cake',
-    logo: null,
-    color: 'from-violet-500/20 to-violet-900/10',
-  },
-  {
-    id: 'coffeemania',
-    name: 'Coffee Mania',
+    id: 'panaderia',
+    name: 'Panaderia',
     logo: null,
     color: 'from-orange-500/20 to-orange-900/10',
+    city: 'Алматы',
   },
   {
-    id: 'bonapart',
-    name: 'Bonapart',
+    id: 'marrone_rosso',
+    name: 'Marrone Rosso',
     logo: null,
-    color: 'from-emerald-500/20 to-emerald-900/10',
+    color: 'from-red-500/20 to-red-900/10',
+    city: 'Алматы · Астана',
+  },
+  {
+    id: 'taptatti',
+    name: 'TapTatti',
+    logo: null,
+    color: 'from-violet-500/20 to-violet-900/10',
+    city: 'Астана · Доставка по КZ',
   },
 ];
 
-// ─── Rewards per Partner ────────────────────────────────────────
+// ─── Rewards per Partner (trilingual) ───────────────────────────
 interface Reward {
   id: string;
   partnerId: string;
@@ -68,50 +73,50 @@ interface Reward {
 const rewardsData: Record<string, { en: string; ru: string; kz: string }> = {
   // Home Macaron
   'hm-1-title': { en: '10% Discount on Macarons', ru: 'Скидка 10% на макаруны', kz: 'Макарундарға 10% жеңілдік' },
-  'hm-1-desc': { en: 'Get 10% off any macaron set at Home Macaron', ru: 'Скидка 10% на любой набор макарунов в Home Macaron', kz: 'Home Macaron-да кез келген макарун жинағына 10% жеңілдік' },
+  'hm-1-desc': { en: 'Get 10% off any macaron set at Home Macaron', ru: 'Скидка 10% на любой набор макарунов', kz: 'Кез келген макарун жинағына 10% жеңілдік' },
   'hm-2-title': { en: 'Free Box of 6 Macarons', ru: 'Бесплатная коробка из 6 макарунов', kz: '6 макарун тегін қорабы' },
   'hm-2-desc': { en: 'Redeem for a free box of 6 assorted macarons', ru: 'Обменяйте на бесплатную коробку из 6 ассорти макарунов', kz: '6 ассорти макарун тегін қорабына айырбастаңыз' },
-  // Shokoladnitsa
-  'sh-1-title': { en: '15% Discount', ru: 'Скидка 15%', kz: '15% жеңілдік' },
-  'sh-1-desc': { en: '15% off on any pastry or drink at Shokoladnitsa', ru: 'Скидка 15% на любую выпечку или напиток в Шоколаднице', kz: 'Шоколадницада кез келген тоқаш немесе сусынға 15% жеңілдік' },
-  'sh-2-title': { en: 'Free Hot Chocolate', ru: 'Бесплатный горячий шоколад', kz: 'Тегін ыстық шоколад' },
-  'sh-2-desc': { en: 'Enjoy a free hot chocolate of your choice', ru: 'Наслаждайтесь бесплатным горячим шоколадом на выбор', kz: 'Таңдауыңыз бойынша тегін ыстық шоколад алыңыз' },
-  // Piece of Cake
-  'pc-1-title': { en: 'Free Cake Slice', ru: 'Бесплатный кусок торта', kz: 'Тегін торт кесімі' },
-  'pc-1-desc': { en: 'Redeem for a free slice of any cake', ru: 'Обменяйте на бесплатный кусок любого торта', kz: 'Кез келген торттың тегін кесіміне айырбастаңыз' },
-  'pc-2-title': { en: '20% off Birthday Cakes', ru: 'Скидка 20% на торты ко дню рождения', kz: 'Туған күн торттарына 20% жеңілдік' },
-  'pc-2-desc': { en: '20% discount on custom birthday cakes', ru: 'Скидка 20% на торты ко дню рождения на заказ', kz: 'Тапсырыс бойынша туған күн торттарына 20% жеңілдік' },
-  // Coffee Mania
-  'cm-1-title': { en: 'Free Espresso', ru: 'Бесплатный эспрессо', kz: 'Тегін эспрессо' },
-  'cm-1-desc': { en: 'Get a free espresso or americano', ru: 'Получите бесплатный эспрессо или американо', kz: 'Тегін эспрессо немесе американо алыңыз' },
-  'cm-2-title': { en: '2-for-1 Desserts', ru: '2 десерта по цене 1', kz: '1 бағасына 2 десерт' },
-  'cm-2-desc': { en: 'Buy one dessert, get one free with your coffee', ru: 'Купите один десерт и получите второй бесплатно к кофе', kz: 'Бір десерт сатып алып, екіншісін кофемен тегін алыңыз' },
-  // Bonapart
-  'bp-1-title': { en: '25% off Croissants', ru: 'Скидка 25% на круассаны', kz: 'Круассандарға 25% жеңілдік' },
-  'bp-1-desc': { en: '25% off any croissant variety at Bonapart', ru: 'Скидка 25% на любые круассаны в Бонапарт', kz: 'Бонапартта кез келген круассанға 25% жеңілдік' },
-  'bp-2-title': { en: 'VIP Tasting Event', ru: 'VIP дегустация', kz: 'VIP дегустация' },
-  'bp-2-desc': { en: 'Exclusive access to Bonapart VIP tasting event', ru: 'Эксклюзивный доступ к VIP дегустации Бонапарт', kz: 'Бонапарт VIP дегустациясына эксклюзивті қатынас' },
+  // Qulpynai
+  'ql-1-title': { en: '15% Discount on Pastries', ru: 'Скидка 15% на выпечку', kz: 'Пісірілген тағамдарға 15% жеңілдік' },
+  'ql-1-desc': { en: '15% off any pastry at any Qulpynai location', ru: 'Скидка 15% на выпечку в любом филиале Qulpynai', kz: 'Qulpynai кез келген филиалында тоқашқа 15% жеңілдік' },
+  'ql-2-title': { en: 'Free Samsa', ru: 'Бесплатная самса', kz: 'Тегін самса' },
+  'ql-2-desc': { en: 'Get a free samsa with any drink purchase', ru: 'Бесплатная самса при покупке любого напитка', kz: 'Кез келген сусын сатып алғанда тегін самса' },
+  // Panaderia
+  'pn-1-title': { en: 'Free Croissant', ru: 'Бесплатный круассан', kz: 'Тегін круассан' },
+  'pn-1-desc': { en: 'A fresh Spanish-style croissant on the house', ru: 'Свежий круассан в испанском стиле в подарок', kz: 'Сыйлыққа испандық стильдегі жаңа круассан' },
+  'pn-2-title': { en: '20% off Artisan Bread', ru: 'Скидка 20% на ремесленный хлеб', kz: 'Қолөнер нанына 20% жеңілдік' },
+  'pn-2-desc': { en: '20% discount on any artisan sourdough bread', ru: 'Скидка 20% на любой ремесленный хлеб на закваске', kz: 'Ашытқыдағы кез келген қолөнер нанына 20% жеңілдік' },
+  // Marrone Rosso
+  'mr-1-title': { en: 'Free Espresso', ru: 'Бесплатный эспрессо', kz: 'Тегін эспрессо' },
+  'mr-1-desc': { en: 'Enjoy a free espresso or americano at Marrone Rosso', ru: 'Бесплатный эспрессо или американо в Marrone Rosso', kz: 'Marrone Rosso-да тегін эспрессо немесе американо' },
+  'mr-2-title': { en: '2-for-1 Cakes', ru: '2 торта по цене 1', kz: '1 бағасына 2 торт' },
+  'mr-2-desc': { en: 'Buy one cake slice, get one free', ru: 'Купите один кусок торта и получите второй бесплатно', kz: 'Бір торт кесімін сатып алып, екіншісін тегін алыңыз' },
+  // TapTatti
+  'tt-1-title': { en: '25% off Custom Cakes', ru: 'Скидка 25% на торты на заказ', kz: 'Тапсырыс торттарына 25% жеңілдік' },
+  'tt-1-desc': { en: '25% discount on any custom-order cake with delivery', ru: 'Скидка 25% на любой торт на заказ с доставкой', kz: 'Жеткізумен кез келген тапсырыс тортына 25% жеңілдік' },
+  'tt-2-title': { en: 'Free Delivery', ru: 'Бесплатная доставка', kz: 'Тегін жеткізу' },
+  'tt-2-desc': { en: 'Free delivery anywhere in Kazakhstan', ru: 'Бесплатная доставка по всему Казахстану', kz: 'Бүкіл Қазақстан бойынша тегін жеткізу' },
   // Platform-wide
-  'pw-1-title': { en: '5% Cashback Boost', ru: 'Буст кэшбэка 5%', kz: '5% кэшбэк бусты' },
-  'pw-1-desc': { en: 'Get 5% extra cashback on your next purchase at any partner', ru: 'Получите дополнительные 5% кэшбэка на следующую покупку у любого партнёра', kz: 'Кез келген серіктесте келесі сатып алуда қосымша 5% кэшбэк алыңыз' },
+  'pw-1-title': { en: '5% Cashback Boost', ru: 'Буст кэшбэка +5%', kz: '+5% кэшбэк бусты' },
+  'pw-1-desc': { en: 'Get 5% extra cashback on your next purchase at any partner', ru: 'Дополнительные 5% кэшбэка на следующую покупку у любого партнёра', kz: 'Кез келген серіктесте келесі сатып алуда қосымша 5% кэшбэк' },
 };
 
 const rewards: Reward[] = [
   // Home Macaron
   { id: 'hm-1', partnerId: 'homemacaron', titleKey: 'hm-1-title', descKey: 'hm-1-desc', pointsRequired: 100, category: 'DISCOUNT', icon: TagIcon, available: 999 },
   { id: 'hm-2', partnerId: 'homemacaron', titleKey: 'hm-2-title', descKey: 'hm-2-desc', pointsRequired: 350, category: 'PRODUCT', icon: GiftIcon, available: 50 },
-  // Shokoladnitsa
-  { id: 'sh-1', partnerId: 'shokoladnitsa', titleKey: 'sh-1-title', descKey: 'sh-1-desc', pointsRequired: 150, category: 'DISCOUNT', icon: TagIcon, available: 500 },
-  { id: 'sh-2', partnerId: 'shokoladnitsa', titleKey: 'sh-2-title', descKey: 'sh-2-desc', pointsRequired: 200, category: 'PRODUCT', icon: GiftIcon, available: 100 },
-  // Piece of Cake
-  { id: 'pc-1', partnerId: 'pieceofcake', titleKey: 'pc-1-title', descKey: 'pc-1-desc', pointsRequired: 250, category: 'PRODUCT', icon: GiftIcon, available: 80 },
-  { id: 'pc-2', partnerId: 'pieceofcake', titleKey: 'pc-2-title', descKey: 'pc-2-desc', pointsRequired: 500, category: 'DISCOUNT', icon: TagIcon, available: 30 },
-  // Coffee Mania
-  { id: 'cm-1', partnerId: 'coffeemania', titleKey: 'cm-1-title', descKey: 'cm-1-desc', pointsRequired: 80, category: 'PRODUCT', icon: GiftIcon, available: 300 },
-  { id: 'cm-2', partnerId: 'coffeemania', titleKey: 'cm-2-title', descKey: 'cm-2-desc', pointsRequired: 400, category: 'SPECIAL', icon: SparklesIcon, available: 50 },
-  // Bonapart
-  { id: 'bp-1', partnerId: 'bonapart', titleKey: 'bp-1-title', descKey: 'bp-1-desc', pointsRequired: 120, category: 'DISCOUNT', icon: TagIcon, available: 200 },
-  { id: 'bp-2', partnerId: 'bonapart', titleKey: 'bp-2-title', descKey: 'bp-2-desc', pointsRequired: 1000, category: 'SPECIAL', icon: SparklesIcon, available: 10 },
+  // Qulpynai
+  { id: 'ql-1', partnerId: 'qulpynai', titleKey: 'ql-1-title', descKey: 'ql-1-desc', pointsRequired: 150, category: 'DISCOUNT', icon: TagIcon, available: 500 },
+  { id: 'ql-2', partnerId: 'qulpynai', titleKey: 'ql-2-title', descKey: 'ql-2-desc', pointsRequired: 200, category: 'PRODUCT', icon: GiftIcon, available: 100 },
+  // Panaderia
+  { id: 'pn-1', partnerId: 'panaderia', titleKey: 'pn-1-title', descKey: 'pn-1-desc', pointsRequired: 180, category: 'PRODUCT', icon: GiftIcon, available: 200 },
+  { id: 'pn-2', partnerId: 'panaderia', titleKey: 'pn-2-title', descKey: 'pn-2-desc', pointsRequired: 300, category: 'DISCOUNT', icon: TagIcon, available: 80 },
+  // Marrone Rosso
+  { id: 'mr-1', partnerId: 'marrone_rosso', titleKey: 'mr-1-title', descKey: 'mr-1-desc', pointsRequired: 80, category: 'PRODUCT', icon: GiftIcon, available: 300 },
+  { id: 'mr-2', partnerId: 'marrone_rosso', titleKey: 'mr-2-title', descKey: 'mr-2-desc', pointsRequired: 400, category: 'SPECIAL', icon: SparklesIcon, available: 50 },
+  // TapTatti
+  { id: 'tt-1', partnerId: 'taptatti', titleKey: 'tt-1-title', descKey: 'tt-1-desc', pointsRequired: 500, category: 'DISCOUNT', icon: TagIcon, available: 100 },
+  { id: 'tt-2', partnerId: 'taptatti', titleKey: 'tt-2-title', descKey: 'tt-2-desc', pointsRequired: 250, category: 'SPECIAL', icon: SparklesIcon, available: 300 },
   // Platform-wide
   { id: 'pw-1', partnerId: 'platform', titleKey: 'pw-1-title', descKey: 'pw-1-desc', pointsRequired: 500, category: 'CASHBACK', icon: SparklesIcon, available: 999 },
 ];
@@ -200,7 +205,6 @@ export default function CustomerRewards() {
       {/* Grouped rewards */}
       <div className="space-y-6">
         {selectedPartner ? (
-          // Showing single partner's rewards
           <RewardGroup
             partner={getPartner(selectedPartner)}
             rewards={filteredRewards}
@@ -210,7 +214,6 @@ export default function CustomerRewards() {
             t={t}
           />
         ) : (
-          // Showing all partners grouped
           <>
             {partners.map((partner) => {
               const partnerRewards = rewards.filter(r => r.partnerId === partner.id);
@@ -227,7 +230,6 @@ export default function CustomerRewards() {
                 />
               );
             })}
-            {/* Platform-wide */}
             <RewardGroup
               partner={null}
               rewards={rewards.filter(r => r.partnerId === 'platform')}
@@ -266,7 +268,6 @@ export default function CustomerRewards() {
                 {t('rewards.couponReady')} {coupon.partner?.name || t('rewards.platformWide')}
               </p>
 
-              {/* Coupon code */}
               <div className="bg-black/40 border border-dashed border-white/20 rounded-2xl py-5 px-6 mb-6">
                 <p className="text-3xl font-mono font-extrabold tracking-[0.3em] text-white">
                   {coupon.code}
@@ -325,9 +326,14 @@ function RewardGroup({
             </span>
           </div>
         )}
-        <h2 className="text-sm font-bold text-zinc-300 tracking-tight">
-          {isPlatform ? t('rewards.platformWide') : partner?.name}
-        </h2>
+        <div>
+          <h2 className="text-sm font-bold text-zinc-300 tracking-tight">
+            {isPlatform ? t('rewards.platformWide') : partner?.name}
+          </h2>
+          {partner?.city && (
+            <p className="text-[10px] text-zinc-500">{partner.city}</p>
+          )}
+        </div>
       </div>
 
       {/* Rewards list */}
