@@ -19,6 +19,7 @@ interface AuthState {
   walletAddress: string | null;
   role: UserRole;
   isAuthenticated: boolean;
+  spentPoints: number;
   
   // Actions
   setToken: (token: string | null) => void;
@@ -27,6 +28,7 @@ interface AuthState {
   setWalletAddress: (address: string | null) => void;
   setRole: (role: UserRole) => void;
   logout: () => void;
+  addSpentPoints: (points: number) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -38,12 +40,14 @@ export const useAuthStore = create<AuthState>()(
       walletAddress: null,
       role: null,
       isAuthenticated: false,
+      spentPoints: 0,
 
       setToken: (token) => set({ token, isAuthenticated: !!token }),
       setRefreshToken: (refreshToken) => set({ refreshToken }),
       setUser: (user) => set({ user }),
       setWalletAddress: (walletAddress) => set({ walletAddress }),
       setRole: (role) => set({ role }),
+      addSpentPoints: (points) => set((state) => ({ spentPoints: state.spentPoints + points })),
       
       logout: () =>
         set({
@@ -52,6 +56,7 @@ export const useAuthStore = create<AuthState>()(
           user: null,
           role: null,
           isAuthenticated: false,
+          spentPoints: 0,
         }),
     }),
     {
@@ -61,6 +66,7 @@ export const useAuthStore = create<AuthState>()(
         refreshToken: state.refreshToken,
         user: state.user,
         role: state.role,
+        spentPoints: state.spentPoints,
       }),
     }
   )

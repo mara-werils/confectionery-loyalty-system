@@ -13,14 +13,12 @@ import {
   BellIcon,
   QuestionMarkCircleIcon,
   ArrowsRightLeftIcon,
-  LanguageIcon,
 } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 
 import { useAuthStore } from '../store/authStore';
 import { useTelegram } from '../hooks/useTelegram';
 import { useNavigate } from 'react-router-dom';
-import { changeLanguage, languages } from '../i18n';
 
 type SettingsTab = 'security' | 'notifications' | 'help';
 
@@ -30,7 +28,7 @@ export default function Profile() {
   const { user, role, setRole, logout } = useAuthStore();
   const { hapticFeedback, showConfirm } = useTelegram();
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   const [, setIsSettingsOpen] = useState(false);
   const [, setSettingsTab] = useState<SettingsTab>('security');
@@ -182,37 +180,6 @@ export default function Profile() {
         </div>
       </motion.div>
 
-      {/* Language Selector */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15 }}
-        className="glass-panel"
-      >
-        <div className="flex items-center gap-3 mb-3">
-          <div className="p-2 bg-white/5 rounded-xl border border-white/5">
-            <LanguageIcon className="w-5 h-5 text-zinc-300" />
-          </div>
-          <h3 className="font-bold text-white tracking-tight">{t('profile.language')}</h3>
-        </div>
-        <div className="flex gap-2">
-          {languages.map((lang) => (
-            <button
-              key={lang.code}
-              onClick={() => changeLanguage(lang.code)}
-              className={clsx(
-                'flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all border',
-                i18n.language === lang.code
-                  ? 'bg-white text-black border-white'
-                  : 'bg-white/5 text-zinc-400 border-white/5 hover:bg-white/10'
-              )}
-            >
-              <span>{lang.flag}</span>
-              <span className="text-xs">{lang.name}</span>
-            </button>
-          ))}
-        </div>
-      </motion.div>
 
       {/* Menu Items */}
       <motion.div

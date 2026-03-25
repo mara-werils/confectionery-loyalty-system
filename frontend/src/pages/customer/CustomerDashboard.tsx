@@ -11,6 +11,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { GlassCard } from '../../components/GlassCard';
 import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../../store/authStore';
 
 interface JettonBalance {
   balance: string;
@@ -29,6 +30,7 @@ export default function CustomerDashboard() {
   const wallet = useTonWallet();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { spentPoints } = useAuthStore();
   const [balance, setBalance] = useState<JettonBalance | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -98,7 +100,9 @@ export default function CustomerDashboard() {
     if (!bal) return '0';
     const raw = BigInt(bal.balance);
     const divisor = BigInt(10 ** bal.decimals);
-    const whole = raw / divisor;
+    let whole = Number(raw / divisor);
+    
+    whole = Math.max(0, whole - spentPoints);
     return whole.toLocaleString();
   };
 

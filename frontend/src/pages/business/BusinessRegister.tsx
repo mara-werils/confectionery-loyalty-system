@@ -15,10 +15,15 @@ export default function BusinessRegister() {
   const { t } = useTranslation();
   const [companyName, setCompanyName] = useState('');
   const [email, setEmail] = useState('');
+  const [inviteCode, setInviteCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [registered, setRegistered] = useState(false);
 
   const handleRegister = async () => {
+    if (inviteCode !== 'SWEET24') {
+      toast.error('Invalid Invite Code');
+      return;
+    }
     if (!companyName.trim()) {
       toast.error(t('register.companyLabel'));
       return;
@@ -120,6 +125,20 @@ export default function BusinessRegister() {
                 placeholder="business@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs text-zinc-500 mb-1.5 font-medium flex justify-between">
+                <span>Invite Code (Admin)</span>
+                <span className="text-zinc-700">SWEET24</span>
+              </label>
+              <input
+                type="text"
+                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-white/30 transition-colors placeholder-zinc-600"
+                placeholder="Enter admin invite code"
+                value={inviteCode}
+                onChange={(e) => setInviteCode(e.target.value)}
               />
             </div>
 

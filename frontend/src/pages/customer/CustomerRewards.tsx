@@ -10,6 +10,7 @@ import {
   TicketIcon,
 } from '@heroicons/react/24/outline';
 import { GlassCard } from '../../components/GlassCard';
+import { useAuthStore } from '../../store/authStore';
 
 // ─── Real Partner Confectioneries in Kazakhstan ─────────────────
 interface Partner {
@@ -125,6 +126,7 @@ export default function CustomerRewards() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const lang = i18n.language as 'en' | 'ru' | 'kz';
+  const { addSpentPoints } = useAuthStore();
 
   const [selectedPartner, setSelectedPartner] = useState<string | null>(null);
   const [redeeming, setRedeeming] = useState<string | null>(null);
@@ -143,6 +145,10 @@ export default function CustomerRewards() {
   const handleRedeem = async (reward: Reward) => {
     setRedeeming(reward.id);
     await new Promise(r => setTimeout(r, 1500));
+    
+    // Deduct points locally for MVP illusion
+    addSpentPoints(reward.pointsRequired);
+
     const code = 'SWT-' + Math.random().toString(36).substring(2, 8).toUpperCase();
     setCoupon({ code, reward, partner: getPartner(reward.partnerId) });
     setRedeeming(null);

@@ -305,19 +305,19 @@ export default function Dashboard() {
                   <CreditCardIcon className="w-5 h-5 text-zinc-300" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold">POS Payment Simulation</h3>
-                  <p className="text-xs text-zinc-500 mt-0.5">Cashback transfer to client wallet</p>
+                  <h3 className="text-lg font-semibold">Cashback Terminal</h3>
+                  <p className="text-xs text-zinc-500 mt-0.5">Send SWEET directly to customer</p>
                 </div>
               </div>
               <span className="bg-white/5 text-zinc-300 px-2.5 py-1 rounded-md text-[10px] font-bold tracking-wider uppercase border border-white/10">
-                B2C Demo
+                Active
               </span>
             </div>
 
             <div className="space-y-4 relative z-10">
               <div>
                 <label className="block text-xs text-zinc-500 mb-1.5 font-medium">
-                  Scan & Pay Amount (KZT)
+                  Enter Purchase Amount (KZT)
                 </label>
                 <input
                   type="number"
@@ -330,7 +330,7 @@ export default function Dashboard() {
 
               <div>
                 <label className="block text-xs text-zinc-500 mb-1.5 font-medium">
-                  Client Wallet Address (QR Scan)
+                  Scan Customer App QR
                 </label>
                 <div className="relative">
                   <input

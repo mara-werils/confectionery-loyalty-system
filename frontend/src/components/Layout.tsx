@@ -18,6 +18,7 @@ import {
 } from '@heroicons/react/24/solid';
 import { ArrowsRightLeftIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
+import { changeLanguage, languages } from '../i18n';
 
 interface LayoutProps {
   variant?: 'business' | 'customer';
@@ -25,7 +26,7 @@ interface LayoutProps {
 
 export default function Layout({ variant = 'business' }: LayoutProps) {
   const location = useLocation();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const businessNavItems = [
     { path: '/business/dashboard', label: t('nav.pos'), icon: HomeIcon, activeIcon: HomeIconSolid },
@@ -45,6 +46,25 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-[#09090b]">
+      {/* Top Level Nav Items */}
+      <div className="w-full max-w-2xl px-4 pt-4 flex justify-end z-50">
+        <div className="bg-zinc-900/80 backdrop-blur-md border border-white/10 rounded-full p-1 flex items-center gap-1 shadow-lg">
+          {languages.map((l) => (
+            <button
+              key={l.code}
+              onClick={() => changeLanguage(l.code)}
+              className={clsx(
+                'w-8 h-8 rounded-full text-sm flex items-center justify-center transition-all',
+                i18n.language === l.code ? 'bg-white text-black' : 'hover:bg-white/10 text-zinc-400'
+              )}
+              title={l.name}
+            >
+              <span className="opacity-90">{l.flag}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
       <main className="flex-1 w-full max-w-2xl pb-24 overflow-x-hidden">
         <AnimatePresence mode="wait">
           <motion.div

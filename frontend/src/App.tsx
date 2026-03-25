@@ -24,6 +24,19 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { useTelegram } from './hooks/useTelegram';
 import { useAuthStore } from './store/authStore';
 
+const RootRedirect = () => {
+  const { role } = useAuthStore();
+  return <Navigate to={role === 'business' ? '/business/dashboard' : '/customer/dashboard'} replace />;
+};
+
+const RoleGuard = ({ allowedRole, children }: { allowedRole: 'business' | 'customer', children: React.ReactNode }) => {
+  const { role } = useAuthStore();
+  if (role && role !== allowedRole) {
+    return <RootRedirect />;
+  }
+  return <>{children}</>;
+};
+
 function App() {
   const { tg, isExpanded } = useTelegram();
   const wallet = useTonWallet();
@@ -67,9 +80,8 @@ function App() {
 
       {/* Business routes with business layout */}
       <Route element={<ProtectedRoute />}>
-        <Route element={<Layout variant="business" />}>
+        <Route element={<RoleGuard allowedRole="business"><Layout variant="business" /></RoleGuard>}>
           <Route path="/business/dashboard" element={<Dashboard />} />
-          <Route path="/dashboard" element={<Navigate to="/business/dashboard" replace />} />
           <Route path="/blockchain" element={<Blockchain />} />
           <Route path="/swap" element={<Swap />} />
           <Route path="/profile" element={<Profile />} />
@@ -78,13 +90,17 @@ function App() {
 
       {/* Customer routes with customer layout */}
       <Route element={<ProtectedRoute />}>
-        <Route element={<Layout variant="customer" />}>
+        <Route element={<RoleGuard allowedRole="customer"><Layout variant="customer" /></RoleGuard>}>
           <Route path="/customer/dashboard" element={<CustomerDashboard />} />
           <Route path="/customer/rewards" element={<CustomerRewards />} />
-          <Route path="/rewards" element={<Navigate to="/customer/rewards" replace />} />
           <Route path="/history" element={<History />} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
       </Route>
+
+      {/* Generic fallback routes for ease of use */}
+      <Route path="/dashboard" element={<RootRedirect />} />
+      <Route path="/rewards" element={<RootRedirect />} />
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
