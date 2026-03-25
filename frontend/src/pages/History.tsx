@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Tab } from '@headlessui/react';
 import { ClockIcon, GiftIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
+import { useTranslation } from 'react-i18next';
 
 import TransactionItem from '../components/TransactionItem';
 import { useTransactions, useLoyaltyHistory } from '../hooks/useApi';
@@ -13,6 +14,7 @@ const tabs = [
 ];
 
 export default function History() {
+  const { t } = useTranslation();
   const [selectedTab, setSelectedTab] = useState(0);
   const [page] = useState(1);
 
@@ -90,8 +92,8 @@ export default function History() {
         animate={{ opacity: 1, y: 0 }}
         className="mb-8 pl-1"
       >
-        <h1 className="text-3xl font-bold text-white tracking-tight">History</h1>
-        <p className="text-zinc-400 mt-1">Your activity and claimed rewards</p>
+        <h1 className="text-3xl font-bold text-white tracking-tight">{t('history.title')}</h1>
+        <p className="text-zinc-400 mt-1">{t('history.subtitle')}</p>
       </motion.div>
 
       {/* Tabs */}
@@ -110,7 +112,7 @@ export default function History() {
               }
             >
               <tab.icon className="w-5 h-5" />
-              {tab.label}
+              {tab.key === 'transactions' ? t('history.tabs.transactions') : t('history.tabs.claims')}
             </Tab>
           ))}
         </Tab.List>
@@ -138,8 +140,8 @@ export default function History() {
               ) : (
                 <div className="text-center py-12 text-zinc-500">
                   <ClockIcon className="w-16 h-16 mx-auto mb-4 text-zinc-700" />
-                  <p className="text-lg font-medium text-white">No transactions yet</p>
-                  <p className="text-sm mt-1">Make a purchase to start earning points</p>
+                  <p className="text-lg font-medium text-white">{t('history.noTransactions')}</p>
+                  <p className="text-sm mt-1">{t('history.noTransactionsHint')}</p>
                 </div>
               )}
             </motion.div>
@@ -200,8 +202,8 @@ export default function History() {
               ) : (
                 <div className="card text-center py-12 text-accent-400">
                   <GiftIcon className="w-16 h-16 mx-auto mb-4 text-zinc-700" />
-                  <p className="text-lg font-medium text-white">No claims yet</p>
-                  <p className="text-sm mt-1">Redeem your points for exciting rewards!</p>
+                  <p className="text-lg font-medium text-white">{t('history.noClaims')}</p>
+                  <p className="text-sm mt-1">{t('history.noClaimsHint')}</p>
                 </div>
               )}
             </motion.div>

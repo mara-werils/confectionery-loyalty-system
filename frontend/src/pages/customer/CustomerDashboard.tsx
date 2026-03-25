@@ -8,6 +8,7 @@ import {
   ClockIcon,
   ArrowDownIcon,
   GiftIcon,
+  TicketIcon,
 } from '@heroicons/react/24/outline';
 import { GlassCard } from '../../components/GlassCard';
 import { useNavigate } from 'react-router-dom';
@@ -30,7 +31,7 @@ export default function CustomerDashboard() {
   const wallet = useTonWallet();
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { spentPoints } = useAuthStore();
+  const { spentPoints, activeCoupons } = useAuthStore();
   const [balance, setBalance] = useState<JettonBalance | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -205,6 +206,40 @@ export default function CustomerDashboard() {
           </GlassCard>
         </button>
       </motion.div>
+
+      {/* Active Coupons Segment */}
+      {activeCoupons && activeCoupons.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="mb-6"
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <TicketIcon className="w-4 h-4 text-zinc-500" />
+            <h3 className="text-sm font-semibold text-zinc-400">
+              {t('customerDashboard.myCoupons') || 'My Active Coupons'}
+            </h3>
+          </div>
+          <div className="grid grid-cols-1 gap-3">
+            {activeCoupons.map((coupon, i) => (
+              <GlassCard key={i} className="p-4 border border-white/10 flex flex-col gap-2 relative overflow-hidden bg-gradient-to-br from-white/5 to-transparent">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">{coupon.partnerName}</span>
+                  <span className="px-2 py-1 bg-white/10 rounded-md text-[10px] font-mono text-zinc-300 ring-1 ring-white/20">
+                    {coupon.code}
+                  </span>
+                </div>
+                <h4 className="font-semibold text-white text-sm">{t(coupon.rewardTitleKey)}</h4>
+                
+                {/* Decorative cutouts for ticket look */}
+                <div className="absolute top-1/2 -left-2 w-4 h-4 rounded-full bg-[#09090b] -translate-y-1/2 border-r border-white/10" />
+                <div className="absolute top-1/2 -right-2 w-4 h-4 rounded-full bg-[#09090b] -translate-y-1/2 border-l border-white/10" />
+              </GlassCard>
+            ))}
+          </div>
+        </motion.div>
+      )}
 
       {/* Recent Transactions */}
       <motion.div

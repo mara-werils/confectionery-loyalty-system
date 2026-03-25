@@ -11,6 +11,9 @@ import Profile from './pages/Profile';
 import Blockchain from './pages/Blockchain';
 import Swap from './pages/Swap';
 
+// Admin Pages
+import AdminDashboard from './pages/admin/AdminDashboard';
+
 // New role-based pages
 import BusinessRegister from './pages/business/BusinessRegister';
 import CustomerDashboard from './pages/customer/CustomerDashboard';
@@ -73,6 +76,9 @@ function App() {
       {/* Public route */}
       <Route path="/" element={<Home />} />
       
+      {/* Admin Route - Hidden */}
+      <Route path="/admin" element={<AdminDashboard />} />
+      
       {/* Business registration (needs wallet but no layout) */}
       <Route element={<ProtectedRoute />}>
         <Route path="/business/register" element={<BusinessRegister />} />
@@ -84,7 +90,7 @@ function App() {
           <Route path="/business/dashboard" element={<Dashboard />} />
           <Route path="/blockchain" element={<Blockchain />} />
           <Route path="/swap" element={<Swap />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/business/profile" element={<Profile />} />
         </Route>
       </Route>
 
@@ -94,13 +100,14 @@ function App() {
           <Route path="/customer/dashboard" element={<CustomerDashboard />} />
           <Route path="/customer/rewards" element={<CustomerRewards />} />
           <Route path="/history" element={<History />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/customer/profile" element={<Profile />} />
         </Route>
       </Route>
 
       {/* Generic fallback routes for ease of use */}
       <Route path="/dashboard" element={<RootRedirect />} />
       <Route path="/rewards" element={<RootRedirect />} />
+      <Route path="/profile" element={<RootRedirect />} />
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />

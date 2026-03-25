@@ -103,6 +103,22 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Dynamic TonConnect Manifest for strict wallet origin matching
+app.get('/api/tonconnect-manifest.json', (req, res) => {
+  const origin = req.query.origin as string;
+  const fallbackUrl = req.headers['x-forwarded-proto'] 
+    ? `${req.headers['x-forwarded-proto']}://${req.headers['x-forwarded-host'] || req.headers.host}`
+    : `http://${req.headers.host}`;
+  
+  res.json({
+    url: origin || fallbackUrl,
+    name: 'Sweet Loyalty Demo',
+    iconUrl: 'https://ton.org/download/ton_symbol.png',
+    termsOfUseUrl: 'https://ton.org/terms',
+    privacyPolicyUrl: 'https://ton.org/privacy'
+  });
+});
+
 // API Documentation
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.get('/api/docs.json', (req, res) => {

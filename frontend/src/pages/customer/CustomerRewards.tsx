@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -11,6 +11,8 @@ import {
 } from '@heroicons/react/24/outline';
 import { GlassCard } from '../../components/GlassCard';
 import { useAuthStore } from '../../store/authStore';
+import { useTonWallet } from '@tonconnect/ui-react';
+import toast from 'react-hot-toast';
 
 // ─── Real Partner Confectioneries in Kazakhstan ─────────────────
 interface Partner {
@@ -124,13 +126,34 @@ const rewards: Reward[] = [
 
 export default function CustomerRewards() {
   const navigate = useNavigate();
+  const wallet = useTonWallet();
   const { t, i18n } = useTranslation();
   const lang = i18n.language as 'en' | 'ru' | 'kz';
-  const { addSpentPoints } = useAuthStore();
+  const { spentPoints, addSpentPoints, addCoupon } = useAuthStore();
 
   const [selectedPartner, setSelectedPartner] = useState<string | null>(null);
   const [redeeming, setRedeeming] = useState<string | null>(null);
   const [coupon, setCoupon] = useState<{ code: string; reward: Reward; partner: Partner | null } | null>(null);
+  const [actualBalance, setActualBalance] = useState<number>(0);
+
+  // Fetch real balance to check affordability
+  useEffect(() => {
+    const fetchBal = async () => {
+      if (!wallet) return;
+      try {
+        const res = await fetch(`https://testnet.tonapi.io/v2/accounts/${wallet.account.address}/jettons`);
+        const data = await res.json();
+        const sweet = data.balances?.find((b: any) => 
+          b.jetton?.address?.toLowerCase() === '0:4d3a2278693a04f846b5d83a58e67066bb56ca4f46b1b7cd49992f4114f87c9c'
+        );
+        if (sweet) {
+          const raw = Number(BigInt(sweet.balance) / BigInt(10 ** sweet.jetton.decimals));
+          setActualBalance(Math.max(0, raw - spentPoints));
+        }
+      } catch (e) {}
+    };
+    fetchBal();
+  }, [wallet, spentPoints]);
 
   const getRewardText = (key: string) => {
     return rewardsData[key]?.[lang] || rewardsData[key]?.en || key;
@@ -143,14 +166,28 @@ export default function CustomerRewards() {
   const getPartner = (id: string) => partners.find(p => p.id === id) || null;
 
   const handleRedeem = async (reward: Reward) => {
+    if (actualBalance < reward.pointsRequired) {
+      toast.error(t('rewards.insufficientBalance') || 'Недостаточно SWEET для покупки!');
+      return;
+    }
+
     setRedeeming(reward.id);
     await new Promise(r => setTimeout(r, 1500));
     
     // Deduct points locally for MVP illusion
     addSpentPoints(reward.pointsRequired);
 
+    const partner = getPartner(reward.partnerId);
     const code = 'SWT-' + Math.random().toString(36).substring(2, 8).toUpperCase();
-    setCoupon({ code, reward, partner: getPartner(reward.partnerId) });
+    
+    // Save to global state so it appears on Dashboard
+    addCoupon({
+      code,
+      rewardTitleKey: reward.titleKey,
+      partnerName: partner?.name || 'Platform'
+    });
+
+    setCoupon({ code, reward, partner });
     setRedeeming(null);
   };
 

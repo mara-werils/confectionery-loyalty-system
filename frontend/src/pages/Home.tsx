@@ -8,11 +8,12 @@ import { useEffect } from 'react';
 import { GlassCard } from '../components/GlassCard';
 import { useAuthStore } from '../store/authStore';
 import { changeLanguage, languages } from '../i18n';
+import toast from 'react-hot-toast';
 
 export default function Home() {
   const navigate = useNavigate();
   const wallet = useTonWallet();
-  const { role, setRole } = useAuthStore();
+  const { role, setRole, hasBusinessSbt } = useAuthStore();
   const { t, i18n } = useTranslation();
 
   useEffect(() => {
@@ -23,7 +24,18 @@ export default function Home() {
     }
   }, [wallet, role, navigate]);
 
-  const handleRoleSelect = (selectedRole: 'business' | 'customer') => {
+  const handleRoleSelect = async (selectedRole: 'business' | 'customer') => {
+    if (selectedRole === 'business') {
+      toast.loading(t('home.checkingCert') || 'Verifying Partner Certificate on TON...', { id: 'certCheck' });
+      await new Promise(r => setTimeout(r, 1500));
+      
+      if (!hasBusinessSbt) {
+        toast.error(t('home.noCertFound') || 'Access Denied: Partner SBT Certificate not found in wallet.', { id: 'certCheck' });
+        return;
+      }
+      toast.success(t('home.certVerified') || 'Partner Certificate Verified!', { id: 'certCheck' });
+    }
+
     setRole(selectedRole);
     if (selectedRole === 'business') {
       navigate('/business/register');

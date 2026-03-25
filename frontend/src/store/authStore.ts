@@ -20,6 +20,9 @@ interface AuthState {
   role: UserRole;
   isAuthenticated: boolean;
   spentPoints: number;
+  avatar: string | null;
+  activeCoupons: Array<{ code: string; rewardTitleKey: string; partnerName: string }>;
+  hasBusinessSbt: boolean;
   
   // Actions
   setToken: (token: string | null) => void;
@@ -29,6 +32,9 @@ interface AuthState {
   setRole: (role: UserRole) => void;
   logout: () => void;
   addSpentPoints: (points: number) => void;
+  setAvatar: (base64: string | null) => void;
+  addCoupon: (coupon: { code: string; rewardTitleKey: string; partnerName: string }) => void;
+  setHasBusinessSbt: (has: boolean) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -41,6 +47,9 @@ export const useAuthStore = create<AuthState>()(
       role: null,
       isAuthenticated: false,
       spentPoints: 0,
+      avatar: null,
+      activeCoupons: [],
+      hasBusinessSbt: false,
 
       setToken: (token) => set({ token, isAuthenticated: !!token }),
       setRefreshToken: (refreshToken) => set({ refreshToken }),
@@ -48,6 +57,9 @@ export const useAuthStore = create<AuthState>()(
       setWalletAddress: (walletAddress) => set({ walletAddress }),
       setRole: (role) => set({ role }),
       addSpentPoints: (points) => set((state) => ({ spentPoints: state.spentPoints + points })),
+      setAvatar: (avatar) => set({ avatar }),
+      addCoupon: (coupon) => set((state) => ({ activeCoupons: [...state.activeCoupons, coupon] })),
+      setHasBusinessSbt: (hasBusinessSbt) => set({ hasBusinessSbt }),
       
       logout: () =>
         set({
@@ -57,6 +69,8 @@ export const useAuthStore = create<AuthState>()(
           role: null,
           isAuthenticated: false,
           spentPoints: 0,
+          activeCoupons: [],
+          hasBusinessSbt: false,
         }),
     }),
     {
@@ -67,6 +81,9 @@ export const useAuthStore = create<AuthState>()(
         user: state.user,
         role: state.role,
         spentPoints: state.spentPoints,
+        avatar: state.avatar,
+        activeCoupons: state.activeCoupons,
+        hasBusinessSbt: state.hasBusinessSbt,
       }),
     }
   )

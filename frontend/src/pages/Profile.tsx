@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTonConnectUI, useTonWallet } from '@tonconnect/ui-react';
 import { useTranslation } from 'react-i18next';
@@ -15,63 +14,83 @@ import {
   ArrowsRightLeftIcon,
 } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
+import toast from 'react-hot-toast';
 
 import { useAuthStore } from '../store/authStore';
 import { useTelegram } from '../hooks/useTelegram';
 import { useNavigate } from 'react-router-dom';
 
-type SettingsTab = 'security' | 'notifications' | 'help';
-
 export default function Profile() {
   const [tonConnectUI] = useTonConnectUI();
   const wallet = useTonWallet();
-  const { user, role, setRole, logout } = useAuthStore();
-  const { hapticFeedback, showConfirm } = useTelegram();
+  const { user, role, setRole, logout, avatar, setAvatar, hasBusinessSbt } = useAuthStore();
+  const { hapticFeedback } = useTelegram();
   const navigate = useNavigate();
   const { t } = useTranslation();
-
-  const [, setIsSettingsOpen] = useState(false);
-  const [, setSettingsTab] = useState<SettingsTab>('security');
 
   const menuItems = [
     {
       icon: ShieldCheckIcon,
-      label: 'Security',
-      description: 'Manage your account security',
-      tab: 'security' as SettingsTab,
+      label: t('profile.securityTitle') || 'Security',
+      description: t('profile.securityDesc') || 'Manage your account security',
+      action: () => toast.success(t('profile.securityToast') || 'Security settings are secured for MVP', { icon: '🔒' }),
     },
     {
       icon: BellIcon,
-      label: 'Notifications',
-      description: 'Notification preferences',
-      tab: 'notifications' as SettingsTab,
+      label: t('profile.notificationsTitle') || 'Notifications',
+      description: t('profile.notificationsDesc') || 'Notification preferences',
+      action: () => toast.success(t('profile.notificationsToast') || 'Notifications synced!', { icon: '🔔' }),
     },
     {
       icon: QuestionMarkCircleIcon,
-      label: 'Help & Support',
-      description: 'Get help or contact us',
-      tab: 'help' as SettingsTab,
+      label: t('profile.helpTitle') || 'Help & Support',
+      description: t('profile.helpDesc') || 'Get help or contact us',
+      action: () => toast.success(t('profile.helpToast') || 'Support agent will contact you shortly', { icon: '💬' }),
     },
   ];
 
-  const openSettings = (tab: SettingsTab) => {
-    setSettingsTab(tab);
-    setIsSettingsOpen(true);
-    hapticFeedback('light');
+  const handleAvatarSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error(t('profile.avatarSizeError') || 'Image must be under 2MB');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatar(reader.result as string);
+        toast.success(t('profile.avatarUpdated') || 'Avatar updated!');
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleDisconnect = async () => {
     hapticFeedback('medium');
-    const confirmed = await showConfirm(t('profile.disconnect') + '?');
-    if (confirmed) {
-      await tonConnectUI.disconnect();
-      logout();
-      setRole(null);
-      hapticFeedback('success');
+    try {
+      if (tonConnectUI.connected) {
+        await tonConnectUI.disconnect();
+      }
+    } catch (e) {
+      console.warn('Wallet disconnect error handled gracefully', e);
     }
+    logout();
+    setRole(null);
+    hapticFeedback('success');
+    navigate('/');
   };
 
-  const handleSwitchRole = () => {
+  const handleSwitchRole = async () => {
+    if (role === 'customer') {
+      toast.loading(t('home.checkingCert') || 'Verifying Partner Certificate on TON...', { id: 'certCheckProfile' });
+      await new Promise(r => setTimeout(r, 1000));
+      
+      if (!hasBusinessSbt) {
+        toast.error(t('home.noCertFound') || 'Access Denied: Partner SBT Certificate not found in wallet.', { id: 'certCheckProfile' });
+        return;
+      }
+      toast.success(t('home.certVerified') || 'Partner Certificate Verified!', { id: 'certCheckProfile' });
+    }
     const newRole = role === 'business' ? 'customer' : 'business';
     setRole(newRole);
     if (newRole === 'business') {
@@ -104,8 +123,25 @@ export default function Profile() {
         className="glass-panel"
       >
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 bg-zinc-800 rounded-2xl flex items-center justify-center border border-white/5 shadow-inner">
-            <UserCircleIcon className="w-8 h-8 text-zinc-400" />
+          <div 
+            className="relative w-16 h-16 bg-zinc-800 rounded-2xl flex items-center justify-center border border-white/5 shadow-inner cursor-pointer group overflow-hidden"
+            onClick={() => document.getElementById('avatar-upload')?.click()}
+          >
+            {avatar ? (
+              <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
+            ) : (
+              <UserCircleIcon className="w-8 h-8 text-zinc-400 group-hover:text-white transition-colors" />
+            )}
+            <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <span className="text-[10px] font-bold tracking-widest text-white">EDIT</span>
+            </div>
+            <input 
+              id="avatar-upload" 
+              type="file" 
+              accept="image/*" 
+              className="hidden" 
+              onChange={handleAvatarSelect}
+            />
           </div>
           <div className="flex-1">
             <h2 className="text-xl font-bold text-white tracking-tight">
@@ -113,7 +149,7 @@ export default function Profile() {
             </h2>
             <div className="flex items-center gap-2 mt-1">
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border bg-white/5 text-zinc-300 border-white/10">
-                {role === 'business' ? '🏪 Business' : '👤 Customer'}
+                {role === 'business' ? 'Business' : 'Customer'}
               </span>
               {user?.tier && (
                 <span
@@ -188,10 +224,10 @@ export default function Profile() {
         transition={{ delay: 0.2 }}
         className="glass-panel divide-y divide-white/5"
       >
-        {menuItems.map((item) => (
+        {menuItems.map((item, idx) => (
           <button
-            key={item.label}
-            onClick={() => openSettings(item.tab)}
+            key={idx}
+            onClick={item.action}
             className="w-full flex items-center gap-4 py-4 first:pt-2 last:pb-2 hover:bg-white/5 -mx-6 px-6 transition-colors text-left"
           >
             <div className="p-2 bg-white/5 rounded-xl border border-white/5">

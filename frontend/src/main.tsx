@@ -29,9 +29,10 @@ const getManifestUrl = () => {
     return import.meta.env.VITE_TONCONNECT_MANIFEST_URL;
   }
 
-  // Иначе используем текущий хост
+  // Иначе используем текущий хост и динамический API манифеста
+  // Это обходит проблему, когда Telegram строжайше сравнивает origin приложения и { url } манифеста
   const origin = window.location.origin;
-  return `${origin}/tonconnect-manifest.json`;
+  return `${origin}/api/tonconnect-manifest.json?origin=${encodeURIComponent(origin)}`;
 };
 
 const manifestUrl = getManifestUrl();

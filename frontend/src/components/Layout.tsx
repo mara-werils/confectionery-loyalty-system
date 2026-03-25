@@ -32,14 +32,14 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
     { path: '/business/dashboard', label: t('nav.pos'), icon: HomeIcon, activeIcon: HomeIconSolid },
     { path: '/swap', label: t('nav.exchange'), icon: ArrowsRightLeftIcon, activeIcon: ArrowsRightLeftIconSolid },
     { path: '/blockchain', label: t('nav.blockchain'), icon: CubeTransparentIcon, activeIcon: CubeTransparentIconSolid },
-    { path: '/profile', label: t('nav.profile'), icon: UserCircleIcon, activeIcon: UserCircleIconSolid },
+    { path: '/business/profile', label: t('nav.profile'), icon: UserCircleIcon, activeIcon: UserCircleIconSolid },
   ];
 
   const customerNavItems = [
     { path: '/customer/dashboard', label: t('nav.wallet'), icon: HomeIcon, activeIcon: HomeIconSolid },
     { path: '/customer/rewards', label: t('nav.rewards'), icon: GiftIcon, activeIcon: GiftIconSolid },
     { path: '/history', label: t('nav.history'), icon: ClockIcon, activeIcon: ClockIconSolid },
-    { path: '/profile', label: t('nav.profile'), icon: UserCircleIcon, activeIcon: UserCircleIconSolid },
+    { path: '/customer/profile', label: t('nav.profile'), icon: UserCircleIcon, activeIcon: UserCircleIconSolid },
   ];
 
   const navItems = variant === 'customer' ? customerNavItems : businessNavItems;
