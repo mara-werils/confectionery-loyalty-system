@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+export type UserRole = 'business' | 'customer' | null;
+
 interface User {
   id: string;
   walletAddress: string;
@@ -15,6 +17,7 @@ interface AuthState {
   refreshToken: string | null;
   user: User | null;
   walletAddress: string | null;
+  role: UserRole;
   isAuthenticated: boolean;
   
   // Actions
@@ -22,6 +25,7 @@ interface AuthState {
   setRefreshToken: (token: string | null) => void;
   setUser: (user: User | null) => void;
   setWalletAddress: (address: string | null) => void;
+  setRole: (role: UserRole) => void;
   logout: () => void;
 }
 
@@ -32,21 +36,21 @@ export const useAuthStore = create<AuthState>()(
       refreshToken: null,
       user: null,
       walletAddress: null,
+      role: null,
       isAuthenticated: false,
 
       setToken: (token) => set({ token, isAuthenticated: !!token }),
-      
       setRefreshToken: (refreshToken) => set({ refreshToken }),
-      
       setUser: (user) => set({ user }),
-      
       setWalletAddress: (walletAddress) => set({ walletAddress }),
+      setRole: (role) => set({ role }),
       
       logout: () =>
         set({
           token: null,
           refreshToken: null,
           user: null,
+          role: null,
           isAuthenticated: false,
         }),
     }),
@@ -56,19 +60,8 @@ export const useAuthStore = create<AuthState>()(
         token: state.token,
         refreshToken: state.refreshToken,
         user: state.user,
+        role: state.role,
       }),
     }
   )
 );
-
-
-
-
-
-
-
-
-
-
-
-

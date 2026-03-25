@@ -11,6 +11,11 @@ import Profile from './pages/Profile';
 import Blockchain from './pages/Blockchain';
 import Swap from './pages/Swap';
 
+// New role-based pages
+import BusinessRegister from './pages/business/BusinessRegister';
+import CustomerDashboard from './pages/customer/CustomerDashboard';
+import CustomerRewards from './pages/customer/CustomerRewards';
+
 // Components
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -55,15 +60,29 @@ function App() {
       {/* Public route */}
       <Route path="/" element={<Home />} />
       
-      {/* Protected routes with layout */}
+      {/* Business registration (needs wallet but no layout) */}
       <Route element={<ProtectedRoute />}>
-        <Route element={<Layout />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/rewards" element={<Rewards />} />
-          <Route path="/history" element={<History />} />
+        <Route path="/business/register" element={<BusinessRegister />} />
+      </Route>
+
+      {/* Business routes with business layout */}
+      <Route element={<ProtectedRoute />}>
+        <Route element={<Layout variant="business" />}>
+          <Route path="/business/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Navigate to="/business/dashboard" replace />} />
+          <Route path="/blockchain" element={<Blockchain />} />
           <Route path="/swap" element={<Swap />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/blockchain" element={<Blockchain />} />
+        </Route>
+      </Route>
+
+      {/* Customer routes with customer layout */}
+      <Route element={<ProtectedRoute />}>
+        <Route element={<Layout variant="customer" />}>
+          <Route path="/customer/dashboard" element={<CustomerDashboard />} />
+          <Route path="/customer/rewards" element={<CustomerRewards />} />
+          <Route path="/rewards" element={<Navigate to="/customer/rewards" replace />} />
+          <Route path="/history" element={<History />} />
         </Route>
       </Route>
 
@@ -74,7 +93,3 @@ function App() {
 }
 
 export default App;
-
-
-
-

@@ -18,24 +18,12 @@ import {
 import { ArrowsRightLeftIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 
-const navItems = [
+const businessNavItems = [
   {
-    path: '/dashboard',
-    label: 'Home',
+    path: '/business/dashboard',
+    label: 'POS',
     icon: HomeIcon,
     activeIcon: HomeIconSolid,
-  },
-  {
-    path: '/rewards',
-    label: 'Rewards',
-    icon: GiftIcon,
-    activeIcon: GiftIconSolid,
-  },
-  {
-    path: '/history',
-    label: 'History',
-    icon: ClockIcon,
-    activeIcon: ClockIconSolid,
   },
   {
     path: '/swap',
@@ -57,8 +45,40 @@ const navItems = [
   },
 ];
 
-export default function Layout() {
+const customerNavItems = [
+  {
+    path: '/customer/dashboard',
+    label: 'Wallet',
+    icon: HomeIcon,
+    activeIcon: HomeIconSolid,
+  },
+  {
+    path: '/customer/rewards',
+    label: 'Rewards',
+    icon: GiftIcon,
+    activeIcon: GiftIconSolid,
+  },
+  {
+    path: '/history',
+    label: 'History',
+    icon: ClockIcon,
+    activeIcon: ClockIconSolid,
+  },
+  {
+    path: '/profile',
+    label: 'Profile',
+    icon: UserCircleIcon,
+    activeIcon: UserCircleIconSolid,
+  },
+];
+
+interface LayoutProps {
+  variant?: 'business' | 'customer';
+}
+
+export default function Layout({ variant = 'business' }: LayoutProps) {
   const location = useLocation();
+  const navItems = variant === 'customer' ? customerNavItems : businessNavItems;
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-[#09090b]">
@@ -130,15 +150,3 @@ export default function Layout() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-

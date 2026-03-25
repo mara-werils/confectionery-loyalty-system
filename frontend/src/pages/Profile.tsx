@@ -11,11 +11,13 @@ import {
   ShieldCheckIcon,
   BellIcon,
   QuestionMarkCircleIcon,
+  ArrowsRightLeftIcon,
 } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 
 import { useAuthStore } from '../store/authStore';
 import { useTelegram } from '../hooks/useTelegram';
+import { useNavigate } from 'react-router-dom';
 
 type SettingsTab = 'security' | 'notifications' | 'help';
 
@@ -43,8 +45,9 @@ const menuItems = [
 export default function Profile() {
   const [tonConnectUI] = useTonConnectUI();
   const wallet = useTonWallet();
-  const { user, logout } = useAuthStore();
+  const { user, role, setRole, logout } = useAuthStore();
   const { hapticFeedback, showConfirm } = useTelegram();
+  const navigate = useNavigate();
 
   // Settings modal state
   const [, setIsSettingsOpen] = useState(false);
@@ -62,7 +65,18 @@ export default function Profile() {
     if (confirmed) {
       await tonConnectUI.disconnect();
       logout();
+      setRole(null);
       hapticFeedback('success');
+    }
+  };
+
+  const handleSwitchRole = () => {
+    const newRole = role === 'business' ? 'customer' : 'business';
+    setRole(newRole);
+    if (newRole === 'business') {
+      navigate('/business/dashboard');
+    } else {
+      navigate('/customer/dashboard');
     }
   };
 
@@ -196,6 +210,18 @@ export default function Profile() {
           </button>
         ))}
       </motion.div>
+
+      {/* Switch Role Button */}
+      <motion.button
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.25 }}
+        onClick={handleSwitchRole}
+        className="w-full flex items-center justify-center gap-2 py-4 bg-white/5 text-zinc-300 rounded-2xl font-bold hover:bg-white/10 border border-white/10 transition-colors"
+      >
+        <ArrowsRightLeftIcon className="w-5 h-5" />
+        {role === 'business' ? 'Switch to Customer View' : 'Switch to Business View'}
+      </motion.button>
 
       {/* Disconnect Button */}
       <motion.button
