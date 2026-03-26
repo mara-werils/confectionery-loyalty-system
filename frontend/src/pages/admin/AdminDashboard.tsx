@@ -11,6 +11,28 @@ export default function AdminDashboard() {
   const { setHasBusinessSbt, hasBusinessSbt } = useAuthStore();
   const [walletAddress, setWalletAddress] = useState('UQ...TON...WALLET');
   const [isMinting, setIsMinting] = useState(false);
+  
+  // Auth state
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsVerifying(true);
+    
+    // Hardcoded credentials for the diploma defense
+    await new Promise(r => setTimeout(r, 1200)); // Fake network delay for realism
+    
+    if (email === 'admin@sweetloyalty.kz' && password === 'MasterKey2026!') {
+      toast.success('Authentication successful', { id: 'adminAuth' });
+      setIsAuthenticated(true);
+    } else {
+      toast.error('Invalid credentials. Access denied.', { id: 'adminAuth' });
+    }
+    setIsVerifying(false);
+  };
 
   const handleIssueCertificate = async () => {
     if (!walletAddress) {
@@ -46,11 +68,68 @@ export default function AdminDashboard() {
       <div className="absolute top-0 right-0 w-96 h-96 bg-red-900/20 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-red-900/10 rounded-full blur-[120px] pointer-events-none" />
 
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-lg z-10"
-      >
+      {!isAuthenticated ? (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-sm z-10"
+        >
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/20 mb-6">
+              <ShieldCheckIcon className="w-8 h-8 text-red-500" />
+            </div>
+            <h1 className="text-2xl font-bold tracking-tight">Restricted Area</h1>
+            <p className="text-zinc-400 text-sm mt-2">Master Administrator Login</p>
+          </div>
+
+          <GlassCard className="p-6 border-red-500/10">
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-zinc-500 mb-1.5 uppercase tracking-wider">
+                  Admin Email
+                </label>
+                <input 
+                  type="email" 
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-500/50 transition-colors"
+                  placeholder="admin@domain.com"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-xs font-medium text-zinc-500 mb-1.5 uppercase tracking-wider">
+                  Master Password
+                </label>
+                <input 
+                  type="password" 
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-500/50 transition-colors tracking-widest"
+                  placeholder="••••••••"
+                />
+              </div>
+
+              <div className="pt-4">
+                <button
+                  type="submit"
+                  disabled={isVerifying}
+                  className="w-full bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white font-bold py-3.5 rounded-xl transition-all"
+                >
+                  {isVerifying ? 'Verifying Identity...' : 'Authenticate'}
+                </button>
+              </div>
+            </form>
+          </GlassCard>
+        </motion.div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="w-full max-w-lg z-10"
+        >
         <div className="flex items-center gap-3 mb-8">
           <div className="w-12 h-12 rounded-xl bg-red-500/20 border border-red-500/30 flex items-center justify-center">
             <ShieldCheckIcon className="w-7 h-7 text-red-400" />
@@ -111,7 +190,8 @@ export default function AdminDashboard() {
             {t('admin.disclaimer') || 'This panel is strictly for Master Administrators to issue Soulbound Tokens to verified B2B partners for full ecosystem integration.'}
           </p>
         </div>
-      </motion.div>
+        </motion.div>
+      )}
     </div>
   );
 }
