@@ -5,6 +5,7 @@ import { successResponse, paginatedResponse } from '../utils/response';
 import { adminAuth, superAdminOnly, generateAdminToken } from '../middleware/adminAuth';
 import { AppError } from '../middleware/errorHandler';
 import { verifyWalletSignature } from '../services/ton';
+import { Address } from '@ton/ton';
 
 const router = Router();
 
@@ -387,6 +388,13 @@ router.post('/sbt/issue', async (req: Request, res: Response, next: NextFunction
         const { walletAddress } = req.body;
         if (!walletAddress) throw new AppError('Wallet address required', 400, 'BAD_REQUEST');
 
+        let normalizedAddress: string;
+        try {
+            normalizedAddress = Address.parse(walletAddress).toRawString();
+        } catch (e) {
+            throw new AppError('Invalid TON wallet address format', 400, 'INVALID_ADDRESS');
+        }
+
         const setting = await prisma.systemSetting.upsert({
             where: { key: 'issued_sbt_wallets' },
             update: {},
@@ -394,8 +402,8 @@ router.post('/sbt/issue', async (req: Request, res: Response, next: NextFunction
         });
         
         const wallets = JSON.parse(setting.value);
-        if (!wallets.includes(walletAddress)) {
-            wallets.push(walletAddress);
+        if (!wallets.includes(normalizedAddress)) {
+            wallets.push(normalizedAddress);
             await prisma.systemSetting.update({
                 where: { key: 'issued_sbt_wallets' },
                 data: { value: JSON.stringify(wallets) }
@@ -409,7 +417,12 @@ router.post('/sbt/issue', async (req: Request, res: Response, next: NextFunction
 
 router.get('/sbt/check/:walletAddress', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const walletAddress = req.params.walletAddress;
+        let normalizedAddress: string;
+        try {
+            normalizedAddress = Address.parse(req.params.walletAddress).toRawString();
+        } catch (e) {
+            return successResponse(res, { hasSbt: false });
+        }
         
         const setting = await prisma.systemSetting.findUnique({
             where: { key: 'issued_sbt_wallets' }
@@ -420,7 +433,7 @@ router.get('/sbt/check/:walletAddress', async (req: Request, res: Response, next
         }
         
         const wallets = JSON.parse(setting.value);
-        return successResponse(res, { hasSbt: wallets.includes(walletAddress) });
+        return successResponse(res, { hasSbt: wallets.includes(normalizedAddress) });
     } catch (error) {
         return next(error);
     }
