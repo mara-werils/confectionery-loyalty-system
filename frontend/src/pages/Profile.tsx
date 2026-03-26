@@ -19,6 +19,53 @@ import toast from 'react-hot-toast';
 import { useAuthStore } from '../store/authStore';
 import { useTelegram } from '../hooks/useTelegram';
 import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+
+// ─────────────────────────────────────────────
+// Modal Overlay
+// ─────────────────────────────────────────────
+function Modal({ open, onClose, title, children }: {
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  children: React.ReactNode;
+}) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 backdrop-blur-sm" onClick={onClose}>
+      <motion.div
+        initial={{ y: 80, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 80, opacity: 0 }}
+        transition={{ type: 'spring', damping: 22, stiffness: 300 }}
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-lg bg-zinc-900 border border-white/10 rounded-t-3xl p-6 pb-10 space-y-5"
+      >
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-bold text-white">{title}</h2>
+          <button onClick={onClose} className="text-zinc-500 hover:text-white transition-colors text-sm font-bold px-3 py-1 rounded-lg bg-white/5">✕ Close</button>
+        </div>
+        {children}
+      </motion.div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// Toggle Switch component
+// ─────────────────────────────────────────────
+function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <button
+      onClick={() => onChange(!checked)}
+      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${checked ? 'bg-white' : 'bg-zinc-700'}`}
+    >
+      <span
+        className={`inline-block h-4 w-4 transform rounded-full bg-zinc-900 transition-transform ${checked ? 'translate-x-6' : 'translate-x-1'}`}
+      />
+    </button>
+  );
+}
 
 export default function Profile() {
   const [tonConnectUI] = useTonConnectUI();
@@ -28,24 +75,37 @@ export default function Profile() {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
+  const [activeModal, setActiveModal] = useState<null | 'security' | 'notifications' | 'help'>(null);
+
+  // Notification settings — persistent to localStorage
+  const [notifPush, setNotifPush] = useState(() => localStorage.getItem('notif_push') !== 'false');
+  const [notifCashback, setNotifCashback] = useState(() => localStorage.getItem('notif_cashback') !== 'false');
+  const [notifRewards, setNotifRewards] = useState(() => localStorage.getItem('notif_rewards') !== 'false');
+  const [notifMarketing, setNotifMarketing] = useState(() => localStorage.getItem('notif_marketing') === 'true');
+
+  useEffect(() => { localStorage.setItem('notif_push', String(notifPush)); }, [notifPush]);
+  useEffect(() => { localStorage.setItem('notif_cashback', String(notifCashback)); }, [notifCashback]);
+  useEffect(() => { localStorage.setItem('notif_rewards', String(notifRewards)); }, [notifRewards]);
+  useEffect(() => { localStorage.setItem('notif_marketing', String(notifMarketing)); }, [notifMarketing]);
+
   const menuItems = [
     {
       icon: ShieldCheckIcon,
       label: t('profile.securityTitle') || 'Security',
       description: t('profile.securityDesc') || 'Manage your account security',
-      action: () => toast.success(t('profile.securityToast') || 'Security settings are secured for MVP', { icon: '🔒' }),
+      action: () => setActiveModal('security'),
     },
     {
       icon: BellIcon,
       label: t('profile.notificationsTitle') || 'Notifications',
       description: t('profile.notificationsDesc') || 'Notification preferences',
-      action: () => toast.success(t('profile.notificationsToast') || 'Notifications synced!', { icon: '🔔' }),
+      action: () => setActiveModal('notifications'),
     },
     {
       icon: QuestionMarkCircleIcon,
       label: t('profile.helpTitle') || 'Help & Support',
       description: t('profile.helpDesc') || 'Get help or contact us',
-      action: () => toast.success(t('profile.helpToast') || 'Support agent will contact you shortly', { icon: '💬' }),
+      action: () => setActiveModal('help'),
     },
   ];
 
@@ -271,6 +331,129 @@ export default function Profile() {
         <p className="text-[10px] font-bold tracking-widest uppercase text-zinc-600">{t('profile.version')}</p>
         <p className="text-[10px] text-zinc-700 mt-1">{t('profile.diploma')}</p>
       </div>
+
+      {/* ════════════════════════════════════════
+          SECURITY MODAL
+      ════════════════════════════════════════ */}
+      <Modal open={activeModal === 'security'} onClose={() => setActiveModal(null)} title="Security">
+        <div className="space-y-4">
+          <div className="p-4 bg-white/5 rounded-2xl border border-white/10 space-y-2">
+            <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Connected Wallet</p>
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+              <p className="font-mono text-sm text-zinc-200">
+                {wallet ? wallet.account.address : 'Not connected'}
+              </p>
+            </div>
+            <p className="text-xs text-zinc-600">Last active: just now</p>
+          </div>
+
+          <div className="p-4 bg-white/5 rounded-2xl border border-white/10 space-y-3">
+            <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Authentication Method</p>
+            <div className="flex items-center gap-3">
+              <ShieldCheckIcon className="w-5 h-5 text-green-400" />
+              <div>
+                <p className="text-sm font-semibold text-white">TON Wallet Signature</p>
+                <p className="text-xs text-zinc-500">Cryptographic proof — no password required</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-4 bg-white/5 rounded-2xl border border-white/10 space-y-3">
+            <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">SBT Partner Certificate</p>
+            <div className="flex items-center gap-3">
+              <div className={`w-2 h-2 rounded-full ${hasBusinessSbt ? 'bg-green-400' : 'bg-red-500'}`} />
+              <p className="text-sm font-semibold text-white">
+                {hasBusinessSbt ? 'Valid — Bound to Wallet' : 'Not Issued'}
+              </p>
+            </div>
+            <p className="text-xs text-zinc-500">Soulbound Token cannot be transferred or forged.</p>
+          </div>
+
+          <button
+            onClick={() => { setActiveModal(null); handleDisconnect(); }}
+            className="w-full py-3 rounded-xl bg-red-500/10 text-red-400 text-sm font-bold border border-red-500/20 hover:bg-red-500/20 transition-colors"
+          >
+            Revoke All Sessions & Disconnect
+          </button>
+        </div>
+      </Modal>
+
+      {/* ════════════════════════════════════════
+          NOTIFICATIONS MODAL
+      ════════════════════════════════════════ */}
+      <Modal open={activeModal === 'notifications'} onClose={() => setActiveModal(null)} title="Notifications">
+        <div className="space-y-3">
+          {[
+            { label: 'Cashback Received', subtitle: 'Notify when SWEET tokens arrive', value: notifCashback, set: setNotifCashback },
+            { label: 'Reward Redeemed', subtitle: 'Confirmation after reward claim', value: notifRewards, set: setNotifRewards },
+            { label: 'Push Notifications', subtitle: 'General app updates', value: notifPush, set: setNotifPush },
+            { label: 'Marketing & Promotions', subtitle: 'Special offers from partners', value: notifMarketing, set: setNotifMarketing },
+          ].map(({ label, subtitle, value, set }) => (
+            <div key={label} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10">
+              <div>
+                <p className="text-sm font-semibold text-white">{label}</p>
+                <p className="text-xs text-zinc-500 mt-0.5">{subtitle}</p>
+              </div>
+              <Toggle checked={value} onChange={(v) => { set(v); toast.success(`${label} ${v ? 'enabled' : 'disabled'}`, { duration: 1200 }); }} />
+            </div>
+          ))}
+        </div>
+      </Modal>
+
+      {/* ════════════════════════════════════════
+          HELP & SUPPORT MODAL
+      ════════════════════════════════════════ */}
+      <Modal open={activeModal === 'help'} onClose={() => setActiveModal(null)} title="Help & Support">
+        <div className="space-y-4">
+          <div className="p-4 bg-white/5 rounded-2xl border border-white/10 space-y-3">
+            <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Contact Us</p>
+            <a
+              href="https://t.me/sweetloyalty_support"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 py-2 hover:opacity-80 transition-opacity"
+            >
+              <div className="w-9 h-9 rounded-xl bg-[#229ED9]/20 border border-[#229ED9]/30 flex items-center justify-center">
+                <svg className="w-5 h-5 text-[#229ED9]" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-2.014 9.49c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.17 14.56l-2.95-.924c-.642-.204-.654-.642.136-.953l11.527-4.443c.537-.194 1.006.13.679.008z"/></svg>
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-white">Telegram Support</p>
+                <p className="text-xs text-zinc-500">@sweetloyalty_support</p>
+              </div>
+            </a>
+            <a
+              href="mailto:support@sweetloyalty.kz"
+              className="flex items-center gap-3 py-2 hover:opacity-80 transition-opacity"
+            >
+              <div className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+                <EnvelopeIcon className="w-5 h-5 text-zinc-300" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-white">Email Support</p>
+                <p className="text-xs text-zinc-500">support@sweetloyalty.kz</p>
+              </div>
+            </a>
+          </div>
+
+          <div className="p-4 bg-white/5 rounded-2xl border border-white/10 space-y-3">
+            <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">FAQ</p>
+            {[
+              { q: 'How do I earn SWEET tokens?', a: 'Make purchases at partner confectioneries. 1% of every purchase is instantly converted to SWEET.' },
+              { q: 'How do I redeem rewards?', a: 'Go to Rewards tab and click "Redeem" on any offer you have enough points for.' },
+              { q: 'Is my wallet data safe?', a: 'Yes. We only store your public wallet address. Private keys never leave your device.' },
+            ].map(({ q, a }) => (
+              <details key={q} className="group cursor-pointer">
+                <summary className="text-sm font-semibold text-white list-none flex justify-between items-center">
+                  {q}
+                  <span className="text-zinc-500 group-open:rotate-180 transition-transform">▾</span>
+                </summary>
+                <p className="text-xs text-zinc-400 mt-2 leading-relaxed">{a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
