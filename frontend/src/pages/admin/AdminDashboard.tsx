@@ -43,12 +43,22 @@ export default function AdminDashboard() {
     setIsMinting(true);
     toast.loading(t('admin.mintingSBT') || 'Minting Soulbound Token on TON Blockchain...', { id: 'adminMint' });
     
-    // Simulate Blockchain transaction delay
-    await new Promise(r => setTimeout(r, 2500));
-    
-    setHasBusinessSbt(true);
-    toast.success(t('admin.mintSuccess') || 'SBT Successfully issued and bound to wallet!', { id: 'adminMint' });
-    setIsMinting(false);
+    try {
+      // Simulate Blockchain transaction delay for visual effect
+      await new Promise(r => setTimeout(r, 2000));
+      
+      // Persist the credential to the backend
+      const { api } = await import('../../services/api');
+      await api.admin.issueSbt(walletAddress);
+
+      setHasBusinessSbt(true);
+      toast.success(t('admin.mintSuccess') || 'SBT Successfully issued and bound to wallet!', { id: 'adminMint' });
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to issue certificate', { id: 'adminMint' });
+    } finally {
+      setIsMinting(false);
+    }
   };
 
   const handleRevokeCertificate = async () => {

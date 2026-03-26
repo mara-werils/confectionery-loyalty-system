@@ -9,11 +9,12 @@ import { GlassCard } from '../components/GlassCard';
 import { useAuthStore } from '../store/authStore';
 import { changeLanguage, languages } from '../i18n';
 import toast from 'react-hot-toast';
+import { api } from '../services/api';
 
 export default function Home() {
   const navigate = useNavigate();
   const wallet = useTonWallet();
-  const { role, setRole, hasBusinessSbt } = useAuthStore();
+  const { role, setRole, setHasBusinessSbt } = useAuthStore();
   const { t, i18n } = useTranslation();
 
   useEffect(() => {
@@ -27,13 +28,32 @@ export default function Home() {
   const handleRoleSelect = async (selectedRole: 'business' | 'customer') => {
     if (selectedRole === 'business') {
       toast.loading(t('home.checkingCert') || 'Verifying Partner Certificate on TON...', { id: 'certCheck' });
-      await new Promise(r => setTimeout(r, 1500));
       
-      if (!hasBusinessSbt) {
-        toast.error(t('home.noCertFound') || 'Access Denied: Partner SBT Certificate not found in wallet.', { id: 'certCheck' });
+      const address = wallet?.account?.address;
+      if (!address) {
+        toast.error('Wallet not connected', { id: 'certCheck' });
         return;
       }
-      toast.success(t('home.certVerified') || 'Partner Certificate Verified!', { id: 'certCheck' });
+
+      try {
+        // Allow a slight delay for visual realism
+        await new Promise(r => setTimeout(r, 1000));
+        
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const res: any = await api.admin.checkSbt(address);
+        
+        if (!res.data || !res.data.hasSbt) {
+          toast.error(t('home.noCertFound') || 'Access Denied: Partner SBT Certificate not found in wallet.', { id: 'certCheck' });
+          return;
+        }
+
+        // Successfully verified by backend!
+        setHasBusinessSbt(true);
+        toast.success(t('home.certVerified') || 'Partner Certificate Verified!', { id: 'certCheck' });
+      } catch (err) {
+        toast.error('Verification failed due to server error', { id: 'certCheck' });
+        return;
+      }
     }
 
     setRole(selectedRole);

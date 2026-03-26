@@ -378,4 +378,52 @@ router.post('/admins', adminAuth, superAdminOnly, async (req: Request, res: Resp
     }
 });
 
+// ============================================================================
+// MVP SBT ISSUANCE (Open for Frontend Demo)
+// ============================================================================
+
+router.post('/sbt/issue', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { walletAddress } = req.body;
+        if (!walletAddress) throw new AppError('Wallet address required', 400, 'BAD_REQUEST');
+
+        const setting = await prisma.systemSetting.upsert({
+            where: { key: 'issued_sbt_wallets' },
+            update: {},
+            create: { key: 'issued_sbt_wallets', value: '[]', type: 'json' }
+        });
+        
+        const wallets = JSON.parse(setting.value);
+        if (!wallets.includes(walletAddress)) {
+            wallets.push(walletAddress);
+            await prisma.systemSetting.update({
+                where: { key: 'issued_sbt_wallets' },
+                data: { value: JSON.stringify(wallets) }
+            });
+        }
+        return successResponse(res, { success: true }, 'SBT issued');
+    } catch (error) {
+        return next(error);
+    }
+});
+
+router.get('/sbt/check/:walletAddress', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const walletAddress = req.params.walletAddress;
+        
+        const setting = await prisma.systemSetting.findUnique({
+            where: { key: 'issued_sbt_wallets' }
+        });
+        
+        if (!setting) {
+            return successResponse(res, { hasSbt: false });
+        }
+        
+        const wallets = JSON.parse(setting.value);
+        return successResponse(res, { hasSbt: wallets.includes(walletAddress) });
+    } catch (error) {
+        return next(error);
+    }
+});
+
 export default router;

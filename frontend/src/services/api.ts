@@ -111,6 +111,15 @@ export const api = {
     getGrowth: (period: 'day' | 'week' | 'month') =>
       axiosInstance.get('/analytics/growth', { params: { period } }),
   },
+
+  // Admin
+  admin: {
+    issueSbt: (walletAddress: string) =>
+      axiosInstance.post('/admin/sbt/issue', { walletAddress }),
+    
+    checkSbt: (walletAddress: string) =>
+      axiosInstance.get(`/admin/sbt/check/${walletAddress}`),
+  },
 };
 
 export default axiosInstance;
