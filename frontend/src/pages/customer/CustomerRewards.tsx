@@ -129,33 +129,34 @@ export default function CustomerRewards() {
   const wallet = useTonWallet();
   const { t, i18n } = useTranslation();
   const lang = i18n.language as 'en' | 'ru' | 'kz';
-  const { spentPoints, addSpentPoints, addCoupon } = useAuthStore();
+  const { addSpentPoints, addCoupon, sweetBalance, setSweetBalance } = useAuthStore();
 
   const [selectedPartner, setSelectedPartner] = useState<string | null>(null);
   const [redeeming, setRedeeming] = useState<string | null>(null);
   const [coupon, setCoupon] = useState<{ code: string; reward: Reward; partner: Partner | null } | null>(null);
-  const [actualBalance, setActualBalance] = useState<number>(0);
 
-  // Fetch real balance to check affordability
+  // Use persisted balance from store, refresh in background
+  const actualBalance = sweetBalance;
+
   useEffect(() => {
     const fetchBal = async () => {
       if (!wallet) return;
       try {
         const res = await fetch(`https://testnet.tonapi.io/v2/accounts/${wallet.account.address}/jettons`);
         const data = await res.json();
-        const sweet = data.balances?.find((b: { jetton: { address: string; decimals: number }; balance: string }) => 
+        const sweet = data.balances?.find((b: { jetton: { address: string; decimals: number }; balance: string }) =>
           b.jetton?.address?.toLowerCase() === '0:4d3a2278693a04f846b5d83a58e67066bb56ca4f46b1b7cd49992f4114f87c9c'
         );
         if (sweet) {
           const raw = Number(BigInt(sweet.balance) / BigInt(10 ** sweet.jetton.decimals));
-          setActualBalance(Math.max(0, raw - spentPoints));
+          setSweetBalance(raw);
         }
       } catch (e) {
-        console.warn('Failed to fetch actual balance', e);
+        // use cached balance from store
       }
     };
     fetchBal();
-  }, [wallet, spentPoints]);
+  }, [wallet]);
 
   const getRewardText = (key: string) => {
     return rewardsData[key]?.[lang] || rewardsData[key]?.en || key;

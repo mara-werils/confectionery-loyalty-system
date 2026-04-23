@@ -23,7 +23,8 @@ interface AuthState {
   avatar: string | null;
   activeCoupons: Array<{ code: string; rewardTitleKey: string; partnerName: string }>;
   hasBusinessSbt: boolean;
-  
+  sweetBalance: number;
+
   // Actions
   setToken: (token: string | null) => void;
   setRefreshToken: (token: string | null) => void;
@@ -35,6 +36,7 @@ interface AuthState {
   setAvatar: (base64: string | null) => void;
   addCoupon: (coupon: { code: string; rewardTitleKey: string; partnerName: string }) => void;
   setHasBusinessSbt: (has: boolean) => void;
+  setSweetBalance: (balance: number) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -50,6 +52,7 @@ export const useAuthStore = create<AuthState>()(
       avatar: null,
       activeCoupons: [],
       hasBusinessSbt: false,
+      sweetBalance: 0,
 
       setToken: (token) => set({ token, isAuthenticated: !!token }),
       setRefreshToken: (refreshToken) => set({ refreshToken }),
@@ -60,6 +63,7 @@ export const useAuthStore = create<AuthState>()(
       setAvatar: (avatar) => set({ avatar }),
       addCoupon: (coupon) => set((state) => ({ activeCoupons: [...state.activeCoupons, coupon] })),
       setHasBusinessSbt: (hasBusinessSbt) => set({ hasBusinessSbt }),
+      setSweetBalance: (sweetBalance) => set({ sweetBalance }),
       
       logout: () =>
         set({
@@ -84,6 +88,7 @@ export const useAuthStore = create<AuthState>()(
         avatar: state.avatar,
         activeCoupons: state.activeCoupons,
         hasBusinessSbt: state.hasBusinessSbt,
+        sweetBalance: state.sweetBalance,
       }),
     }
   )

@@ -11,7 +11,7 @@ import {
   TicketIcon,
 } from '@heroicons/react/24/outline';
 import { GlassCard } from '../../components/GlassCard';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { io as socketIO } from 'socket.io-client';
 import toast from 'react-hot-toast';
@@ -32,8 +32,9 @@ interface Transaction {
 export default function CustomerDashboard() {
   const wallet = useTonWallet();
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation();
-  const { spentPoints, activeCoupons } = useAuthStore();
+  const { activeCoupons, sweetBalance, setSweetBalance } = useAuthStore();
   const [balance, setBalance] = useState<JettonBalance | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -85,10 +86,10 @@ export default function CustomerDashboard() {
             '0:4d3a2278693a04f846b5d83a58e67066bb56ca4f46b1b7cd49992f4114f87c9c'
         );
         if (sweet) {
-          setBalance({
-            balance: sweet.balance,
-            decimals: sweet.jetton?.decimals || 9,
-          });
+          const jetton = { balance: sweet.balance, decimals: sweet.jetton?.decimals || 9 };
+          setBalance(jetton);
+          const numBalance = Number(BigInt(sweet.balance) / BigInt(10 ** (sweet.jetton?.decimals || 9)));
+          setSweetBalance(numBalance);
         }
       }
 
@@ -123,16 +124,14 @@ export default function CustomerDashboard() {
 
   useEffect(() => {
     fetchData();
-  }, [walletAddress]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletAddress, location.pathname]);
 
   const formatBalance = (bal: JettonBalance | null) => {
-    if (!bal) return '0';
+    if (!bal) return sweetBalance > 0 ? sweetBalance.toLocaleString() : '0';
     const raw = BigInt(bal.balance);
     const divisor = BigInt(10 ** bal.decimals);
-    let whole = Number(raw / divisor);
-    
-    whole = Math.max(0, whole - spentPoints);
-    return whole.toLocaleString();
+    return Number(raw / divisor).toLocaleString();
   };
 
   const formatAddress = (addr: string) => {
