@@ -18,7 +18,7 @@ const categories = [
 export default function Rewards() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const { hapticFeedback, showConfirm } = useTelegram();
-  
+
   const { data: balanceData } = useBalance();
   const { data: rewardsData, isLoading } = useRewards(
     selectedCategory !== 'all' ? { category: selectedCategory } : undefined
@@ -27,72 +27,23 @@ export default function Rewards() {
 
   const currentBalance = Number(balanceData?.data?.balance || 0);
 
-  // Mock rewards for demo
-  const rewards = rewardsData?.data || [
-    {
-      id: '1',
-      title: '10% Discount',
-      description: 'Get 10% off your next order at any partner confectionery',
-      pointsRequired: '100',
-      category: 'DISCOUNT' as const,
-      available: 999,
-      isActive: true,
-    },
-    {
-      id: '2',
-      title: 'Free Cake Slice',
-      description: 'Redeem for a free slice of any cake',
-      pointsRequired: '250',
-      category: 'PRODUCT' as const,
-      available: 50,
-      isActive: true,
-    },
-    {
-      id: '3',
-      title: '5% Cashback',
-      description: 'Get 5% cashback on your next purchase',
-      pointsRequired: '500',
-      category: 'CASHBACK' as const,
-      available: 200,
-      isActive: true,
-    },
-    {
-      id: '4',
-      title: '25% Discount',
-      description: 'Quarter off your order',
-      pointsRequired: '300',
-      category: 'DISCOUNT' as const,
-      available: 100,
-      isActive: true,
-    },
-    {
-      id: '5',
-      title: 'Box of Chocolates',
-      description: 'Premium box of assorted chocolates',
-      pointsRequired: '750',
-      category: 'PRODUCT' as const,
-      available: 25,
-      isActive: true,
-    },
-    {
-      id: '6',
-      title: 'VIP Tasting Event',
-      description: 'Exclusive access to our VIP tasting event',
-      pointsRequired: '1000',
-      category: 'SPECIAL' as const,
-      available: 10,
-      isActive: true,
-    },
-  ];
+  const rewards: {
+    id: string;
+    title: string;
+    description: string;
+    pointsRequired: string;
+    category: 'DISCOUNT' | 'PRODUCT' | 'CASHBACK' | 'SPECIAL';
+    available: number;
+    isActive: boolean;
+  }[] = rewardsData?.data || [];
 
   const filteredRewards =
     selectedCategory === 'all'
       ? rewards
-      : rewards.filter((r: typeof rewards[0]) => r.category === selectedCategory);
+      : rewards.filter((r) => r.category === selectedCategory);
 
   const handleClaim = async (rewardId: string) => {
     hapticFeedback('medium');
-    
     const confirmed = await showConfirm('Are you sure you want to claim this reward?');
     if (confirmed) {
       hapticFeedback('success');
@@ -161,7 +112,7 @@ export default function Rewards() {
                 </div>
               ) : filteredRewards.length > 0 ? (
                 <div className="grid gap-4">
-                  {filteredRewards.map((reward: typeof rewards[0]) => (
+                  {filteredRewards.map((reward) => (
                     <RewardCard
                       key={reward.id}
                       {...reward}
@@ -185,15 +136,3 @@ export default function Rewards() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-

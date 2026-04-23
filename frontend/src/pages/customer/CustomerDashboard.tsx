@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTonWallet } from '@tonconnect/ui-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useTranslation } from 'react-i18next';
@@ -13,6 +13,8 @@ import {
 import { GlassCard } from '../../components/GlassCard';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
+import { io as socketIO } from 'socket.io-client';
+import toast from 'react-hot-toast';
 
 interface JettonBalance {
   balance: string;
@@ -35,65 +37,91 @@ export default function CustomerDashboard() {
   const [balance, setBalance] = useState<JettonBalance | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [liveNotification, setLiveNotification] = useState<{ amount: number } | null>(null);
+  const socketRef = useRef<ReturnType<typeof socketIO> | null>(null);
 
   const walletAddress = wallet?.account.address || '';
 
+  // Socket.io — subscribe to real-time mint events for this wallet
   useEffect(() => {
     if (!walletAddress) return;
 
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch(
-          `https://testnet.tonapi.io/v2/accounts/${walletAddress}/jettons`
-        );
-        const data = await res.json();
+    const API_URL = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:3001';
+    const socket = socketIO(API_URL, { transports: ['websocket', 'polling'] });
+    socketRef.current = socket;
 
-        if (data.balances && data.balances.length > 0) {
-          const sweet = data.balances.find(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (b: any) =>
-              b.jetton?.address?.toLowerCase() ===
-              '0:4d3a2278693a04f846b5d83a58e67066bb56ca4f46b1b7cd49992f4114f87c9c'
-          );
-          if (sweet) {
-            setBalance({
-              balance: sweet.balance,
-              decimals: sweet.jetton?.decimals || 9,
-            });
-          }
-        }
+    socket.on('connect', () => {
+      socket.emit('subscribe:wallet', walletAddress);
+    });
 
-        const txRes = await fetch(
-          `https://testnet.tonapi.io/v2/accounts/${walletAddress}/events?limit=10`
-        );
-        const txData = await txRes.json();
+    socket.on('tokens:received', (data: { amount: number; message: string }) => {
+      setLiveNotification({ amount: data.amount });
+      toast.success(`+${data.amount} SWEET received!`, { duration: 4000, icon: '🍬' });
+      // Refresh blockchain data after notification
+      setTimeout(() => fetchData(), 3000);
+      setTimeout(() => setLiveNotification(null), 5000);
+    });
 
-        if (txData.events) {
-           
-          const parsed: Transaction[] = txData.events
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            .filter((e: any) => e.actions?.some((a: any) => a.type === 'JettonTransfer'))
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            .map((e: any) => {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const action = e.actions.find((a: any) => a.type === 'JettonTransfer');
-              return {
-                hash: e.event_id,
-                amount: action?.JettonTransfer?.amount || '0',
-                sender: action?.JettonTransfer?.sender?.address || 'unknown',
-                comment: action?.JettonTransfer?.comment || t('customerDashboard.cashback'),
-                timestamp: e.timestamp,
-              };
-            });
-          setTransactions(parsed);
-        }
-      } catch (error) {
-        console.error('Failed to fetch blockchain data:', error);
-      }
-      setLoading(false);
+    return () => {
+      socket.emit('unsubscribe:wallet', walletAddress);
+      socket.disconnect();
     };
+  }, [walletAddress]);
 
+  const fetchData = async () => {
+    if (!walletAddress) return;
+    setLoading(true);
+    try {
+      const res = await fetch(
+        `https://testnet.tonapi.io/v2/accounts/${walletAddress}/jettons`
+      );
+      const data = await res.json();
+
+      if (data.balances && data.balances.length > 0) {
+        const sweet = data.balances.find(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (b: any) =>
+            b.jetton?.address?.toLowerCase() ===
+            '0:4d3a2278693a04f846b5d83a58e67066bb56ca4f46b1b7cd49992f4114f87c9c'
+        );
+        if (sweet) {
+          setBalance({
+            balance: sweet.balance,
+            decimals: sweet.jetton?.decimals || 9,
+          });
+        }
+      }
+
+      const txRes = await fetch(
+        `https://testnet.tonapi.io/v2/accounts/${walletAddress}/events?limit=10`
+      );
+      const txData = await txRes.json();
+
+      if (txData.events) {
+        const parsed: Transaction[] = txData.events
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .filter((e: any) => e.actions?.some((a: any) => a.type === 'JettonTransfer'))
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .map((e: any) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const action = e.actions.find((a: any) => a.type === 'JettonTransfer');
+            return {
+              hash: e.event_id,
+              amount: action?.JettonTransfer?.amount || '0',
+              sender: action?.JettonTransfer?.sender?.address || 'unknown',
+              comment: action?.JettonTransfer?.comment || t('customerDashboard.cashback'),
+              timestamp: e.timestamp,
+            };
+          });
+        setTransactions(parsed);
+      }
+    } catch (error) {
+      // Silently handle network errors — blockchain data is optional
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
     fetchData();
   }, [walletAddress]);
 
@@ -122,6 +150,25 @@ export default function CustomerDashboard() {
 
   return (
     <div className="min-h-screen p-4 md:p-8 pb-24 text-white">
+      {/* Live Mint Notification Banner */}
+      <AnimatePresence>
+        {liveNotification && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            className="fixed top-4 left-4 right-4 z-50 bg-green-500/20 border border-green-500/40 backdrop-blur-md rounded-2xl p-4 flex items-center gap-3 shadow-2xl"
+          >
+            <div className="text-2xl">🍬</div>
+            <div>
+              <p className="font-bold text-green-400 text-sm">Tokens Received!</p>
+              <p className="text-white text-xs">+{liveNotification.amount} SWEET minted to your wallet</p>
+            </div>
+            <div className="ml-auto w-2 h-2 rounded-full bg-green-400 animate-ping" />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <motion.div
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}

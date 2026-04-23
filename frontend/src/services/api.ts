@@ -116,9 +116,17 @@ export const api = {
   admin: {
     issueSbt: (walletAddress: string) =>
       axiosInstance.post('/admin/sbt/issue', { walletAddress }),
-    
+
     checkSbt: (walletAddress: string) =>
       axiosInstance.get(`/admin/sbt/check/${walletAddress}`),
+  },
+
+  // Referrals
+  referrals: {
+    getStats: () => axiosInstance.get('/referrals/stats'),
+    generateCode: () => axiosInstance.post('/referrals/generate-code'),
+    applyCode: (referralCode: string) => axiosInstance.post('/referrals/apply', { referralCode }),
+    getLeaderboard: () => axiosInstance.get('/referrals/leaderboard'),
   },
 };
 

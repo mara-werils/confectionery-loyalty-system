@@ -15,25 +15,29 @@ import {
   ArrowUpRightIcon
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
-
-const chartData = [
-  { name: 'Mon', value: 4000 },
-  { name: 'Tue', value: 3000 },
-  { name: 'Wed', value: 7000 },
-  { name: 'Thu', value: 5000 },
-  { name: 'Fri', value: 11000 },
-  { name: 'Sat', value: 15420 },
-  { name: 'Sun', value: 18900 },
-];
+import { useAnalyticsGrowth, useAnalyticsSummary } from '../hooks/useApi';
 
 export default function Dashboard() {
   const { t } = useTranslation();
   const [balance, setBalance] = useState<{ sweet: number; kztEquivalent: number; gov: number; lp: number } | null>(null);
   const [loading, setLoading] = useState(false);
   const [posAmount, setPosAmount] = useState<number | ''>('');
+  const [chartPeriod, setChartPeriod] = useState<'day' | 'week' | 'month'>('week');
   const wallet = useTonWallet();
   const [clientWalletAddress, setClientWalletAddress] = useState<string>('');
   const [showScanner, setShowScanner] = useState(false);
+
+  const { data: growthData } = useAnalyticsGrowth(chartPeriod);
+  const { data: summaryData } = useAnalyticsSummary();
+
+  const chartData: { name: string; value: number }[] = growthData?.data?.map(
+    (d: { date: string; totalPoints: number }) => ({
+      name: new Date(d.date).toLocaleDateString('en', { weekday: 'short', month: 'short', day: 'numeric' }),
+      value: d.totalPoints,
+    })
+  ) || [];
+
+  const summary = summaryData?.data;
 
   useEffect(() => {
     loadData();
@@ -102,7 +106,7 @@ export default function Dashboard() {
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-semibold text-white tracking-tight">
-              {balance ? balance.sweet.toLocaleString() : '15,420'}
+              {balance ? balance.sweet.toLocaleString() : (summary?.totalPointsIssued?.toLocaleString() || '—')}
               <span className="text-sm text-zinc-500 ml-1.5 font-normal">SWEET</span>
             </span>
           </div>
@@ -111,31 +115,31 @@ export default function Dashboard() {
           </p>
         </div>
 
-        {/* Governance */}
+        {/* Partners */}
         <div className="bg-zinc-900 border border-zinc-800/80 rounded-xl p-5 shadow-sm">
           <div className="flex justify-between items-start mb-4">
-            <h3 className="text-sm font-medium text-zinc-400">{t('dashboard.activeCustomers') || 'Active Customers'}</h3>
+            <h3 className="text-sm font-medium text-zinc-400">{t('dashboard.activeCustomers') || 'Active Partners'}</h3>
             <UserGroupIcon className="w-5 h-5 text-zinc-500" />
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-semibold text-white tracking-tight">
-              1,284
+              {summary?.totalPartners ?? '—'}
             </span>
           </div>
           <p className="text-xs text-green-400 mt-2 flex items-center gap-1">
-             <ArrowUpRightIcon className="w-3 h-3" /> {t('dashboard.vsLastMonth')}
+            <ArrowUpRightIcon className="w-3 h-3" /> {t('dashboard.vsLastMonth')}
           </p>
         </div>
 
         {/* Transactions */}
         <div className="bg-zinc-900 border border-zinc-800/80 rounded-xl p-5 shadow-sm">
           <div className="flex justify-between items-start mb-4">
-            <h3 className="text-sm font-medium text-zinc-400">{t('dashboard.totalTransactions') || 'Points Issued'}</h3>
+            <h3 className="text-sm font-medium text-zinc-400">{t('dashboard.totalTransactions') || 'Total Transactions'}</h3>
             <ChartBarIcon className="w-5 h-5 text-zinc-500" />
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-semibold text-white tracking-tight">
-              45,020
+              {summary?.totalTransactions?.toLocaleString() ?? '—'}
             </span>
           </div>
           <p className="text-xs text-zinc-500 mt-2">{t('dashboard.allTimeRewards') || 'All-time distributed rewards'}</p>
@@ -215,10 +219,14 @@ export default function Dashboard() {
           <div className="bg-zinc-900 border border-zinc-800/80 rounded-xl p-5 h-[420px] shadow-sm flex flex-col">
             <div className="mb-6 flex justify-between items-center">
               <h3 className="text-base font-semibold text-white">{t('dashboard.ecosystemGrowth') || 'Transaction Volume'}</h3>
-              <select className="bg-zinc-950 border border-zinc-800 text-sm text-zinc-300 rounded-md px-2 py-1 outline-none">
-                <option>Last 7 Days</option>
-                <option>Last 30 Days</option>
-                <option>All Time</option>
+              <select
+                className="bg-zinc-950 border border-zinc-800 text-sm text-zinc-300 rounded-md px-2 py-1 outline-none"
+                value={chartPeriod}
+                onChange={(e) => setChartPeriod(e.target.value as 'day' | 'week' | 'month')}
+              >
+                <option value="day">Last 24h</option>
+                <option value="week">Last 7 Days</option>
+                <option value="month">Last 30 Days</option>
               </select>
             </div>
             <div className="flex-1 w-full relative">

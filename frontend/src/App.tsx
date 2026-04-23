@@ -10,6 +10,8 @@ import History from './pages/History';
 import Profile from './pages/Profile';
 import Blockchain from './pages/Blockchain';
 import Swap from './pages/Swap';
+import Referrals from './pages/Referrals';
+import Stats from './pages/Stats';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -90,6 +92,7 @@ function App() {
           <Route path="/business/dashboard" element={<Dashboard />} />
           <Route path="/blockchain" element={<Blockchain />} />
           <Route path="/swap" element={<Swap />} />
+          <Route path="/referrals" element={<Referrals />} />
           <Route path="/business/profile" element={<Profile />} />
         </Route>
       </Route>
@@ -100,6 +103,7 @@ function App() {
           <Route path="/customer/dashboard" element={<CustomerDashboard />} />
           <Route path="/customer/rewards" element={<CustomerRewards />} />
           <Route path="/history" element={<History />} />
+          <Route path="/stats" element={<Stats />} />
           <Route path="/customer/profile" element={<Profile />} />
         </Route>
       </Route>

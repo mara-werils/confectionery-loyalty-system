@@ -155,6 +155,15 @@ io.on('connection', (socket) => {
     socket.leave(`partner:${partnerId}`);
   });
 
+  socket.on('subscribe:wallet', (walletAddress: string) => {
+    socket.join(`wallet:${walletAddress}`);
+    logger.debug(`Socket ${socket.id} subscribed to wallet:${walletAddress}`);
+  });
+
+  socket.on('unsubscribe:wallet', (walletAddress: string) => {
+    socket.leave(`wallet:${walletAddress}`);
+  });
+
   socket.on('disconnect', () => {
     logger.info(`Client disconnected: ${socket.id}`);
   });

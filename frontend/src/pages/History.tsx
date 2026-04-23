@@ -1,88 +1,94 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Tab } from '@headlessui/react';
-import { ClockIcon, GiftIcon } from '@heroicons/react/24/outline';
+import { ClockIcon, GiftIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
+import toast from 'react-hot-toast';
 
 import TransactionItem from '../components/TransactionItem';
 import { useTransactions, useLoyaltyHistory } from '../hooks/useApi';
+import { useAuthStore } from '../store/authStore';
 
 const tabs = [
   { key: 'transactions', label: 'Transactions', icon: ClockIcon },
   { key: 'claims', label: 'Claims', icon: GiftIcon },
 ];
 
+function exportToCSV(data: Record<string, unknown>[], filename: string) {
+  if (!data.length) {
+    toast.error('No data to export');
+    return;
+  }
+  const headers = Object.keys(data[0]);
+  const rows = data.map((row) =>
+    headers.map((h) => JSON.stringify(row[h] ?? '')).join(',')
+  );
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast.success('CSV exported!');
+}
+
 export default function History() {
   const { t } = useTranslation();
+  const { token } = useAuthStore();
   const [selectedTab, setSelectedTab] = useState(0);
   const [page] = useState(1);
 
   const { data: transactionsData, isLoading: transactionsLoading } = useTransactions(page, 20);
-  const { isLoading: historyLoading } = useLoyaltyHistory(page, 20);
+  const { data: historyData, isLoading: historyLoading } = useLoyaltyHistory(page, 20);
 
-  // Mock data for demo
-  const transactions = transactionsData?.data || [
-    {
-      id: '1',
-      amount: '150000',
-      pointsEarned: '150',
-      type: 'PURCHASE' as const,
-      description: 'Cake order at Sweet Bakery',
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: '2',
-      amount: '0',
-      pointsEarned: '500',
-      type: 'BONUS' as const,
-      description: 'Welcome bonus',
-      createdAt: new Date(Date.now() - 86400000).toISOString(),
-    },
-    {
-      id: '3',
-      amount: '250000',
-      pointsEarned: '250',
-      type: 'PURCHASE' as const,
-      description: 'Wedding cake order',
-      createdAt: new Date(Date.now() - 172800000).toISOString(),
-    },
-    {
-      id: '4',
-      amount: '50000',
-      pointsEarned: '50',
-      type: 'PURCHASE' as const,
-      description: 'Pastry box',
-      createdAt: new Date(Date.now() - 259200000).toISOString(),
-    },
-    {
-      id: '5',
-      amount: '0',
-      pointsEarned: '200',
-      type: 'REFERRAL' as const,
-      description: 'Referral bonus - John Doe',
-      createdAt: new Date(Date.now() - 345600000).toISOString(),
-    },
-  ];
+  const transactions: {
+    id: string;
+    amount: string;
+    pointsEarned: string;
+    type: 'PURCHASE' | 'BONUS' | 'REFERRAL' | 'REDEMPTION';
+    description?: string;
+    createdAt: string;
+  }[] = transactionsData?.data || [];
 
-  const claims = [
-    {
-      id: 'c1',
-      rewardTitle: '10% Discount',
-      pointsSpent: '100',
-      status: 'FULFILLED',
-      createdAt: new Date(Date.now() - 86400000).toISOString(),
-    },
-    {
-      id: 'c2',
-      rewardTitle: 'Free Cake Slice',
-      pointsSpent: '250',
-      status: 'PENDING',
-      createdAt: new Date(Date.now() - 43200000).toISOString(),
-    },
-  ];
+  const claims: {
+    id: string;
+    reward?: { title: string };
+    pointsSpent: string;
+    status: string;
+    createdAt: string;
+  }[] = historyData?.data || [];
 
   const isLoading = selectedTab === 0 ? transactionsLoading : historyLoading;
+
+  const handleExport = () => {
+    if (selectedTab === 0) {
+      exportToCSV(
+        transactions.map((tx) => ({
+          id: tx.id,
+          type: tx.type,
+          amount_kzt: tx.amount,
+          points_earned: tx.pointsEarned,
+          description: tx.description || '',
+          date: new Date(tx.createdAt).toLocaleString(),
+        })),
+        'sweet_transactions.csv'
+      );
+    } else {
+      exportToCSV(
+        claims.map((c) => ({
+          id: c.id,
+          reward: c.reward?.title || '',
+          points_spent: c.pointsSpent,
+          status: c.status,
+          date: new Date(c.createdAt).toLocaleString(),
+        })),
+        'sweet_claims.csv'
+      );
+    }
+  };
 
   return (
     <div className="px-4 py-6">
@@ -90,10 +96,22 @@ export default function History() {
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-8 pl-1"
+        className="mb-8 pl-1 flex items-center justify-between"
       >
-        <h1 className="text-3xl font-bold text-white tracking-tight">{t('history.title')}</h1>
-        <p className="text-zinc-400 mt-1">{t('history.subtitle')}</p>
+        <div>
+          <h1 className="text-3xl font-bold text-white tracking-tight">{t('history.title')}</h1>
+          <p className="text-zinc-400 mt-1">{t('history.subtitle')}</p>
+        </div>
+        {token && (
+          <button
+            onClick={handleExport}
+            className="flex items-center gap-1.5 px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-xl text-xs font-medium text-zinc-400 hover:text-white hover:border-zinc-600 transition-colors"
+            title="Export CSV"
+          >
+            <ArrowDownTrayIcon className="w-4 h-4" />
+            CSV
+          </button>
+        )}
       </motion.div>
 
       {/* Tabs */}
@@ -133,7 +151,7 @@ export default function History() {
                 </div>
               ) : transactions.length > 0 ? (
                 <div>
-                  {transactions.map((tx: typeof transactions[0], index: number) => (
+                  {transactions.map((tx, index) => (
                     <TransactionItem key={tx.id} {...tx} index={index} />
                   ))}
                 </div>
@@ -154,7 +172,13 @@ export default function History() {
               animate={{ opacity: 1 }}
               className="space-y-4"
             >
-              {claims.length > 0 ? (
+              {historyLoading ? (
+                <div className="space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="skeleton h-16 rounded-xl" />
+                  ))}
+                </div>
+              ) : claims.length > 0 ? (
                 claims.map((claim, index) => (
                   <motion.div
                     key={claim.id}
@@ -169,7 +193,7 @@ export default function History() {
                       </div>
                       <div className="flex-1">
                         <h3 className="font-semibold text-accent-800">
-                          {claim.rewardTitle}
+                          {claim.reward?.title || 'Reward'}
                         </h3>
                         <p className="text-sm text-accent-400">
                           {new Date(claim.createdAt).toLocaleDateString('en-US', {
@@ -213,7 +237,3 @@ export default function History() {
     </div>
   );
 }
-
-
-
-

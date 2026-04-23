@@ -7,6 +7,7 @@ import { tonClient } from '../services/ton';
 import { logger } from '../utils/logger';
 import { successResponse } from '../utils/response';
 import { AppError } from '../middleware/errorHandler';
+import { io } from '../index';
 
 const mintSchema = z.object({
   targetWallet: z.string().describe('TON Wallet address of the user'),
@@ -89,6 +90,14 @@ export const mintLoyaltyTokens = async (req: Request, res: Response, next: NextF
     }));
 
     logger.info(`Mint transaction broadcasted successfully. Seqno: ${seqno}`);
+
+    // Notify the target wallet in real-time via Socket.io
+    io.to(`wallet:${targetWallet}`).emit('tokens:received', {
+      amount,
+      txSeqno: seqno,
+      message: `+${amount} SWEET tokens minted to your wallet!`,
+      timestamp: Date.now(),
+    });
 
     return successResponse(
       res,

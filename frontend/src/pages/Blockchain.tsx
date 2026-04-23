@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { BlockchainService, CONTRACT_ADDRESSES, ContractState } from '../services/ton';
 import { useTonWallet } from '@tonconnect/ui-react';
-import { CodeBracketSquareIcon, CheckCircleIcon, XCircleIcon, BeakerIcon } from '@heroicons/react/24/outline';
+import { CodeBracketSquareIcon, CheckCircleIcon, XCircleIcon, BeakerIcon, ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 
@@ -158,16 +158,31 @@ export default function Blockchain() {
                   <div className="space-y-4">
                      <div>
                         <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1.5">{t('blockchain.contractAddress') || 'Compiled Hash Address'}</p>
-                        <a 
-                        href={`https://testnet.tonscan.org/address/${address}`} 
-                        target="_blank" 
-                        rel="noreferrer"
-                        className="font-mono text-sm text-blue-400 hover:underline transition-colors block break-all"
-                        >
-                        {address}
-                        </a>
+                        <p className="font-mono text-xs text-zinc-300 bg-zinc-950 px-3 py-2 rounded-lg border border-zinc-800 break-all mb-2">
+                          {address}
+                        </p>
+                        <div className="flex gap-2">
+                          <a
+                            href={`https://testnet.tonscan.org/address/${address}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex items-center gap-1 px-2.5 py-1.5 rounded-md bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-xs text-zinc-300 hover:text-white transition-colors"
+                          >
+                            <ArrowTopRightOnSquareIcon className="w-3.5 h-3.5" />
+                            Tonscan
+                          </a>
+                          <a
+                            href={`https://testnet.tonviewer.com/${address}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex items-center gap-1 px-2.5 py-1.5 rounded-md bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-xs text-zinc-300 hover:text-white transition-colors"
+                          >
+                            <ArrowTopRightOnSquareIcon className="w-3.5 h-3.5" />
+                            Tonviewer
+                          </a>
+                        </div>
                      </div>
-                     
+
                      <div>
                         <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1.5">{t('blockchain.tonBalance') || 'Locked TON Balance'}</p>
                         {isLoading ? (
