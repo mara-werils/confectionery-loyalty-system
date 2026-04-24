@@ -19,7 +19,7 @@ import { useAnalyticsGrowth, useAnalyticsSummary } from '../hooks/useApi';
 
 export default function Dashboard() {
   const { t } = useTranslation();
-  const [balance, setBalance] = useState<{ sweet: number; kztEquivalent: number; gov: number; lp: number } | null>(null);
+  const [balance, setBalance] = useState<{ sweet: number; ton: number; kztEquivalent: number } | null>(null);
   const [loading, setLoading] = useState(false);
   const [posAmount, setPosAmount] = useState<number | ''>('');
   const [chartPeriod, setChartPeriod] = useState<'day' | 'week' | 'month'>('week');
@@ -40,8 +40,10 @@ export default function Dashboard() {
   const summary = summaryData?.data;
 
   useEffect(() => {
-    loadData();
-  }, []);
+    if (wallet?.account.address) {
+      loadData(wallet.account.address);
+    }
+  }, [wallet?.account.address]);
 
   useEffect(() => {
     if (wallet && !clientWalletAddress) {
@@ -49,8 +51,8 @@ export default function Dashboard() {
     }
   }, [wallet]);
 
-  const loadData = async () => {
-    const bal = await EcosystemService.getBalance();
+  const loadData = async (address: string) => {
+    const bal = await EcosystemService.getBalance(address);
     setBalance(bal);
   };
 
@@ -106,7 +108,7 @@ export default function Dashboard() {
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-semibold text-white tracking-tight">
-              {balance ? balance.sweet.toLocaleString() : (summary?.totalPointsIssued?.toLocaleString() || '—')}
+              {balance ? balance.sweet.toLocaleString() : <span className="animate-pulse text-zinc-600">—</span>}
               <span className="text-sm text-zinc-500 ml-1.5 font-normal">SWEET</span>
             </span>
           </div>
@@ -123,7 +125,9 @@ export default function Dashboard() {
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-semibold text-white tracking-tight">
-              {summary?.totalPartners ?? '—'}
+              {summary?.totalPartners != null
+                ? summary.totalPartners.toLocaleString()
+                : <span className="inline-block w-12 h-7 bg-zinc-800 rounded animate-pulse" />}
             </span>
           </div>
           <p className="text-xs text-green-400 mt-2 flex items-center gap-1">
@@ -139,7 +143,9 @@ export default function Dashboard() {
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-semibold text-white tracking-tight">
-              {summary?.totalTransactions?.toLocaleString() ?? '—'}
+              {summary?.totalTransactions != null
+                ? summary.totalTransactions.toLocaleString()
+                : <span className="inline-block w-16 h-7 bg-zinc-800 rounded animate-pulse" />}
             </span>
           </div>
           <p className="text-xs text-zinc-500 mt-2">{t('dashboard.allTimeRewards') || 'All-time distributed rewards'}</p>

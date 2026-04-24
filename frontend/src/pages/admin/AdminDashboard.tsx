@@ -22,10 +22,12 @@ export default function AdminDashboard() {
     e.preventDefault();
     setIsVerifying(true);
     
-    // Hardcoded credentials for the diploma defense
-    await new Promise(r => setTimeout(r, 1200)); // Fake network delay for realism
-    
-    if (email === 'admin@sweetloyalty.kz' && password === 'MasterKey2026!') {
+    await new Promise(r => setTimeout(r, 800));
+
+    const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || 'admin@sweetloyalty.kz';
+    const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD || 'MasterKey2026!';
+
+    if (email === adminEmail && password === adminPassword) {
       toast.success('Authentication successful', { id: 'adminAuth' });
       setIsAuthenticated(true);
     } else {

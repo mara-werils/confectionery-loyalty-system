@@ -56,10 +56,22 @@ export default function Blockchain() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-           <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 text-xs font-medium text-zinc-300">
-            {t('blockchain.connected') || 'Node Connected'}
-            <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-          </span>
+          {loading ? (
+            <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 text-xs font-medium text-zinc-500">
+              Syncing...
+              <span className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse"></span>
+            </span>
+          ) : Object.values(contractStates).some(s => s?.state === 'active') ? (
+            <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 text-xs font-medium text-zinc-300">
+              {t('blockchain.connected') || 'Node Connected'}
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+            </span>
+          ) : (
+            <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-zinc-900 border border-red-900/40 text-xs font-medium text-red-400">
+              Node Unreachable
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+            </span>
+          )}
         </div>
       </div>
 
