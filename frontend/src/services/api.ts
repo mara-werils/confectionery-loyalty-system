@@ -110,6 +110,8 @@ export const api = {
 
     getGrowth: (period: 'day' | 'week' | 'month') =>
       axiosInstance.get('/analytics/growth', { params: { period } }),
+
+    getTopPartners: () => axiosInstance.get('/analytics/top-partners'),
   },
 
   // Admin
@@ -119,12 +121,16 @@ export const api = {
 
     checkSbt: (walletAddress: string) =>
       axiosInstance.get(`/admin/sbt/check/${walletAddress}`),
+
+    getAuditLogs: (params?: { page?: number; limit?: number }) =>
+      axiosInstance.get('/admin/audit-logs', { params }),
   },
 
   // Coupons
   coupons: {
     create: (rewardId: string) => axiosInstance.post('/coupons', { rewardId }),
     list: () => axiosInstance.get('/coupons'),
+    verify: (code: string) => axiosInstance.get(`/coupons/verify/${code}`),
     redeem: (code: string) => axiosInstance.post(`/coupons/${code}/redeem`),
   },
 

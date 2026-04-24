@@ -194,6 +194,29 @@ export function useAnalyticsGrowth(period: 'day' | 'week' | 'month' = 'month') {
   });
 }
 
+export function useTopPartners() {
+  const { token } = useAuthStore();
+
+  return useQuery({
+    queryKey: ['analytics', 'top-partners'],
+    queryFn: () => api.analytics.getTopPartners(),
+    enabled: !!token,
+    staleTime: 60000,
+  });
+}
+
+// ========================================
+// ADMIN HOOKS
+// ========================================
+
+export function useAuditLogs(page = 1) {
+  return useQuery({
+    queryKey: ['admin', 'audit-logs', page],
+    queryFn: () => api.admin.getAuditLogs({ page, limit: 20 }),
+    staleTime: 30000,
+  });
+}
+
 
 
 
