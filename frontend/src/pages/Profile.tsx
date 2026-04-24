@@ -86,7 +86,7 @@ const TIER_NEXT: Record<string, { next: string; required: number }> = {
 export default function Profile() {
   const [tonConnectUI] = useTonConnectUI();
   const wallet = useTonWallet();
-  const { user, role, setRole, logout, avatar, setAvatar, hasBusinessSbt, setUser, sweetBalance, token } = useAuthStore();
+  const { user, role, setRole, logout, avatar, setAvatar, hasBusinessSbt, setHasBusinessSbt, setUser, sweetBalance, token } = useAuthStore();
   const { hapticFeedback } = useTelegram();
   const navigate = useNavigate();
   const { t } = useTranslation();
