@@ -8,11 +8,15 @@ import {
   SparklesIcon,
   ArrowLeftIcon,
   TicketIcon,
+  ClipboardDocumentIcon,
+  CheckIcon,
+  ClockIcon,
 } from '@heroicons/react/24/outline';
 import { GlassCard } from '../../components/GlassCard';
 import { useAuthStore } from '../../store/authStore';
 import { useTonWallet } from '@tonconnect/ui-react';
 import toast from 'react-hot-toast';
+import { api } from '../../services/api';
 
 // ─── Real Partner Confectioneries in Kazakhstan ─────────────────
 interface Partner {
@@ -129,11 +133,18 @@ export default function CustomerRewards() {
   const wallet = useTonWallet();
   const { t, i18n } = useTranslation();
   const lang = i18n.language as 'en' | 'ru' | 'kz';
-  const { addSpentPoints, addCoupon, sweetBalance, setSweetBalance } = useAuthStore();
+  const { addCoupon, sweetBalance, setSweetBalance } = useAuthStore();
 
   const [selectedPartner, setSelectedPartner] = useState<string | null>(null);
   const [redeeming, setRedeeming] = useState<string | null>(null);
-  const [coupon, setCoupon] = useState<{ code: string; reward: Reward; partner: Partner | null } | null>(null);
+  const [coupon, setCoupon] = useState<{
+    code: string;
+    reward: Reward;
+    partner: Partner | null;
+    expiresAt: string;
+    daysLeft: number;
+  } | null>(null);
+  const [copiedCode, setCopiedCode] = useState(false);
 
   // Use persisted balance from store, refresh in background
   const actualBalance = sweetBalance;
@@ -170,27 +181,35 @@ export default function CustomerRewards() {
 
   const handleRedeem = async (reward: Reward) => {
     if (actualBalance < reward.pointsRequired) {
-      toast.error(t('rewards.insufficientBalance') || 'Недостаточно SWEET для покупки!');
+      toast.error(t('rewards.insufficientBalance') || 'Insufficient SWEET balance');
       return;
     }
 
     setRedeeming(reward.id);
-    await new Promise(r => setTimeout(r, 1500));
-    
-    // Deduct points locally for MVP illusion
-    addSpentPoints(reward.pointsRequired);
+    try {
+      const res = await api.coupons.create(reward.id) as {
+        data: { code: string; expiresAt: string; daysLeft: number };
+      };
+      const { code, expiresAt, daysLeft } = res.data;
 
-    const partner = getPartner(reward.partnerId);
-    const code = 'SWT-' + Math.random().toString(36).substring(2, 8).toUpperCase();
-    
-    // Save to global state so it appears on Dashboard
-    addCoupon({
-      code,
-      rewardTitleKey: reward.titleKey,
-      partnerName: partner?.name || 'Platform'
-    });
+      const partner = getPartner(reward.partnerId);
 
-    setCoupon({ code, reward, partner });
+      // Update local balance
+      setSweetBalance(Math.max(0, actualBalance - reward.pointsRequired));
+
+      // Save to store for Dashboard display
+      addCoupon({
+        code,
+        rewardTitleKey: reward.titleKey,
+        partnerName: partner?.name || 'Platform',
+      });
+
+      setCoupon({ code, reward, partner, expiresAt, daysLeft });
+      toast.success('Coupon issued and saved!');
+    } catch (err: unknown) {
+      const error = err as { message?: string };
+      toast.error(error?.message || 'Failed to issue coupon');
+    }
     setRedeeming(null);
   };
 
@@ -304,24 +323,70 @@ export default function CustomerRewards() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.85, opacity: 0 }}
               onClick={e => e.stopPropagation()}
-              className="bg-zinc-900 border border-white/10 rounded-3xl p-8 max-w-sm w-full text-center"
+              className="bg-zinc-900 border border-white/10 rounded-3xl p-6 max-w-sm w-full"
             >
-              <div className="p-3 bg-green-500/10 rounded-2xl inline-block mb-4">
-                <TicketIcon className="w-8 h-8 text-green-400" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-1">{t('rewards.couponTitle')}</h3>
-              <p className="text-xs text-zinc-400 mb-6">
-                {t('rewards.couponReady')} {coupon.partner?.name || t('rewards.platformWide')}
-              </p>
-
-              <div className="bg-black/40 border border-dashed border-white/20 rounded-2xl py-5 px-6 mb-6">
-                <p className="text-3xl font-mono font-extrabold tracking-[0.3em] text-white">
-                  {coupon.code}
+              <div className="text-center mb-5">
+                <div className="p-3 bg-green-500/10 rounded-2xl inline-block mb-3">
+                  <TicketIcon className="w-8 h-8 text-green-400" />
+                </div>
+                <h3 className="text-xl font-bold text-white">{t('rewards.couponTitle')}</h3>
+                <p className="text-xs text-zinc-400 mt-1">
+                  {coupon.partner?.name || t('rewards.platformWide')}
                 </p>
               </div>
 
-              <p className="text-xs text-zinc-500 mb-6">
-                {getRewardText(coupon.reward.titleKey)} — {coupon.reward.pointsRequired} SWEET
+              {/* Coupon code */}
+              <div className="bg-black/40 border border-dashed border-white/20 rounded-2xl py-5 px-4 mb-4 relative">
+                <p className="text-2xl font-mono font-extrabold tracking-[0.2em] text-white text-center">
+                  {coupon.code}
+                </p>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(coupon.code);
+                    setCopiedCode(true);
+                    toast.success('Code copied!', { duration: 1500 });
+                    setTimeout(() => setCopiedCode(false), 2000);
+                  }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-white/10 rounded-lg transition-colors"
+                >
+                  {copiedCode
+                    ? <CheckIcon className="w-4 h-4 text-green-400" />
+                    : <ClipboardDocumentIcon className="w-4 h-4 text-zinc-500" />
+                  }
+                </button>
+                {/* Ticket decoration */}
+                <div className="absolute top-1/2 -left-3 w-6 h-6 rounded-full bg-[#09090b] -translate-y-1/2" />
+                <div className="absolute top-1/2 -right-3 w-6 h-6 rounded-full bg-[#09090b] -translate-y-1/2" />
+              </div>
+
+              {/* Details */}
+              <div className="space-y-2 mb-5">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-zinc-500">Reward</span>
+                  <span className="text-white font-medium">{getRewardText(coupon.reward.titleKey)}</span>
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-zinc-500">Points spent</span>
+                  <span className="text-white font-mono">-{coupon.reward.pointsRequired.toLocaleString()} SWEET</span>
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-zinc-500 flex items-center gap-1">
+                    <ClockIcon className="w-3 h-3" /> Valid for
+                  </span>
+                  <span className={coupon.daysLeft <= 5 ? 'text-red-400 font-semibold' : 'text-green-400'}>
+                    {coupon.daysLeft} days
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-zinc-500">Expires</span>
+                  <span className="text-zinc-400">
+                    {new Date(coupon.expiresAt).toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </span>
+                </div>
+              </div>
+
+              <p className="text-[10px] text-zinc-600 text-center mb-4">
+                Show this code to the cashier at {coupon.partner?.name || 'any partner location'}
               </p>
 
               <button

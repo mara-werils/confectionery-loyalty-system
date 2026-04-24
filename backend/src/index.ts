@@ -23,6 +23,7 @@ import webhookRoutes from './routes/webhooks';
 import adminRoutes from './routes/admin';
 import referralRoutes from './routes/referrals';
 import achievementRoutes from './routes/achievements';
+import couponRoutes from './routes/coupons';
 
 
 // Initialize Express app
@@ -136,6 +137,7 @@ app.use(`${apiPrefix}/rewards`, rewardRoutes);
 app.use(`${apiPrefix}/analytics`, analyticsRoutes);
 app.use(`${apiPrefix}/referrals`, referralRoutes);
 app.use(`${apiPrefix}/achievements`, achievementRoutes);
+app.use(`${apiPrefix}/coupons`, couponRoutes);
 app.use(`${apiPrefix}/admin`, adminRoutes);
 app.use('/webhook', webhookRoutes);
 

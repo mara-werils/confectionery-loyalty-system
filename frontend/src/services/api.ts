@@ -121,6 +121,13 @@ export const api = {
       axiosInstance.get(`/admin/sbt/check/${walletAddress}`),
   },
 
+  // Coupons
+  coupons: {
+    create: (rewardId: string) => axiosInstance.post('/coupons', { rewardId }),
+    list: () => axiosInstance.get('/coupons'),
+    redeem: (code: string) => axiosInstance.post(`/coupons/${code}/redeem`),
+  },
+
   // Referrals
   referrals: {
     getStats: () => axiosInstance.get('/referrals/stats'),

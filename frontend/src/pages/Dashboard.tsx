@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Scanner } from '@yudiel/react-qr-scanner';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { EcosystemService } from '../services/ecosystem';
 import { useTonWallet } from '@tonconnect/ui-react';
@@ -12,10 +12,31 @@ import {
   CreditCardIcon,
   QrCodeIcon,
   XMarkIcon,
-  ArrowUpRightIcon
+  ArrowUpRightIcon,
+  CheckCircleIcon,
+  ClipboardDocumentIcon,
+  ExclamationCircleIcon,
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 import { useAnalyticsGrowth, useAnalyticsSummary } from '../hooks/useApi';
+
+// Validate TON address format (UQ.../EQ.../kQ...)
+function isValidTonAddress(addr: string): boolean {
+  if (!addr) return false;
+  // Friendly format: base64url 48 chars starting with UQ, EQ, kQ, 0Q, etc.
+  if (/^[A-Za-z0-9_-]{48}$/.test(addr)) return true;
+  // Raw format: workchain:hex
+  if (/^-?[0-9]+:[0-9a-fA-F]{64}$/.test(addr)) return true;
+  return false;
+}
+
+interface TxReceipt {
+  amount: number;
+  cashback: number;
+  clientWallet: string;
+  timestamp: string;
+  txId: string;
+}
 
 export default function Dashboard() {
   const { t } = useTranslation();
@@ -26,6 +47,8 @@ export default function Dashboard() {
   const wallet = useTonWallet();
   const [clientWalletAddress, setClientWalletAddress] = useState<string>('');
   const [showScanner, setShowScanner] = useState(false);
+  const [addressError, setAddressError] = useState<string>('');
+  const [receipt, setReceipt] = useState<TxReceipt | null>(null);
 
   const { data: growthData } = useAnalyticsGrowth(chartPeriod);
   const { data: summaryData } = useAnalyticsSummary();
@@ -56,6 +79,15 @@ export default function Dashboard() {
     setBalance(bal);
   };
 
+  const handleAddressChange = (val: string) => {
+    setClientWalletAddress(val);
+    if (val && !isValidTonAddress(val)) {
+      setAddressError('Invalid TON address format');
+    } else {
+      setAddressError('');
+    }
+  };
+
   const handleTransfer = async () => {
     if (!wallet) return;
     const purchaseAmt = Number(posAmount);
@@ -67,13 +99,27 @@ export default function Dashboard() {
       toast.error(t('dashboard.enterWalletAddress') || 'Enter a client wallet address');
       return;
     }
+    if (!isValidTonAddress(clientWalletAddress)) {
+      toast.error('Invalid TON wallet address');
+      return;
+    }
     const cashback = Math.floor(purchaseAmt * 0.1);
     setLoading(true);
     try {
-      toast.loading(`${t('dashboard.transferring') || 'Transferring'} ${cashback} SWEET...`, { id: 'transfer' });
+      toast.loading(`Sending ${cashback} SWEET...`, { id: 'transfer' });
       await EcosystemService.transferToClient(cashback, clientWalletAddress);
-      toast.success(`${cashback} SWEET ${t('dashboard.transferSuccess') || 'sent to client wallet'}`, { id: 'transfer' });
+      toast.dismiss('transfer');
+      setReceipt({
+        amount: purchaseAmt,
+        cashback,
+        clientWallet: clientWalletAddress,
+        timestamp: new Date().toLocaleString(),
+        txId: 'TX-' + Date.now().toString(36).toUpperCase(),
+      });
       setPosAmount('');
+      setClientWalletAddress('');
+      // Refresh balance
+      if (wallet?.account.address) loadData(wallet.account.address);
     } catch {
       toast.error(t('dashboard.transferFailed') || 'Transfer failed', { id: 'transfer' });
     }
@@ -181,17 +227,33 @@ export default function Dashboard() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-zinc-400 mb-2 flex justify-between">
-                  <span>{t('dashboard.scanCustomerQr') || 'Customer Wallet Address'}</span>
+                <label className="block text-sm font-medium text-zinc-400 mb-2">
+                  {t('dashboard.scanCustomerQr') || 'Customer Wallet Address'}
                 </label>
                 <div className="relative flex gap-2">
-                  <input
-                    type="text"
-                    className="flex-1 min-w-0 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2.5 text-zinc-300 text-sm font-mono focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all placeholder:text-zinc-600"
-                    placeholder="UQ..."
-                    value={clientWalletAddress}
-                    onChange={(e) => setClientWalletAddress(e.target.value)}
-                  />
+                  <div className="relative flex-1 min-w-0">
+                    <input
+                      type="text"
+                      className={`w-full bg-zinc-950 border rounded-lg px-3 py-2.5 text-zinc-300 text-sm font-mono focus:outline-none focus:ring-1 transition-all placeholder:text-zinc-600 ${
+                        addressError
+                          ? 'border-red-500/50 focus:border-red-500 focus:ring-red-500/20'
+                          : clientWalletAddress && !addressError
+                          ? 'border-green-500/50 focus:border-green-500 focus:ring-green-500/20'
+                          : 'border-zinc-800 focus:border-zinc-500 focus:ring-zinc-500'
+                      }`}
+                      placeholder="UQ... or EQ..."
+                      value={clientWalletAddress}
+                      onChange={(e) => handleAddressChange(e.target.value)}
+                    />
+                    {clientWalletAddress && (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        {addressError
+                          ? <ExclamationCircleIcon className="w-4 h-4 text-red-400" />
+                          : <CheckCircleIcon className="w-4 h-4 text-green-400" />
+                        }
+                      </div>
+                    )}
+                  </div>
                   <button
                     onClick={() => setShowScanner(true)}
                     className="shrink-0 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-3 py-2.5 rounded-lg transition-colors border border-zinc-700"
@@ -200,6 +262,12 @@ export default function Dashboard() {
                     <QrCodeIcon className="w-5 h-5" />
                   </button>
                 </div>
+                {addressError && (
+                  <p className="text-xs text-red-400 mt-1">{addressError}</p>
+                )}
+                {clientWalletAddress && !addressError && (
+                  <p className="text-xs text-green-400 mt-1">Valid TON address</p>
+                )}
               </div>
 
               <div className="bg-zinc-950/50 border border-zinc-800/80 px-4 py-3 rounded-lg flex justify-between items-center mt-auto">
@@ -210,11 +278,17 @@ export default function Dashboard() {
               </div>
 
               <button
-                disabled={loading || !wallet || Number(posAmount) <= 0}
+                disabled={loading || !wallet || Number(posAmount) <= 0 || !!addressError || !clientWalletAddress}
                 onClick={handleTransfer}
                 className="w-full bg-white text-zinc-950 font-semibold py-3 rounded-lg hover:bg-zinc-200 active:bg-zinc-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                {!wallet ? t('dashboard.connectWalletFirst') : (t('dashboard.processPayment') || 'Authorize Transaction')}
+                {loading ? (
+                  <><div className="w-4 h-4 border-2 border-zinc-400 border-t-zinc-900 rounded-full animate-spin" /> Sending...</>
+                ) : !wallet ? (
+                  t('dashboard.connectWalletFirst')
+                ) : (
+                  t('dashboard.processPayment') || 'Authorize Transaction'
+                )}
               </button>
             </div>
           </div>
@@ -306,6 +380,69 @@ export default function Dashboard() {
           </motion.div>
         </div>
       )}
+
+      {/* Receipt / Confirmation Modal */}
+      <AnimatePresence>
+        {receipt && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl"
+            >
+              {/* Success header */}
+              <div className="bg-green-500/10 border-b border-green-500/20 px-6 py-5 text-center">
+                <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <CheckCircleIcon className="w-7 h-7 text-green-400" />
+                </div>
+                <h3 className="text-lg font-bold text-white">Transaction Successful</h3>
+                <p className="text-xs text-zinc-400 mt-1">SWEET tokens sent to customer wallet</p>
+              </div>
+
+              {/* Receipt details */}
+              <div className="p-5 space-y-3">
+                <div className="flex justify-between items-center py-2 border-b border-zinc-800/60">
+                  <span className="text-xs text-zinc-500">Purchase Amount</span>
+                  <span className="text-sm font-semibold text-white">₸{receipt.amount.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-zinc-800/60">
+                  <span className="text-xs text-zinc-500">Cashback (10%)</span>
+                  <span className="text-sm font-bold text-green-400">+{receipt.cashback.toLocaleString()} SWEET</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-zinc-800/60">
+                  <span className="text-xs text-zinc-500">Customer Wallet</span>
+                  <span className="text-xs font-mono text-zinc-300">
+                    {receipt.clientWallet.slice(0, 8)}...{receipt.clientWallet.slice(-6)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-zinc-800/60">
+                  <span className="text-xs text-zinc-500">Time</span>
+                  <span className="text-xs text-zinc-300">{receipt.timestamp}</span>
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-xs text-zinc-500">Transaction ID</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-mono text-zinc-400">{receipt.txId}</span>
+                    <button onClick={() => { navigator.clipboard.writeText(receipt.txId); toast.success('Copied!', { duration: 1000 }); }}>
+                      <ClipboardDocumentIcon className="w-3.5 h-3.5 text-zinc-600 hover:text-zinc-300" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="px-5 pb-5">
+                <button
+                  onClick={() => setReceipt(null)}
+                  className="w-full py-3 bg-white text-zinc-950 font-bold rounded-xl hover:bg-zinc-200 transition-colors text-sm"
+                >
+                  Done
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

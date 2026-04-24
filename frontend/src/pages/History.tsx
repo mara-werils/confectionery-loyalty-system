@@ -185,17 +185,17 @@ export default function History() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className="card"
+                    className="bg-zinc-900 border border-zinc-800/80 rounded-2xl p-4"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="p-3 bg-primary-100 rounded-xl">
-                        <GiftIcon className="w-5 h-5 text-primary-600" />
+                      <div className="p-3 bg-orange-500/10 rounded-xl border border-orange-500/20 shrink-0">
+                        <GiftIcon className="w-5 h-5 text-orange-400" />
                       </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-accent-800">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-white truncate">
                           {claim.reward?.title || 'Reward'}
                         </h3>
-                        <p className="text-sm text-accent-400">
+                        <p className="text-sm text-zinc-500 mt-0.5">
                           {new Date(claim.createdAt).toLocaleDateString('en-US', {
                             month: 'short',
                             day: 'numeric',
@@ -203,20 +203,20 @@ export default function History() {
                           })}
                         </p>
                       </div>
-                      <div className="text-right">
+                      <div className="text-right shrink-0">
                         <span
                           className={clsx(
-                            'inline-block px-2.5 py-1 rounded-full text-xs font-medium',
+                            'inline-block px-2.5 py-1 rounded-full text-xs font-semibold',
                             claim.status === 'FULFILLED'
-                              ? 'bg-success-100 text-success-700'
+                              ? 'bg-green-500/15 text-green-400 border border-green-500/25'
                               : claim.status === 'PENDING'
-                              ? 'bg-amber-100 text-amber-700'
-                              : 'bg-red-100 text-red-700'
+                              ? 'bg-amber-500/15 text-amber-400 border border-amber-500/25'
+                              : 'bg-red-500/15 text-red-400 border border-red-500/25'
                           )}
                         >
                           {claim.status}
                         </span>
-                        <p className="text-sm text-accent-500 mt-1">
+                        <p className="text-sm text-zinc-400 font-mono mt-1">
                           -{Number(claim.pointsSpent).toLocaleString()} pts
                         </p>
                       </div>
@@ -224,10 +224,10 @@ export default function History() {
                   </motion.div>
                 ))
               ) : (
-                <div className="card text-center py-12 text-accent-400">
+                <div className="bg-zinc-900 border border-zinc-800/80 rounded-2xl text-center py-12">
                   <GiftIcon className="w-16 h-16 mx-auto mb-4 text-zinc-700" />
                   <p className="text-lg font-medium text-white">{t('history.noClaims')}</p>
-                  <p className="text-sm mt-1">{t('history.noClaimsHint')}</p>
+                  <p className="text-sm mt-1 text-zinc-500">{t('history.noClaimsHint')}</p>
                 </div>
               )}
             </motion.div>

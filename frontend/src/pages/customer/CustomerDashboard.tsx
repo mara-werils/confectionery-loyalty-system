@@ -9,12 +9,20 @@ import {
   ArrowDownIcon,
   GiftIcon,
   TicketIcon,
+  TrophyIcon,
 } from '@heroicons/react/24/outline';
 import { GlassCard } from '../../components/GlassCard';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { io as socketIO } from 'socket.io-client';
 import toast from 'react-hot-toast';
+import clsx from 'clsx';
+
+const TIERS = {
+  BRONZE: { next: 'SILVER', threshold: 5000, color: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/25', bar: 'bg-orange-400' },
+  SILVER: { next: 'GOLD', threshold: 20000, color: 'text-zinc-300', bg: 'bg-zinc-700/40', border: 'border-zinc-600/40', bar: 'bg-zinc-300' },
+  GOLD:   { next: 'MAX',  threshold: 0,     color: 'text-yellow-400', bg: 'bg-yellow-500/10', border: 'border-yellow-500/25', bar: 'bg-yellow-400' },
+} as const;
 
 interface JettonBalance {
   balance: string;
@@ -206,6 +214,51 @@ export default function CustomerDashboard() {
         </GlassCard>
       </motion.div>
 
+      {/* Tier Card */}
+      {(() => {
+        const currentBalance = sweetBalance || Number(formatBalance(balance).replace(/,/g, ''));
+        const tier = currentBalance >= 20000 ? 'GOLD' : currentBalance >= 5000 ? 'SILVER' : 'BRONZE';
+        const tierData = TIERS[tier];
+        const progress = tier === 'GOLD' ? 100 : Math.min(100, Math.round((currentBalance / tierData.threshold) * 100));
+        const remaining = tier === 'GOLD' ? 0 : tierData.threshold - currentBalance;
+        return (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="mb-6"
+          >
+            <GlassCard className="p-5 border border-white/5">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <TrophyIcon className="w-4 h-4 text-zinc-500" />
+                  <p className="text-xs text-zinc-500 font-medium">Loyalty Tier</p>
+                </div>
+                <span className={clsx('px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border', tierData.bg, tierData.color, tierData.border)}>
+                  {tier}
+                </span>
+              </div>
+              <div className="h-2 bg-white/5 rounded-full overflow-hidden mb-2">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progress}%` }}
+                  transition={{ duration: 1, delay: 0.5, ease: 'easeOut' }}
+                  className={clsx('h-full rounded-full', tierData.bar)}
+                />
+              </div>
+              {tier === 'GOLD' ? (
+                <p className="text-[10px] text-yellow-400/80">Maximum tier reached — 2x earnings on every purchase</p>
+              ) : (
+                <p className="text-[10px] text-zinc-600">
+                  {remaining.toLocaleString()} SWEET more to reach <span className={clsx('font-bold', TIERS[tierData.next as keyof typeof TIERS]?.color)}>{tierData.next}</span>
+                  {tier === 'BRONZE' ? ' (1.5x multiplier)' : ' (2x multiplier)'}
+                </p>
+              )}
+            </GlassCard>
+          </motion.div>
+        );
+      })()}
+
       {/* QR Code */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
@@ -214,13 +267,14 @@ export default function CustomerDashboard() {
         className="mb-6"
       >
         <GlassCard className="p-6 border border-white/5 text-center">
-          <p className="text-xs text-zinc-500 font-medium mb-4">
+          <p className="text-xs text-zinc-500 font-medium mb-2">
             {t('customerDashboard.showQr')}
           </p>
+          <p className="text-[10px] text-zinc-600 mb-4">Show this QR code to a partner cashier to receive SWEET tokens</p>
           <div className="inline-block bg-white p-4 rounded-2xl">
             <QRCodeSVG
               value={walletAddress}
-              size={160}
+              size={180}
               level="M"
               bgColor="#ffffff"
               fgColor="#000000"

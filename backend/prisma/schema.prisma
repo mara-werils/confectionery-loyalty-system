@@ -56,6 +56,12 @@ enum PayoutStatus {
   FAILED
 }
 
+enum CouponStatus {
+  ACTIVE
+  REDEEMED
+  EXPIRED
+}
+
 // ============================================================================
 // MODELS
 // ============================================================================
@@ -82,6 +88,7 @@ model Partner {
   loyaltyPoints LoyaltyPoints?
   transactions  Transaction[]
   claimedRewards ClaimedReward[]
+  coupons       Coupon[]
   commissionPayouts CommissionPayout[]
   referredBy    Partner?      @relation("Referrals", fields: [referredById], references: [id])
   referrals     Partner[]     @relation("Referrals")
@@ -158,6 +165,7 @@ model Reward {
   
   // Relations
   claimedRewards  ClaimedReward[]
+  coupons         Coupon[]
 
   @@map("rewards")
 }
@@ -189,6 +197,35 @@ model ClaimedReward {
   @@index([partnerId])
   @@index([status])
   @@map("claimed_rewards")
+}
+
+/// Coupon issued after reward redemption
+model Coupon {
+  id            String       @id @default(cuid())
+  code          String       @unique
+  partnerId     String       @map("partner_id")
+  rewardId      String       @map("reward_id")
+  pointsSpent   BigInt       @map("points_spent")
+  status        CouponStatus @default(ACTIVE)
+  partnerName   String?      @map("partner_name")
+  rewardTitle   String?      @map("reward_title")
+
+  // Validity
+  expiresAt     DateTime     @map("expires_at")
+  redeemedAt    DateTime?    @map("redeemed_at")
+
+  // Timestamps
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
+
+  // Relations
+  partner       Partner      @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  reward        Reward       @relation(fields: [rewardId], references: [id], onDelete: Cascade)
+
+  @@index([partnerId])
+  @@index([code])
+  @@index([status])
+  @@map("coupons")
 }
 
 /// Commission payouts to partners
