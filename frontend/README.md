@@ -1,4 +1,4 @@
-# 📱 Frontend
+# Frontend
 
 React Telegram Mini App for the Confectionery Loyalty System.
 
@@ -8,11 +8,11 @@ A mobile-first web application designed to work as a Telegram Mini App, allowing
 
 ### Features
 
-- 🔗 TonConnect wallet integration
-- 📊 Real-time balance and stats
-- 🎁 Reward catalog and claims
-- 📱 Responsive Telegram-native UI
-- ⚡ Fast performance with code splitting
+- TonConnect wallet integration
+- Real-time balance and stats
+- Reward catalog and claims
+- Responsive Telegram-native UI
+- Fast performance with code splitting
 
 ## Getting Started
 
@@ -57,31 +57,31 @@ npm run preview
 
 ```
 frontend/
-├── src/
-│   ├── components/      # Reusable components
-│   │   ├── BalanceCard.tsx
-│   │   ├── Layout.tsx
-│   │   ├── RewardCard.tsx
-│   │   └── WalletConnect.tsx
-│   ├── pages/           # Page components
-│   │   ├── Home.tsx
-│   │   ├── Dashboard.tsx
-│   │   ├── Rewards.tsx
-│   │   ├── History.tsx
-│   │   └── Profile.tsx
-│   ├── hooks/           # Custom hooks
-│   │   ├── useApi.ts
-│   │   └── useTelegram.ts
-│   ├── services/        # API services
-│   │   └── api.ts
-│   ├── store/           # Zustand stores
-│   │   └── authStore.ts
-│   ├── App.tsx
-│   ├── main.tsx
-│   └── index.css
-├── public/
-│   └── tonconnect-manifest.json
-└── index.html
+ src/
+ components/ # Reusable components
+ BalanceCard.tsx
+ Layout.tsx
+ RewardCard.tsx
+ WalletConnect.tsx
+ pages/ # Page components
+ Home.tsx
+ Dashboard.tsx
+ Rewards.tsx
+ History.tsx
+ Profile.tsx
+ hooks/ # Custom hooks
+ useApi.ts
+ useTelegram.ts
+ services/ # API services
+ api.ts
+ store/ # Zustand stores
+ authStore.ts
+ App.tsx
+ main.tsx
+ index.css
+ public/
+ tonconnect-manifest.json
+ index.html
 ```
 
 ## Pages
@@ -192,7 +192,6 @@ Target bundle size: < 1.5MB
 - Keyboard navigation support
 - Color contrast compliance
 - Screen reader friendly
-
 
 
 

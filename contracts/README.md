@@ -1,4 +1,4 @@
-# 📜 Smart Contracts
+# Smart Contracts
 
 TON smart contracts for the Confectionery Loyalty System.
 
@@ -163,32 +163,32 @@ Contracts are optimized for minimal gas usage:
 Before mainnet deployment:
 
 1. **Access Control**
-   - All admin functions require owner verification
-   - No reentrancy vulnerabilities
+ - All admin functions require owner verification
+ - No reentrancy vulnerabilities
 
 2. **Input Validation**
-   - All inputs validated before processing
-   - Proper error codes for debugging
+ - All inputs validated before processing
+ - Proper error codes for debugging
 
 3. **Third-Party Audit**
-   - Required before mainnet deployment
-   - Document all findings and fixes
+ - Required before mainnet deployment
+ - Document all findings and fixes
 
 ## Directory Structure
 
 ```
 contracts/
-├── contracts/           # FunC source files
-│   ├── imports/         # Standard libraries
-│   ├── loyalty_token.fc
-│   ├── jetton_wallet.fc
-│   ├── partner_registry.fc
-│   ├── redemption_manager.fc
-│   └── revenue_distribution.fc
-├── wrappers/            # TypeScript wrappers
-├── tests/               # Jest test files
-├── scripts/             # Deployment scripts
-└── build/               # Compiled contracts
+ contracts/ # FunC source files
+ imports/ # Standard libraries
+ loyalty_token.fc
+ jetton_wallet.fc
+ partner_registry.fc
+ redemption_manager.fc
+ revenue_distribution.fc
+ wrappers/ # TypeScript wrappers
+ tests/ # Jest test files
+ scripts/ # Deployment scripts
+ build/ # Compiled contracts
 ```
 
 ## References
@@ -197,7 +197,6 @@ contracts/
 - [FunC Language](https://docs.ton.org/develop/func/overview)
 - [TEP-74 Jetton Standard](https://github.com/ton-blockchain/TEPs/blob/master/text/0074-jettons-standard.md)
 - [TON Blueprint](https://github.com/ton-org/blueprint)
-
 
 
 

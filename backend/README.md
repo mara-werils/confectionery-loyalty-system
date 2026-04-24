@@ -1,4 +1,4 @@
-# 🔧 Backend API
+# Backend API
 
 Express.js API server for the Confectionery Loyalty System.
 
@@ -163,31 +163,31 @@ npm run test:watch
 
 ```
 backend/
-├── src/
-│   ├── config/          # Configuration
-│   ├── middleware/      # Express middleware
-│   │   ├── auth.ts      # Authentication
-│   │   ├── errorHandler.ts
-│   │   └── rateLimiter.ts
-│   ├── routes/          # API routes
-│   │   ├── auth.ts
-│   │   ├── partners.ts
-│   │   ├── loyalty.ts
-│   │   ├── transactions.ts
-│   │   ├── rewards.ts
-│   │   └── analytics.ts
-│   ├── services/        # Business logic
-│   │   ├── ton.ts       # TON integration
-│   │   └── loyalty.ts   # Points logic
-│   ├── utils/           # Utilities
-│   │   ├── logger.ts
-│   │   ├── prisma.ts
-│   │   └── response.ts
-│   └── index.ts         # Entry point
-├── prisma/
-│   ├── schema.prisma    # Database schema
-│   └── seed.ts          # Seed data
-└── tests/               # Test files
+ src/
+ config/ # Configuration
+ middleware/ # Express middleware
+ auth.ts # Authentication
+ errorHandler.ts
+ rateLimiter.ts
+ routes/ # API routes
+ auth.ts
+ partners.ts
+ loyalty.ts
+ transactions.ts
+ rewards.ts
+ analytics.ts
+ services/ # Business logic
+ ton.ts # TON integration
+ loyalty.ts # Points logic
+ utils/ # Utilities
+ logger.ts
+ prisma.ts
+ response.ts
+ index.ts # Entry point
+ prisma/
+ schema.prisma # Database schema
+ seed.ts # Seed data
+ tests/ # Test files
 ```
 
 ## Security
@@ -198,7 +198,6 @@ backend/
 - Input validation with Zod
 - JWT authentication
 - Wallet signature verification
-
 
 
 
