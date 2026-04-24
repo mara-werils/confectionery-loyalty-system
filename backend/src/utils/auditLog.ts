@@ -1,4 +1,5 @@
 import { prisma } from './prisma';
+import type { Prisma } from '@prisma/client';
 
 /**
  * Log a key action to the audit log.
@@ -10,7 +11,7 @@ export async function logAction(params: {
   action: string;
   entityType: string;
   entityId?: string;
-  metadata?: Record<string, unknown>;
+  metadata?: Prisma.InputJsonValue;
 }) {
   try {
     await prisma.auditLog.create({ data: params });
