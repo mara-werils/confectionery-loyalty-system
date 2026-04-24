@@ -124,8 +124,7 @@ export default function CustomerDashboard() {
 
   useEffect(() => {
     fetchData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletAddress, location.pathname]);
+  }, [walletAddress, location.pathname]); // fetchData is stable — defined in component body
 
   const formatBalance = (bal: JettonBalance | null) => {
     if (!bal) return sweetBalance > 0 ? sweetBalance.toLocaleString() : '0';
