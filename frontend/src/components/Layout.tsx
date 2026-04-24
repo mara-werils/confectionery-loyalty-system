@@ -9,6 +9,7 @@ import {
   CubeTransparentIcon,
   UserPlusIcon,
   ChartBarIcon,
+  QrCodeIcon,
 } from '@heroicons/react/24/outline';
 import {
   HomeIcon as HomeIconSolid,
@@ -19,6 +20,7 @@ import {
   CubeTransparentIcon as CubeTransparentIconSolid,
   UserPlusIcon as UserPlusIconSolid,
   ChartBarIcon as ChartBarIconSolid,
+  QrCodeIcon as QrCodeIconSolid,
 } from '@heroicons/react/24/solid';
 import { ArrowsRightLeftIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
@@ -34,6 +36,7 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
 
   const businessNavItems = [
     { path: '/business/dashboard', label: t('nav.pos'), icon: HomeIcon, activeIcon: HomeIconSolid },
+    { path: '/business/verify-coupon', label: 'Verify', icon: QrCodeIcon, activeIcon: QrCodeIconSolid },
     { path: '/blockchain', label: t('nav.blockchain'), icon: CubeTransparentIcon, activeIcon: CubeTransparentIconSolid },
     { path: '/referrals', label: 'Referrals', icon: UserPlusIcon, activeIcon: UserPlusIconSolid },
     { path: '/swap', label: t('nav.exchange'), icon: ArrowsRightLeftIcon, activeIcon: ArrowsRightLeftIconSolid },

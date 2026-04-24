@@ -206,6 +206,7 @@ router.get('/', authenticate, async (req: Request, res: Response, next: NextFunc
       type: t.type,
       description: t.description,
       txHash: t.txHash,
+      partnerName: t.partner?.companyName,
       partner: req.user!.type === 'admin' ? t.partner : undefined,
       createdAt: t.createdAt,
     }));

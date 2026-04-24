@@ -18,6 +18,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 
 // New role-based pages
 import BusinessRegister from './pages/business/BusinessRegister';
+import CouponVerify from './pages/business/CouponVerify';
 import CustomerDashboard from './pages/customer/CustomerDashboard';
 import CustomerRewards from './pages/customer/CustomerRewards';
 
@@ -90,6 +91,7 @@ function App() {
       <Route element={<ProtectedRoute />}>
         <Route element={<RoleGuard allowedRole="business"><Layout variant="business" /></RoleGuard>}>
           <Route path="/business/dashboard" element={<Dashboard />} />
+          <Route path="/business/verify-coupon" element={<CouponVerify />} />
           <Route path="/blockchain" element={<Blockchain />} />
           <Route path="/swap" element={<Swap />} />
           <Route path="/referrals" element={<Referrals />} />

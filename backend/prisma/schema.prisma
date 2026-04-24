@@ -301,6 +301,22 @@ model Achievement {
   @@map("achievements")
 }
 
+/// Audit log for key system actions
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String   @map("actor_id")
+  actorType  String   @map("actor_type") // admin | partner
+  action     String                       // ISSUE_SBT | ISSUE_COUPON | UPDATE_PARTNER | MINT_TOKENS
+  entityType String   @map("entity_type") // wallet | coupon | partner | transaction
+  entityId   String?  @map("entity_id")
+  metadata   Json?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([actorId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
 /// Partner achievements
 model PartnerAchievement {
   id            String    @id @default(cuid())

@@ -50,6 +50,7 @@ export default function History() {
     pointsEarned: string;
     type: 'PURCHASE' | 'BONUS' | 'REFERRAL' | 'REDEMPTION';
     description?: string;
+    partnerName?: string;
     createdAt: string;
   }[] = transactionsData?.data || [];
 
@@ -152,7 +153,7 @@ export default function History() {
               ) : transactions.length > 0 ? (
                 <div>
                   {transactions.map((tx, index) => (
-                    <TransactionItem key={tx.id} {...tx} index={index} />
+                    <TransactionItem key={tx.id} {...tx} partnerName={tx.partnerName} index={index} />
                   ))}
                 </div>
               ) : (
