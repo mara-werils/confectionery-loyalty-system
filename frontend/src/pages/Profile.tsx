@@ -549,7 +549,7 @@ export default function Profile() {
         <div className="space-y-4">
           <div className="p-4 bg-white/5 rounded-2xl border border-white/10 space-y-3">
             <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Contact</p>
-            <a href="https://t.me/sweetloyalty_support" target="_blank" rel="noopener noreferrer"
+            <a href="https://t.me/marlenqq" target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-3 py-2 hover:opacity-80 transition-opacity"
             >
               <div className="w-9 h-9 rounded-xl bg-[#229ED9]/20 border border-[#229ED9]/30 flex items-center justify-center shrink-0">
@@ -559,7 +559,7 @@ export default function Profile() {
               </div>
               <div>
                 <p className="text-sm font-semibold text-white">Telegram Support</p>
-                <p className="text-xs text-zinc-500">@sweetloyalty_support</p>
+                <p className="text-xs text-zinc-500">@marlenqq</p>
               </div>
             </a>
             <a href="mailto:support@sweetloyalty.kz"
