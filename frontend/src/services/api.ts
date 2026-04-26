@@ -59,6 +59,9 @@ export const api = {
     }) => axiosInstance.post('/auth/login', data),
 
     me: () => axiosInstance.get('/auth/me'),
+
+    customerAuth: (walletAddress: string) =>
+      axiosInstance.post('/auth/customer', { walletAddress }),
   },
 
   // Partners

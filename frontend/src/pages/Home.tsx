@@ -13,7 +13,7 @@ import { api } from '../services/api';
 export default function Home() {
   const navigate = useNavigate();
   const wallet = useTonWallet();
-  const { role, setRole, setHasBusinessSbt } = useAuthStore();
+  const { role, setRole, setHasBusinessSbt, setToken, setUser } = useAuthStore();
   const { t, i18n } = useTranslation();
 
   useEffect(() => {
@@ -56,6 +56,20 @@ export default function Home() {
     if (selectedRole === 'business') {
       navigate('/business/register');
     } else {
+      // Auto-authenticate customer by wallet address so API calls work
+      const address = wallet?.account?.address;
+      if (address) {
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const res: any = await api.auth.customerAuth(address);
+          if (res.data?.token) {
+            setToken(res.data.token);
+            setUser(res.data.partner);
+          }
+        } catch {
+          // Non-fatal: customer can still browse, coupon redemption will show proper error
+        }
+      }
       navigate('/customer/dashboard');
     }
   };

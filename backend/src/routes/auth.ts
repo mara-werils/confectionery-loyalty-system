@@ -355,6 +355,69 @@ router.get('/me', authenticate, async (req: Request, res: Response, next: NextFu
   }
 });
 
+/**
+ * POST /auth/customer
+ * Passwordless auto-login for customers: find-or-create partner by wallet address.
+ * No signature required — wallet address is the identity (demo-grade auth).
+ */
+const customerAuthSchema = z.object({
+  walletAddress: z.string().min(10),
+});
+
+router.post(
+  '/customer',
+  authRateLimiter,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { walletAddress } = customerAuthSchema.parse(req.body);
+
+      // Find or create a customer partner record
+      let partner = await prisma.partner.findUnique({
+        where: { walletAddress },
+        include: { loyaltyPoints: true },
+      });
+
+      if (!partner) {
+        partner = await prisma.partner.create({
+          data: {
+            walletAddress,
+            companyName: `Customer_${walletAddress.slice(0, 8)}`,
+            status: 'ACTIVE',
+            loyaltyPoints: {
+              create: { balance: 0n, lifetimeEarned: 0n, lifetimeRedeemed: 0n },
+            },
+          },
+          include: { loyaltyPoints: true },
+        });
+      } else if (!partner.loyaltyPoints) {
+        // Ensure loyaltyPoints row exists
+        await prisma.loyaltyPoints.create({
+          data: { partnerId: partner.id, balance: 0n, lifetimeEarned: 0n, lifetimeRedeemed: 0n },
+        });
+      }
+
+      const token = generateToken({
+        sub: partner.id,
+        walletAddress: partner.walletAddress,
+        type: 'partner',
+      });
+
+      return successResponse(res, {
+        partner: {
+          id: partner.id,
+          walletAddress: partner.walletAddress,
+          companyName: partner.companyName,
+          tier: partner.tier,
+          status: partner.status,
+        },
+        token,
+      }, 'Customer authenticated', 200);
+    } catch (error) {
+      return next(error);
+    }
+  }
+);
+
 export default router;
 
 
