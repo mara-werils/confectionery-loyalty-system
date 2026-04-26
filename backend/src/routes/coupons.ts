@@ -83,11 +83,14 @@ router.post('/', authenticate, async (req: Request, res: Response, next: NextFun
       metadata: { code: coupon.code, rewardId, pointsSpent: reward.pointsRequired.toString() },
     });
 
+    const daysLeft = Math.max(0, Math.ceil((coupon.expiresAt.getTime() - Date.now()) / 86400000));
+
     return successResponse(res, {
       code: coupon.code,
       rewardTitle: reward.title,
       pointsSpent: reward.pointsRequired.toString(),
       expiresAt: coupon.expiresAt.toISOString(),
+      daysLeft,
       status: coupon.status,
     }, 'Coupon issued successfully', 201);
   } catch (error) {
