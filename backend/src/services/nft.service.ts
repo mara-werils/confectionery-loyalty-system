@@ -213,7 +213,7 @@ export async function mintAchievementNFT(
 async function deriveNftAddress(
   client:             TonClient,
   collectionAddress:  Address,
-  walletContract:     ReturnType<typeof client.open<WalletContractV4>>
+  _walletContract:    ReturnType<typeof client.open<WalletContractV4>>
 ): Promise<string> {
   try {
     // Call get_collection_data to find next_item_index
