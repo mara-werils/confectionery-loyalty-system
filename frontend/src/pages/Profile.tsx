@@ -86,7 +86,7 @@ const TIER_NEXT: Record<string, { next: string; required: number }> = {
 export default function Profile() {
   const [tonConnectUI] = useTonConnectUI();
   const wallet = useTonWallet();
-  const { user, role, setRole, logout, avatar, setAvatar, hasBusinessSbt, setUser, sweetBalance, token } = useAuthStore();
+  const { user, role, setRole, logout, avatar, setAvatar, hasBusinessSbt, setHasBusinessSbt, setUser, sweetBalance, token } = useAuthStore();
   const { hapticFeedback } = useTelegram();
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -171,17 +171,32 @@ export default function Profile() {
 
   const handleSwitchRole = async () => {
     if (role === 'customer') {
-      toast.loading('Verifying Partner Certificate on TON...', { id: 'certCheck' });
-      await new Promise(r => setTimeout(r, 1000));
+      // If SBT was already verified in this session, skip the API call
       if (!hasBusinessSbt) {
-        toast.error('Access Denied: Partner SBT Certificate not found.', { id: 'certCheck' });
-        return;
+        const address = wallet?.account?.address;
+        if (!address) {
+          toast.error('Wallet not connected');
+          return;
+        }
+        toast.loading('Verifying Partner Certificate on TON...', { id: 'certCheck' });
+        try {
+          await new Promise(r => setTimeout(r, 800));
+          const res = await api.admin.checkSbt(address) as { data: { hasSbt: boolean } };
+          if (!res.data?.hasSbt) {
+            toast.error('No Partner SBT found. Ask admin to issue one at /admin.', { id: 'certCheck' });
+            return;
+          }
+          setHasBusinessSbt(true);
+          toast.success('Partner Certificate Verified!', { id: 'certCheck' });
+        } catch {
+          toast.error('Verification failed — is the backend running?', { id: 'certCheck' });
+          return;
+        }
       }
-      toast.success('Partner Certificate Verified!', { id: 'certCheck' });
     }
     const newRole = role === 'business' ? 'customer' : 'business';
     setRole(newRole);
-    navigate(newRole === 'business' ? '/business/dashboard' : '/customer/dashboard');
+    navigate(newRole === 'business' ? '/business/register' : '/customer/dashboard');
   };
 
   const formatAddress = (addr: string) => `${addr.slice(0, 10)}...${addr.slice(-8)}`;

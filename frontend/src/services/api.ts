@@ -110,6 +110,8 @@ export const api = {
 
     getGrowth: (period: 'day' | 'week' | 'month') =>
       axiosInstance.get('/analytics/growth', { params: { period } }),
+
+    getTopPartners: () => axiosInstance.get('/analytics/top-partners'),
   },
 
   // Admin
@@ -119,13 +121,24 @@ export const api = {
 
     checkSbt: (walletAddress: string) =>
       axiosInstance.get(`/admin/sbt/check/${walletAddress}`),
+
+    getAuditLogs: (params?: { page?: number; limit?: number }) =>
+      axiosInstance.get('/admin/audit-logs', { params }),
   },
 
   // Coupons
   coupons: {
     create: (rewardId: string) => axiosInstance.post('/coupons', { rewardId }),
     list: () => axiosInstance.get('/coupons'),
+    verify: (code: string) => axiosInstance.get(`/coupons/verify/${code}`),
     redeem: (code: string) => axiosInstance.post(`/coupons/${code}/redeem`),
+  },
+
+  // AI Predictive Analytics
+  ai: {
+    getChurnRisks: () => axiosInstance.get('/ai/churn'),
+    getForecast: () => axiosInstance.get('/ai/forecast'),
+    getRecommendations: () => axiosInstance.get('/ai/recommendations'),
   },
 
   // Referrals
@@ -134,6 +147,13 @@ export const api = {
     generateCode: () => axiosInstance.post('/referrals/generate-code'),
     applyCode: (referralCode: string) => axiosInstance.post('/referrals/apply', { referralCode }),
     getLeaderboard: () => axiosInstance.get('/referrals/leaderboard'),
+  },
+
+  // Achievements
+  achievements: {
+    getAll:       () => axiosInstance.get('/achievements'),
+    check:        () => axiosInstance.post('/achievements/check'),
+    getLeaderboard: () => axiosInstance.get('/achievements/leaderboard'),
   },
 };
 

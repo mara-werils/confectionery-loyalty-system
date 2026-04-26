@@ -6,8 +6,10 @@ import {
   SparklesIcon,
   TrophyIcon,
   ArrowTrendingUpIcon,
+  ArrowUpIcon,
+  ArrowDownIcon,
 } from '@heroicons/react/24/outline';
-import { useAnalyticsSummary } from '../hooks/useApi';
+import { useAnalyticsSummary, useTopPartners } from '../hooks/useApi';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 
 const TIER_COLORS: Record<string, string> = {
@@ -16,13 +18,46 @@ const TIER_COLORS: Record<string, string> = {
   BRONZE: '#f97316',
 };
 
+const TIER_BADGE: Record<string, string> = {
+  GOLD: 'text-yellow-400 bg-yellow-400/10 border border-yellow-400/20',
+  SILVER: 'text-zinc-300 bg-zinc-400/10 border border-zinc-400/20',
+  BRONZE: 'text-orange-400 bg-orange-400/10 border border-orange-400/20',
+};
+
 interface SummaryData {
   totalPartners: number;
+  activePartners: number;
   totalTransactions: number;
   totalPointsIssued: number;
   totalPointsRedeemed: number;
   avgPointsPerTransaction: number;
   tierDistribution: Record<string, number>;
+  growth?: {
+    transactions: number | null;
+    partners: number | null;
+    pointsIssued: number | null;
+  };
+}
+
+function GrowthBadge({ value }: { value: number | null | undefined }) {
+  if (value === null || value === undefined) return null;
+  const isPositive = value >= 0;
+  return (
+    <span
+      className={`inline-flex items-center gap-0.5 text-xs font-semibold px-1.5 py-0.5 rounded-md ${
+        isPositive
+          ? 'text-green-400 bg-green-400/10'
+          : 'text-red-400 bg-red-400/10'
+      }`}
+    >
+      {isPositive ? (
+        <ArrowUpIcon className="w-3 h-3" />
+      ) : (
+        <ArrowDownIcon className="w-3 h-3" />
+      )}
+      {Math.abs(value).toFixed(1)}%
+    </span>
+  );
 }
 
 function StatCard({
@@ -30,12 +65,14 @@ function StatCard({
   label,
   value,
   sub,
+  growth,
   delay,
 }: {
   icon: React.ElementType;
   label: string;
   value: string | number;
   sub?: string;
+  growth?: number | null;
   delay: number;
 }) {
   return (
@@ -50,14 +87,26 @@ function StatCard({
         <Icon className="w-4 h-4 text-zinc-600" />
       </div>
       <p className="text-2xl font-bold text-white tracking-tight">{value}</p>
-      {sub && <p className="text-xs text-zinc-500 mt-1">{sub}</p>}
+      <div className="flex items-center gap-2 mt-1">
+        {sub && <p className="text-xs text-zinc-500">{sub}</p>}
+        <GrowthBadge value={growth} />
+      </div>
     </motion.div>
   );
 }
 
 export default function Stats() {
   const { data: summaryData, isLoading } = useAnalyticsSummary();
+  const { data: topPartnersData, isLoading: topLoading } = useTopPartners();
+
   const summary: SummaryData | undefined = (summaryData as { data: SummaryData })?.data;
+
+  const topPartners: {
+    rank: number;
+    companyName: string;
+    tier: string;
+    pointsIssued: string;
+  }[] = (topPartnersData as { data: typeof topPartners })?.data || [];
 
   const tierData = summary?.tierDistribution
     ? Object.entries(summary.tierDistribution).map(([name, value]) => ({ name, value }))
@@ -91,28 +140,31 @@ export default function Stats() {
               icon={BuildingStorefrontIcon}
               label="Active Partners"
               value={summary?.totalPartners?.toLocaleString() ?? '—'}
-              sub="Confectioneries on platform"
+              sub="Confectioneries"
+              growth={summary?.growth?.partners}
               delay={0.05}
             />
             <StatCard
               icon={ChartBarIcon}
               label="Total Transactions"
               value={summary?.totalTransactions?.toLocaleString() ?? '—'}
-              sub="All-time processed"
+              sub="All-time"
+              growth={summary?.growth?.transactions}
               delay={0.1}
             />
             <StatCard
               icon={SparklesIcon}
               label="SWEET Issued"
               value={summary?.totalPointsIssued?.toLocaleString() ?? '—'}
-              sub="Tokens minted on TON"
+              sub="Tokens minted"
+              growth={summary?.growth?.pointsIssued}
               delay={0.15}
             />
             <StatCard
               icon={CurrencyDollarIcon}
               label="SWEET Redeemed"
               value={summary?.totalPointsRedeemed?.toLocaleString() ?? '—'}
-              sub="Tokens burned/spent"
+              sub="Tokens burned"
               delay={0.2}
             />
           </div>
@@ -209,6 +261,54 @@ export default function Stats() {
               </div>
             </motion.div>
           )}
+
+          {/* Top Partners Leaderboard */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
+            className="bg-zinc-900 border border-zinc-800/80 rounded-xl p-5"
+          >
+            <h2 className="text-sm font-semibold text-zinc-400 mb-4">
+              Weekly Leaders
+              <span className="ml-2 text-xs text-zinc-600 font-normal">by SWEET issued</span>
+            </h2>
+            {topLoading ? (
+              <div className="space-y-3">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-10 bg-zinc-800 rounded-lg animate-pulse" />
+                ))}
+              </div>
+            ) : topPartners.length > 0 ? (
+              <div className="space-y-2">
+                {topPartners.map((p) => (
+                  <div
+                    key={p.rank}
+                    className="flex items-center gap-3 py-2 px-1 rounded-lg hover:bg-zinc-800/50 transition-colors"
+                  >
+                    <span className={`w-6 text-center text-sm font-bold ${
+                      p.rank === 1 ? 'text-yellow-400' :
+                      p.rank === 2 ? 'text-zinc-300' :
+                      p.rank === 3 ? 'text-orange-400' : 'text-zinc-500'
+                    }`}>
+                      {p.rank === 1 ? '🥇' : p.rank === 2 ? '🥈' : p.rank === 3 ? '🥉' : p.rank}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-white truncate">{p.companyName}</p>
+                    </div>
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${TIER_BADGE[p.tier] || 'text-zinc-400'}`}>
+                      {p.tier}
+                    </span>
+                    <span className="text-sm font-bold text-white font-mono">
+                      {Number(p.pointsIssued).toLocaleString()}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-zinc-600 text-sm py-4">No activity this week</p>
+            )}
+          </motion.div>
         </>
       )}
     </div>

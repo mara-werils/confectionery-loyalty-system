@@ -5,6 +5,7 @@ import { prisma } from '../utils/prisma';
 import { successResponse } from '../utils/response';
 import { authenticate } from '../middleware/auth';
 import { AppError } from '../middleware/errorHandler';
+import { logAction } from '../utils/auditLog';
 
 const router = Router();
 
@@ -73,6 +74,15 @@ router.post('/', authenticate, async (req: Request, res: Response, next: NextFun
       }),
     ]);
 
+    await logAction({
+      actorId: partnerId,
+      actorType: 'partner',
+      action: 'ISSUE_COUPON',
+      entityType: 'coupon',
+      entityId: coupon.id,
+      metadata: { code: coupon.code, rewardId, pointsSpent: reward.pointsRequired.toString() },
+    });
+
     return successResponse(res, {
       code: coupon.code,
       rewardTitle: reward.title,
@@ -82,6 +92,43 @@ router.post('/', authenticate, async (req: Request, res: Response, next: NextFun
     }, 'Coupon issued successfully', 201);
   } catch (error) {
     return next(error);
+  }
+});
+
+/**
+ * GET /coupons/verify/:code — Look up coupon info without redeeming (for business POS verification)
+ */
+router.get('/verify/:code', authenticate, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { code } = req.params;
+
+    const coupon = await prisma.coupon.findUnique({
+      where: { code },
+      include: {
+        reward: { select: { title: true, category: true, description: true } },
+        partner: { select: { companyName: true } },
+      },
+    });
+
+    if (!coupon) throw new AppError('Coupon not found', 404, 'COUPON_NOT_FOUND');
+
+    const isValid = coupon.status === 'ACTIVE' && coupon.expiresAt > new Date();
+
+    return successResponse(res, {
+      code: coupon.code,
+      status: coupon.status,
+      rewardTitle: coupon.reward?.title || coupon.rewardTitle,
+      rewardCategory: coupon.reward?.category,
+      rewardDescription: coupon.reward?.description,
+      issuedTo: coupon.partner?.companyName,
+      pointsSpent: coupon.pointsSpent.toString(),
+      expiresAt: coupon.expiresAt.toISOString(),
+      redeemedAt: coupon.redeemedAt?.toISOString() || null,
+      createdAt: coupon.createdAt.toISOString(),
+      isValid,
+    });
+  } catch (error) {
+    next(error);
   }
 });
 

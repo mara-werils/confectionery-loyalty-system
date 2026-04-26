@@ -1,6 +1,7 @@
 import { prisma } from '../utils/prisma';
 import { notificationService } from './notification';
 import { logger } from '../utils/logger';
+import { mintAchievementNFT } from './nft.service';
 
 /**
  * Achievement definitions
@@ -184,19 +185,50 @@ class AchievementService {
                 },
             });
 
-            // Award points if just unlocked
-            if (shouldUnlock && !existing?.unlockedAt && achievement.points > 0) {
-                await prisma.loyaltyPoints.update({
-                    where: { partnerId },
-                    data: {
-                        balance: { increment: BigInt(achievement.points) },
-                        lifetimeEarned: { increment: BigInt(achievement.points) },
-                    },
-                });
+            // Award points + mint NFT if just unlocked
+            if (shouldUnlock && !existing?.unlockedAt) {
+                if (achievement.points > 0) {
+                    await prisma.loyaltyPoints.update({
+                        where: { partnerId },
+                        data: {
+                            balance: { increment: BigInt(achievement.points) },
+                            lifetimeEarned: { increment: BigInt(achievement.points) },
+                        },
+                    });
+                }
 
                 unlocked.push(achievement.name);
 
-                // Send notification
+                // ── Mint SBT achievement NFT on TON testnet ───────────────────
+                if (partner.walletAddress) {
+                    mintAchievementNFT({
+                        ownerWalletAddress: partner.walletAddress,
+                        achievementCode:    achievement.code,
+                        achievementName:    achievement.name,
+                    }).then(async (nftResult) => {
+                        if (nftResult) {
+                            await prisma.partnerAchievement.update({
+                                where: {
+                                    partnerId_achievementId: {
+                                        partnerId,
+                                        achievementId: achievement.id,
+                                    },
+                                },
+                                data: { nftTxHash: nftResult.txHash },
+                            });
+                            logger.info(
+                                `NFT minted for ${partner.companyName ?? partnerId} ` +
+                                `| achievement=${achievement.code} ` +
+                                `| simulated=${nftResult.isSimulated} ` +
+                                `| tx=${nftResult.txHash}`
+                            );
+                        }
+                    }).catch(err => {
+                        logger.error('NFT mint fire-and-forget error:', err);
+                    });
+                }
+
+                // Send Telegram notification
                 await notificationService.notifyAchievementUnlocked(
                     partnerId,
                     achievement.name

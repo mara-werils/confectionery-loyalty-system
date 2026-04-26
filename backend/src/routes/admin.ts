@@ -6,6 +6,7 @@ import { adminAuth, superAdminOnly, generateAdminToken } from '../middleware/adm
 import { AppError } from '../middleware/errorHandler';
 import { verifyWalletSignature } from '../services/ton';
 import { Address } from '@ton/ton';
+import { logAction } from '../utils/auditLog';
 
 const router = Router();
 
@@ -409,7 +410,43 @@ router.post('/sbt/issue', async (req: Request, res: Response, next: NextFunction
                 data: { value: JSON.stringify(wallets) }
             });
         }
+        await logAction({
+            actorId: 'admin',
+            actorType: 'admin',
+            action: 'ISSUE_SBT',
+            entityType: 'wallet',
+            entityId: normalizedAddress,
+            metadata: { walletAddress: normalizedAddress },
+        });
+
         return successResponse(res, { success: true }, 'SBT issued');
+    } catch (error) {
+        return next(error);
+    }
+});
+
+// ============================================================================
+// AUDIT LOG
+// ============================================================================
+
+/**
+ * GET /admin/audit-logs — List recent audit log entries (open for admin panel demo)
+ */
+router.get('/audit-logs', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = Math.min(parseInt(req.query.limit as string) || 20, 50);
+
+        const [logs, total] = await Promise.all([
+            prisma.auditLog.findMany({
+                orderBy: { createdAt: 'desc' },
+                skip: (page - 1) * limit,
+                take: limit,
+            }),
+            prisma.auditLog.count(),
+        ]);
+
+        return paginatedResponse(res, logs, page, limit, total);
     } catch (error) {
         return next(error);
     }

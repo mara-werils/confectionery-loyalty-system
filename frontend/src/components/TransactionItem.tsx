@@ -15,6 +15,7 @@ interface TransactionItemProps {
   pointsEarned: string;
   type: 'PURCHASE' | 'BONUS' | 'REFERRAL' | 'PROMOTION' | 'REDEMPTION';
   description?: string;
+  partnerName?: string;
   createdAt: string;
   index?: number;
 }
@@ -62,6 +63,7 @@ export default function TransactionItem({
   pointsEarned,
   type,
   description,
+  partnerName,
   createdAt,
   index = 0,
 }: TransactionItemProps) {
@@ -115,6 +117,9 @@ export default function TransactionItem({
             <span className="text-xs text-zinc-400 truncate font-medium">{description}</span>
           )}
         </div>
+        {partnerName && (
+          <p className="text-xs text-zinc-400 font-medium truncate mt-0.5">{partnerName}</p>
+        )}
         <div className="flex items-center gap-2 text-xs text-zinc-500 mt-1">
           <span>{formatDate(createdAt)}</span>
           <span className="w-1 h-1 bg-zinc-700 rounded-full"></span>

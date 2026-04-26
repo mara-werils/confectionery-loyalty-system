@@ -4,23 +4,25 @@ import { useTranslation } from 'react-i18next';
 import {
   HomeIcon,
   GiftIcon,
-  ClockIcon,
   UserCircleIcon,
   CubeTransparentIcon,
   UserPlusIcon,
   ChartBarIcon,
+  QrCodeIcon,
+  SparklesIcon,
+  TrophyIcon,
 } from '@heroicons/react/24/outline';
 import {
   HomeIcon as HomeIconSolid,
   GiftIcon as GiftIconSolid,
-  ClockIcon as ClockIconSolid,
-  ArrowsRightLeftIcon as ArrowsRightLeftIconSolid,
   UserCircleIcon as UserCircleIconSolid,
   CubeTransparentIcon as CubeTransparentIconSolid,
   UserPlusIcon as UserPlusIconSolid,
   ChartBarIcon as ChartBarIconSolid,
+  QrCodeIcon as QrCodeIconSolid,
+  SparklesIcon as SparklesIconSolid,
+  TrophyIcon as TrophyIconSolid,
 } from '@heroicons/react/24/solid';
-import { ArrowsRightLeftIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import { changeLanguage, languages } from '../i18n';
 
@@ -34,18 +36,19 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
 
   const businessNavItems = [
     { path: '/business/dashboard', label: t('nav.pos'), icon: HomeIcon, activeIcon: HomeIconSolid },
+    { path: '/business/verify-coupon', label: 'Verify', icon: QrCodeIcon, activeIcon: QrCodeIconSolid },
+    { path: '/ai', label: 'AI', icon: SparklesIcon, activeIcon: SparklesIconSolid },
     { path: '/blockchain', label: t('nav.blockchain'), icon: CubeTransparentIcon, activeIcon: CubeTransparentIconSolid },
     { path: '/referrals', label: 'Referrals', icon: UserPlusIcon, activeIcon: UserPlusIconSolid },
-    { path: '/swap', label: t('nav.exchange'), icon: ArrowsRightLeftIcon, activeIcon: ArrowsRightLeftIconSolid },
     { path: '/business/profile', label: t('nav.profile'), icon: UserCircleIcon, activeIcon: UserCircleIconSolid },
   ];
 
   const customerNavItems = [
-    { path: '/customer/dashboard', label: t('nav.wallet'), icon: HomeIcon, activeIcon: HomeIconSolid },
-    { path: '/customer/rewards', label: t('nav.rewards'), icon: GiftIcon, activeIcon: GiftIconSolid },
-    { path: '/stats', label: 'Stats', icon: ChartBarIcon, activeIcon: ChartBarIconSolid },
-    { path: '/history', label: t('nav.history'), icon: ClockIcon, activeIcon: ClockIconSolid },
-    { path: '/customer/profile', label: t('nav.profile'), icon: UserCircleIcon, activeIcon: UserCircleIconSolid },
+    { path: '/customer/dashboard', label: t('nav.wallet'),  icon: HomeIcon,    activeIcon: HomeIconSolid },
+    { path: '/customer/rewards',   label: t('nav.rewards'), icon: GiftIcon,    activeIcon: GiftIconSolid },
+    { path: '/achievements',       label: 'NFTs',           icon: TrophyIcon,  activeIcon: TrophyIconSolid },
+    { path: '/stats',              label: 'Stats',          icon: ChartBarIcon,activeIcon: ChartBarIconSolid },
+    { path: '/customer/profile',   label: t('nav.profile'), icon: UserCircleIcon, activeIcon: UserCircleIconSolid },
   ];
 
   const navItems = variant === 'customer' ? customerNavItems : businessNavItems;

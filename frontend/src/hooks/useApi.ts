@@ -194,6 +194,63 @@ export function useAnalyticsGrowth(period: 'day' | 'week' | 'month' = 'month') {
   });
 }
 
+export function useTopPartners() {
+  const { token } = useAuthStore();
+
+  return useQuery({
+    queryKey: ['analytics', 'top-partners'],
+    queryFn: () => api.analytics.getTopPartners(),
+    enabled: !!token,
+    staleTime: 60000,
+  });
+}
+
+// ========================================
+// AI HOOKS
+// ========================================
+
+export function useAiChurn() {
+  const { token } = useAuthStore();
+  return useQuery({
+    queryKey: ['ai', 'churn'],
+    queryFn: () => api.ai.getChurnRisks(),
+    enabled: !!token,
+    staleTime: 2 * 60 * 1000,
+  });
+}
+
+export function useAiForecast() {
+  const { token } = useAuthStore();
+  return useQuery({
+    queryKey: ['ai', 'forecast'],
+    queryFn: () => api.ai.getForecast(),
+    enabled: !!token,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useAiRecommendations() {
+  const { token } = useAuthStore();
+  return useQuery({
+    queryKey: ['ai', 'recommendations'],
+    queryFn: () => api.ai.getRecommendations(),
+    enabled: !!token,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+// ========================================
+// ADMIN HOOKS
+// ========================================
+
+export function useAuditLogs(page = 1) {
+  return useQuery({
+    queryKey: ['admin', 'audit-logs', page],
+    queryFn: () => api.admin.getAuditLogs({ page, limit: 20 }),
+    staleTime: 30000,
+  });
+}
+
 
 
 

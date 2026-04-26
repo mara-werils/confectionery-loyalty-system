@@ -1,22 +1,51 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { ShieldCheckIcon, DocumentPlusIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { ShieldCheckIcon, DocumentPlusIcon, CheckCircleIcon, ClockIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
 import { GlassCard } from '../../components/GlassCard';
+import { useAuditLogs } from '../../hooks/useApi';
+
+const ACTION_COLORS: Record<string, string> = {
+  ISSUE_SBT: 'text-red-400 bg-red-400/10 border-red-400/20',
+  ISSUE_COUPON: 'text-orange-400 bg-orange-400/10 border-orange-400/20',
+  UPDATE_PARTNER: 'text-blue-400 bg-blue-400/10 border-blue-400/20',
+  MINT_TOKENS: 'text-purple-400 bg-purple-400/10 border-purple-400/20',
+};
+
+function formatRelative(dateStr: string) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'Just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return new Date(dateStr).toLocaleDateString();
+}
 
 export default function AdminDashboard() {
   const { t } = useTranslation();
   const { setHasBusinessSbt, hasBusinessSbt } = useAuthStore();
   const [walletAddress, setWalletAddress] = useState('UQ...TON...WALLET');
   const [isMinting, setIsMinting] = useState(false);
-  
+
   // Auth state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
+
+  const { data: auditLogsData, isLoading: auditLoading } = useAuditLogs(1);
+  const auditLogs: {
+    id: string;
+    actorId: string;
+    actorType: string;
+    action: string;
+    entityType: string;
+    entityId?: string;
+    createdAt: string;
+  }[] = (auditLogsData as { data: typeof auditLogs })?.data || [];
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -202,6 +231,56 @@ export default function AdminDashboard() {
             {t('admin.disclaimer') || 'This panel is strictly for Master Administrators to issue Soulbound Tokens to verified B2B partners for full ecosystem integration.'}
           </p>
         </div>
+
+        {/* Audit Log */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="mt-6"
+        >
+          <GlassCard className="p-6 border-red-500/10">
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <ClockIcon className="w-5 h-5 text-zinc-400" />
+              Action History
+            </h2>
+            {auditLoading ? (
+              <div className="space-y-3">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-12 bg-white/5 rounded-xl animate-pulse" />
+                ))}
+              </div>
+            ) : auditLogs.length > 0 ? (
+              <div className="space-y-2">
+                {auditLogs.map((log) => (
+                  <div
+                    key={log.id}
+                    className="flex items-center gap-3 py-2.5 px-3 bg-white/[0.03] rounded-xl border border-white/5"
+                  >
+                    <span
+                      className={`shrink-0 text-xs font-bold px-2 py-0.5 rounded border ${
+                        ACTION_COLORS[log.action] || 'text-zinc-400 bg-zinc-400/10 border-zinc-400/20'
+                      }`}
+                    >
+                      {log.action.replace(/_/g, ' ')}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-zinc-400 truncate">
+                        {log.entityType}
+                        {log.entityId ? ` · ${log.entityId.slice(0, 12)}…` : ''}
+                      </p>
+                    </div>
+                    <span className="shrink-0 text-xs text-zinc-600">
+                      {formatRelative(log.createdAt)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-zinc-600 text-sm py-4">No actions recorded yet</p>
+            )}
+          </GlassCard>
+        </motion.div>
         </motion.div>
       )}
     </div>

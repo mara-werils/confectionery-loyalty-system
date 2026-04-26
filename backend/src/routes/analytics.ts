@@ -24,46 +24,72 @@ router.get(
     try {
       if (req.user!.type === 'admin') {
         // Admin summary - all partners
+        const now = new Date();
+        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+
         const [
           totalPartners,
           activePartners,
           totalTransactions,
-          totalPoints,
+          pointsAggregate,
+          redeemedAggregate,
           recentTransactions,
           tierDistribution,
+          currentWeekTx,
+          prevWeekTx,
+          currentWeekPartners,
+          prevWeekPartners,
+          currentWeekPoints,
+          prevWeekPoints,
         ] = await Promise.all([
           prisma.partner.count(),
           prisma.partner.count({ where: { status: 'ACTIVE' } }),
           prisma.transaction.count(),
-          prisma.loyaltyPoints.aggregate({
-            _sum: { lifetimeEarned: true },
-          }),
+          prisma.loyaltyPoints.aggregate({ _sum: { lifetimeEarned: true } }),
+          prisma.loyaltyPoints.aggregate({ _sum: { lifetimeRedeemed: true } }),
           prisma.transaction.findMany({
             take: 5,
             orderBy: { createdAt: 'desc' },
-            include: {
-              partner: {
-                select: { companyName: true },
-              },
-            },
+            include: { partner: { select: { companyName: true } } },
           }),
-          prisma.partner.groupBy({
-            by: ['tier'],
-            _count: true,
-          }),
+          prisma.partner.groupBy({ by: ['tier'], _count: true }),
+          prisma.transaction.count({ where: { createdAt: { gte: weekAgo } } }),
+          prisma.transaction.count({ where: { createdAt: { gte: twoWeeksAgo, lt: weekAgo } } }),
+          prisma.partner.count({ where: { createdAt: { gte: weekAgo } } }),
+          prisma.partner.count({ where: { createdAt: { gte: twoWeeksAgo, lt: weekAgo } } }),
+          prisma.transaction.aggregate({ where: { createdAt: { gte: weekAgo } }, _sum: { pointsEarned: true } }),
+          prisma.transaction.aggregate({ where: { createdAt: { gte: twoWeeksAgo, lt: weekAgo } }, _sum: { pointsEarned: true } }),
         ]);
 
+        const totalPointsIssued = Number(pointsAggregate._sum.lifetimeEarned || 0n);
+        const totalPointsRedeemed = Number(redeemedAggregate._sum.lifetimeRedeemed || 0n);
+        const avgPointsPerTransaction = totalTransactions > 0 ? totalPointsIssued / totalTransactions : 0;
+
+        const tierMap: Record<string, number> = {};
+        tierDistribution.forEach((t) => { tierMap[t.tier] = t._count; });
+
+        const calcGrowth = (current: number, prev: number): number | null => {
+          if (prev === 0) return null;
+          return Math.round(((current - prev) / prev) * 1000) / 10;
+        };
+
         return successResponse(res, {
-          overview: {
-            totalPartners,
-            activePartners,
-            totalTransactions,
-            totalPointsDistributed: (totalPoints._sum.lifetimeEarned || 0n).toString(),
+          totalPartners,
+          activePartners,
+          totalTransactions,
+          totalPointsIssued,
+          totalPointsRedeemed,
+          avgPointsPerTransaction,
+          tierDistribution: tierMap,
+          growth: {
+            transactions: calcGrowth(currentWeekTx, prevWeekTx),
+            partners: calcGrowth(currentWeekPartners, prevWeekPartners),
+            pointsIssued: calcGrowth(
+              Number(currentWeekPoints._sum.pointsEarned || 0n),
+              Number(prevWeekPoints._sum.pointsEarned || 0n)
+            ),
           },
-          tierDistribution: tierDistribution.map((t) => ({
-            tier: t.tier,
-            count: t._count,
-          })),
           recentTransactions: recentTransactions.map((t) => ({
             id: t.id,
             partnerName: t.partner.companyName,
@@ -234,6 +260,56 @@ router.get(
       });
     } catch (error) {
       return next(error);
+    }
+  }
+);
+
+/**
+ * @swagger
+ * /analytics/top-partners:
+ *   get:
+ *     summary: Get top 5 partners by points issued this week
+ *     tags: [Analytics]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Top partners leaderboard
+ */
+router.get(
+  '/top-partners',
+  authenticate,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+      const grouped = await prisma.transaction.groupBy({
+        by: ['partnerId'],
+        where: { createdAt: { gte: weekAgo } },
+        _sum: { pointsEarned: true },
+        orderBy: { _sum: { pointsEarned: 'desc' } },
+        take: 5,
+      });
+
+      const partnerIds = grouped.map((g) => g.partnerId);
+      const partners = await prisma.partner.findMany({
+        where: { id: { in: partnerIds } },
+        select: { id: true, companyName: true, tier: true },
+      });
+
+      const partnerMap = new Map(partners.map((p) => [p.id, p]));
+
+      const topPartners = grouped.map((g, index) => ({
+        rank: index + 1,
+        partnerId: g.partnerId,
+        companyName: partnerMap.get(g.partnerId)?.companyName || 'Unknown',
+        tier: partnerMap.get(g.partnerId)?.tier || 'BRONZE',
+        pointsIssued: (g._sum.pointsEarned || 0n).toString(),
+      }));
+
+      return successResponse(res, topPartners);
+    } catch (error) {
+      next(error);
     }
   }
 );
