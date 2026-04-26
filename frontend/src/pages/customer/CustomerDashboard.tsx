@@ -4,14 +4,12 @@ import { useTonWallet } from '@tonconnect/ui-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useTranslation } from 'react-i18next';
 import {
-  SparklesIcon,
   ClockIcon,
-  ArrowDownIcon,
   GiftIcon,
   TicketIcon,
   TrophyIcon,
+  ArrowDownIcon,
 } from '@heroicons/react/24/outline';
-import { GlassCard } from '../../components/GlassCard';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { io as socketIO } from 'socket.io-client';
@@ -19,9 +17,9 @@ import toast from 'react-hot-toast';
 import clsx from 'clsx';
 
 const TIERS = {
-  BRONZE: { next: 'SILVER', threshold: 5000, color: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/25', bar: 'bg-orange-400' },
-  SILVER: { next: 'GOLD', threshold: 20000, color: 'text-zinc-300', bg: 'bg-zinc-700/40', border: 'border-zinc-600/40', bar: 'bg-zinc-300' },
-  GOLD:   { next: 'MAX',  threshold: 0,     color: 'text-yellow-400', bg: 'bg-yellow-500/10', border: 'border-yellow-500/25', bar: 'bg-yellow-400' },
+  BRONZE: { next: 'SILVER', threshold: 5000, color: 'text-orange-400', bar: 'from-orange-500 to-amber-400', label: '🥉 Bronze' },
+  SILVER: { next: 'GOLD',   threshold: 20000, color: 'text-zinc-300',  bar: 'from-zinc-400 to-zinc-200', label: '🥈 Silver' },
+  GOLD:   { next: 'MAX',    threshold: 0,     color: 'text-amber-400', bar: 'from-amber-400 to-yellow-300', label: '🥇 Gold' },
 } as const;
 
 interface JettonBalance {
@@ -47,11 +45,11 @@ export default function CustomerDashboard() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [liveNotification, setLiveNotification] = useState<{ amount: number } | null>(null);
+  const [qrVisible, setQrVisible] = useState(false);
   const socketRef = useRef<ReturnType<typeof socketIO> | null>(null);
 
   const walletAddress = wallet?.account.address || '';
 
-  // Socket.io — subscribe to real-time mint events for this wallet
   useEffect(() => {
     if (!walletAddress) return;
 
@@ -59,14 +57,11 @@ export default function CustomerDashboard() {
     const socket = socketIO(API_URL, { transports: ['websocket', 'polling'] });
     socketRef.current = socket;
 
-    socket.on('connect', () => {
-      socket.emit('subscribe:wallet', walletAddress);
-    });
+    socket.on('connect', () => { socket.emit('subscribe:wallet', walletAddress); });
 
     socket.on('tokens:received', (data: { amount: number; message: string }) => {
       setLiveNotification({ amount: data.amount });
       toast.success(`+${data.amount} SWEET received!`, { duration: 4000, icon: '🍬' });
-      // Refresh blockchain data after notification
       setTimeout(() => fetchData(), 3000);
       setTimeout(() => setLiveNotification(null), 5000);
     });
@@ -81,29 +76,21 @@ export default function CustomerDashboard() {
     if (!walletAddress) return;
     setLoading(true);
     try {
-      const res = await fetch(
-        `https://testnet.tonapi.io/v2/accounts/${walletAddress}/jettons`
-      );
+      const res = await fetch(`https://testnet.tonapi.io/v2/accounts/${walletAddress}/jettons`);
       const data = await res.json();
 
-      if (data.balances && data.balances.length > 0) {
+      if (data.balances?.length > 0) {
         const sweet = data.balances.find(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (b: any) =>
-            b.jetton?.address?.toLowerCase() ===
-            '0:4d3a2278693a04f846b5d83a58e67066bb56ca4f46b1b7cd49992f4114f87c9c'
+          (b: any) => b.jetton?.address?.toLowerCase() === '0:4d3a2278693a04f846b5d83a58e67066bb56ca4f46b1b7cd49992f4114f87c9c'
         );
         if (sweet) {
-          const jetton = { balance: sweet.balance, decimals: sweet.jetton?.decimals || 9 };
-          setBalance(jetton);
-          const numBalance = Number(BigInt(sweet.balance) / BigInt(10 ** (sweet.jetton?.decimals || 9)));
-          setSweetBalance(numBalance);
+          setBalance({ balance: sweet.balance, decimals: sweet.jetton?.decimals || 9 });
+          setSweetBalance(Number(BigInt(sweet.balance) / BigInt(10 ** (sweet.jetton?.decimals || 9))));
         }
       }
 
-      const txRes = await fetch(
-        `https://testnet.tonapi.io/v2/accounts/${walletAddress}/events?limit=10`
-      );
+      const txRes = await fetch(`https://testnet.tonapi.io/v2/accounts/${walletAddress}/events?limit=10`);
       const txData = await txRes.json();
 
       if (txData.events) {
@@ -124,26 +111,22 @@ export default function CustomerDashboard() {
           });
         setTransactions(parsed);
       }
-    } catch (error) {
-      // Silently handle network errors — blockchain data is optional
+    } catch {
+      // Silently handle network errors
     }
     setLoading(false);
   };
 
-  useEffect(() => {
-    fetchData();
-  }, [walletAddress, location.pathname]); // fetchData is stable — defined in component body
+  useEffect(() => { fetchData(); }, [walletAddress, location.pathname]);
 
   const formatBalance = (bal: JettonBalance | null) => {
     if (!bal) return sweetBalance > 0 ? sweetBalance.toLocaleString() : '0';
-    const raw = BigInt(bal.balance);
-    const divisor = BigInt(10 ** bal.decimals);
-    return Number(raw / divisor).toLocaleString();
+    return Number(BigInt(bal.balance) / BigInt(10 ** bal.decimals)).toLocaleString();
   };
 
   const formatAddress = (addr: string) => {
     if (!addr || addr.length < 12) return addr;
-    return addr.slice(0, 6) + '...' + addr.slice(-6);
+    return addr.slice(0, 6) + '…' + addr.slice(-4);
   };
 
   const timeAgo = (ts: number) => {
@@ -154,187 +137,180 @@ export default function CustomerDashboard() {
     return `${Math.floor(diff / 86400)}d ago`;
   };
 
+  const currentBalance = sweetBalance || Number(formatBalance(balance).replace(/,/g, ''));
+  const tier = currentBalance >= 20000 ? 'GOLD' : currentBalance >= 5000 ? 'SILVER' : 'BRONZE';
+  const tierData = TIERS[tier];
+  const progress = tier === 'GOLD' ? 100 : Math.min(100, Math.round((currentBalance / tierData.threshold) * 100));
+
   return (
-    <div className="min-h-screen p-4 md:p-8 pb-24 text-white">
-      {/* Live Mint Notification Banner */}
+    <div className="pb-28 text-white">
+      {/* Live Notification */}
       <AnimatePresence>
         {liveNotification && (
           <motion.div
-            initial={{ opacity: 0, y: -20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            className="fixed top-4 left-4 right-4 z-50 bg-green-500/20 border border-green-500/40 backdrop-blur-md rounded-2xl p-4 flex items-center gap-3 shadow-2xl"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed top-4 left-4 right-4 z-50 flex items-center gap-3 rounded-2xl border border-green-500/30 bg-[#09090b]/90 backdrop-blur-md px-4 py-3 shadow-2xl"
           >
-            <div className="text-2xl">🍬</div>
-            <div>
-              <p className="font-bold text-green-400 text-sm">Tokens Received!</p>
-              <p className="text-white text-xs">+{liveNotification.amount} SWEET minted to your wallet</p>
+            <span className="text-xl">🍬</span>
+            <div className="flex-1">
+              <p className="text-sm font-bold text-green-400">+{liveNotification.amount} SWEET</p>
+              <p className="text-xs text-zinc-500">Minted to your wallet</p>
             </div>
-            <div className="ml-auto w-2 h-2 rounded-full bg-green-400 animate-ping" />
+            <span className="w-2 h-2 rounded-full bg-green-400 animate-ping" />
           </motion.div>
         )}
       </AnimatePresence>
 
+      {/* Hero Balance Card */}
       <motion.div
-        initial={{ opacity: 0, y: -12 }}
+        initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="mb-8"
+        transition={{ duration: 0.5 }}
+        className="relative overflow-hidden rounded-3xl mb-4"
+        style={{
+          background: 'linear-gradient(135deg, #1a0e00 0%, #0f0800 50%, #09090b 100%)',
+          border: '1px solid rgba(245,158,11,0.15)',
+        }}
       >
-        <h1 className="text-3xl md:text-4xl font-bold tracking-tight">{t('customerDashboard.title')}</h1>
-        <p className="text-zinc-400 mt-1 text-sm">{t('customerDashboard.subtitle')}</p>
-      </motion.div>
+        {/* Glow */}
+        <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-amber-400/10 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full bg-orange-500/8 blur-2xl pointer-events-none" />
 
-      {/* Balance Card */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="mb-6"
-      >
-        <GlassCard className="p-6 border border-white/5 relative overflow-hidden">
-          <div className="flex items-start justify-between">
+        <div className="relative z-10 p-5">
+          <div className="flex items-start justify-between mb-4">
             <div>
-              <p className="text-xs text-zinc-500 font-medium mb-1">{t('customerDashboard.balance')}</p>
-              <p className="text-4xl font-extrabold tracking-tight">
-                {loading ? (
-                  <span className="inline-block w-24 h-10 bg-white/5 rounded-lg animate-pulse" />
-                ) : (
-                  formatBalance(balance)
-                )}
+              <p className="text-[11px] text-amber-400/70 font-semibold tracking-widest uppercase mb-1">
+                SWEET Balance
               </p>
-              <p className="text-xs text-zinc-500 mt-1 font-mono">
-                ≈ {formatBalance(balance)} KZT
-              </p>
-            </div>
-            <div className="p-2.5 bg-white/5 rounded-xl ring-1 ring-white/10">
-              <SparklesIcon className="w-6 h-6 text-zinc-300" />
-            </div>
-          </div>
-        </GlassCard>
-      </motion.div>
-
-      {/* Tier Card */}
-      {(() => {
-        const currentBalance = sweetBalance || Number(formatBalance(balance).replace(/,/g, ''));
-        const tier = currentBalance >= 20000 ? 'GOLD' : currentBalance >= 5000 ? 'SILVER' : 'BRONZE';
-        const tierData = TIERS[tier];
-        const progress = tier === 'GOLD' ? 100 : Math.min(100, Math.round((currentBalance / tierData.threshold) * 100));
-        const remaining = tier === 'GOLD' ? 0 : tierData.threshold - currentBalance;
-        return (
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="mb-6"
-          >
-            <GlassCard className="p-5 border border-white/5">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <TrophyIcon className="w-4 h-4 text-zinc-500" />
-                  <p className="text-xs text-zinc-500 font-medium">Loyalty Tier</p>
-                </div>
-                <span className={clsx('px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border', tierData.bg, tierData.color, tierData.border)}>
-                  {tier}
-                </span>
-              </div>
-              <div className="h-2 bg-white/5 rounded-full overflow-hidden mb-2">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${progress}%` }}
-                  transition={{ duration: 1, delay: 0.5, ease: 'easeOut' }}
-                  className={clsx('h-full rounded-full', tierData.bar)}
-                />
-              </div>
-              {tier === 'GOLD' ? (
-                <p className="text-[10px] text-yellow-400/80">Maximum tier reached — 2x earnings on every purchase</p>
+              {loading ? (
+                <div className="w-28 h-9 rounded-lg bg-white/5 animate-pulse" />
               ) : (
-                <p className="text-[10px] text-zinc-600">
-                  {remaining.toLocaleString()} SWEET more to reach <span className={clsx('font-bold', TIERS[tierData.next as keyof typeof TIERS]?.color)}>{tierData.next}</span>
-                  {tier === 'BRONZE' ? ' (1.5x multiplier)' : ' (2x multiplier)'}
+                <p className="text-4xl font-black tracking-tight text-white">
+                  {formatBalance(balance)}
                 </p>
               )}
-            </GlassCard>
-          </motion.div>
-        );
-      })()}
+              <p className="text-xs text-zinc-600 mt-1 font-mono">SWEET tokens</p>
+            </div>
 
-      {/* QR Code */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="mb-6"
-      >
-        <GlassCard className="p-6 border border-white/5 text-center">
-          <p className="text-xs text-zinc-500 font-medium mb-2">
-            {t('customerDashboard.showQr')}
-          </p>
-          <p className="text-[10px] text-zinc-600 mb-4">Show this QR code to a partner cashier to receive SWEET tokens</p>
-          <div className="inline-block bg-white p-4 rounded-2xl">
-            <QRCodeSVG
-              value={walletAddress}
-              size={180}
-              level="M"
-              bgColor="#ffffff"
-              fgColor="#000000"
+            <button
+              onClick={() => setQrVisible(v => !v)}
+              className="flex flex-col items-center gap-1 px-3 py-2 rounded-xl bg-white/5 border border-white/8 hover:bg-white/8 transition-colors"
+            >
+              <span className="text-base">⬛</span>
+              <span className="text-[9px] text-zinc-500">QR</span>
+            </button>
+          </div>
+
+          {/* Tier row */}
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <TrophyIcon className="w-3.5 h-3.5 text-zinc-600" />
+              <span className={clsx('text-xs font-bold', tierData.color)}>{tierData.label}</span>
+            </div>
+            {tier !== 'GOLD' && (
+              <span className="text-[10px] text-zinc-600">
+                {(tierData.threshold - currentBalance).toLocaleString()} to {tierData.next}
+              </span>
+            )}
+          </div>
+          <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 1.2, delay: 0.3, ease: 'easeOut' }}
+              className={clsx('h-full rounded-full bg-gradient-to-r', tierData.bar)}
             />
           </div>
-          <p className="text-[10px] text-zinc-600 mt-3 font-mono break-all px-4">
-            {walletAddress}
-          </p>
-        </GlassCard>
+        </div>
+
+        {/* Expandable QR */}
+        <AnimatePresence>
+          {qrVisible && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="overflow-hidden"
+            >
+              <div className="px-5 pb-5 flex flex-col items-center">
+                <div className="w-full h-px bg-white/5 mb-4" />
+                <p className="text-[11px] text-zinc-500 mb-3 text-center">
+                  {t('customerDashboard.showQr')}
+                </p>
+                <div className="bg-white p-3 rounded-2xl">
+                  <QRCodeSVG value={walletAddress} size={160} level="M" bgColor="#ffffff" fgColor="#000000" />
+                </div>
+                <p className="text-[9px] text-zinc-700 mt-2 font-mono break-all text-center px-4">
+                  {walletAddress}
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
 
-      {/* Browse Rewards */}
+      {/* Quick actions row */}
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="mb-6"
+        transition={{ delay: 0.1 }}
+        className="grid grid-cols-2 gap-3 mb-4"
       >
-        <button onClick={() => navigate('/customer/rewards')} className="w-full">
-          <GlassCard className="flex items-center gap-4 p-5 border border-white/5 hover:bg-white/5 transition-colors cursor-pointer">
-            <div className="p-3 bg-white/5 rounded-xl ring-1 ring-white/10">
-              <GiftIcon className="w-5 h-5 text-zinc-300" />
-            </div>
-            <div className="text-left">
-              <h3 className="font-bold text-white">{t('customerDashboard.rewardsLink')}</h3>
-              <p className="text-xs text-zinc-400">{t('customerDashboard.rewardsDesc')}</p>
-            </div>
-          </GlassCard>
+        <button
+          onClick={() => navigate('/customer/rewards')}
+          className="flex items-center gap-3 p-3.5 rounded-2xl border border-white/8 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/15 transition-all text-left"
+        >
+          <div className="w-8 h-8 rounded-xl bg-amber-400/10 border border-amber-400/20 flex items-center justify-center flex-shrink-0">
+            <GiftIcon className="w-4 h-4 text-amber-400" />
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-white">{t('customerDashboard.rewardsLink')}</p>
+            <p className="text-[10px] text-zinc-600">Redeem</p>
+          </div>
+        </button>
+
+        <button
+          onClick={() => navigate('/achievements')}
+          className="flex items-center gap-3 p-3.5 rounded-2xl border border-white/8 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/15 transition-all text-left"
+        >
+          <div className="w-8 h-8 rounded-xl bg-yellow-400/10 border border-yellow-400/20 flex items-center justify-center flex-shrink-0">
+            <TrophyIcon className="w-4 h-4 text-yellow-400" />
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-white">Achievements</p>
+            <p className="text-[10px] text-zinc-600">NFT badges</p>
+          </div>
         </button>
       </motion.div>
 
-      {/* Active Coupons Segment */}
+      {/* Active Coupons */}
       {activeCoupons && activeCoupons.length > 0 && (
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35 }}
-          className="mb-6"
+          transition={{ delay: 0.15 }}
+          className="mb-4"
         >
-          <div className="flex items-center gap-2 mb-4">
-            <TicketIcon className="w-4 h-4 text-zinc-500" />
-            <h3 className="text-sm font-semibold text-zinc-400">
-              {t('customerDashboard.myCoupons') || 'My Active Coupons'}
-            </h3>
-          </div>
-          <div className="grid grid-cols-1 gap-3">
+          <SectionHeader icon={<TicketIcon className="w-3.5 h-3.5" />} label={t('customerDashboard.myCoupons') || 'Active Coupons'} />
+          <div className="space-y-2">
             {activeCoupons.map((coupon, i) => (
-              <GlassCard key={i} className="p-4 border border-white/10 flex flex-col gap-2 relative overflow-hidden bg-gradient-to-br from-white/5 to-transparent">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">{coupon.partnerName}</span>
-                  <span className="px-2 py-1 bg-white/10 rounded-md text-[10px] font-mono text-zinc-300 ring-1 ring-white/20">
-                    {coupon.code}
-                  </span>
+              <div
+                key={i}
+                className="relative flex items-center justify-between gap-3 rounded-xl border border-dashed border-amber-400/20 bg-amber-400/[0.03] px-4 py-3 overflow-hidden"
+              >
+                <div className="absolute top-1/2 -left-2 w-4 h-4 rounded-full bg-[#09090b] -translate-y-1/2" />
+                <div className="absolute top-1/2 -right-2 w-4 h-4 rounded-full bg-[#09090b] -translate-y-1/2" />
+                <div>
+                  <p className="text-xs font-semibold text-white">{t(coupon.rewardTitleKey)}</p>
+                  <p className="text-[10px] text-zinc-500 mt-0.5">{coupon.partnerName}</p>
                 </div>
-                <h4 className="font-semibold text-white text-sm">{t(coupon.rewardTitleKey)}</h4>
-                
-                {/* Decorative cutouts for ticket look */}
-                <div className="absolute top-1/2 -left-2 w-4 h-4 rounded-full bg-[#09090b] -translate-y-1/2 border-r border-white/10" />
-                <div className="absolute top-1/2 -right-2 w-4 h-4 rounded-full bg-[#09090b] -translate-y-1/2 border-l border-white/10" />
-              </GlassCard>
+                <span className="text-xs font-mono font-bold text-amber-400 tracking-wider shrink-0">
+                  {coupon.code}
+                </span>
+              </div>
             ))}
           </div>
         </motion.div>
@@ -342,55 +318,59 @@ export default function CustomerDashboard() {
 
       {/* Recent Transactions */}
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
+        transition={{ delay: 0.2 }}
       >
-        <div className="flex items-center gap-2 mb-4">
-          <ClockIcon className="w-4 h-4 text-zinc-500" />
-          <h3 className="text-sm font-semibold text-zinc-400">{t('customerDashboard.recentCashback')}</h3>
-        </div>
+        <SectionHeader icon={<ClockIcon className="w-3.5 h-3.5" />} label={t('customerDashboard.recentCashback')} />
 
         {loading ? (
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white/5 rounded-xl h-16 animate-pulse" />
+          <div className="space-y-2">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-14 rounded-xl bg-white/[0.02] border border-white/5 animate-pulse" />
             ))}
           </div>
         ) : transactions.length === 0 ? (
-          <GlassCard className="p-6 border border-white/5 text-center">
-            <ArrowDownIcon className="w-8 h-8 text-zinc-600 mx-auto mb-2" />
-            <p className="text-sm text-zinc-500">{t('customerDashboard.noTransactions')}</p>
-            <p className="text-xs text-zinc-600 mt-1">
-              {t('customerDashboard.noTransactionsHint')}
-            </p>
-          </GlassCard>
+          <div className="py-10 text-center">
+            <ArrowDownIcon className="w-8 h-8 text-zinc-800 mx-auto mb-3" />
+            <p className="text-sm text-zinc-600">{t('customerDashboard.noTransactions')}</p>
+            <p className="text-xs text-zinc-700 mt-1">{t('customerDashboard.noTransactionsHint')}</p>
+          </div>
         ) : (
           <div className="space-y-2">
-            {transactions.map((tx) => (
-              <GlassCard
+            {transactions.map(tx => (
+              <div
                 key={tx.hash}
-                className="flex items-center justify-between p-4 border border-white/5"
+                className="flex items-center justify-between gap-3 rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3"
               >
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-green-500/10 rounded-lg">
-                    <ArrowDownIcon className="w-4 h-4 text-green-400" />
+                  <div className="w-8 h-8 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center flex-shrink-0">
+                    <ArrowDownIcon className="w-3.5 h-3.5 text-green-400" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-white">{tx.comment || t('customerDashboard.cashback')}</p>
-                    <p className="text-xs text-zinc-500">
-                      from {formatAddress(tx.sender)} · {timeAgo(tx.timestamp)}
+                    <p className="text-xs font-medium text-white">{tx.comment || t('customerDashboard.cashback')}</p>
+                    <p className="text-[10px] text-zinc-600">
+                      {formatAddress(tx.sender)} · {timeAgo(tx.timestamp)}
                     </p>
                   </div>
                 </div>
-                <p className="text-sm font-bold text-green-400">
-                  +{(Number(tx.amount) / 1e9).toLocaleString()} SWEET
+                <p className="text-sm font-bold text-green-400 shrink-0">
+                  +{(Number(tx.amount) / 1e9).toLocaleString()}
                 </p>
-              </GlassCard>
+              </div>
             ))}
           </div>
         )}
       </motion.div>
+    </div>
+  );
+}
+
+function SectionHeader({ icon, label }: { icon: React.ReactNode; label: string }) {
+  return (
+    <div className="flex items-center gap-2 mb-3 text-zinc-500">
+      {icon}
+      <span className="text-xs font-semibold tracking-wide">{label}</span>
     </div>
   );
 }
