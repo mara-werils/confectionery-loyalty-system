@@ -148,6 +148,13 @@ export const api = {
     applyCode: (referralCode: string) => axiosInstance.post('/referrals/apply', { referralCode }),
     getLeaderboard: () => axiosInstance.get('/referrals/leaderboard'),
   },
+
+  // Achievements
+  achievements: {
+    getAll:       () => axiosInstance.get('/achievements'),
+    check:        () => axiosInstance.post('/achievements/check'),
+    getLeaderboard: () => axiosInstance.get('/achievements/leaderboard'),
+  },
 };
 
 export default axiosInstance;

@@ -14,6 +14,7 @@ import Referrals from './pages/Referrals';
 import Stats from './pages/Stats';
 
 import AIPredictions from './pages/AIPredictions';
+import Achievements from './pages/Achievements';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -95,6 +96,7 @@ function App() {
           <Route path="/business/dashboard" element={<Dashboard />} />
           <Route path="/business/verify-coupon" element={<CouponVerify />} />
           <Route path="/ai" element={<AIPredictions />} />
+          <Route path="/achievements" element={<Achievements />} />
           <Route path="/blockchain" element={<Blockchain />} />
           <Route path="/swap" element={<Swap />} />
           <Route path="/referrals" element={<Referrals />} />
@@ -107,6 +109,7 @@ function App() {
         <Route element={<RoleGuard allowedRole="customer"><Layout variant="customer" /></RoleGuard>}>
           <Route path="/customer/dashboard" element={<CustomerDashboard />} />
           <Route path="/customer/rewards" element={<CustomerRewards />} />
+          <Route path="/achievements" element={<Achievements />} />
           <Route path="/history" element={<History />} />
           <Route path="/stats" element={<Stats />} />
           <Route path="/customer/profile" element={<Profile />} />
