@@ -13,6 +13,8 @@ import Swap from './pages/Swap';
 import Referrals from './pages/Referrals';
 import Stats from './pages/Stats';
 
+import AIPredictions from './pages/AIPredictions';
+
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
 
@@ -92,6 +94,7 @@ function App() {
         <Route element={<RoleGuard allowedRole="business"><Layout variant="business" /></RoleGuard>}>
           <Route path="/business/dashboard" element={<Dashboard />} />
           <Route path="/business/verify-coupon" element={<CouponVerify />} />
+          <Route path="/ai" element={<AIPredictions />} />
           <Route path="/blockchain" element={<Blockchain />} />
           <Route path="/swap" element={<Swap />} />
           <Route path="/referrals" element={<Referrals />} />

@@ -206,6 +206,40 @@ export function useTopPartners() {
 }
 
 // ========================================
+// AI HOOKS
+// ========================================
+
+export function useAiChurn() {
+  const { token } = useAuthStore();
+  return useQuery({
+    queryKey: ['ai', 'churn'],
+    queryFn: () => api.ai.getChurnRisks(),
+    enabled: !!token,
+    staleTime: 2 * 60 * 1000,
+  });
+}
+
+export function useAiForecast() {
+  const { token } = useAuthStore();
+  return useQuery({
+    queryKey: ['ai', 'forecast'],
+    queryFn: () => api.ai.getForecast(),
+    enabled: !!token,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useAiRecommendations() {
+  const { token } = useAuthStore();
+  return useQuery({
+    queryKey: ['ai', 'recommendations'],
+    queryFn: () => api.ai.getRecommendations(),
+    enabled: !!token,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+// ========================================
 // ADMIN HOOKS
 // ========================================
 

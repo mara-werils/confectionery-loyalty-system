@@ -134,6 +134,13 @@ export const api = {
     redeem: (code: string) => axiosInstance.post(`/coupons/${code}/redeem`),
   },
 
+  // AI Predictive Analytics
+  ai: {
+    getChurnRisks: () => axiosInstance.get('/ai/churn'),
+    getForecast: () => axiosInstance.get('/ai/forecast'),
+    getRecommendations: () => axiosInstance.get('/ai/recommendations'),
+  },
+
   // Referrals
   referrals: {
     getStats: () => axiosInstance.get('/referrals/stats'),
