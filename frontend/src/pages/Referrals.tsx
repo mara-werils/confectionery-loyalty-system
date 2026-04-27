@@ -57,6 +57,9 @@ export default function Referrals() {
       queryClient.invalidateQueries({ queryKey: ['referrals'] });
       toast.success('Referral code generated!');
     },
+    onError: (err: Error) => {
+      toast.error(err.message || 'Failed to generate referral code');
+    },
   });
 
   const applyMutation = useMutation({
