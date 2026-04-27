@@ -20,7 +20,7 @@ const TIER_COLORS: Record<string, string> = {
 
 const TIER_BADGE: Record<string, string> = {
   GOLD: 'text-yellow-400 bg-yellow-400/10 border border-yellow-400/20',
-  SILVER: 'text-zinc-300 bg-zinc-400/10 border border-zinc-400/20',
+  SILVER: 'text-stone-300 bg-stone-400/10 border border-stone-400/20',
   BRONZE: 'text-orange-400 bg-orange-400/10 border border-orange-400/20',
 };
 
@@ -80,15 +80,15 @@ function StatCard({
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay }}
-      className="bg-zinc-900 border border-zinc-800/80 rounded-xl p-5 shadow-sm"
+      className="bg-stone-900 border border-stone-800/80 rounded-xl p-5 shadow-sm"
     >
       <div className="flex justify-between items-start mb-3">
-        <p className="text-xs text-zinc-400 font-medium">{label}</p>
-        <Icon className="w-4 h-4 text-zinc-600" />
+        <p className="text-xs text-stone-400 font-medium">{label}</p>
+        <Icon className="w-4 h-4 text-stone-600" />
       </div>
       <p className="text-2xl font-bold text-white tracking-tight">{value}</p>
       <div className="flex items-center gap-2 mt-1">
-        {sub && <p className="text-xs text-zinc-500">{sub}</p>}
+        {sub && <p className="text-xs text-stone-500">{sub}</p>}
         <GrowthBadge value={growth} />
       </div>
     </motion.div>
@@ -122,14 +122,14 @@ export default function Stats() {
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="pl-1">
         <h1 className="text-3xl font-bold text-white tracking-tight">Ecosystem Stats</h1>
-        <p className="text-zinc-400 mt-1">Live data from the Sweet Loyalty blockchain</p>
+        <p className="text-stone-400 mt-1">Live data from the Sweet Loyalty blockchain</p>
       </motion.div>
 
       {/* Loading skeleton */}
       {isLoading ? (
         <div className="grid grid-cols-2 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="bg-zinc-900 border border-zinc-800/80 rounded-xl p-5 h-24 animate-pulse" />
+            <div key={i} className="bg-stone-900 border border-stone-800/80 rounded-xl p-5 h-24 animate-pulse" />
           ))}
         </div>
       ) : (
@@ -174,16 +174,16 @@ export default function Stats() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25 }}
-            className="bg-zinc-900 border border-zinc-800/80 rounded-xl p-5 space-y-4"
+            className="bg-stone-900 border border-stone-800/80 rounded-xl p-5 space-y-4"
           >
-            <h2 className="text-sm font-semibold text-zinc-400">Key Performance Indicators</h2>
+            <h2 className="text-sm font-semibold text-stone-400">Key Performance Indicators</h2>
 
-            <div className="flex items-center justify-between py-3 border-b border-zinc-800/60">
+            <div className="flex items-center justify-between py-3 border-b border-stone-800/60">
               <div className="flex items-center gap-3">
                 <ArrowTrendingUpIcon className="w-5 h-5 text-green-400" />
                 <div>
                   <p className="text-sm font-semibold text-white">Redemption Rate</p>
-                  <p className="text-xs text-zinc-500">Points redeemed vs issued</p>
+                  <p className="text-xs text-stone-500">Points redeemed vs issued</p>
                 </div>
               </div>
               <span className="text-lg font-bold text-green-400">{redemptionRate}%</span>
@@ -194,7 +194,7 @@ export default function Stats() {
                 <TrophyIcon className="w-5 h-5 text-yellow-400" />
                 <div>
                   <p className="text-sm font-semibold text-white">Avg Points / Transaction</p>
-                  <p className="text-xs text-zinc-500">Loyalty engagement score</p>
+                  <p className="text-xs text-stone-500">Loyalty engagement score</p>
                 </div>
               </div>
               <span className="text-lg font-bold text-white">
@@ -209,9 +209,9 @@ export default function Stats() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="bg-zinc-900 border border-zinc-800/80 rounded-xl p-5"
+              className="bg-stone-900 border border-stone-800/80 rounded-xl p-5"
             >
-              <h2 className="text-sm font-semibold text-zinc-400 mb-4">Partner Tier Distribution</h2>
+              <h2 className="text-sm font-semibold text-stone-400 mb-4">Partner Tier Distribution</h2>
               <div className="flex items-center gap-6">
                 <div className="w-32 h-32">
                   <ResponsiveContainer width="100%" height="100%">
@@ -234,8 +234,8 @@ export default function Stats() {
                       </Pie>
                       <Tooltip
                         contentStyle={{
-                          backgroundColor: '#18181b',
-                          border: '1px solid #27272a',
+                          backgroundColor: '#1c1917',
+                          border: '1px solid #292524',
                           borderRadius: '8px',
                           fontSize: '12px',
                           color: '#fff',
@@ -252,7 +252,7 @@ export default function Stats() {
                           className="w-2.5 h-2.5 rounded-full"
                           style={{ backgroundColor: TIER_COLORS[entry.name] || '#71717a' }}
                         />
-                        <span className="text-sm text-zinc-300">{entry.name}</span>
+                        <span className="text-sm text-stone-300">{entry.name}</span>
                       </div>
                       <span className="text-sm font-bold text-white">{entry.value}</span>
                     </div>
@@ -267,16 +267,16 @@ export default function Stats() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35 }}
-            className="bg-zinc-900 border border-zinc-800/80 rounded-xl p-5"
+            className="bg-stone-900 border border-stone-800/80 rounded-xl p-5"
           >
-            <h2 className="text-sm font-semibold text-zinc-400 mb-4">
+            <h2 className="text-sm font-semibold text-stone-400 mb-4">
               Weekly Leaders
-              <span className="ml-2 text-xs text-zinc-600 font-normal">by SWEET issued</span>
+              <span className="ml-2 text-xs text-stone-600 font-normal">by SWEET issued</span>
             </h2>
             {topLoading ? (
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-10 bg-zinc-800 rounded-lg animate-pulse" />
+                  <div key={i} className="h-10 bg-stone-800 rounded-lg animate-pulse" />
                 ))}
               </div>
             ) : topPartners.length > 0 ? (
@@ -284,19 +284,19 @@ export default function Stats() {
                 {topPartners.map((p) => (
                   <div
                     key={p.rank}
-                    className="flex items-center gap-3 py-2 px-1 rounded-lg hover:bg-zinc-800/50 transition-colors"
+                    className="flex items-center gap-3 py-2 px-1 rounded-lg hover:bg-stone-800/50 transition-colors"
                   >
                     <span className={`w-6 text-center text-sm font-bold ${
                       p.rank === 1 ? 'text-yellow-400' :
-                      p.rank === 2 ? 'text-zinc-300' :
-                      p.rank === 3 ? 'text-orange-400' : 'text-zinc-500'
+                      p.rank === 2 ? 'text-stone-300' :
+                      p.rank === 3 ? 'text-orange-400' : 'text-stone-500'
                     }`}>
                       {p.rank === 1 ? '🥇' : p.rank === 2 ? '🥈' : p.rank === 3 ? '🥉' : p.rank}
                     </span>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-white truncate">{p.companyName}</p>
                     </div>
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${TIER_BADGE[p.tier] || 'text-zinc-400'}`}>
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${TIER_BADGE[p.tier] || 'text-stone-400'}`}>
                       {p.tier}
                     </span>
                     <span className="text-sm font-bold text-white font-mono">
@@ -306,7 +306,7 @@ export default function Stats() {
                 ))}
               </div>
             ) : (
-              <p className="text-center text-zinc-600 text-sm py-4">No activity this week</p>
+              <p className="text-center text-stone-600 text-sm py-4">No activity this week</p>
             )}
           </motion.div>
         </>

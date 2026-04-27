@@ -79,7 +79,7 @@ const RISK_CONFIG: Record<RiskLevel, { label: string; color: string; bg: string;
 
 const TIER_BADGE: Record<string, string> = {
   GOLD:   'text-yellow-400 bg-yellow-400/10 border border-yellow-400/20',
-  SILVER: 'text-zinc-300 bg-zinc-400/10 border border-zinc-400/20',
+  SILVER: 'text-stone-300 bg-stone-400/10 border border-stone-400/20',
   BRONZE: 'text-orange-400 bg-orange-400/10 border border-orange-400/20',
 };
 
@@ -98,7 +98,7 @@ function RiskGauge({ score, level }: { score: number; level: RiskLevel }) {
   return (
     <div className="relative w-20 h-20 flex-shrink-0">
       <svg className="w-full h-full -rotate-90" viewBox="0 0 64 64">
-        <circle cx="32" cy="32" r="28" fill="none" stroke="#27272a" strokeWidth="5" />
+        <circle cx="32" cy="32" r="28" fill="none" stroke="#292524" strokeWidth="5" />
         <circle
           cx="32" cy="32" r="28"
           fill="none"
@@ -111,7 +111,7 @@ function RiskGauge({ score, level }: { score: number; level: RiskLevel }) {
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className={`text-lg font-black ${cfg.color}`}>{score}</span>
-        <span className="text-[9px] text-zinc-500 font-medium">/ 100</span>
+        <span className="text-[9px] text-stone-500 font-medium">/ 100</span>
       </div>
     </div>
   );
@@ -121,8 +121,8 @@ function RiskGauge({ score, level }: { score: number; level: RiskLevel }) {
 function ForecastTooltip({ active, payload, label }: { active?: boolean; payload?: { value: number; name: string }[]; label?: string }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-xs shadow-xl">
-      <p className="text-zinc-400 mb-1">{label}</p>
+    <div className="bg-stone-900 border border-stone-700 rounded-lg px-3 py-2 text-xs shadow-xl">
+      <p className="text-stone-400 mb-1">{label}</p>
       {payload.map((p) => (
         <p key={p.name} className="text-white font-semibold">
           {p.name === 'actual' ? 'Actual' : 'Forecast'}: {Number(p.value).toLocaleString()} KZT
@@ -135,7 +135,7 @@ function ForecastTooltip({ active, payload, label }: { active?: boolean; payload
 // ─── Skeleton ────────────────────────────────────────────────────────────────
 
 function Skeleton({ className }: { className?: string }) {
-  return <div className={`animate-pulse rounded-xl bg-zinc-800 ${className ?? ''}`} />;
+  return <div className={`animate-pulse rounded-xl bg-stone-800 ${className ?? ''}`} />;
 }
 
 // ─── Main Component ──────────────────────────────────────────────────────────
@@ -174,7 +174,7 @@ export default function AIPredictions() {
           </div>
           <h1 className="text-2xl font-bold text-white tracking-tight">AI Insights</h1>
         </div>
-        <p className="text-xs text-zinc-500 pl-10">
+        <p className="text-xs text-stone-500 pl-10">
           Predictive analytics · Updated in real-time
         </p>
       </motion.div>
@@ -194,7 +194,7 @@ export default function AIPredictions() {
           ].map(item => (
             <div key={item.label} className={`border rounded-xl p-3 text-center ${item.bg}`}>
               <p className={`text-2xl font-black ${item.color}`}>{item.count}</p>
-              <p className="text-[10px] text-zinc-500 font-medium mt-0.5">{item.label}</p>
+              <p className="text-[10px] text-stone-500 font-medium mt-0.5">{item.label}</p>
             </div>
           ))}
         </motion.div>
@@ -203,8 +203,8 @@ export default function AIPredictions() {
       {/* ── Churn Risk Section ── */}
       <section className="space-y-3">
         <div className="flex items-center gap-2">
-          <ExclamationTriangleIcon className="w-4 h-4 text-zinc-500" />
-          <h2 className="text-sm font-semibold text-zinc-300">Churn Risk Prediction</h2>
+          <ExclamationTriangleIcon className="w-4 h-4 text-stone-500" />
+          <h2 className="text-sm font-semibold text-stone-300">Churn Risk Prediction</h2>
         </div>
 
         {churnLoading ? (
@@ -212,9 +212,9 @@ export default function AIPredictions() {
             {[1, 2, 3].map(i => <Skeleton key={i} className="h-28" />)}
           </div>
         ) : churnData.length === 0 ? (
-          <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 text-center">
+          <div className="bg-stone-900 border border-stone-800 rounded-xl p-6 text-center">
             <CheckCircleIcon className="w-8 h-8 text-green-400 mx-auto mb-2" />
-            <p className="text-sm text-zinc-400">No active partners to analyse.</p>
+            <p className="text-sm text-stone-400">No active partners to analyse.</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -226,7 +226,7 @@ export default function AIPredictions() {
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.06 }}
-                  className={`bg-zinc-900 border ${cfg.border} rounded-xl p-4 space-y-3`}
+                  className={`bg-stone-900 border ${cfg.border} rounded-xl p-4 space-y-3`}
                 >
                   {/* Top row */}
                   <div className="flex items-start gap-3">
@@ -249,8 +249,8 @@ export default function AIPredictions() {
                           { label: 'Freq. drop', value: `${partner.signals.frequencyDrop}%` },
                         ].map(s => (
                           <div key={s.label}>
-                            <p className="text-[9px] text-zinc-600 uppercase tracking-wide">{s.label}</p>
-                            <p className="text-xs font-semibold text-zinc-300">{s.value}</p>
+                            <p className="text-[9px] text-stone-600 uppercase tracking-wide">{s.label}</p>
+                            <p className="text-xs font-semibold text-stone-300">{s.value}</p>
                           </div>
                         ))}
                       </div>
@@ -259,8 +259,8 @@ export default function AIPredictions() {
 
                   {/* Recommendation pill */}
                   <div className={`rounded-lg px-3 py-2 text-xs ${cfg.bg} border ${cfg.border}`}>
-                    <span className="text-zinc-400">Recommendation: </span>
-                    <span className="text-zinc-200">{partner.recommendation}</span>
+                    <span className="text-stone-400">Recommendation: </span>
+                    <span className="text-stone-200">{partner.recommendation}</span>
                   </div>
                 </motion.div>
               );
@@ -272,14 +272,14 @@ export default function AIPredictions() {
       {/* ── Revenue Forecast Section ── */}
       <section className="space-y-3">
         <div className="flex items-center gap-2">
-          <ChartBarIcon className="w-4 h-4 text-zinc-500" />
-          <h2 className="text-sm font-semibold text-zinc-300">30-Day Revenue Forecast</h2>
+          <ChartBarIcon className="w-4 h-4 text-stone-500" />
+          <h2 className="text-sm font-semibold text-stone-300">30-Day Revenue Forecast</h2>
         </div>
 
         {forecastLoading ? (
           <Skeleton className="h-64" />
         ) : !forecast ? (
-          <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 text-center text-zinc-500 text-sm">
+          <div className="bg-stone-900 border border-stone-800 rounded-xl p-6 text-center text-stone-500 text-sm">
             Not enough data to generate a forecast yet.
           </div>
         ) : (
@@ -287,18 +287,18 @@ export default function AIPredictions() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 space-y-4"
+            className="bg-stone-900 border border-stone-800 rounded-xl p-4 space-y-4"
           >
             {/* KPI row */}
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <p className="text-[10px] text-zinc-500 uppercase tracking-wide">Forecast Total</p>
+                <p className="text-[10px] text-stone-500 uppercase tracking-wide">Forecast Total</p>
                 <p className="text-base font-black text-white mt-0.5">
-                  {forecast.totalForecast30Days.toLocaleString()} <span className="text-xs font-normal text-zinc-500">KZT</span>
+                  {forecast.totalForecast30Days.toLocaleString()} <span className="text-xs font-normal text-stone-500">KZT</span>
                 </p>
               </div>
               <div>
-                <p className="text-[10px] text-zinc-500 uppercase tracking-wide">Trend</p>
+                <p className="text-[10px] text-stone-500 uppercase tracking-wide">Trend</p>
                 <div className="flex items-center gap-1 mt-0.5">
                   {forecast.trend === 'up' && <ArrowTrendingUpIcon className="w-4 h-4 text-green-400" />}
                   {forecast.trend === 'down' && <ArrowTrendingDownIcon className="w-4 h-4 text-red-400" />}
@@ -312,9 +312,9 @@ export default function AIPredictions() {
                 </div>
               </div>
               <div>
-                <p className="text-[10px] text-zinc-500 uppercase tracking-wide">Confidence</p>
+                <p className="text-[10px] text-stone-500 uppercase tracking-wide">Confidence</p>
                 <div className="flex items-center gap-1.5 mt-1">
-                  <div className="flex-1 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                  <div className="flex-1 h-1.5 bg-stone-800 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-violet-500 rounded-full transition-all duration-1000"
                       style={{ width: `${forecast.confidence}%` }}
@@ -339,7 +339,7 @@ export default function AIPredictions() {
                       <stop offset="95%" stopColor="#34d399" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#292524" />
                   <XAxis
                     dataKey="date"
                     tick={{ fontSize: 9, fill: '#52525b' }}
@@ -377,16 +377,16 @@ export default function AIPredictions() {
             <div className="flex items-center gap-4 justify-center">
               <div className="flex items-center gap-1.5">
                 <div className="w-4 h-0.5 bg-violet-400 rounded" />
-                <span className="text-[10px] text-zinc-500">Actual revenue</span>
+                <span className="text-[10px] text-stone-500">Actual revenue</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-4 h-0.5 bg-emerald-400 rounded" style={{ backgroundImage: 'repeating-linear-gradient(90deg,#34d399 0,#34d399 5px,transparent 5px,transparent 8px)' }} />
-                <span className="text-[10px] text-zinc-500">AI forecast</span>
+                <span className="text-[10px] text-stone-500">AI forecast</span>
               </div>
             </div>
 
             {/* Model note */}
-            <p className="text-[10px] text-zinc-600 text-center">
+            <p className="text-[10px] text-stone-600 text-center">
               Linear regression model trained on 90 days of transaction data
             </p>
           </motion.div>
@@ -396,8 +396,8 @@ export default function AIPredictions() {
       {/* ── Smart Recommendations Section ── */}
       <section className="space-y-3">
         <div className="flex items-center gap-2">
-          <GiftIcon className="w-4 h-4 text-zinc-500" />
-          <h2 className="text-sm font-semibold text-zinc-300">Smart Reward Picks</h2>
+          <GiftIcon className="w-4 h-4 text-stone-500" />
+          <h2 className="text-sm font-semibold text-stone-300">Smart Reward Picks</h2>
         </div>
 
         {recsLoading ? (
@@ -421,7 +421,7 @@ export default function AIPredictions() {
             )}
 
             {recs.length === 0 ? (
-              <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 text-center text-zinc-500 text-sm">
+              <div className="bg-stone-900 border border-stone-800 rounded-xl p-6 text-center text-stone-500 text-sm">
                 Earn more points to unlock recommendations.
               </div>
             ) : (
@@ -432,10 +432,10 @@ export default function AIPredictions() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.08 }}
-                    className="bg-zinc-900 border border-zinc-800/80 rounded-xl p-4"
+                    className="bg-stone-900 border border-stone-800/80 rounded-xl p-4"
                   >
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-xl flex-shrink-0">
+                      <div className="w-10 h-10 rounded-xl bg-stone-800 flex items-center justify-center text-xl flex-shrink-0">
                         {CATEGORY_ICON[rec.category] ?? '🎁'}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -445,14 +445,14 @@ export default function AIPredictions() {
                             {rec.pointsRequired.toLocaleString()} pts
                           </span>
                         </div>
-                        <p className="text-xs text-zinc-500 mt-0.5">{rec.reason}</p>
+                        <p className="text-xs text-stone-500 mt-0.5">{rec.reason}</p>
                       </div>
                     </div>
 
                     {/* Relevance bar */}
                     <div className="mt-3 flex items-center gap-2">
-                      <span className="text-[10px] text-zinc-600 w-16">Relevance</span>
-                      <div className="flex-1 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                      <span className="text-[10px] text-stone-600 w-16">Relevance</span>
+                      <div className="flex-1 h-1.5 bg-stone-800 rounded-full overflow-hidden">
                         <motion.div
                           className="h-full bg-gradient-to-r from-violet-500 to-emerald-400 rounded-full"
                           initial={{ width: 0 }}
@@ -460,7 +460,7 @@ export default function AIPredictions() {
                           transition={{ delay: 0.3 + i * 0.1, duration: 0.8, ease: 'easeOut' }}
                         />
                       </div>
-                      <span className="text-[10px] font-bold text-zinc-400 w-8 text-right">{rec.score}%</span>
+                      <span className="text-[10px] font-bold text-stone-400 w-8 text-right">{rec.score}%</span>
                     </div>
                   </motion.div>
                 ))}

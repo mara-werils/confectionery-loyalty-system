@@ -12,17 +12,17 @@ interface BalanceCardProps {
 
 const tierStyles = {
   BRONZE: {
-    gradient: 'from-zinc-900 to-zinc-950 border border-zinc-800',
+    gradient: 'from-stone-900 to-stone-950 border border-stone-800',
     glow: 'shadow-none',
-    badge: 'bg-zinc-800 text-zinc-400 border border-zinc-700',
+    badge: 'bg-stone-800 text-stone-400 border border-stone-700',
   },
   SILVER: {
-    gradient: 'from-zinc-800 to-zinc-900 border border-zinc-700',
-    glow: 'shadow-lg shadow-zinc-900/50',
-    badge: 'bg-zinc-700 text-zinc-300 border border-zinc-600',
+    gradient: 'from-stone-800 to-stone-900 border border-stone-700',
+    glow: 'shadow-lg shadow-stone-900/50',
+    badge: 'bg-stone-700 text-stone-300 border border-stone-600',
   },
   GOLD: {
-    gradient: 'from-zinc-900 via-zinc-800 to-zinc-900 border border-white/10',
+    gradient: 'from-stone-900 via-stone-800 to-stone-900 border border-white/10',
     glow: 'shadow-xl shadow-white/5',
     badge: 'bg-white/10 text-white border border-white/20',
   },

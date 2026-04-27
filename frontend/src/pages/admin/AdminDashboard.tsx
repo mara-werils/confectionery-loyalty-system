@@ -108,7 +108,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-white p-6 relative flex flex-col items-center justify-center">
+    <div className="min-h-screen bg-[#0d0b0a] text-white p-6 relative flex flex-col items-center justify-center">
       {/* Background Glow */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-red-900/20 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-red-900/10 rounded-full blur-[120px] pointer-events-none" />
@@ -124,13 +124,13 @@ export default function AdminDashboard() {
               <ShieldCheckIcon className="w-8 h-8 text-red-500" />
             </div>
             <h1 className="text-2xl font-bold tracking-tight">Restricted Area</h1>
-            <p className="text-zinc-400 text-sm mt-2">Master Administrator Login</p>
+            <p className="text-stone-400 text-sm mt-2">Master Administrator Login</p>
           </div>
 
           <GlassCard className="p-6 border-red-500/10">
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-zinc-500 mb-1.5 uppercase tracking-wider">
+                <label className="block text-xs font-medium text-stone-500 mb-1.5 uppercase tracking-wider">
                   Admin Email
                 </label>
                 <input 
@@ -144,7 +144,7 @@ export default function AdminDashboard() {
               </div>
               
               <div>
-                <label className="block text-xs font-medium text-zinc-500 mb-1.5 uppercase tracking-wider">
+                <label className="block text-xs font-medium text-stone-500 mb-1.5 uppercase tracking-wider">
                   Master Password
                 </label>
                 <input 
@@ -181,19 +181,19 @@ export default function AdminDashboard() {
           </div>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">{t('admin.title') || 'Admin Control Panel'}</h1>
-            <p className="text-zinc-400 text-sm">{t('admin.subtitle') || 'System Master Node'}</p>
+            <p className="text-stone-400 text-sm">{t('admin.subtitle') || 'System Master Node'}</p>
           </div>
         </div>
 
         <GlassCard className="p-6 border-red-500/10">
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <DocumentPlusIcon className="w-5 h-5 text-zinc-400" />
+            <DocumentPlusIcon className="w-5 h-5 text-stone-400" />
             {t('admin.issueSBT') || 'Issue Partner Certificate (SBT)'}
           </h2>
           
           <div className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-zinc-500 mb-1.5 uppercase tracking-wider">
+              <label className="block text-xs font-medium text-stone-500 mb-1.5 uppercase tracking-wider">
                 {t('admin.targetWallet') || 'Target Business Wallet'}
               </label>
               <input 
@@ -231,7 +231,7 @@ export default function AdminDashboard() {
         </GlassCard>
 
         <div className="mt-8 text-center">
-          <p className="text-zinc-500 text-xs text-balance">
+          <p className="text-stone-500 text-xs text-balance">
             {t('admin.disclaimer') || 'This panel is strictly for Master Administrators to issue Soulbound Tokens to verified B2B partners for full ecosystem integration.'}
           </p>
         </div>
@@ -245,7 +245,7 @@ export default function AdminDashboard() {
         >
           <GlassCard className="p-6 border-red-500/10">
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <ClockIcon className="w-5 h-5 text-zinc-400" />
+              <ClockIcon className="w-5 h-5 text-stone-400" />
               Action History
             </h2>
             {auditLoading ? (
@@ -263,25 +263,25 @@ export default function AdminDashboard() {
                   >
                     <span
                       className={`shrink-0 text-xs font-bold px-2 py-0.5 rounded border ${
-                        ACTION_COLORS[log.action] || 'text-zinc-400 bg-zinc-400/10 border-zinc-400/20'
+                        ACTION_COLORS[log.action] || 'text-stone-400 bg-stone-400/10 border-stone-400/20'
                       }`}
                     >
                       {log.action.replace(/_/g, ' ')}
                     </span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs text-zinc-400 truncate">
+                      <p className="text-xs text-stone-400 truncate">
                         {log.entityType}
                         {log.entityId ? ` · ${log.entityId.slice(0, 12)}…` : ''}
                       </p>
                     </div>
-                    <span className="shrink-0 text-xs text-zinc-600">
+                    <span className="shrink-0 text-xs text-stone-600">
                       {formatRelative(log.createdAt)}
                     </span>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-center text-zinc-600 text-sm py-4">No actions recorded yet</p>
+              <p className="text-center text-stone-600 text-sm py-4">No actions recorded yet</p>
             )}
           </GlassCard>
         </motion.div>

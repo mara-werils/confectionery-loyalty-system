@@ -31,7 +31,7 @@ export default function LiveActivity() {
   const getActionColor = (action: string) => {
     if (action === 'earned') return 'text-green-400';
     if (action === 'joined') return 'text-blue-400';
-    return 'text-zinc-300';
+    return 'text-stone-300';
   };
 
   const getActionEmoji = (action: string) => {
@@ -45,8 +45,8 @@ export default function LiveActivity() {
   return (
     <div className="relative overflow-hidden bg-white/5 rounded-2xl border border-white/10 p-4">
       <div className="flex items-center gap-2 mb-2">
-        <ArrowTrendingUpIcon className="w-4 h-4 text-zinc-400" />
-        <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Example Activity</span>
+        <ArrowTrendingUpIcon className="w-4 h-4 text-stone-400" />
+        <span className="text-xs font-medium text-stone-500 uppercase tracking-wider">Example Activity</span>
       </div>
 
       <AnimatePresence mode="wait">
@@ -69,9 +69,9 @@ export default function LiveActivity() {
                   <> <span className="font-mono font-bold">{activity.amount}</span></>
                 )}
                 {' '}
-                <span className="text-zinc-400">{activity.token}</span>
+                <span className="text-stone-400">{activity.token}</span>
                 {activity.partner && (
-                  <span className="text-zinc-600"> at {activity.partner}</span>
+                  <span className="text-stone-600"> at {activity.partner}</span>
                 )}
               </p>
             </div>

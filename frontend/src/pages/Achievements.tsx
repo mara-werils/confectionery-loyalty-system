@@ -62,9 +62,9 @@ const TON_VIEWER_BASE = 'https://testnet.tonviewer.com/transaction/';
 function ProgressBar({ value, max, unlocked }: { value: number; max: number; unlocked: boolean }) {
   const pct = max === 0 ? 100 : Math.min(100, (value / max) * 100);
   return (
-    <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden mt-3">
+    <div className="w-full h-1.5 bg-stone-800 rounded-full overflow-hidden mt-3">
       <motion.div
-        className={`h-full rounded-full ${unlocked ? 'bg-gradient-to-r from-yellow-400 to-orange-400' : 'bg-zinc-600'}`}
+        className={`h-full rounded-full ${unlocked ? 'bg-gradient-to-r from-yellow-400 to-orange-400' : 'bg-stone-600'}`}
         initial={{ width: 0 }}
         animate={{ width: `${pct}%` }}
         transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }}
@@ -103,8 +103,8 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
       onClick={() => setExpanded(v => !v)}
       className={`relative rounded-xl border p-4 cursor-pointer transition-colors ${
         unlocked
-          ? 'bg-zinc-900 border-yellow-500/30 hover:border-yellow-500/50'
-          : 'bg-zinc-900 border-zinc-800/80 hover:border-zinc-700'
+          ? 'bg-stone-900 border-yellow-500/30 hover:border-yellow-500/50'
+          : 'bg-stone-900 border-stone-800/80 hover:border-stone-700'
       }`}
     >
       {/* Glow ring for unlocked */}
@@ -115,7 +115,7 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
       <div className="flex items-start gap-3">
         {/* Icon */}
         <div className={`relative w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 ${
-          unlocked ? 'bg-yellow-400/10' : 'bg-zinc-800'
+          unlocked ? 'bg-yellow-400/10' : 'bg-stone-800'
         }`}>
           <span className={unlocked ? '' : 'grayscale opacity-40'}>{emoji}</span>
 
@@ -128,8 +128,8 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
 
           {/* Lock overlay for locked */}
           {!unlocked && (
-            <div className="absolute inset-0 rounded-xl flex items-center justify-center bg-zinc-900/60">
-              <LockClosedIcon className="w-4 h-4 text-zinc-600" />
+            <div className="absolute inset-0 rounded-xl flex items-center justify-center bg-stone-900/60">
+              <LockClosedIcon className="w-4 h-4 text-stone-600" />
             </div>
           )}
         </div>
@@ -137,18 +137,18 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
         {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
-            <p className={`text-sm font-bold ${unlocked ? 'text-white' : 'text-zinc-400'}`}>
+            <p className={`text-sm font-bold ${unlocked ? 'text-white' : 'text-stone-400'}`}>
               {achievement.name}
             </p>
             {unlocked
               ? <CheckBadgeIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" />
-              : <span className="text-[10px] text-zinc-600 flex-shrink-0">
+              : <span className="text-[10px] text-stone-600 flex-shrink-0">
                   {achievement.progress}/{achievement.requirement}
                 </span>
             }
           </div>
 
-          <p className="text-xs text-zinc-500 mt-0.5 line-clamp-1">{achievement.description}</p>
+          <p className="text-xs text-stone-500 mt-0.5 line-clamp-1">{achievement.description}</p>
 
           {/* NFT badge row */}
           {unlocked && achievement.nftTxHash && (
@@ -159,7 +159,7 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
 
           {/* Points reward */}
           {achievement.points > 0 && (
-            <p className={`text-[10px] mt-1 font-semibold ${unlocked ? 'text-yellow-400' : 'text-zinc-600'}`}>
+            <p className={`text-[10px] mt-1 font-semibold ${unlocked ? 'text-yellow-400' : 'text-stone-600'}`}>
               +{achievement.points.toLocaleString()} SWEET
             </p>
           )}
@@ -179,9 +179,9 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="mt-3 pt-3 border-t border-zinc-800 space-y-2">
+            <div className="mt-3 pt-3 border-t border-stone-800 space-y-2">
               {unlocked && achievement.unlockedAt && (
-                <p className="text-[11px] text-zinc-500">
+                <p className="text-[11px] text-stone-500">
                   Unlocked: {new Date(achievement.unlockedAt).toLocaleDateString('en-GB', {
                     day: '2-digit', month: 'short', year: 'numeric',
                   })}
@@ -194,7 +194,7 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
                     <CubeTransparentIcon className="w-3.5 h-3.5 text-blue-400" />
                     <span className="text-[11px] font-semibold text-blue-300">Soul-Bound Token (SBT)</span>
                   </div>
-                  <p className="text-[10px] text-zinc-500 font-mono break-all">{achievement.nftTxHash}</p>
+                  <p className="text-[10px] text-stone-500 font-mono break-all">{achievement.nftTxHash}</p>
                   <a
                     href={`${TON_VIEWER_BASE}${achievement.nftTxHash}`}
                     target="_blank"
@@ -207,11 +207,11 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
                   </a>
                 </div>
               ) : unlocked ? (
-                <div className="rounded-lg bg-zinc-800/50 px-3 py-2">
-                  <p className="text-[10px] text-zinc-500">NFT minting in progress…</p>
+                <div className="rounded-lg bg-stone-800/50 px-3 py-2">
+                  <p className="text-[10px] text-stone-500">NFT minting in progress…</p>
                 </div>
               ) : (
-                <p className="text-[11px] text-zinc-500">
+                <p className="text-[11px] text-stone-500">
                   {achievement.requirement - achievement.progress} more to go
                 </p>
               )}
@@ -279,7 +279,7 @@ export default function Achievements() {
           <button
             onClick={() => checkMutation.mutate()}
             disabled={checkMutation.isPending}
-            className="text-xs px-3 py-1.5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300 hover:bg-zinc-700 transition-colors disabled:opacity-50"
+            className="text-xs px-3 py-1.5 rounded-full bg-stone-800 border border-stone-700 text-stone-300 hover:bg-stone-700 transition-colors disabled:opacity-50"
           >
             {checkMutation.isPending ? 'Checking…' : 'Check progress'}
           </button>
@@ -299,9 +299,9 @@ export default function Achievements() {
             { label: 'Completion', value: `${completionPct}%`,                       color: 'text-green-400' },
             { label: 'NFTs minted',value: nftCount,                                  color: 'text-blue-400' },
           ].map(s => (
-            <div key={s.label} className="bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-center">
+            <div key={s.label} className="bg-stone-900 border border-stone-800 rounded-xl p-3 text-center">
               <p className={`text-xl font-black ${s.color}`}>{s.value}</p>
-              <p className="text-[10px] text-zinc-500 mt-0.5">{s.label}</p>
+              <p className="text-[10px] text-stone-500 mt-0.5">{s.label}</p>
             </div>
           ))}
         </motion.div>
@@ -320,7 +320,7 @@ export default function Achievements() {
             <p className="text-xs font-semibold text-blue-300">
               {nftCount} Soul-Bound Token{nftCount > 1 ? 's' : ''} minted on TON testnet
             </p>
-            <p className="text-[10px] text-zinc-500 mt-0.5">
+            <p className="text-[10px] text-stone-500 mt-0.5">
               Your achievements are permanently recorded on the blockchain — tap any unlocked badge to view.
             </p>
           </div>
@@ -338,7 +338,7 @@ export default function Achievements() {
               className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
                 activeCategory === cat
                   ? 'bg-white text-black'
-                  : 'bg-zinc-900 border border-zinc-800 text-zinc-400 hover:border-zinc-600'
+                  : 'bg-stone-900 border border-stone-800 text-stone-400 hover:border-stone-600'
               }`}
             >
               {meta ? `${meta.emoji} ${meta.label}` : '🏆 All'}
@@ -351,13 +351,13 @@ export default function Achievements() {
       {isLoading ? (
         <div className="space-y-3">
           {[1, 2, 3, 4].map(i => (
-            <div key={i} className="h-20 rounded-xl bg-zinc-900 border border-zinc-800 animate-pulse" />
+            <div key={i} className="h-20 rounded-xl bg-stone-900 border border-stone-800 animate-pulse" />
           ))}
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-12">
-          <TrophyIcon className="w-12 h-12 text-zinc-700 mx-auto mb-3" />
-          <p className="text-zinc-500 text-sm">No achievements in this category yet.</p>
+          <TrophyIcon className="w-12 h-12 text-stone-700 mx-auto mb-3" />
+          <p className="text-stone-500 text-sm">No achievements in this category yet.</p>
         </div>
       ) : (
         <div className="space-y-3">

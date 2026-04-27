@@ -130,7 +130,7 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
                         'flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-all',
                         activeTab === tab.key
                           ? 'text-white border-b-2 border-white'
-                          : 'text-zinc-500 hover:text-zinc-300'
+                          : 'text-stone-500 hover:text-stone-300'
                       )}
                     >
                       <tab.icon className="w-4 h-4" />
@@ -181,13 +181,13 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
                             onChange={() => toggleSetting('twoFactorEnabled')}
                             className={clsx(
                               'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
-                              settings.twoFactorEnabled ? 'bg-white' : 'bg-zinc-800'
+                              settings.twoFactorEnabled ? 'bg-white' : 'bg-stone-800'
                             )}
                           >
                             <span
                               className={clsx(
                                 'inline-block h-4 w-4 transform rounded-full transition-transform',
-                                settings.twoFactorEnabled ? 'translate-x-6 bg-black' : 'translate-x-1 bg-zinc-400'
+                                settings.twoFactorEnabled ? 'translate-x-6 bg-black' : 'translate-x-1 bg-stone-400'
                               )}
                             />
                           </Switch>
@@ -228,13 +228,13 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
                               onChange={() => toggleSetting(item.key)}
                               className={clsx(
                                 'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
-                                settings[item.key] ? 'bg-white' : 'bg-zinc-800'
+                                settings[item.key] ? 'bg-white' : 'bg-stone-800'
                               )}
                             >
                               <span
                                 className={clsx(
                                   'inline-block h-4 w-4 transform rounded-full transition-transform',
-                                  settings[item.key] ? 'translate-x-6 bg-black' : 'translate-x-1 bg-zinc-400'
+                                  settings[item.key] ? 'translate-x-6 bg-black' : 'translate-x-1 bg-stone-400'
                                 )}
                               />
                             </Switch>
@@ -288,7 +288,7 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
                             toast.success('Support request sent!');
                             onClose();
                           }}
-                          className="w-full mt-4 py-3 bg-white text-black hover:bg-zinc-200 rounded-xl font-bold transition-colors"
+                          className="w-full mt-4 py-3 bg-amber-500 text-black hover:bg-amber-400 rounded-xl font-bold transition-colors"
                         >
                           Contact Support
                         </button>

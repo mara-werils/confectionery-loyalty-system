@@ -54,7 +54,7 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
   const navItems = variant === 'customer' ? customerNavItems : businessNavItems;
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-[#09090b]">
+    <div className="min-h-screen flex flex-col items-center bg-[#0d0b0a]">
       {/* Language switcher — top right */}
       <div className="w-full max-w-2xl px-4 pt-4 flex justify-end z-50">
         <div className="flex items-center gap-0.5">
@@ -66,7 +66,7 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
                 'w-8 h-8 rounded-full text-sm flex items-center justify-center transition-all',
                 i18n.language === l.code
                   ? 'bg-amber-400/15 text-amber-400 ring-1 ring-amber-400/30'
-                  : 'text-zinc-600 hover:text-zinc-400'
+                  : 'text-stone-600 hover:text-stone-400'
               )}
               title={l.name}
             >
@@ -97,14 +97,14 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
         <div
           className="w-full max-w-2xl mx-auto"
           style={{
-            background: 'linear-gradient(to top, #09090b 60%, transparent)',
+            background: 'linear-gradient(to top, #0d0b0a 60%, transparent)',
             paddingBottom: '12px',
             paddingTop: '20px',
             paddingLeft: '16px',
             paddingRight: '16px',
           }}
         >
-          <div className="bg-zinc-900/90 backdrop-blur-2xl border border-white/8 rounded-2xl px-1 py-1 flex items-center justify-around shadow-[0_-4px_24px_rgba(0,0,0,0.4)]">
+          <div className="bg-stone-900/90 backdrop-blur-2xl border border-white/8 rounded-2xl px-1 py-1 flex items-center justify-around shadow-[0_-4px_24px_rgba(0,0,0,0.4)]">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
               const Icon = isActive ? item.activeIcon : item.icon;
@@ -125,14 +125,14 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
 
                   <div className={clsx(
                     'relative z-10 transition-all duration-200',
-                    isActive ? 'text-white' : 'text-zinc-600 group-hover:text-zinc-400'
+                    isActive ? 'text-white' : 'text-stone-600 group-hover:text-stone-400'
                   )}>
                     <Icon className="w-5 h-5" />
                   </div>
 
                   <span className={clsx(
                     'relative z-10 text-[9px] font-semibold mt-0.5 tracking-wide transition-all duration-200',
-                    isActive ? 'text-white' : 'text-zinc-600'
+                    isActive ? 'text-white' : 'text-stone-600'
                   )}>
                     {item.label}
                   </span>

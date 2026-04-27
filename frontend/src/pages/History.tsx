@@ -101,12 +101,12 @@ export default function History() {
       >
         <div>
           <h1 className="text-3xl font-bold text-white tracking-tight">{t('history.title')}</h1>
-          <p className="text-zinc-400 mt-1">{t('history.subtitle')}</p>
+          <p className="text-stone-400 mt-1">{t('history.subtitle')}</p>
         </div>
         {token && (
           <button
             onClick={handleExport}
-            className="flex items-center gap-1.5 px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-xl text-xs font-medium text-zinc-400 hover:text-white hover:border-zinc-600 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 bg-stone-900 border border-stone-800 rounded-xl text-xs font-medium text-stone-400 hover:text-white hover:border-stone-600 transition-colors"
             title="Export CSV"
           >
             <ArrowDownTrayIcon className="w-4 h-4" />
@@ -126,7 +126,7 @@ export default function History() {
                   'flex items-center justify-center gap-2 flex-1 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 focus:outline-none',
                   selected
                     ? 'bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.3)]'
-                    : 'bg-zinc-900/50 text-zinc-400 hover:text-zinc-200 border border-white/5 hover:border-white/10'
+                    : 'bg-stone-900/50 text-stone-400 hover:text-stone-200 border border-white/5 hover:border-white/10'
                 )
               }
             >
@@ -157,8 +157,8 @@ export default function History() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-12 text-zinc-500">
-                  <ClockIcon className="w-16 h-16 mx-auto mb-4 text-zinc-700" />
+                <div className="text-center py-12 text-stone-500">
+                  <ClockIcon className="w-16 h-16 mx-auto mb-4 text-stone-700" />
                   <p className="text-lg font-medium text-white">{t('history.noTransactions')}</p>
                   <p className="text-sm mt-1">{t('history.noTransactionsHint')}</p>
                 </div>
@@ -186,7 +186,7 @@ export default function History() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className="bg-zinc-900 border border-zinc-800/80 rounded-2xl p-4"
+                    className="bg-stone-900 border border-stone-800/80 rounded-2xl p-4"
                   >
                     <div className="flex items-center gap-4">
                       <div className="p-3 bg-orange-500/10 rounded-xl border border-orange-500/20 shrink-0">
@@ -196,7 +196,7 @@ export default function History() {
                         <h3 className="font-semibold text-white truncate">
                           {claim.reward?.title || 'Reward'}
                         </h3>
-                        <p className="text-sm text-zinc-500 mt-0.5">
+                        <p className="text-sm text-stone-500 mt-0.5">
                           {new Date(claim.createdAt).toLocaleDateString('en-US', {
                             month: 'short',
                             day: 'numeric',
@@ -217,7 +217,7 @@ export default function History() {
                         >
                           {claim.status}
                         </span>
-                        <p className="text-sm text-zinc-400 font-mono mt-1">
+                        <p className="text-sm text-stone-400 font-mono mt-1">
                           -{Number(claim.pointsSpent).toLocaleString()} pts
                         </p>
                       </div>
@@ -225,10 +225,10 @@ export default function History() {
                   </motion.div>
                 ))
               ) : (
-                <div className="bg-zinc-900 border border-zinc-800/80 rounded-2xl text-center py-12">
-                  <GiftIcon className="w-16 h-16 mx-auto mb-4 text-zinc-700" />
+                <div className="bg-stone-900 border border-stone-800/80 rounded-2xl text-center py-12">
+                  <GiftIcon className="w-16 h-16 mx-auto mb-4 text-stone-700" />
                   <p className="text-lg font-medium text-white">{t('history.noClaims')}</p>
-                  <p className="text-sm mt-1 text-zinc-500">{t('history.noClaimsHint')}</p>
+                  <p className="text-sm mt-1 text-stone-500">{t('history.noClaimsHint')}</p>
                 </div>
               )}
             </motion.div>

@@ -18,7 +18,7 @@ import clsx from 'clsx';
 
 const TIERS = {
   BRONZE: { next: 'SILVER', threshold: 5000, color: 'text-orange-400', bar: 'from-orange-500 to-amber-400', label: '🥉 Bronze' },
-  SILVER: { next: 'GOLD',   threshold: 20000, color: 'text-zinc-300',  bar: 'from-zinc-400 to-zinc-200', label: '🥈 Silver' },
+  SILVER: { next: 'GOLD',   threshold: 20000, color: 'text-stone-300',  bar: 'from-stone-400 to-stone-200', label: '🥈 Silver' },
   GOLD:   { next: 'MAX',    threshold: 0,     color: 'text-amber-400', bar: 'from-amber-400 to-yellow-300', label: '🥇 Gold' },
 } as const;
 
@@ -151,12 +151,12 @@ export default function CustomerDashboard() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed top-4 left-4 right-4 z-50 flex items-center gap-3 rounded-2xl border border-green-500/30 bg-[#09090b]/90 backdrop-blur-md px-4 py-3 shadow-2xl"
+            className="fixed top-4 left-4 right-4 z-50 flex items-center gap-3 rounded-2xl border border-green-500/30 bg-[#0d0b0a]/90 backdrop-blur-md px-4 py-3 shadow-2xl"
           >
             <span className="text-xl">🍬</span>
             <div className="flex-1">
               <p className="text-sm font-bold text-green-400">+{liveNotification.amount} SWEET</p>
-              <p className="text-xs text-zinc-500">Minted to your wallet</p>
+              <p className="text-xs text-stone-500">Minted to your wallet</p>
             </div>
             <span className="w-2 h-2 rounded-full bg-green-400 animate-ping" />
           </motion.div>
@@ -170,7 +170,7 @@ export default function CustomerDashboard() {
         transition={{ duration: 0.5 }}
         className="relative overflow-hidden rounded-3xl mb-4"
         style={{
-          background: 'linear-gradient(135deg, #1a0e00 0%, #0f0800 50%, #09090b 100%)',
+          background: 'linear-gradient(135deg, #1a0e00 0%, #0f0800 50%, #0d0b0a 100%)',
           border: '1px solid rgba(245,158,11,0.15)',
         }}
       >
@@ -191,7 +191,7 @@ export default function CustomerDashboard() {
                   {formatBalance(balance)}
                 </p>
               )}
-              <p className="text-xs text-zinc-600 mt-1 font-mono">SWEET tokens</p>
+              <p className="text-xs text-stone-600 mt-1 font-mono">SWEET tokens</p>
             </div>
 
             <button
@@ -199,18 +199,18 @@ export default function CustomerDashboard() {
               className="flex flex-col items-center gap-1 px-3 py-2 rounded-xl bg-white/5 border border-white/8 hover:bg-white/8 transition-colors"
             >
               <span className="text-base">⬛</span>
-              <span className="text-[9px] text-zinc-500">QR</span>
+              <span className="text-[9px] text-stone-500">QR</span>
             </button>
           </div>
 
           {/* Tier row */}
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <TrophyIcon className="w-3.5 h-3.5 text-zinc-600" />
+              <TrophyIcon className="w-3.5 h-3.5 text-stone-600" />
               <span className={clsx('text-xs font-bold', tierData.color)}>{tierData.label}</span>
             </div>
             {tier !== 'GOLD' && (
-              <span className="text-[10px] text-zinc-600">
+              <span className="text-[10px] text-stone-600">
                 {(tierData.threshold - currentBalance).toLocaleString()} to {tierData.next}
               </span>
             )}
@@ -237,13 +237,13 @@ export default function CustomerDashboard() {
             >
               <div className="px-5 pb-5 flex flex-col items-center">
                 <div className="w-full h-px bg-white/5 mb-4" />
-                <p className="text-[11px] text-zinc-500 mb-3 text-center">
+                <p className="text-[11px] text-stone-500 mb-3 text-center">
                   {t('customerDashboard.showQr')}
                 </p>
                 <div className="bg-white p-3 rounded-2xl">
                   <QRCodeSVG value={walletAddress} size={160} level="M" bgColor="#ffffff" fgColor="#000000" />
                 </div>
-                <p className="text-[9px] text-zinc-700 mt-2 font-mono break-all text-center px-4">
+                <p className="text-[9px] text-stone-700 mt-2 font-mono break-all text-center px-4">
                   {walletAddress}
                 </p>
               </div>
@@ -268,7 +268,7 @@ export default function CustomerDashboard() {
           </div>
           <div>
             <p className="text-xs font-semibold text-white">{t('customerDashboard.rewardsLink')}</p>
-            <p className="text-[10px] text-zinc-600">Redeem</p>
+            <p className="text-[10px] text-stone-600">Redeem</p>
           </div>
         </button>
 
@@ -281,7 +281,7 @@ export default function CustomerDashboard() {
           </div>
           <div>
             <p className="text-xs font-semibold text-white">Achievements</p>
-            <p className="text-[10px] text-zinc-600">NFT badges</p>
+            <p className="text-[10px] text-stone-600">NFT badges</p>
           </div>
         </button>
       </motion.div>
@@ -301,11 +301,11 @@ export default function CustomerDashboard() {
                 key={i}
                 className="relative flex items-center justify-between gap-3 rounded-xl border border-dashed border-amber-400/20 bg-amber-400/[0.03] px-4 py-3 overflow-hidden"
               >
-                <div className="absolute top-1/2 -left-2 w-4 h-4 rounded-full bg-[#09090b] -translate-y-1/2" />
-                <div className="absolute top-1/2 -right-2 w-4 h-4 rounded-full bg-[#09090b] -translate-y-1/2" />
+                <div className="absolute top-1/2 -left-2 w-4 h-4 rounded-full bg-[#0d0b0a] -translate-y-1/2" />
+                <div className="absolute top-1/2 -right-2 w-4 h-4 rounded-full bg-[#0d0b0a] -translate-y-1/2" />
                 <div>
                   <p className="text-xs font-semibold text-white">{t(coupon.rewardTitleKey)}</p>
-                  <p className="text-[10px] text-zinc-500 mt-0.5">{coupon.partnerName}</p>
+                  <p className="text-[10px] text-stone-500 mt-0.5">{coupon.partnerName}</p>
                 </div>
                 <span className="text-xs font-mono font-bold text-amber-400 tracking-wider shrink-0">
                   {coupon.code}
@@ -332,9 +332,9 @@ export default function CustomerDashboard() {
           </div>
         ) : transactions.length === 0 ? (
           <div className="py-10 text-center">
-            <ArrowDownIcon className="w-8 h-8 text-zinc-800 mx-auto mb-3" />
-            <p className="text-sm text-zinc-600">{t('customerDashboard.noTransactions')}</p>
-            <p className="text-xs text-zinc-700 mt-1">{t('customerDashboard.noTransactionsHint')}</p>
+            <ArrowDownIcon className="w-8 h-8 text-stone-800 mx-auto mb-3" />
+            <p className="text-sm text-stone-600">{t('customerDashboard.noTransactions')}</p>
+            <p className="text-xs text-stone-700 mt-1">{t('customerDashboard.noTransactionsHint')}</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -349,7 +349,7 @@ export default function CustomerDashboard() {
                   </div>
                   <div>
                     <p className="text-xs font-medium text-white">{tx.comment || t('customerDashboard.cashback')}</p>
-                    <p className="text-[10px] text-zinc-600">
+                    <p className="text-[10px] text-stone-600">
                       {formatAddress(tx.sender)} · {timeAgo(tx.timestamp)}
                     </p>
                   </div>
@@ -368,7 +368,7 @@ export default function CustomerDashboard() {
 
 function SectionHeader({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
-    <div className="flex items-center gap-2 mb-3 text-zinc-500">
+    <div className="flex items-center gap-2 mb-3 text-stone-500">
       {icon}
       <span className="text-xs font-semibold tracking-wide">{label}</span>
     </div>

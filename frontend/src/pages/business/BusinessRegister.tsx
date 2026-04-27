@@ -93,7 +93,7 @@ export default function BusinessRegister() {
         >
           <CheckCircleIcon className="w-20 h-20 text-green-400 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-white mb-2">{t('register.success')}</h2>
-          <p className="text-zinc-400 text-sm">{t('register.redirecting')}</p>
+          <p className="text-stone-400 text-sm">{t('register.redirecting')}</p>
         </motion.div>
       </div>
     );
@@ -108,30 +108,30 @@ export default function BusinessRegister() {
       >
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-white/5 rounded-2xl ring-1 ring-white/10 mb-4">
-            <BuildingStorefrontIcon className="w-8 h-8 text-zinc-200" />
+            <BuildingStorefrontIcon className="w-8 h-8 text-stone-200" />
           </div>
           <h1 className="text-3xl font-bold text-white mb-1">{t('register.title')}</h1>
-          <p className="text-zinc-400 text-sm">{t('register.subtitle')}</p>
+          <p className="text-stone-400 text-sm">{t('register.subtitle')}</p>
         </div>
 
         <GlassCard className="p-6 border border-white/5">
           <div className="space-y-5">
             <div>
-              <label className="block text-xs text-zinc-500 mb-1.5 font-medium">
+              <label className="block text-xs text-stone-500 mb-1.5 font-medium">
                 {t('register.walletLabel')}
               </label>
-              <div className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-zinc-500 text-xs font-mono truncate">
+              <div className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-stone-500 text-xs font-mono truncate">
                 {wallet?.account.address || t('home.connectWallet')}
               </div>
             </div>
 
             <div>
-              <label className="block text-xs text-zinc-500 mb-1.5 font-medium">
+              <label className="block text-xs text-stone-500 mb-1.5 font-medium">
                 {t('register.companyLabel')}
               </label>
               <input
                 type="text"
-                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-white/30 transition-colors placeholder-zinc-600"
+                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-white/30 transition-colors placeholder-stone-600"
                 placeholder={t('register.companyPlaceholder')}
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
@@ -139,12 +139,12 @@ export default function BusinessRegister() {
             </div>
 
             <div>
-              <label className="block text-xs text-zinc-500 mb-1.5 font-medium">
+              <label className="block text-xs text-stone-500 mb-1.5 font-medium">
                 {t('register.emailLabel')}
               </label>
               <input
                 type="email"
-                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-white/30 transition-colors placeholder-zinc-600"
+                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-white/30 transition-colors placeholder-stone-600"
                 placeholder="business@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -152,12 +152,12 @@ export default function BusinessRegister() {
             </div>
 
             <div>
-              <label className="block text-xs text-zinc-500 mb-1.5 font-medium">
+              <label className="block text-xs text-stone-500 mb-1.5 font-medium">
                 Invite Code
               </label>
               <input
                 type="password"
-                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-white/30 transition-colors placeholder-zinc-600"
+                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-white/30 transition-colors placeholder-stone-600"
                 placeholder="Enter invite code provided by admin"
                 value={inviteCode}
                 onChange={(e) => setInviteCode(e.target.value)}
@@ -167,7 +167,7 @@ export default function BusinessRegister() {
             <button
               onClick={handleRegister}
               disabled={loading || !companyName.trim() || !wallet}
-              className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl font-bold tracking-wide text-sm bg-white text-black hover:bg-zinc-200 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed mt-2"
+              className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl font-bold tracking-wide text-sm bg-amber-500 text-black hover:bg-amber-400 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed mt-2"
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
@@ -181,7 +181,7 @@ export default function BusinessRegister() {
           </div>
         </GlassCard>
 
-        <p className="text-center text-xs text-zinc-600 mt-6">
+        <p className="text-center text-xs text-stone-600 mt-6">
           {t('register.footer')}
         </p>
       </motion.div>

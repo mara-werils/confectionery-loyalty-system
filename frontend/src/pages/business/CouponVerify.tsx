@@ -64,10 +64,10 @@ export default function CouponVerify() {
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="pl-1">
         <div className="flex items-center gap-3 mb-1">
-          <QrCodeIcon className="w-7 h-7 text-zinc-400" />
+          <QrCodeIcon className="w-7 h-7 text-stone-400" />
           <h1 className="text-3xl font-bold text-white tracking-tight">Verify Coupon</h1>
         </div>
-        <p className="text-zinc-400 mt-1">Enter a customer coupon code to check and redeem it</p>
+        <p className="text-stone-400 mt-1">Enter a customer coupon code to check and redeem it</p>
       </motion.div>
 
       {/* Code input */}
@@ -83,14 +83,14 @@ export default function CouponVerify() {
           onChange={(e) => setCode(e.target.value.toUpperCase())}
           onKeyDown={(e) => e.key === 'Enter' && handleVerify()}
           placeholder="SWT-XXXXXX"
-          className="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3.5 text-white font-mono text-sm uppercase tracking-widest placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
+          className="flex-1 bg-stone-900 border border-stone-800 rounded-xl px-4 py-3.5 text-white font-mono text-sm uppercase tracking-widest placeholder:text-stone-600 focus:outline-none focus:border-stone-600 transition-colors"
           autoComplete="off"
           spellCheck={false}
         />
         <button
           onClick={handleVerify}
           disabled={isLoading || !code.trim()}
-          className="px-5 py-3.5 bg-white text-black rounded-xl font-semibold text-sm disabled:opacity-40 flex items-center gap-2 transition-opacity"
+          className="px-5 py-3.5 bg-amber-500 text-black rounded-xl font-semibold text-sm disabled:opacity-40 flex items-center gap-2 transition-opacity"
         >
           <MagnifyingGlassIcon className="w-4 h-4" />
           {isLoading ? '...' : 'Check'}
@@ -102,7 +102,7 @@ export default function CouponVerify() {
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-zinc-900 border border-zinc-800/80 rounded-2xl overflow-hidden"
+          className="bg-stone-900 border border-stone-800/80 rounded-2xl overflow-hidden"
         >
           {/* Status banner */}
           <div
@@ -137,10 +137,10 @@ export default function CouponVerify() {
               <div>
                 <p className="font-semibold text-white">{coupon.rewardTitle}</p>
                 {coupon.rewardDescription && (
-                  <p className="text-xs text-zinc-500 mt-0.5">{coupon.rewardDescription}</p>
+                  <p className="text-xs text-stone-500 mt-0.5">{coupon.rewardDescription}</p>
                 )}
                 {coupon.rewardCategory && (
-                  <span className="inline-block mt-1.5 text-xs px-2 py-0.5 bg-zinc-800 text-zinc-400 rounded-full">
+                  <span className="inline-block mt-1.5 text-xs px-2 py-0.5 bg-stone-800 text-stone-400 rounded-full">
                     {coupon.rewardCategory}
                   </span>
                 )}
@@ -148,24 +148,24 @@ export default function CouponVerify() {
             </div>
 
             <div className="grid grid-cols-2 gap-3 pt-1">
-              <div className="bg-zinc-800/50 rounded-xl p-3">
-                <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">Issued To</p>
+              <div className="bg-stone-800/50 rounded-xl p-3">
+                <p className="text-xs text-stone-500 uppercase tracking-wider mb-1">Issued To</p>
                 <p className="text-sm font-medium text-white truncate">
                   {coupon.issuedTo || 'Customer'}
                 </p>
               </div>
-              <div className="bg-zinc-800/50 rounded-xl p-3">
-                <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">Points</p>
+              <div className="bg-stone-800/50 rounded-xl p-3">
+                <p className="text-xs text-stone-500 uppercase tracking-wider mb-1">Points</p>
                 <p className="text-sm font-bold text-white font-mono">
                   {Number(coupon.pointsSpent).toLocaleString()}
                 </p>
               </div>
-              <div className="bg-zinc-800/50 rounded-xl p-3">
-                <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">Code</p>
-                <p className="text-sm font-mono text-zinc-300">{coupon.code}</p>
+              <div className="bg-stone-800/50 rounded-xl p-3">
+                <p className="text-xs text-stone-500 uppercase tracking-wider mb-1">Code</p>
+                <p className="text-sm font-mono text-stone-300">{coupon.code}</p>
               </div>
-              <div className="bg-zinc-800/50 rounded-xl p-3">
-                <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">
+              <div className="bg-stone-800/50 rounded-xl p-3">
+                <p className="text-xs text-stone-500 uppercase tracking-wider mb-1">
                   {coupon.redeemedAt ? 'Redeemed' : 'Expires'}
                 </p>
                 <p className="text-sm font-medium text-white">
@@ -199,7 +199,7 @@ export default function CouponVerify() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.15 }}
-          className="text-center py-12 text-zinc-700"
+          className="text-center py-12 text-stone-700"
         >
           <QrCodeIcon className="w-16 h-16 mx-auto mb-4" />
           <p className="text-sm">Enter a coupon code above to verify it</p>

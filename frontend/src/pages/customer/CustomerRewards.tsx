@@ -301,11 +301,11 @@ export default function CustomerRewards() {
                 {sweetBalance.toLocaleString()}
               </span>
             </div>
-            <span className="text-[10px] text-zinc-600 mt-0.5 pr-1">SWEET</span>
+            <span className="text-[10px] text-stone-600 mt-0.5 pr-1">SWEET</span>
           </div>
         </div>
 
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-stone-500">
           {affordableCount > 0
             ? `${affordableCount} наград доступно прямо сейчас`
             : 'Накапливай SWEET — обменивай на награды'}
@@ -365,7 +365,7 @@ export default function CustomerRewards() {
             className={`flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all border whitespace-nowrap ${
               categoryFilter === tab.id
                 ? 'bg-white text-black border-white'
-                : 'bg-transparent text-zinc-500 border-zinc-800 hover:border-zinc-600 hover:text-zinc-300'
+                : 'bg-transparent text-stone-500 border-stone-800 hover:border-stone-600 hover:text-stone-300'
             }`}
           >
             {tab.label}
@@ -451,8 +451,8 @@ function RewardCard({
       transition={{ delay: index * 0.04, duration: 0.3 }}
       className={`relative rounded-2xl overflow-hidden border transition-all ${
         canAfford
-          ? 'border-white/10 bg-zinc-900'
-          : 'border-white/5 bg-zinc-900/50'
+          ? 'border-white/10 bg-stone-900'
+          : 'border-white/5 bg-stone-900/50'
       }`}
     >
       {/* Top color strip using inline style for dynamic color */}
@@ -470,9 +470,9 @@ function RewardCard({
             ) : (
               <span className="text-base leading-none">{partner.emoji}</span>
             )}
-            <span className="text-[11px] font-semibold text-zinc-500">{partner.shortName}</span>
-            <span className="text-zinc-700">·</span>
-            <span className="text-[10px] text-zinc-600">{partner.city}</span>
+            <span className="text-[11px] font-semibold text-stone-500">{partner.shortName}</span>
+            <span className="text-stone-700">·</span>
+            <span className="text-[10px] text-stone-600">{partner.city}</span>
           </div>
 
           <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-semibold ${catMeta.bg} ${catMeta.color} ${catMeta.border}`}>
@@ -482,10 +482,10 @@ function RewardCard({
         </div>
 
         {/* Title + Description */}
-        <p className={`text-[15px] font-bold leading-snug mb-1 ${canAfford ? 'text-white' : 'text-zinc-400'}`}>
+        <p className={`text-[15px] font-bold leading-snug mb-1 ${canAfford ? 'text-white' : 'text-stone-400'}`}>
           {getText(reward.titleKey)}
         </p>
-        <p className="text-[12px] text-zinc-500 leading-relaxed mb-4 line-clamp-2">
+        <p className="text-[12px] text-stone-500 leading-relaxed mb-4 line-clamp-2">
           {getText(reward.descKey)}
         </p>
 
@@ -496,18 +496,18 @@ function RewardCard({
               {canAfford ? (
                 <CheckCircleSolid className="w-4 h-4 text-emerald-400 flex-shrink-0" />
               ) : (
-                <div className="w-4 h-4 rounded-full border-2 border-zinc-700 flex-shrink-0" />
+                <div className="w-4 h-4 rounded-full border-2 border-stone-700 flex-shrink-0" />
               )}
-              <span className={`text-sm font-black tabular-nums ${canAfford ? 'text-amber-400' : 'text-zinc-500'}`}>
+              <span className={`text-sm font-black tabular-nums ${canAfford ? 'text-amber-400' : 'text-stone-500'}`}>
                 {reward.pointsRequired.toLocaleString()}
               </span>
-              <span className="text-[10px] text-zinc-600 font-semibold">SWEET</span>
+              <span className="text-[10px] text-stone-600 font-semibold">SWEET</span>
             </div>
 
             {/* Progress bar for unaffordable */}
             {!canAfford && (
               <div className="space-y-1">
-                <div className="h-1 bg-zinc-800 rounded-full overflow-hidden">
+                <div className="h-1 bg-stone-800 rounded-full overflow-hidden">
                   <motion.div
                     className="h-full bg-gradient-to-r from-amber-600 to-amber-400 rounded-full"
                     initial={{ width: 0 }}
@@ -515,8 +515,8 @@ function RewardCard({
                     transition={{ duration: 0.8, delay: index * 0.04 + 0.2, ease: 'easeOut' }}
                   />
                 </div>
-                <p className="text-[10px] text-zinc-600">
-                  Ещё <span className="text-zinc-400 font-semibold">{need.toLocaleString()} SWEET</span>
+                <p className="text-[10px] text-stone-600">
+                  Ещё <span className="text-stone-400 font-semibold">{need.toLocaleString()} SWEET</span>
                 </p>
               </div>
             )}
@@ -527,8 +527,8 @@ function RewardCard({
             disabled={!canAfford || isRedeeming}
             className={`flex-shrink-0 flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${
               canAfford
-                ? 'bg-white text-black hover:bg-amber-50 active:scale-95 shadow-[0_0_16px_rgba(245,158,11,0.15)]'
-                : 'bg-zinc-800/60 text-zinc-600 cursor-not-allowed'
+                ? 'bg-amber-500 text-black hover:bg-amber-400 active:scale-95 shadow-[0_0_16px_rgba(245,158,11,0.15)]'
+                : 'bg-stone-800/60 text-stone-600 cursor-not-allowed'
             }`}
           >
             {isRedeeming ? (
@@ -572,7 +572,7 @@ function PartnerPill({
       className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all border whitespace-nowrap ${
         active
           ? 'text-white'
-          : 'bg-transparent text-zinc-500 border-zinc-800 hover:border-zinc-600 hover:text-zinc-300'
+          : 'bg-transparent text-stone-500 border-stone-800 hover:border-stone-600 hover:text-stone-300'
       }`}
     >
       {logo ? (
@@ -601,14 +601,14 @@ function MyCouponRow({ code, title, partnerName }: { code: string; title: string
     <div className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl border border-dashed border-amber-400/15 bg-amber-400/[0.03]">
       <div className="min-w-0">
         <p className="text-xs font-semibold text-white truncate">{title}</p>
-        <p className="text-[10px] text-zinc-600">{partnerName}</p>
+        <p className="text-[10px] text-stone-600">{partnerName}</p>
       </div>
       <div className="flex items-center gap-2 flex-shrink-0">
         <span className="font-mono font-black text-sm text-amber-400 tracking-widest">{code}</span>
         <button onClick={handleCopy} className="p-1 hover:bg-white/5 rounded-lg transition-colors">
           {copied
             ? <CheckIcon className="w-3.5 h-3.5 text-emerald-400" />
-            : <ClipboardDocumentIcon className="w-3.5 h-3.5 text-zinc-600" />
+            : <ClipboardDocumentIcon className="w-3.5 h-3.5 text-stone-600" />
           }
         </button>
       </div>
@@ -623,8 +623,8 @@ function EmptyState({ categoryFilter, affordableCount }: { categoryFilter: Filte
     return (
       <div className="py-14 text-center">
         <div className="text-5xl mb-4">🍬</div>
-        <p className="text-sm font-semibold text-zinc-400">Пока недостаточно SWEET</p>
-        <p className="text-xs text-zinc-600 mt-1 max-w-[200px] mx-auto">
+        <p className="text-sm font-semibold text-stone-400">Пока недостаточно SWEET</p>
+        <p className="text-xs text-stone-600 mt-1 max-w-[200px] mx-auto">
           Совершай покупки у партнёров — получай кэшбэк токенами
         </p>
       </div>
@@ -632,8 +632,8 @@ function EmptyState({ categoryFilter, affordableCount }: { categoryFilter: Filte
   }
   return (
     <div className="py-14 text-center">
-      <GiftIcon className="w-10 h-10 text-zinc-800 mx-auto mb-3" />
-      <p className="text-sm text-zinc-500">Нет наград в этой категории</p>
+      <GiftIcon className="w-10 h-10 text-stone-800 mx-auto mb-3" />
+      <p className="text-sm text-stone-500">Нет наград в этой категории</p>
     </div>
   );
 }
@@ -680,7 +680,7 @@ function CouponSheet({
             transition={{ type: 'spring', damping: 32, stiffness: 320 }}
             className="fixed bottom-0 left-0 right-0 z-50 flex justify-center"
           >
-            <div className="w-full max-w-2xl bg-zinc-950 border-t border-white/10 rounded-t-3xl px-5 pt-4 pb-10">
+            <div className="w-full max-w-2xl bg-stone-950 border-t border-white/10 rounded-t-3xl px-5 pt-4 pb-10">
               {/* Handle */}
               <div className="flex justify-center mb-5">
                 <div className="w-10 h-1 rounded-full bg-white/15" />
@@ -694,12 +694,12 @@ function CouponSheet({
                     {coupon.partner.emoji}
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-zinc-400">{coupon.partner.name}</p>
+                    <p className="text-xs font-semibold text-stone-400">{coupon.partner.name}</p>
                     <p className="text-sm font-bold text-white">{getText(coupon.reward.titleKey)}</p>
                   </div>
                 </div>
                 <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-xl transition-colors">
-                  <XMarkIcon className="w-5 h-5 text-zinc-500" />
+                  <XMarkIcon className="w-5 h-5 text-stone-500" />
                 </button>
               </div>
 
@@ -712,12 +712,12 @@ function CouponSheet({
                 />
                 <div className="relative border border-dashed border-amber-400/30 rounded-2xl px-5 py-5">
                   {/* Notches */}
-                  <div className="absolute top-1/2 -left-3 w-6 h-6 rounded-full bg-zinc-950 -translate-y-1/2" />
-                  <div className="absolute top-1/2 -right-3 w-6 h-6 rounded-full bg-zinc-950 -translate-y-1/2" />
+                  <div className="absolute top-1/2 -left-3 w-6 h-6 rounded-full bg-stone-950 -translate-y-1/2" />
+                  <div className="absolute top-1/2 -right-3 w-6 h-6 rounded-full bg-stone-950 -translate-y-1/2" />
 
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-[10px] text-zinc-600 uppercase tracking-widest mb-1.5">Код купона</p>
+                      <p className="text-[10px] text-stone-600 uppercase tracking-widest mb-1.5">Код купона</p>
                       <p className="text-3xl font-black font-mono tracking-[0.2em] text-amber-400">
                         {coupon.code}
                       </p>
@@ -728,9 +728,9 @@ function CouponSheet({
                     >
                       {copied
                         ? <CheckCircleIcon className="w-5 h-5 text-emerald-400" />
-                        : <ClipboardDocumentIcon className="w-5 h-5 text-zinc-500" />
+                        : <ClipboardDocumentIcon className="w-5 h-5 text-stone-500" />
                       }
-                      <span className="text-[9px] text-zinc-600">{copied ? 'Скопировано' : 'Копировать'}</span>
+                      <span className="text-[9px] text-stone-600">{copied ? 'Скопировано' : 'Копировать'}</span>
                     </button>
                   </div>
                 </div>
@@ -744,21 +744,21 @@ function CouponSheet({
                   { label: 'Истекает',         value: new Date(coupon.expiresAt).toLocaleDateString('ru', { day: 'numeric', month: 'long', year: 'numeric' }) },
                 ].map(row => (
                   <div key={row.label} className="flex items-center justify-between px-4 py-2.5">
-                    <span className="text-xs text-zinc-500">{row.label}</span>
-                    <span className={`text-xs font-semibold ${row.warn ? 'text-red-400' : row.accent ? 'text-amber-400' : 'text-zinc-300'}`}>
+                    <span className="text-xs text-stone-500">{row.label}</span>
+                    <span className={`text-xs font-semibold ${row.warn ? 'text-red-400' : row.accent ? 'text-amber-400' : 'text-stone-300'}`}>
                       {row.value}
                     </span>
                   </div>
                 ))}
               </div>
 
-              <p className="text-[11px] text-zinc-600 text-center mb-5">
+              <p className="text-[11px] text-stone-600 text-center mb-5">
                 Покажи код кассиру в {coupon.partner.name}
               </p>
 
               <button
                 onClick={onClose}
-                className="w-full py-3.5 bg-white text-black font-bold rounded-2xl hover:bg-zinc-100 transition-colors text-sm"
+                className="w-full py-3.5 bg-amber-500 text-black font-bold rounded-2xl hover:bg-amber-400 transition-colors text-sm"
               >
                 Готово
               </button>

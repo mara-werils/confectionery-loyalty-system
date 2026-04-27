@@ -124,7 +124,7 @@ export default function Swap() {
               <ArrowsRightLeftIcon className="w-6 h-6" />
               {t('swap.title')}
             </h1>
-            <p className="text-sm text-zinc-500 mt-1">{t('swap.subtitle')}</p>
+            <p className="text-sm text-stone-500 mt-1">{t('swap.subtitle')}</p>
           </div>
           <a
             href={DEDUST_SWAP_URL}
@@ -133,18 +133,18 @@ export default function Swap() {
             className="p-2 hover:bg-white/10 rounded-full transition-colors"
             title="Open DeDust DEX"
           >
-            <Cog8ToothIcon className="w-5 h-5 text-zinc-400" />
+            <Cog8ToothIcon className="w-5 h-5 text-stone-400" />
           </a>
         </div>
 
         {/* DeDust badge */}
         <div className="flex items-center justify-between mb-4 px-1">
-          <span className="text-xs text-zinc-500">Powered by</span>
+          <span className="text-xs text-stone-500">Powered by</span>
           <a
             href={DEDUST_SWAP_URL}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-700 text-xs font-semibold text-zinc-300 hover:border-zinc-500 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-900 border border-stone-700 text-xs font-semibold text-stone-300 hover:border-stone-500 transition-colors"
           >
             <span className="w-2 h-2 rounded-full bg-purple-400"></span>
             DeDust DEX
@@ -158,8 +158,8 @@ export default function Swap() {
             {/* Pay Section */}
             <div className="bg-[#0f0f11] border border-white/5 rounded-2xl p-4 mb-1 hover:border-white/10 transition-colors">
               <div className="flex justify-between mb-2">
-                <span className="text-xs text-zinc-500 font-medium">{t('swap.youPay')}</span>
-                <span className="text-xs text-zinc-500 font-mono">
+                <span className="text-xs text-stone-500 font-medium">{t('swap.youPay')}</span>
+                <span className="text-xs text-stone-500 font-mono">
                   {t('swap.balance')}: {balances[payToken].toLocaleString()}
                 </span>
               </div>
@@ -169,24 +169,24 @@ export default function Swap() {
                   placeholder="0.0"
                   value={payAmount}
                   onChange={handlePayChange}
-                  className="bg-transparent text-3xl font-mono text-white focus:outline-none w-full placeholder:text-zinc-700"
+                  className="bg-transparent text-3xl font-mono text-white focus:outline-none w-full placeholder:text-stone-700"
                 />
-                <button className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 px-3 py-1.5 rounded-full transition-colors whitespace-nowrap">
+                <button className="flex items-center gap-2 bg-stone-800 hover:bg-stone-700 px-3 py-1.5 rounded-full transition-colors whitespace-nowrap">
                   {payToken === 'TON' ? (
                     <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center">
                       <CurrencyDollarIcon className="w-4 h-4 text-white" />
                     </div>
                   ) : (
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-zinc-700 to-zinc-900 border border-white/10 flex items-center justify-center">
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-stone-700 to-stone-900 border border-white/10 flex items-center justify-center">
                       <SparklesIcon className="w-4 h-4 text-white" />
                     </div>
                   )}
                   <span className="font-bold">{payToken}</span>
-                  <ChevronDownIcon className="w-4 h-4 text-zinc-400" />
+                  <ChevronDownIcon className="w-4 h-4 text-stone-400" />
                 </button>
               </div>
               <div className="flex justify-between items-center mt-2 h-6">
-                <span className="text-xs text-zinc-500 font-mono">${getUsdValue(payAmount, payToken)}</span>
+                <span className="text-xs text-stone-500 font-mono">${getUsdValue(payAmount, payToken)}</span>
                 <button
                   onClick={handleMax}
                   className="text-[10px] font-bold tracking-wider uppercase text-purple-400 hover:text-purple-300 px-2 py-0.5 rounded bg-purple-500/10"
@@ -200,7 +200,7 @@ export default function Swap() {
             <div className="relative h-2 flex justify-center items-center z-10">
               <button
                 onClick={handleFlip}
-                className="absolute bg-zinc-900 border-4 border-[#0f0f11] p-1.5 rounded-xl hover:bg-zinc-800 transition-colors"
+                className="absolute bg-stone-900 border-4 border-[#0f0f11] p-1.5 rounded-xl hover:bg-stone-800 transition-colors"
               >
                 <ArrowsRightLeftIcon className="w-4 h-4 text-white rotate-90" />
               </button>
@@ -209,8 +209,8 @@ export default function Swap() {
             {/* Receive Section */}
             <div className="bg-[#0f0f11] border border-white/5 rounded-2xl p-4 mt-1 hover:border-white/10 transition-colors">
               <div className="flex justify-between mb-2">
-                <span className="text-xs text-zinc-500 font-medium">{t('swap.youReceive')}</span>
-                <span className="text-xs text-zinc-500 font-mono">
+                <span className="text-xs text-stone-500 font-medium">{t('swap.youReceive')}</span>
+                <span className="text-xs text-stone-500 font-mono">
                   {t('swap.balance')}: {balances[receiveToken].toLocaleString()}
                 </span>
               </div>
@@ -220,24 +220,24 @@ export default function Swap() {
                   placeholder="0.0"
                   value={receiveAmount}
                   readOnly
-                  className="bg-transparent text-3xl font-mono text-zinc-300 focus:outline-none w-full placeholder:text-zinc-700"
+                  className="bg-transparent text-3xl font-mono text-stone-300 focus:outline-none w-full placeholder:text-stone-700"
                 />
-                <button className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 px-3 py-1.5 rounded-full transition-colors whitespace-nowrap">
+                <button className="flex items-center gap-2 bg-stone-800 hover:bg-stone-700 px-3 py-1.5 rounded-full transition-colors whitespace-nowrap">
                   {receiveToken === 'TON' ? (
                     <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center">
                       <CurrencyDollarIcon className="w-4 h-4 text-white" />
                     </div>
                   ) : (
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-zinc-700 to-zinc-900 border border-white/10 flex items-center justify-center">
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-stone-700 to-stone-900 border border-white/10 flex items-center justify-center">
                       <SparklesIcon className="w-4 h-4 text-white" />
                     </div>
                   )}
                   <span className="font-bold">{receiveToken}</span>
-                  <ChevronDownIcon className="w-4 h-4 text-zinc-400" />
+                  <ChevronDownIcon className="w-4 h-4 text-stone-400" />
                 </button>
               </div>
               <div className="flex justify-between mt-2 h-6">
-                <span className="text-xs text-zinc-500 font-mono">${getUsdValue(receiveAmount, receiveToken)}</span>
+                <span className="text-xs text-stone-500 font-mono">${getUsdValue(receiveAmount, receiveToken)}</span>
               </div>
             </div>
 
@@ -250,21 +250,21 @@ export default function Swap() {
                   exit={{ opacity: 0, height: 0 }}
                   className="overflow-hidden mt-4 px-2"
                 >
-                  <div className="flex justify-between items-center text-xs text-zinc-500 py-1">
+                  <div className="flex justify-between items-center text-xs text-stone-500 py-1">
                     <span className="flex items-center gap-1">
                       {t('swap.rate')} <InformationCircleIcon className="w-3 h-3" />
                     </span>
                     <span className="font-mono">1 SWEET = {sweetPrice} TON</span>
                   </div>
-                  <div className="flex justify-between items-center text-xs text-zinc-500 py-1">
+                  <div className="flex justify-between items-center text-xs text-stone-500 py-1">
                     <span>{t('swap.networkFee')}</span>
                     <span className="font-mono">~0.01 TON</span>
                   </div>
-                  <div className="flex justify-between items-center text-xs text-zinc-500 py-1">
+                  <div className="flex justify-between items-center text-xs text-stone-500 py-1">
                     <span>{t('swap.priceImpact')}</span>
                     <span className="text-green-400">&lt; 0.1%</span>
                   </div>
-                  <div className="flex justify-between items-center text-xs text-zinc-500 py-1 border-t border-zinc-800/60 pt-2 mt-1">
+                  <div className="flex justify-between items-center text-xs text-stone-500 py-1 border-t border-stone-800/60 pt-2 mt-1">
                     <span>DEX</span>
                     <a
                       href={DEDUST_SWAP_URL}
@@ -288,7 +288,7 @@ export default function Swap() {
                   ? 'bg-purple-500 hover:bg-purple-400 text-white'
                   : (!payAmount || Number(payAmount) <= 0)
                   ? 'bg-white/10 text-white/40 cursor-not-allowed'
-                  : 'bg-white text-black hover:bg-zinc-200 hover:shadow-[0_0_30px_rgba(255,255,255,0.15)]'
+                  : 'bg-amber-500 text-black hover:bg-amber-400 hover:shadow-[0_0_30px_rgba(245,158,11,0.15)]'
                 }`}
             >
               {!wallet
@@ -304,7 +304,7 @@ export default function Swap() {
               }
             </button>
 
-            <p className="text-center text-[10px] text-zinc-600 mt-3">
+            <p className="text-center text-[10px] text-stone-600 mt-3">
               Swap executes on DeDust DEX — a non-custodial TON protocol
             </p>
           </div>

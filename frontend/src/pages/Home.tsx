@@ -75,7 +75,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-white relative overflow-hidden flex flex-col">
+    <div className="min-h-screen bg-[#0d0b0a] text-white relative overflow-hidden flex flex-col">
       {/* Background texture */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(245,158,11,0.08),transparent)]" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_40%_40%_at_80%_80%,rgba(180,122,90,0.05),transparent)]" />
@@ -89,7 +89,7 @@ export default function Home() {
             className={`w-9 h-9 rounded-full text-sm font-bold transition-all flex items-center justify-center ${
               i18n.language === lang.code
                 ? 'bg-amber-400/20 text-amber-400 ring-1 ring-amber-400/40'
-                : 'text-zinc-500 hover:text-zinc-300'
+                : 'text-stone-500 hover:text-stone-300'
             }`}
           >
             {lang.flag}
@@ -115,7 +115,7 @@ export default function Home() {
             <span className="text-white">sweet</span>
             <span className="text-amber-400">.</span>
           </h1>
-          <p className="text-zinc-500 text-sm font-medium tracking-wide uppercase">
+          <p className="text-stone-500 text-sm font-medium tracking-wide uppercase">
             Loyalty · Web3 · TON
           </p>
         </motion.div>
@@ -129,7 +129,7 @@ export default function Home() {
             className="w-full max-w-sm"
           >
             <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-6 text-center">
-              <p className="text-zinc-400 text-sm mb-5 leading-relaxed">
+              <p className="text-stone-400 text-sm mb-5 leading-relaxed">
                 {t('home.connectWallet')}
               </p>
               <div className="flex justify-center">
@@ -139,7 +139,7 @@ export default function Home() {
 
             <div className="mt-8 flex items-center gap-4">
               <div className="flex-1 h-px bg-white/5" />
-              <span className="text-[11px] text-zinc-600 tracking-widest uppercase">Powered by TON</span>
+              <span className="text-[11px] text-stone-600 tracking-widest uppercase">Powered by TON</span>
               <div className="flex-1 h-px bg-white/5" />
             </div>
           </motion.div>
@@ -153,7 +153,7 @@ export default function Home() {
             transition={{ duration: 0.5 }}
             className="w-full max-w-sm space-y-3"
           >
-            <p className="text-center text-zinc-500 text-xs tracking-wider uppercase mb-5">
+            <p className="text-center text-stone-500 text-xs tracking-wider uppercase mb-5">
               {t('home.chooseRole')}
             </p>
 
@@ -183,7 +183,7 @@ export default function Home() {
         transition={{ delay: 0.6 }}
         className="relative z-10 pb-8 flex justify-center"
       >
-        <p className="text-[11px] text-zinc-700">
+        <p className="text-[11px] text-stone-700">
           Confectionery Loyalty · AITU 2026
         </p>
       </motion.div>
@@ -215,14 +215,14 @@ function RoleButton({
       onClick={onClick}
       className="group w-full flex items-center gap-4 p-4 rounded-2xl border border-white/8 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/15 transition-all duration-200 text-left"
     >
-      <div className={`w-10 h-10 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-zinc-400 transition-all duration-200 flex-shrink-0 ${accentClasses[accent]}`}>
+      <div className={`w-10 h-10 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-stone-400 transition-all duration-200 flex-shrink-0 ${accentClasses[accent]}`}>
         {icon}
       </div>
       <div>
         <p className="font-semibold text-white text-sm">{label}</p>
-        <p className="text-xs text-zinc-500 mt-0.5">{desc}</p>
+        <p className="text-xs text-stone-500 mt-0.5">{desc}</p>
       </div>
-      <div className="ml-auto text-zinc-700 group-hover:text-zinc-500 transition-colors">
+      <div className="ml-auto text-stone-700 group-hover:text-stone-500 transition-colors">
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
         </svg>

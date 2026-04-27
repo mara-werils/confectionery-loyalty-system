@@ -4,86 +4,68 @@
 
 @layer base {
   :root {
-    --background: 240 10% 4%;
+    --background: 20 14% 4%;
     --foreground: 0 0% 98%;
-    --card: 240 10% 4%;
+    --card: 20 10% 7%;
     --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
+    --popover: 20 10% 6%;
     --popover-foreground: 0 0% 98%;
-    --primary: 263 70% 50%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 240 3.7% 15.9%;
+    --primary: 30 90% 52%;
+    --primary-foreground: 20 14% 4%;
+    --secondary: 20 6% 15%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 43 96% 64%;
-    --accent-foreground: 240 5.9% 10%;
+    --muted: 20 6% 15%;
+    --muted-foreground: 20 5% 55%;
+    --accent: 30 90% 52%;
+    --accent-foreground: 20 14% 4%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
+    --border: 20 6% 15%;
+    --input: 20 6% 15%;
+    --ring: 30 90% 52%;
   }
 
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
-    @apply antialiased selection:bg-primary-500/30 selection:text-white;
-    /* Deep slate/zinc background - professional, no heavy purple gradient */
-    background: #09090b;
+    @apply antialiased selection:bg-amber-500/30 selection:text-white;
+    background: #0d0b0a;
     min-height: 100vh;
   }
 }
 
 @layer components {
-
-  /* Modern, subtle glassmorphism */
   .glass-panel {
-    @apply bg-zinc-900/50 backdrop-blur-2xl border border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-3xl;
+    @apply bg-stone-900 border border-stone-800 shadow-sm rounded-2xl;
   }
 
-  /* Premium Buttons */
   .glass-button {
-    @apply relative overflow-hidden rounded-2xl px-6 py-3 font-semibold text-white transition-all duration-300;
-    background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 100%), #18181b;
-    border: 1px solid rgba(255,255,255,0.1);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    @apply relative overflow-hidden rounded-xl px-6 py-3 font-semibold text-white transition-all duration-200;
+    background: #1c1917;
+    border: 1px solid #292524;
   }
-
   .glass-button:hover {
-    background: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.02) 100%), #27272a;
-    border-color: rgba(255,255,255,0.2);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-    transform: translateY(-1px);
+    background: #292524;
+    border-color: #44403c;
   }
-
   .glass-button:active {
     transform: translateY(1px);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-  }
-  
-  /* Accent buttons (for primary actions) - Minimalist White */
-  .glass-button-primary {
-    @apply relative overflow-hidden rounded-2xl px-6 py-3 font-semibold text-black transition-all duration-300;
-    background: #ffffff;
-    border: 1px solid #e4e4e7;
-    box-shadow: 0 4px 12px rgba(255,255,255,0.1);
-  }
-  
-  .glass-button-primary:hover {
-    background: #e4e4e7;
-    border-color: #d4d4d8;
-    box-shadow: 0 8px 20px rgba(255,255,255,0.2);
-    transform: translateY(-1px);
-  }
-  
-  .glass-button-primary:active {
-    transform: translateY(1px);
-    box-shadow: 0 2px 8px rgba(255,255,255,0.1);
   }
 
-  /* Typography utilities */
+  .glass-button-primary {
+    @apply relative overflow-hidden rounded-xl px-6 py-3 font-semibold transition-all duration-200;
+    background: #f59e0b;
+    color: #0d0b0a;
+    border: 1px solid #fbbf24;
+  }
+  .glass-button-primary:hover {
+    background: #fbbf24;
+  }
+  .glass-button-primary:active {
+    transform: translateY(1px);
+  }
+
   .text-gradient-gold {
-    @apply bg-clip-text text-transparent bg-gradient-to-br from-amber-200 via-amber-400 to-amber-600;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-orange-500;
   }
 }

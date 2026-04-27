@@ -1,12 +1,12 @@
 import { motion } from 'framer-motion';
 
 const partners = [
-    { name: 'Sweet Corner', emoji: '🧁', color: 'from-zinc-800 to-zinc-900 border border-white/5' },
-    { name: 'Bakehouse', emoji: '🥐', color: 'from-zinc-800 to-zinc-900 border border-white/5' },
-    { name: 'Cafe Almaty', emoji: '☕', color: 'from-zinc-800 to-zinc-900 border border-white/5' },
-    { name: 'Pastry Palace', emoji: '🎂', color: 'from-zinc-800 to-zinc-900 border border-white/5' },
-    { name: 'Choco Heaven', emoji: '🍫', color: 'from-zinc-800 to-zinc-900 border border-white/5' },
-    { name: 'Sugar Rush', emoji: '🍭', color: 'from-zinc-800 to-zinc-900 border border-white/5' },
+    { name: 'Sweet Corner', emoji: '🧁', color: 'from-stone-800 to-stone-900 border border-white/5' },
+    { name: 'Bakehouse', emoji: '🥐', color: 'from-stone-800 to-stone-900 border border-white/5' },
+    { name: 'Cafe Almaty', emoji: '☕', color: 'from-stone-800 to-stone-900 border border-white/5' },
+    { name: 'Pastry Palace', emoji: '🎂', color: 'from-stone-800 to-stone-900 border border-white/5' },
+    { name: 'Choco Heaven', emoji: '🍫', color: 'from-stone-800 to-stone-900 border border-white/5' },
+    { name: 'Sugar Rush', emoji: '🍭', color: 'from-stone-800 to-stone-900 border border-white/5' },
 ];
 
 export default function PartnerLogos() {
@@ -44,10 +44,10 @@ export default function PartnerLogos() {
                     transition={{ delay: partners.length * 0.1 }}
                     className="flex-shrink-0 flex flex-col items-center gap-2 group cursor-pointer"
                 >
-                    <div className="w-16 h-16 rounded-2xl border-2 border-dashed border-zinc-700 flex items-center justify-center text-2xl group-hover:border-white/30 group-hover:bg-white/5 transition-all duration-300">
-                        <span className="text-zinc-600 group-hover:text-white transition-colors">+</span>
+                    <div className="w-16 h-16 rounded-2xl border-2 border-dashed border-stone-700 flex items-center justify-center text-2xl group-hover:border-white/30 group-hover:bg-white/5 transition-all duration-300">
+                        <span className="text-stone-600 group-hover:text-white transition-colors">+</span>
                     </div>
-                    <span className="text-xs text-zinc-500 group-hover:text-white transition-colors whitespace-nowrap">
+                    <span className="text-xs text-stone-500 group-hover:text-white transition-colors whitespace-nowrap">
                         Join Us
                     </span>
                 </motion.div>

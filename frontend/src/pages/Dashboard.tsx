@@ -127,14 +127,14 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen p-4 md:p-8 pb-32 text-zinc-100 font-sans tracking-normal bg-[#09090b]">
+    <div className="min-h-screen p-4 md:p-8 pb-32 text-stone-100 font-sans tracking-normal bg-[#0d0b0a]">
       {/* Header */}
-      <div className="mb-8 border-b border-zinc-800/80 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4 mt-4">
+      <div className="mb-8 border-b border-stone-800/80 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4 mt-4">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight text-white">
             {t('dashboard.title')}
           </h1>
-          <p className="text-zinc-400 mt-1.5 text-sm">{t('dashboard.subtitle')}</p>
+          <p className="text-stone-400 mt-1.5 text-sm">{t('dashboard.subtitle')}</p>
         </div>
         <div className="flex items-center gap-2">
           <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-green-500/10 border border-green-500/20 text-xs font-medium text-green-400">
@@ -147,15 +147,15 @@ export default function Dashboard() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         {/* Token Balance */}
-        <div className="bg-zinc-900 border border-zinc-800/80 rounded-xl p-5 shadow-sm">
+        <div className="bg-stone-900 border border-stone-800/80 rounded-xl p-5 shadow-sm">
           <div className="flex justify-between items-start mb-4">
-            <h3 className="text-sm font-medium text-zinc-400">{t('dashboard.treasuryHoldings') || 'Treasury Holdings'}</h3>
-            <BuildingLibraryIcon className="w-5 h-5 text-zinc-500" />
+            <h3 className="text-sm font-medium text-stone-400">{t('dashboard.treasuryHoldings') || 'Treasury Holdings'}</h3>
+            <BuildingLibraryIcon className="w-5 h-5 text-stone-500" />
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-semibold text-white tracking-tight">
-              {balance ? balance.sweet.toLocaleString() : <span className="animate-pulse text-zinc-600">—</span>}
-              <span className="text-sm text-zinc-500 ml-1.5 font-normal">SWEET</span>
+              {balance ? balance.sweet.toLocaleString() : <span className="animate-pulse text-stone-600">—</span>}
+              <span className="text-sm text-stone-500 ml-1.5 font-normal">SWEET</span>
             </span>
           </div>
           <p className="text-xs text-green-400 mt-2 flex items-center gap-1">
@@ -164,16 +164,16 @@ export default function Dashboard() {
         </div>
 
         {/* Partners */}
-        <div className="bg-zinc-900 border border-zinc-800/80 rounded-xl p-5 shadow-sm">
+        <div className="bg-stone-900 border border-stone-800/80 rounded-xl p-5 shadow-sm">
           <div className="flex justify-between items-start mb-4">
-            <h3 className="text-sm font-medium text-zinc-400">{t('dashboard.activeCustomers') || 'Active Partners'}</h3>
-            <UserGroupIcon className="w-5 h-5 text-zinc-500" />
+            <h3 className="text-sm font-medium text-stone-400">{t('dashboard.activeCustomers') || 'Active Partners'}</h3>
+            <UserGroupIcon className="w-5 h-5 text-stone-500" />
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-semibold text-white tracking-tight">
               {summary?.totalPartners != null
                 ? summary.totalPartners.toLocaleString()
-                : <span className="inline-block w-12 h-7 bg-zinc-800 rounded animate-pulse" />}
+                : <span className="inline-block w-12 h-7 bg-stone-800 rounded animate-pulse" />}
             </span>
           </div>
           <p className="text-xs text-green-400 mt-2 flex items-center gap-1">
@@ -182,43 +182,43 @@ export default function Dashboard() {
         </div>
 
         {/* Transactions */}
-        <div className="bg-zinc-900 border border-zinc-800/80 rounded-xl p-5 shadow-sm">
+        <div className="bg-stone-900 border border-stone-800/80 rounded-xl p-5 shadow-sm">
           <div className="flex justify-between items-start mb-4">
-            <h3 className="text-sm font-medium text-zinc-400">{t('dashboard.totalTransactions') || 'Total Transactions'}</h3>
-            <ChartBarIcon className="w-5 h-5 text-zinc-500" />
+            <h3 className="text-sm font-medium text-stone-400">{t('dashboard.totalTransactions') || 'Total Transactions'}</h3>
+            <ChartBarIcon className="w-5 h-5 text-stone-500" />
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-semibold text-white tracking-tight">
               {summary?.totalTransactions != null
                 ? summary.totalTransactions.toLocaleString()
-                : <span className="inline-block w-16 h-7 bg-zinc-800 rounded animate-pulse" />}
+                : <span className="inline-block w-16 h-7 bg-stone-800 rounded animate-pulse" />}
             </span>
           </div>
-          <p className="text-xs text-zinc-500 mt-2">{t('dashboard.allTimeRewards') || 'All-time distributed rewards'}</p>
+          <p className="text-xs text-stone-500 mt-2">{t('dashboard.allTimeRewards') || 'All-time distributed rewards'}</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* POS Terminal */}
         <div className="lg:col-span-5 xl:col-span-4">
-          <div className="bg-zinc-900 border border-zinc-800/80 rounded-xl flex flex-col h-full shadow-sm">
-            <div className="px-5 py-4 border-b border-zinc-800/80">
+          <div className="bg-stone-900 border border-stone-800/80 rounded-xl flex flex-col h-full shadow-sm">
+            <div className="px-5 py-4 border-b border-stone-800/80">
               <h2 className="text-base font-semibold text-white flex items-center gap-2">
-                <CreditCardIcon className="w-5 h-5 text-zinc-400" />
+                <CreditCardIcon className="w-5 h-5 text-stone-400" />
                 {t('dashboard.cashbackTerminal') || 'Point of Sale Terminal'}
               </h2>
             </div>
             
             <div className="p-5 flex-1 flex flex-col space-y-6">
               <div>
-                <label className="block text-sm font-medium text-zinc-400 mb-2">
+                <label className="block text-sm font-medium text-stone-400 mb-2">
                   {t('dashboard.enterPurchaseAmount') || 'Transaction Amount (KZT)'}
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 font-medium">₸</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-500 font-medium">₸</span>
                   <input
                     type="number"
-                    className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-8 pr-4 py-2.5 text-white text-sm focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all min-w-0"
+                    className="w-full bg-stone-950 border border-stone-800 rounded-lg pl-8 pr-4 py-2.5 text-white text-sm focus:outline-none focus:border-stone-500 focus:ring-1 focus:ring-stone-500 transition-all min-w-0"
                     placeholder="0.00"
                     value={posAmount}
                     onChange={(e) => setPosAmount(Number(e.target.value) || '')}
@@ -227,19 +227,19 @@ export default function Dashboard() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-zinc-400 mb-2">
+                <label className="block text-sm font-medium text-stone-400 mb-2">
                   {t('dashboard.scanCustomerQr') || 'Customer Wallet Address'}
                 </label>
                 <div className="relative flex gap-2">
                   <div className="relative flex-1 min-w-0">
                     <input
                       type="text"
-                      className={`w-full bg-zinc-950 border rounded-lg px-3 py-2.5 text-zinc-300 text-sm font-mono focus:outline-none focus:ring-1 transition-all placeholder:text-zinc-600 ${
+                      className={`w-full bg-stone-950 border rounded-lg px-3 py-2.5 text-stone-300 text-sm font-mono focus:outline-none focus:ring-1 transition-all placeholder:text-stone-600 ${
                         addressError
                           ? 'border-red-500/50 focus:border-red-500 focus:ring-red-500/20'
                           : clientWalletAddress && !addressError
                           ? 'border-green-500/50 focus:border-green-500 focus:ring-green-500/20'
-                          : 'border-zinc-800 focus:border-zinc-500 focus:ring-zinc-500'
+                          : 'border-stone-800 focus:border-stone-500 focus:ring-stone-500'
                       }`}
                       placeholder="UQ... or EQ..."
                       value={clientWalletAddress}
@@ -256,7 +256,7 @@ export default function Dashboard() {
                   </div>
                   <button
                     onClick={() => setShowScanner(true)}
-                    className="shrink-0 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-3 py-2.5 rounded-lg transition-colors border border-zinc-700"
+                    className="shrink-0 bg-stone-800 hover:bg-stone-700 text-stone-300 px-3 py-2.5 rounded-lg transition-colors border border-stone-700"
                     title="Scan QR"
                   >
                     <QrCodeIcon className="w-5 h-5" />
@@ -270,9 +270,9 @@ export default function Dashboard() {
                 )}
               </div>
 
-              <div className="bg-zinc-950/50 border border-zinc-800/80 px-4 py-3 rounded-lg flex justify-between items-center mt-auto">
-                <span className="text-sm text-zinc-400 truncate pr-2">{t('dashboard.cashbackReward') || 'Loyalty Reward'} (10%)</span>
-                <span className="font-mono text-sm font-medium text-zinc-200 shrink-0">
+              <div className="bg-stone-950/50 border border-stone-800/80 px-4 py-3 rounded-lg flex justify-between items-center mt-auto">
+                <span className="text-sm text-stone-400 truncate pr-2">{t('dashboard.cashbackReward') || 'Loyalty Reward'} (10%)</span>
+                <span className="font-mono text-sm font-medium text-stone-200 shrink-0">
                   +{Math.floor(Number(posAmount) * 0.1)} SWEET
                 </span>
               </div>
@@ -280,10 +280,10 @@ export default function Dashboard() {
               <button
                 disabled={loading || !wallet || Number(posAmount) <= 0 || !!addressError || !clientWalletAddress}
                 onClick={handleTransfer}
-                className="w-full bg-white text-zinc-950 font-semibold py-3 rounded-lg hover:bg-zinc-200 active:bg-zinc-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full bg-amber-500 text-black font-semibold py-3 rounded-lg hover:bg-amber-400 active:bg-amber-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {loading ? (
-                  <><div className="w-4 h-4 border-2 border-zinc-400 border-t-zinc-900 rounded-full animate-spin" /> Sending...</>
+                  <><div className="w-4 h-4 border-2 border-stone-400 border-t-stone-900 rounded-full animate-spin" /> Sending...</>
                 ) : !wallet ? (
                   t('dashboard.connectWalletFirst')
                 ) : (
@@ -296,11 +296,11 @@ export default function Dashboard() {
 
         {/* Chart */}
         <div className="lg:col-span-7 xl:col-span-8">
-          <div className="bg-zinc-900 border border-zinc-800/80 rounded-xl p-5 h-[420px] shadow-sm flex flex-col">
+          <div className="bg-stone-900 border border-stone-800/80 rounded-xl p-5 h-[420px] shadow-sm flex flex-col">
             <div className="mb-6 flex justify-between items-center">
               <h3 className="text-base font-semibold text-white">{t('dashboard.ecosystemGrowth') || 'Transaction Volume'}</h3>
               <select
-                className="bg-zinc-950 border border-zinc-800 text-sm text-zinc-300 rounded-md px-2 py-1 outline-none"
+                className="bg-stone-950 border border-stone-800 text-sm text-stone-300 rounded-md px-2 py-1 outline-none"
                 value={chartPeriod}
                 onChange={(e) => setChartPeriod(e.target.value as 'day' | 'week' | 'month')}
               >
@@ -320,11 +320,11 @@ export default function Dashboard() {
                   </defs>
                   <XAxis dataKey="name" stroke="#52525b" tick={{ fontSize: 12, fill: '#71717a' }} axisLine={false} tickLine={false} dy={10} />
                   <YAxis stroke="#52525b" tick={{ fontSize: 12, fill: '#71717a' }} axisLine={false} tickLine={false} dx={-10} />
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#27272a" />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#292524" />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: '#18181b', // zinc-900
-                      border: '1px solid #27272a', // zinc-800
+                      backgroundColor: '#1c1917', // stone-900
+                      border: '1px solid #292524', // stone-800
                       borderRadius: '8px',
                       fontSize: '12px',
                       color: '#fff',
@@ -335,7 +335,7 @@ export default function Dashboard() {
                   <Area
                     type="monotone"
                     dataKey="value"
-                    stroke="#a1a1aa" // zinc-400
+                    stroke="#a1a1aa" // stone-400
                     strokeWidth={2}
                     fillOpacity={1}
                     fill="url(#colorValue)"
@@ -354,11 +354,11 @@ export default function Dashboard() {
           <motion.div 
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-zinc-900 border border-zinc-800 rounded-xl w-full max-w-sm overflow-hidden relative shadow-2xl"
+            className="bg-stone-900 border border-stone-800 rounded-xl w-full max-w-sm overflow-hidden relative shadow-2xl"
           >
-            <div className="flex justify-between items-center p-4 border-b border-zinc-800">
+            <div className="flex justify-between items-center p-4 border-b border-stone-800">
               <h3 className="font-semibold text-white text-sm">{t('dashboard.scannerTitle') || 'Scan Wallet QR'}</h3>
-              <button onClick={() => setShowScanner(false)} className="text-zinc-500 hover:text-white transition-colors bg-zinc-800 rounded-md p-1">
+              <button onClick={() => setShowScanner(false)} className="text-stone-500 hover:text-white transition-colors bg-stone-800 rounded-md p-1">
                 <XMarkIcon className="w-5 h-5" />
               </button>
             </div>
@@ -389,7 +389,7 @@ export default function Dashboard() {
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl"
+              className="bg-stone-900 border border-stone-800 rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl"
             >
               {/* Success header */}
               <div className="bg-green-500/10 border-b border-green-500/20 px-6 py-5 text-center">
@@ -397,35 +397,35 @@ export default function Dashboard() {
                   <CheckCircleIcon className="w-7 h-7 text-green-400" />
                 </div>
                 <h3 className="text-lg font-bold text-white">Transaction Successful</h3>
-                <p className="text-xs text-zinc-400 mt-1">SWEET tokens sent to customer wallet</p>
+                <p className="text-xs text-stone-400 mt-1">SWEET tokens sent to customer wallet</p>
               </div>
 
               {/* Receipt details */}
               <div className="p-5 space-y-3">
-                <div className="flex justify-between items-center py-2 border-b border-zinc-800/60">
-                  <span className="text-xs text-zinc-500">Purchase Amount</span>
+                <div className="flex justify-between items-center py-2 border-b border-stone-800/60">
+                  <span className="text-xs text-stone-500">Purchase Amount</span>
                   <span className="text-sm font-semibold text-white">₸{receipt.amount.toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b border-zinc-800/60">
-                  <span className="text-xs text-zinc-500">Cashback (10%)</span>
+                <div className="flex justify-between items-center py-2 border-b border-stone-800/60">
+                  <span className="text-xs text-stone-500">Cashback (10%)</span>
                   <span className="text-sm font-bold text-green-400">+{receipt.cashback.toLocaleString()} SWEET</span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b border-zinc-800/60">
-                  <span className="text-xs text-zinc-500">Customer Wallet</span>
-                  <span className="text-xs font-mono text-zinc-300">
+                <div className="flex justify-between items-center py-2 border-b border-stone-800/60">
+                  <span className="text-xs text-stone-500">Customer Wallet</span>
+                  <span className="text-xs font-mono text-stone-300">
                     {receipt.clientWallet.slice(0, 8)}...{receipt.clientWallet.slice(-6)}
                   </span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b border-zinc-800/60">
-                  <span className="text-xs text-zinc-500">Time</span>
-                  <span className="text-xs text-zinc-300">{receipt.timestamp}</span>
+                <div className="flex justify-between items-center py-2 border-b border-stone-800/60">
+                  <span className="text-xs text-stone-500">Time</span>
+                  <span className="text-xs text-stone-300">{receipt.timestamp}</span>
                 </div>
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-xs text-zinc-500">Transaction ID</span>
+                  <span className="text-xs text-stone-500">Transaction ID</span>
                   <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-mono text-zinc-400">{receipt.txId}</span>
+                    <span className="text-xs font-mono text-stone-400">{receipt.txId}</span>
                     <button onClick={() => { navigator.clipboard.writeText(receipt.txId); toast.success('Copied!', { duration: 1000 }); }}>
-                      <ClipboardDocumentIcon className="w-3.5 h-3.5 text-zinc-600 hover:text-zinc-300" />
+                      <ClipboardDocumentIcon className="w-3.5 h-3.5 text-stone-600 hover:text-stone-300" />
                     </button>
                   </div>
                 </div>
@@ -434,7 +434,7 @@ export default function Dashboard() {
               <div className="px-5 pb-5">
                 <button
                   onClick={() => setReceipt(null)}
-                  className="w-full py-3 bg-white text-zinc-950 font-bold rounded-xl hover:bg-zinc-200 transition-colors text-sm"
+                  className="w-full py-3 bg-amber-500 text-black font-bold rounded-xl hover:bg-amber-400 transition-colors text-sm"
                 >
                   Done
                 </button>

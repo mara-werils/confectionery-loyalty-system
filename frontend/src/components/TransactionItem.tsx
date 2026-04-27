@@ -23,35 +23,35 @@ interface TransactionItemProps {
 const typeConfig = {
   PURCHASE: {
     icon: ShoppingBagIcon,
-    color: 'text-zinc-300',
+    color: 'text-stone-300',
     bg: 'bg-white/5 border border-white/10',
     label: 'Purchase',
     isPositive: true,
   },
   BONUS: {
     icon: SparklesIcon,
-    color: 'text-zinc-300',
+    color: 'text-stone-300',
     bg: 'bg-white/5 border border-white/10',
     label: 'Bonus',
     isPositive: true,
   },
   REFERRAL: {
     icon: UserGroupIcon,
-    color: 'text-zinc-300',
+    color: 'text-stone-300',
     bg: 'bg-white/5 border border-white/10',
     label: 'Referral',
     isPositive: true,
   },
   PROMOTION: {
     icon: GiftIcon,
-    color: 'text-zinc-300',
+    color: 'text-stone-300',
     bg: 'bg-white/5 border border-white/10',
     label: 'Promotion',
     isPositive: true,
   },
   REDEMPTION: {
     icon: GiftIcon,
-    color: 'text-zinc-300',
+    color: 'text-stone-300',
     bg: 'bg-white/5 border border-white/10',
     label: 'Redemption',
     isPositive: false,
@@ -114,15 +114,15 @@ export default function TransactionItem({
         <div className="flex items-center gap-2">
           <span className="font-semibold text-white tracking-tight">{config.label}</span>
           {description && (
-            <span className="text-xs text-zinc-400 truncate font-medium">{description}</span>
+            <span className="text-xs text-stone-400 truncate font-medium">{description}</span>
           )}
         </div>
         {partnerName && (
-          <p className="text-xs text-zinc-400 font-medium truncate mt-0.5">{partnerName}</p>
+          <p className="text-xs text-stone-400 font-medium truncate mt-0.5">{partnerName}</p>
         )}
-        <div className="flex items-center gap-2 text-xs text-zinc-500 mt-1">
+        <div className="flex items-center gap-2 text-xs text-stone-500 mt-1">
           <span>{formatDate(createdAt)}</span>
-          <span className="w-1 h-1 bg-zinc-700 rounded-full"></span>
+          <span className="w-1 h-1 bg-stone-700 rounded-full"></span>
           <span>{formatTime(createdAt)}</span>
         </div>
       </div>
@@ -146,7 +146,7 @@ export default function TransactionItem({
           </span>
         </div>
         {Number(amount) > 0 && (
-          <div className="text-[11px] font-medium text-zinc-500 mt-1">
+          <div className="text-[11px] font-medium text-stone-500 mt-1">
             {(Number(amount) / 100).toLocaleString()} KZT
           </div>
         )}

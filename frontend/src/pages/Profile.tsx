@@ -43,11 +43,11 @@ function Modal({ open, onClose, title, children }: {
           exit={{ y: 80, opacity: 0 }}
           transition={{ type: 'spring', damping: 22, stiffness: 300 }}
           onClick={(e) => e.stopPropagation()}
-          className="w-full max-w-lg bg-zinc-900 border border-white/10 rounded-t-3xl p-6 pb-24 space-y-5"
+          className="w-full max-w-lg bg-stone-900 border border-white/10 rounded-t-3xl p-6 pb-24 space-y-5"
         >
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-white">{title}</h2>
-            <button onClick={onClose} className="text-zinc-500 hover:text-white transition-colors text-sm font-bold px-3 py-1 rounded-lg bg-white/5">
+            <button onClick={onClose} className="text-stone-500 hover:text-white transition-colors text-sm font-bold px-3 py-1 rounded-lg bg-white/5">
               <XMarkIcon className="w-4 h-4" />
             </button>
           </div>
@@ -63,9 +63,9 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
   return (
     <button
       onClick={() => onChange(!checked)}
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${checked ? 'bg-white' : 'bg-zinc-700'}`}
+      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${checked ? 'bg-white' : 'bg-stone-700'}`}
     >
-      <span className={`inline-block h-4 w-4 transform rounded-full bg-zinc-900 transition-transform ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
+      <span className={`inline-block h-4 w-4 transform rounded-full bg-stone-900 transition-transform ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
     </button>
   );
 }
@@ -73,7 +73,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
 // ─── Tier badge ──────────────────────────────────────────────────
 const TIER_STYLES: Record<string, string> = {
   GOLD: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30',
-  SILVER: 'bg-zinc-700/50 text-zinc-300 border-zinc-600',
+  SILVER: 'bg-stone-700/50 text-stone-300 border-stone-600',
   BRONZE: 'bg-orange-500/10 text-orange-400 border-orange-500/30',
 };
 
@@ -221,21 +221,21 @@ export default function Profile() {
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="pl-1">
         <h1 className="text-3xl font-bold text-white tracking-tight">{t('profile.title')}</h1>
-        <p className="text-zinc-400 mt-1 text-sm">{t('profile.subtitle')}</p>
+        <p className="text-stone-400 mt-1 text-sm">{t('profile.subtitle')}</p>
       </motion.div>
 
       {/* Profile Card */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
-        className="bg-zinc-900 border border-zinc-800/80 rounded-2xl p-5"
+        className="bg-stone-900 border border-stone-800/80 rounded-2xl p-5"
       >
         <div className="flex items-center gap-4">
           <div
-            className="relative w-18 h-18 w-[72px] h-[72px] bg-zinc-800 rounded-2xl flex items-center justify-center border border-white/5 cursor-pointer group overflow-hidden shrink-0"
+            className="relative w-18 h-18 w-[72px] h-[72px] bg-stone-800 rounded-2xl flex items-center justify-center border border-white/5 cursor-pointer group overflow-hidden shrink-0"
             onClick={() => document.getElementById('avatar-upload')?.click()}
           >
             {avatar
               ? <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
-              : <UserCircleIcon className="w-9 h-9 text-zinc-500 group-hover:text-white transition-colors" />
+              : <UserCircleIcon className="w-9 h-9 text-stone-500 group-hover:text-white transition-colors" />
             }
             <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
               <PencilIcon className="w-5 h-5 text-white" />
@@ -247,7 +247,7 @@ export default function Profile() {
               {user?.companyName || 'My Account'}
             </h2>
             <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border bg-white/5 text-zinc-300 border-white/10">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border bg-white/5 text-stone-300 border-white/10">
                 {role === 'business' ? 'Business' : 'Customer'}
               </span>
               <span className={clsx('px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border', TIER_STYLES[tier])}>
@@ -260,7 +260,7 @@ export default function Profile() {
               )}
             </div>
             {user?.email && (
-              <p className="text-xs text-zinc-500 mt-1.5 truncate">{user.email}</p>
+              <p className="text-xs text-stone-500 mt-1.5 truncate">{user.email}</p>
             )}
           </div>
         </div>
@@ -275,11 +275,11 @@ export default function Profile() {
           { label: 'Lifetime', value: lifetimeEarned.toLocaleString(), sub: 'earned', icon: TrophyIcon },
           { label: 'Coupons', value: useAuthStore.getState().activeCoupons.length, sub: 'active', icon: ClockIcon },
         ].map(({ label, value, sub, icon: Icon }) => (
-          <div key={label} className="bg-zinc-900 border border-zinc-800/80 rounded-xl p-3 text-center">
-            <Icon className="w-4 h-4 text-zinc-500 mx-auto mb-1" />
+          <div key={label} className="bg-stone-900 border border-stone-800/80 rounded-xl p-3 text-center">
+            <Icon className="w-4 h-4 text-stone-500 mx-auto mb-1" />
             <p className="text-lg font-bold text-white leading-tight">{value}</p>
-            <p className="text-[10px] text-zinc-500 mt-0.5">{label}</p>
-            <p className="text-[9px] text-zinc-600">{sub}</p>
+            <p className="text-[10px] text-stone-500 mt-0.5">{label}</p>
+            <p className="text-[9px] text-stone-600">{sub}</p>
           </div>
         ))}
       </motion.div>
@@ -287,42 +287,42 @@ export default function Profile() {
       {/* Tier Progress */}
       {tier !== 'GOLD' && (
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.13 }}
-          className="bg-zinc-900 border border-zinc-800/80 rounded-2xl p-4"
+          className="bg-stone-900 border border-stone-800/80 rounded-2xl p-4"
         >
           <div className="flex justify-between items-center mb-2">
-            <p className="text-xs font-semibold text-zinc-400">Progress to {tierInfo.next}</p>
-            <p className="text-xs font-mono text-zinc-400">{lifetimeEarned.toLocaleString()} / {tierInfo.required.toLocaleString()}</p>
+            <p className="text-xs font-semibold text-stone-400">Progress to {tierInfo.next}</p>
+            <p className="text-xs font-mono text-stone-400">{lifetimeEarned.toLocaleString()} / {tierInfo.required.toLocaleString()}</p>
           </div>
-          <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
+          <div className="h-2 bg-stone-800 rounded-full overflow-hidden">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
               transition={{ duration: 1, delay: 0.3, ease: 'easeOut' }}
-              className={clsx('h-full rounded-full', tier === 'BRONZE' ? 'bg-orange-400' : 'bg-zinc-300')}
+              className={clsx('h-full rounded-full', tier === 'BRONZE' ? 'bg-orange-400' : 'bg-stone-300')}
             />
           </div>
-          <p className="text-[10px] text-zinc-600 mt-1.5">{progress}% — {(tierInfo.required - lifetimeEarned).toLocaleString()} SWEET to reach {tierInfo.next}</p>
+          <p className="text-[10px] text-stone-600 mt-1.5">{progress}% — {(tierInfo.required - lifetimeEarned).toLocaleString()} SWEET to reach {tierInfo.next}</p>
         </motion.div>
       )}
 
       {/* Wallet Address */}
       {wallet && (
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-          className="bg-zinc-900 border border-zinc-800/80 rounded-2xl p-4"
+          className="bg-stone-900 border border-stone-800/80 rounded-2xl p-4"
         >
-          <p className="text-xs text-zinc-500 mb-2 font-medium">TON Wallet</p>
+          <p className="text-xs text-stone-500 mb-2 font-medium">TON Wallet</p>
           <div className="flex items-center gap-3">
             <div className="p-2 bg-blue-500/10 rounded-xl border border-blue-500/20">
               <WalletIcon className="w-4 h-4 text-blue-400" />
             </div>
-            <p className="flex-1 font-mono text-xs text-zinc-300 truncate">{formatAddress(wallet.account.address)}</p>
+            <p className="flex-1 font-mono text-xs text-stone-300 truncate">{formatAddress(wallet.account.address)}</p>
             <button onClick={handleCopyAddress} className="p-2 hover:bg-white/5 rounded-lg transition-colors">
-              {copied ? <CheckIcon className="w-4 h-4 text-green-400" /> : <ClipboardDocumentIcon className="w-4 h-4 text-zinc-500" />}
+              {copied ? <CheckIcon className="w-4 h-4 text-green-400" /> : <ClipboardDocumentIcon className="w-4 h-4 text-stone-500" />}
             </button>
           </div>
           <div className="flex items-center gap-1.5 mt-2">
             <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-            <p className="text-[10px] text-zinc-600">Connected · TON Testnet</p>
+            <p className="text-[10px] text-stone-600">Connected · TON Testnet</p>
           </div>
         </motion.div>
       )}
@@ -330,19 +330,19 @@ export default function Profile() {
       {/* Recent Activity */}
       {token && recentTxs.length > 0 && (
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}
-          className="bg-zinc-900 border border-zinc-800/80 rounded-2xl p-4"
+          className="bg-stone-900 border border-stone-800/80 rounded-2xl p-4"
         >
-          <p className="text-xs text-zinc-500 mb-3 font-medium">Recent Activity</p>
+          <p className="text-xs text-stone-500 mb-3 font-medium">Recent Activity</p>
           <div className="space-y-2">
             {recentTxs.map((tx) => (
               <div key={tx.id} className="flex items-center justify-between py-1">
                 <div className="flex items-center gap-2">
-                  <div className={clsx('w-1.5 h-1.5 rounded-full', tx.type === 'PURCHASE' ? 'bg-green-400' : tx.type === 'REFERRAL' ? 'bg-purple-400' : 'bg-zinc-500')} />
-                  <p className="text-xs text-zinc-400 truncate max-w-[160px]">{tx.description || tx.type}</p>
+                  <div className={clsx('w-1.5 h-1.5 rounded-full', tx.type === 'PURCHASE' ? 'bg-green-400' : tx.type === 'REFERRAL' ? 'bg-purple-400' : 'bg-stone-500')} />
+                  <p className="text-xs text-stone-400 truncate max-w-[160px]">{tx.description || tx.type}</p>
                 </div>
                 <div className="text-right shrink-0">
                   <p className="text-xs font-bold text-green-400">+{Number(tx.pointsEarned).toLocaleString()}</p>
-                  <p className="text-[9px] text-zinc-600">{timeAgo(tx.createdAt)}</p>
+                  <p className="text-[9px] text-stone-600">{timeAgo(tx.createdAt)}</p>
                 </div>
               </div>
             ))}
@@ -352,22 +352,22 @@ export default function Profile() {
 
       {/* Menu */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-        className="bg-zinc-900 border border-zinc-800/80 rounded-2xl overflow-hidden"
+        className="bg-stone-900 border border-stone-800/80 rounded-2xl overflow-hidden"
       >
         {menuItems.map((item, idx) => (
           <button
             key={idx}
             onClick={item.action}
-            className="w-full flex items-center gap-4 px-4 py-3.5 hover:bg-white/5 transition-colors text-left border-b border-zinc-800/60 last:border-0"
+            className="w-full flex items-center gap-4 px-4 py-3.5 hover:bg-white/5 transition-colors text-left border-b border-stone-800/60 last:border-0"
           >
             <div className="p-2 bg-white/5 rounded-xl border border-white/5 shrink-0">
-              <item.icon className="w-4 h-4 text-zinc-300" />
+              <item.icon className="w-4 h-4 text-stone-300" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-white">{item.label}</p>
-              <p className="text-xs text-zinc-500 mt-0.5">{item.description}</p>
+              <p className="text-xs text-stone-500 mt-0.5">{item.description}</p>
             </div>
-            <ChevronRightIcon className="w-4 h-4 text-zinc-600 shrink-0" />
+            <ChevronRightIcon className="w-4 h-4 text-stone-600 shrink-0" />
           </button>
         ))}
       </motion.div>
@@ -375,7 +375,7 @@ export default function Profile() {
       {/* Switch Role */}
       <motion.button initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
         onClick={handleSwitchRole}
-        className="w-full flex items-center justify-center gap-2 py-3.5 bg-white/5 text-zinc-300 rounded-2xl font-bold hover:bg-white/10 border border-white/10 transition-colors text-sm"
+        className="w-full flex items-center justify-center gap-2 py-3.5 bg-white/5 text-stone-300 rounded-2xl font-bold hover:bg-white/10 border border-white/10 transition-colors text-sm"
       >
         <ArrowsRightLeftIcon className="w-5 h-5" />
         {role === 'business' ? t('profile.switchToCustomer') : t('profile.switchToBusiness')}
@@ -392,8 +392,8 @@ export default function Profile() {
 
       {/* Footer */}
       <div className="text-center pt-2 pb-4">
-        <p className="text-[10px] font-bold tracking-widest uppercase text-zinc-700">{t('profile.version')}</p>
-        <p className="text-[10px] text-zinc-700 mt-1">{t('profile.diploma')}</p>
+        <p className="text-[10px] font-bold tracking-widest uppercase text-stone-700">{t('profile.version')}</p>
+        <p className="text-[10px] text-stone-700 mt-1">{t('profile.diploma')}</p>
       </div>
 
       {/* ══════════════════════════════════════════
@@ -402,7 +402,7 @@ export default function Profile() {
       <Modal open={activeModal === 'edit'} onClose={() => setActiveModal(null)} title="Edit Profile">
         <div className="space-y-4">
           <div>
-            <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest block mb-2">
+            <label className="text-xs font-bold text-stone-400 uppercase tracking-widest block mb-2">
               <BuildingStorefrontIcon className="w-3.5 h-3.5 inline mr-1" />
               Company / Display Name
             </label>
@@ -410,11 +410,11 @@ export default function Profile() {
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
               placeholder="Your company name"
-              className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-zinc-600 transition-colors placeholder:text-zinc-600"
+              className="w-full bg-stone-950 border border-stone-800 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-stone-600 transition-colors placeholder:text-stone-600"
             />
           </div>
           <div>
-            <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest block mb-2">
+            <label className="text-xs font-bold text-stone-400 uppercase tracking-widest block mb-2">
               <EnvelopeIcon className="w-3.5 h-3.5 inline mr-1" />
               Email
             </label>
@@ -423,23 +423,23 @@ export default function Profile() {
               value={editEmail}
               onChange={(e) => setEditEmail(e.target.value)}
               placeholder="your@email.com"
-              className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-zinc-600 transition-colors placeholder:text-zinc-600"
+              className="w-full bg-stone-950 border border-stone-800 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-stone-600 transition-colors placeholder:text-stone-600"
             />
           </div>
           <div className="flex gap-3 pt-2">
             <button
               onClick={() => setActiveModal(null)}
-              className="flex-1 py-3 rounded-xl bg-zinc-800 text-zinc-300 text-sm font-bold hover:bg-zinc-700 transition-colors"
+              className="flex-1 py-3 rounded-xl bg-stone-800 text-stone-300 text-sm font-bold hover:bg-stone-700 transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={handleSaveProfile}
               disabled={isSaving || (!editName.trim() && !editEmail.trim())}
-              className="flex-1 py-3 rounded-xl bg-white text-zinc-950 text-sm font-bold hover:bg-zinc-200 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              className="flex-1 py-3 rounded-xl bg-amber-500 text-black text-sm font-bold hover:bg-amber-400 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {isSaving ? (
-                <div className="w-4 h-4 border-2 border-zinc-400 border-t-zinc-900 rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-stone-400 border-t-stone-900 rounded-full animate-spin" />
               ) : (
                 <><CheckIcon className="w-4 h-4" /> Save</>
               )}
@@ -454,17 +454,17 @@ export default function Profile() {
       <Modal open={activeModal === 'security'} onClose={() => setActiveModal(null)} title="Security">
         <div className="space-y-4">
           <div className="p-4 bg-white/5 rounded-2xl border border-white/10 space-y-3">
-            <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Connected Wallet</p>
+            <p className="text-xs font-bold text-stone-400 uppercase tracking-widest">Connected Wallet</p>
             <div className="flex items-center gap-3">
               <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse shrink-0" />
-              <p className="font-mono text-xs text-zinc-200 break-all">
+              <p className="font-mono text-xs text-stone-200 break-all">
                 {wallet ? wallet.account.address : 'Not connected'}
               </p>
             </div>
             {wallet && (
               <button
                 onClick={handleCopyAddress}
-                className="text-xs text-zinc-500 hover:text-white flex items-center gap-1 transition-colors"
+                className="text-xs text-stone-500 hover:text-white flex items-center gap-1 transition-colors"
               >
                 <ClipboardDocumentIcon className="w-3.5 h-3.5" />
                 {copied ? 'Copied!' : 'Copy full address'}
@@ -473,26 +473,26 @@ export default function Profile() {
           </div>
 
           <div className="p-4 bg-white/5 rounded-2xl border border-white/10 space-y-3">
-            <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Authentication</p>
+            <p className="text-xs font-bold text-stone-400 uppercase tracking-widest">Authentication</p>
             <div className="flex items-center gap-3">
               <ShieldCheckIcon className="w-5 h-5 text-green-400 shrink-0" />
               <div>
                 <p className="text-sm font-semibold text-white">TON Wallet Signature</p>
-                <p className="text-xs text-zinc-500">Cryptographic proof — no password stored</p>
+                <p className="text-xs text-stone-500">Cryptographic proof — no password stored</p>
               </div>
             </div>
           </div>
 
           <div className="p-4 bg-white/5 rounded-2xl border border-white/10 space-y-3">
-            <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">SBT Partner Certificate</p>
+            <p className="text-xs font-bold text-stone-400 uppercase tracking-widest">SBT Partner Certificate</p>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className={`w-2 h-2 rounded-full ${hasBusinessSbt ? 'bg-green-400' : 'bg-zinc-600'}`} />
+                <div className={`w-2 h-2 rounded-full ${hasBusinessSbt ? 'bg-green-400' : 'bg-stone-600'}`} />
                 <div>
                   <p className="text-sm font-semibold text-white">
                     {hasBusinessSbt ? 'Valid — Bound to Wallet' : 'Not Issued'}
                   </p>
-                  <p className="text-xs text-zinc-500">Soulbound Token — non-transferable</p>
+                  <p className="text-xs text-stone-500">Soulbound Token — non-transferable</p>
                 </div>
               </div>
               {hasBusinessSbt && (
@@ -504,22 +504,22 @@ export default function Profile() {
           </div>
 
           <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
-            <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-3">Account Status</p>
+            <p className="text-xs font-bold text-stone-400 uppercase tracking-widest mb-3">Account Status</p>
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div>
-                <p className="text-zinc-600">Tier</p>
+                <p className="text-stone-600">Tier</p>
                 <p className="font-bold text-white mt-0.5">{tier}</p>
               </div>
               <div>
-                <p className="text-zinc-600">Status</p>
+                <p className="text-stone-600">Status</p>
                 <p className="font-bold text-green-400 mt-0.5">{user?.status || 'ACTIVE'}</p>
               </div>
               <div>
-                <p className="text-zinc-600">Balance</p>
+                <p className="text-stone-600">Balance</p>
                 <p className="font-bold text-white mt-0.5">{balance.toLocaleString()} SWEET</p>
               </div>
               <div>
-                <p className="text-zinc-600">Network</p>
+                <p className="text-stone-600">Network</p>
                 <p className="font-bold text-white mt-0.5">TON Testnet</p>
               </div>
             </div>
@@ -548,12 +548,12 @@ export default function Profile() {
             <div key={label} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10">
               <div className="mr-4">
                 <p className="text-sm font-semibold text-white">{label}</p>
-                <p className="text-xs text-zinc-500 mt-0.5">{subtitle}</p>
+                <p className="text-xs text-stone-500 mt-0.5">{subtitle}</p>
               </div>
               <Toggle checked={value} onChange={(v) => { set(v); toast.success(`${label} ${v ? 'on' : 'off'}`, { duration: 1000 }); }} />
             </div>
           ))}
-          <p className="text-xs text-zinc-600 text-center pt-1">Settings are saved locally on this device</p>
+          <p className="text-xs text-stone-600 text-center pt-1">Settings are saved locally on this device</p>
         </div>
       </Modal>
 
@@ -563,7 +563,7 @@ export default function Profile() {
       <Modal open={activeModal === 'help'} onClose={() => setActiveModal(null)} title="Help & Support">
         <div className="space-y-4">
           <div className="p-4 bg-white/5 rounded-2xl border border-white/10 space-y-3">
-            <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Contact</p>
+            <p className="text-xs font-bold text-stone-400 uppercase tracking-widest">Contact</p>
             <a href="https://t.me/marlenqq" target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-3 py-2 hover:opacity-80 transition-opacity"
             >
@@ -574,24 +574,24 @@ export default function Profile() {
               </div>
               <div>
                 <p className="text-sm font-semibold text-white">Telegram Support</p>
-                <p className="text-xs text-zinc-500">@marlenqq</p>
+                <p className="text-xs text-stone-500">@marlenqq</p>
               </div>
             </a>
             <a href="mailto:support@sweetloyalty.kz"
               className="flex items-center gap-3 py-2 hover:opacity-80 transition-opacity"
             >
               <div className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
-                <EnvelopeIcon className="w-5 h-5 text-zinc-300" />
+                <EnvelopeIcon className="w-5 h-5 text-stone-300" />
               </div>
               <div>
                 <p className="text-sm font-semibold text-white">Email Support</p>
-                <p className="text-xs text-zinc-500">support@sweetloyalty.kz</p>
+                <p className="text-xs text-stone-500">support@sweetloyalty.kz</p>
               </div>
             </a>
           </div>
 
           <div className="p-4 bg-white/5 rounded-2xl border border-white/10 space-y-3">
-            <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">FAQ</p>
+            <p className="text-xs font-bold text-stone-400 uppercase tracking-widest">FAQ</p>
             {[
               { q: 'How do I earn SWEET tokens?', a: 'Every purchase at a partner confectionery earns you SWEET tokens. 10% of the purchase amount is converted instantly.' },
               { q: 'How do I redeem rewards?', a: 'Go to the Rewards section, choose an offer, and tap Redeem. A coupon code is generated immediately.' },
@@ -602,9 +602,9 @@ export default function Profile() {
               <details key={q} className="group cursor-pointer">
                 <summary className="text-sm font-semibold text-white list-none flex justify-between items-center gap-2">
                   <span>{q}</span>
-                  <span className="text-zinc-500 group-open:rotate-180 transition-transform shrink-0">▾</span>
+                  <span className="text-stone-500 group-open:rotate-180 transition-transform shrink-0">▾</span>
                 </summary>
-                <p className="text-xs text-zinc-400 mt-2 leading-relaxed">{a}</p>
+                <p className="text-xs text-stone-400 mt-2 leading-relaxed">{a}</p>
               </details>
             ))}
           </div>

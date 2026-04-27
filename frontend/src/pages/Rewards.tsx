@@ -60,7 +60,7 @@ export default function Rewards() {
         className="mb-8 pl-1"
       >
         <h1 className="text-3xl font-bold text-white tracking-tight">Rewards</h1>
-        <p className="text-zinc-400 mt-1">
+        <p className="text-stone-400 mt-1">
           You have{' '}
           <span className="font-semibold text-white bg-white/10 px-2 py-0.5 rounded-md">
             {currentBalance.toLocaleString()}
@@ -81,7 +81,7 @@ export default function Rewards() {
                   'flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-300 focus:outline-none',
                   selected
                     ? 'bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.3)]'
-                    : 'bg-zinc-900/50 text-zinc-400 hover:text-zinc-200 border border-white/5 hover:border-white/10'
+                    : 'bg-stone-900/50 text-stone-400 hover:text-stone-200 border border-white/5 hover:border-white/10'
                 )
               }
             >
