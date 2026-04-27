@@ -50,8 +50,6 @@ export default function AdminDashboard() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsVerifying(true);
-    
-    await new Promise(r => setTimeout(r, 800));
 
     const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || 'admin@sweetloyalty.kz';
     const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD || 'MasterKey2026!';
@@ -66,41 +64,47 @@ export default function AdminDashboard() {
   };
 
   const handleIssueCertificate = async () => {
-    if (!walletAddress) {
+    if (!walletAddress || walletAddress === 'UQ...TON...WALLET') {
       toast.error(t('admin.enterWallet') || 'Please enter a target wallet address');
       return;
     }
 
     setIsMinting(true);
-    toast.loading(t('admin.mintingSBT') || 'Minting Soulbound Token on TON Blockchain...', { id: 'adminMint' });
-    
+    toast.loading(t('admin.mintingSBT') || 'Issuing Soulbound Token...', { id: 'adminMint' });
+
     try {
-      // Simulate Blockchain transaction delay for visual effect
-      await new Promise(r => setTimeout(r, 2000));
-      
-      // Persist the credential to the backend
       const { api } = await import('../../services/api');
       await api.admin.issueSbt(walletAddress);
-
       setHasBusinessSbt(true);
-      toast.success(t('admin.mintSuccess') || 'SBT Successfully issued and bound to wallet!', { id: 'adminMint' });
-    } catch (err) {
-      console.error(err);
-      toast.error('Failed to issue certificate', { id: 'adminMint' });
+      toast.success(t('admin.mintSuccess') || 'SBT issued and recorded on-chain!', { id: 'adminMint' });
+    } catch (err: unknown) {
+      const error = err as { message?: string };
+      toast.error(error?.message || 'Failed to issue certificate', { id: 'adminMint' });
     } finally {
       setIsMinting(false);
     }
   };
 
   const handleRevokeCertificate = async () => {
+    if (!walletAddress || walletAddress === 'UQ...TON...WALLET') {
+      toast.error('Enter the wallet address to revoke');
+      return;
+    }
+
     setIsMinting(true);
     toast.loading(t('admin.revokingSBT') || 'Revoking Soulbound Token...', { id: 'adminRevoke' });
-    
-    await new Promise(r => setTimeout(r, 1500));
-    
-    setHasBusinessSbt(false);
-    toast.success(t('admin.revokeSuccess') || 'Certificate has been revoked.', { id: 'adminRevoke' });
-    setIsMinting(false);
+
+    try {
+      const { api } = await import('../../services/api');
+      await api.admin.revokeSbt(walletAddress);
+      setHasBusinessSbt(false);
+      toast.success(t('admin.revokeSuccess') || 'Certificate has been revoked.', { id: 'adminRevoke' });
+    } catch (err: unknown) {
+      const error = err as { message?: string };
+      toast.error(error?.message || 'Failed to revoke certificate', { id: 'adminRevoke' });
+    } finally {
+      setIsMinting(false);
+    }
   };
 
   return (

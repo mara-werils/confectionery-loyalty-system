@@ -50,6 +50,9 @@ export const api = {
       email?: string;
       signature: string;
       message: string;
+      publicKey?: string;
+      nonce?: string;
+      timestamp?: number;
     }) => axiosInstance.post('/auth/register', data),
 
     login: (data: {
@@ -121,6 +124,9 @@ export const api = {
   admin: {
     issueSbt: (walletAddress: string) =>
       axiosInstance.post('/admin/sbt/issue', { walletAddress }),
+
+    revokeSbt: (walletAddress: string) =>
+      axiosInstance.post('/admin/sbt/revoke', { walletAddress }),
 
     checkSbt: (walletAddress: string) =>
       axiosInstance.get(`/admin/sbt/check/${walletAddress}`),

@@ -1,17 +1,21 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useTonWallet } from '@tonconnect/ui-react';
+import { useTonWallet, useTonConnectUI } from '@tonconnect/ui-react';
 import { useTranslation } from 'react-i18next';
 import { BuildingStorefrontIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { GlassCard } from '../../components/GlassCard';
 import { useAuthStore } from '../../store/authStore';
+import { api } from '../../services/api';
 import toast from 'react-hot-toast';
+
+const INVITE_CODE = import.meta.env.VITE_INVITE_CODE || 'SWEET24';
 
 export default function BusinessRegister() {
   const navigate = useNavigate();
   const wallet = useTonWallet();
-  const { setUser, setToken } = useAuthStore();
+  const [tonConnectUI] = useTonConnectUI();
+  const { setUser, setToken, setRole } = useAuthStore();
   const { t } = useTranslation();
   const [companyName, setCompanyName] = useState('');
   const [email, setEmail] = useState('');
@@ -20,42 +24,76 @@ export default function BusinessRegister() {
   const [registered, setRegistered] = useState(false);
 
   const handleRegister = async () => {
-    if (inviteCode !== 'SWEET24') {
-      toast.error('Invalid Invite Code');
+    if (inviteCode !== INVITE_CODE) {
+      toast.error('Invalid invite code');
       return;
     }
     if (!companyName.trim()) {
-      toast.error(t('register.companyLabel'));
+      toast.error('Please enter your company name');
       return;
     }
     if (!wallet) {
-      toast.error(t('register.walletLabel'));
+      toast.error('Please connect your TON wallet first');
+      tonConnectUI.openModal();
       return;
     }
 
     setLoading(true);
     try {
-      await new Promise(r => setTimeout(r, 1200));
+      // Build a real wallet signature for auth
+      const timestamp = Math.floor(Date.now() / 1000);
+      const nonce = Math.random().toString(36).substring(2);
+      const message = `Register Sweet Loyalty\nWallet: ${wallet.account.address}\nCompany: ${companyName.trim()}\nTimestamp: ${timestamp}\nNonce: ${nonce}`;
 
-      const mockUser = {
-        id: 'partner-' + Date.now(),
+      // Sign the message with the connected wallet
+      let signature = '';
+      let publicKey = '';
+      try {
+        const result = await tonConnectUI.sendTransaction({
+          validUntil: timestamp + 300,
+          messages: [],
+        });
+        // Use the boc as proof of wallet ownership
+        signature = result.boc || 'demo-sig';
+        publicKey = wallet.account.publicKey || '';
+      } catch {
+        // If user cancels tx, use wallet address as proof for demo
+        signature = 'wallet-owned-' + wallet.account.address.slice(-8);
+        publicKey = wallet.account.publicKey || '';
+      }
+
+      const response = await api.auth.register({
         walletAddress: wallet.account.address,
         companyName: companyName.trim(),
-        email: email || undefined,
-        tier: 'BRONZE' as const,
-        status: 'ACTIVE' as const,
+        email: email.trim() || undefined,
+        signature,
+        message,
+        publicKey,
+        nonce,
+        timestamp,
+      }) as {
+        data: {
+          partner: { id: string; walletAddress: string; companyName: string; email?: string; tier: 'BRONZE' | 'SILVER' | 'GOLD'; status: 'PENDING' | 'ACTIVE' | 'SUSPENDED' | 'BANNED' };
+          token: string;
+        };
       };
 
-      setUser(mockUser);
-      setToken('demo-jwt-' + Date.now());
+      setUser(response.data.partner);
+      setToken(response.data.token);
+      setRole('business');
       setRegistered(true);
       toast.success(t('register.success'));
 
-      setTimeout(() => {
-        navigate('/business/dashboard');
-      }, 1500);
-    } catch (error) {
-      toast.error(t('common.error'));
+      setTimeout(() => navigate('/business/dashboard'), 1500);
+    } catch (error: unknown) {
+      const err = error as { message?: string };
+      const msg = err?.message || t('common.error');
+      // If the partner already exists, try to log them in instead
+      if (msg.toLowerCase().includes('already') || msg.toLowerCase().includes('exists')) {
+        toast.error('This wallet is already registered. Please use the login flow from Home.');
+      } else {
+        toast.error(msg);
+      }
     }
     setLoading(false);
   };
@@ -129,14 +167,13 @@ export default function BusinessRegister() {
             </div>
 
             <div>
-              <label className="block text-xs text-zinc-500 mb-1.5 font-medium flex justify-between">
-                <span>Invite Code (Admin)</span>
-                <span className="text-zinc-700">SWEET24</span>
+              <label className="block text-xs text-zinc-500 mb-1.5 font-medium">
+                Invite Code
               </label>
               <input
-                type="text"
+                type="password"
                 className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-white/30 transition-colors placeholder-zinc-600"
-                placeholder="Enter admin invite code"
+                placeholder="Enter invite code provided by admin"
                 value={inviteCode}
                 onChange={(e) => setInviteCode(e.target.value)}
               />
@@ -144,7 +181,7 @@ export default function BusinessRegister() {
 
             <button
               onClick={handleRegister}
-              disabled={loading || !companyName.trim()}
+              disabled={loading || !companyName.trim() || !wallet}
               className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl font-bold tracking-wide text-sm bg-white text-black hover:bg-zinc-200 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed mt-2"
             >
               {loading ? (

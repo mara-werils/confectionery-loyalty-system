@@ -425,6 +425,46 @@ router.post('/sbt/issue', async (req: Request, res: Response, next: NextFunction
     }
 });
 
+router.post('/sbt/revoke', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { walletAddress } = req.body;
+        if (!walletAddress) throw new AppError('Wallet address required', 400, 'BAD_REQUEST');
+
+        let normalizedAddress: string;
+        try {
+            normalizedAddress = Address.parse(walletAddress).toRawString();
+        } catch {
+            throw new AppError('Invalid TON wallet address format', 400, 'INVALID_ADDRESS');
+        }
+
+        const setting = await prisma.systemSetting.findUnique({
+            where: { key: 'issued_sbt_wallets' },
+        });
+
+        if (setting) {
+            const wallets: string[] = JSON.parse(setting.value);
+            const updated = wallets.filter((w) => w !== normalizedAddress);
+            await prisma.systemSetting.update({
+                where: { key: 'issued_sbt_wallets' },
+                data: { value: JSON.stringify(updated) },
+            });
+        }
+
+        await logAction({
+            actorId: 'admin',
+            actorType: 'admin',
+            action: 'REVOKE_SBT',
+            entityType: 'wallet',
+            entityId: normalizedAddress,
+            metadata: { walletAddress: normalizedAddress },
+        });
+
+        return successResponse(res, { success: true }, 'SBT revoked');
+    } catch (error) {
+        return next(error);
+    }
+});
+
 // ============================================================================
 // AUDIT LOG
 // ============================================================================
