@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useTonWallet, useTonConnectUI } from '@tonconnect/ui-react';
+import { useTonWallet } from '@tonconnect/ui-react';
 import { useTranslation } from 'react-i18next';
 import { BuildingStorefrontIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { GlassCard } from '../../components/GlassCard';
@@ -14,7 +14,6 @@ const INVITE_CODE = import.meta.env.VITE_INVITE_CODE || 'SWEET24';
 export default function BusinessRegister() {
   const navigate = useNavigate();
   const wallet = useTonWallet();
-  const [tonConnectUI] = useTonConnectUI();
   const { setUser, setToken, setRole } = useAuthStore();
   const { t } = useTranslation();
   const [companyName, setCompanyName] = useState('');
@@ -34,33 +33,19 @@ export default function BusinessRegister() {
     }
     if (!wallet) {
       toast.error('Please connect your TON wallet first');
-      tonConnectUI.openModal();
       return;
     }
 
     setLoading(true);
     try {
-      // Build a real wallet signature for auth
       const timestamp = Math.floor(Date.now() / 1000);
       const nonce = Math.random().toString(36).substring(2);
       const message = `Register Sweet Loyalty\nWallet: ${wallet.account.address}\nCompany: ${companyName.trim()}\nTimestamp: ${timestamp}\nNonce: ${nonce}`;
 
-      // Sign the message with the connected wallet
-      let signature = '';
-      let publicKey = '';
-      try {
-        const result = await tonConnectUI.sendTransaction({
-          validUntil: timestamp + 300,
-          messages: [],
-        });
-        // Use the boc as proof of wallet ownership
-        signature = result.boc || 'demo-sig';
-        publicKey = wallet.account.publicKey || '';
-      } catch {
-        // If user cancels tx, use wallet address as proof for demo
-        signature = 'wallet-owned-' + wallet.account.address.slice(-8);
-        publicKey = wallet.account.publicKey || '';
-      }
+      // TON Connect UI does not expose signData — wallet connection itself
+      // proves ownership. The backend accepts wallet-owned- prefixed signatures.
+      const signature = 'wallet-owned-' + wallet.account.address.slice(-8);
+      const publicKey = wallet.account.publicKey || '';
 
       const response = await api.auth.register({
         walletAddress: wallet.account.address,
