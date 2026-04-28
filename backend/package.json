@@ -20,6 +20,8 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@logtail/node": "^0.5.8",
+    "@logtail/winston": "^0.5.8",
     "@prisma/client": "^5.14.0",
     "@ton/core": "^0.56.0",
     "@ton/crypto": "^3.2.0",
