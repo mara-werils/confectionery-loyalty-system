@@ -35,6 +35,7 @@ interface AuthState {
   addSpentPoints: (points: number) => void;
   setAvatar: (base64: string | null) => void;
   addCoupon: (coupon: { code: string; rewardTitleKey: string; partnerName: string }) => void;
+  setCoupons: (coupons: Array<{ code: string; rewardTitleKey: string; partnerName: string }>) => void;
   setHasBusinessSbt: (has: boolean) => void;
   setSweetBalance: (balance: number) => void;
 }
@@ -62,6 +63,7 @@ export const useAuthStore = create<AuthState>()(
       addSpentPoints: (points) => set((state) => ({ spentPoints: state.spentPoints + points })),
       setAvatar: (avatar) => set({ avatar }),
       addCoupon: (coupon) => set((state) => ({ activeCoupons: [...state.activeCoupons, coupon] })),
+      setCoupons: (coupons) => set({ activeCoupons: coupons }),
       setHasBusinessSbt: (hasBusinessSbt) => set({ hasBusinessSbt }),
       setSweetBalance: (sweetBalance) => set({ sweetBalance }),
       

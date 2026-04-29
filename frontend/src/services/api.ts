@@ -137,7 +137,8 @@ export const api = {
 
   // Coupons
   coupons: {
-    create: (rewardId: string) => axiosInstance.post('/coupons', { rewardId }),
+    create: (rewardId: string, rewardTitle: string, pointsRequired: number, rewardCategory: string) =>
+      axiosInstance.post('/coupons', { rewardId, rewardTitle, pointsRequired, rewardCategory }),
     list: () => axiosInstance.get('/coupons'),
     verify: (code: string) => axiosInstance.get(`/coupons/verify/${code}`),
     redeem: (code: string) => axiosInstance.post(`/coupons/${code}/redeem`),

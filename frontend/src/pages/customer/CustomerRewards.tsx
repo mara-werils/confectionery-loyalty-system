@@ -191,7 +191,7 @@ export default function CustomerRewards() {
   const { i18n } = useTranslation();
   const lang = (i18n.language as 'en' | 'ru' | 'kz') || 'ru';
 
-  const { addCoupon, sweetBalance, setSweetBalance, activeCoupons } = useAuthStore();
+  const { addCoupon, setCoupons, sweetBalance, setSweetBalance, activeCoupons, token } = useAuthStore();
 
   const [partnerFilter, setPartnerFilter] = useState<string | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<FilterTab>('all');
@@ -227,6 +227,29 @@ export default function CustomerRewards() {
 
   const affordableCount = REWARDS.filter(r => r.pointsRequired <= sweetBalance).length;
 
+  // ── Reward → partner name map for DB sync ──────────────────────
+  const REWARD_PARTNER_NAME = useMemo(() =>
+    Object.fromEntries(REWARDS.map(r => [r.id, PARTNER_MAP[r.partnerId]?.name ?? 'Sweet Platform'])),
+  []);
+
+  // ── Sync coupons from DB once on mount / when token available ──
+  useEffect(() => {
+    if (!token) return;
+    (api.coupons.list() as Promise<{ data: Array<{ code: string; rewardId: string; status: string }> }>)
+      .then(res => {
+        const active = res.data
+          .filter(c => c.status === 'ACTIVE')
+          .map(c => ({
+            code: c.code,
+            rewardTitleKey: `${c.rewardId}-title`,
+            partnerName: REWARD_PARTNER_NAME[c.rewardId] ?? 'Sweet Platform',
+          }));
+        if (active.length > 0) setCoupons(active);
+      })
+      .catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
+
   // ── Redeem handler ─────────────────────────────────────────────
   const handleRedeem = async (reward: Reward) => {
     if (sweetBalance < reward.pointsRequired) {
@@ -236,7 +259,12 @@ export default function CustomerRewards() {
 
     setRedeeming(reward.id);
     try {
-      const res = await api.coupons.create(reward.id) as {
+      const res = await api.coupons.create(
+        reward.id,
+        getText(reward.titleKey),
+        reward.pointsRequired,
+        reward.category,
+      ) as {
         data: { code: string; expiresAt: string; daysLeft: number };
       };
       const { code, expiresAt, daysLeft } = res.data;

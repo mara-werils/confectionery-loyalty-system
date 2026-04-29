@@ -44,6 +44,8 @@ export default function Referrals() {
     queryKey: ['referrals', 'stats'],
     queryFn: () => api.referrals.getStats(),
     enabled: !!token,
+    retry: 3,
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10000),
   });
 
   const { data: leaderboardData } = useQuery({
@@ -89,18 +91,13 @@ export default function Referrals() {
   return (
     <div className="px-4 py-6 space-y-6">
       {/* Header */}
-      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="pl-1">
+      <div className="pl-1">
         <h1 className="text-3xl font-bold text-white tracking-tight">Referral Program</h1>
         <p className="text-stone-400 mt-1">Invite partners — earn 500 SWEET per referral</p>
-      </motion.div>
+      </div>
 
       {/* Stats Row */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.05 }}
-        className="grid grid-cols-2 gap-4"
-      >
+      <div className="grid grid-cols-2 gap-4">
         <div className="bg-stone-900 border border-stone-800/80 rounded-xl p-5">
           <div className="flex items-center gap-2 mb-1">
             <UserPlusIcon className="w-4 h-4 text-stone-500" />
@@ -124,15 +121,10 @@ export default function Referrals() {
             )}
           </p>
         </div>
-      </motion.div>
+      </div>
 
       {/* Referral Code Card */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="bg-stone-900 border border-stone-800/80 rounded-xl p-5"
-      >
+      <div className="bg-stone-900 border border-stone-800 rounded-xl p-5">
         <div className="flex items-center gap-2 mb-4">
           <GiftIcon className="w-5 h-5 text-stone-400" />
           <h2 className="text-base font-semibold text-white">Your Referral Code</h2>
@@ -169,15 +161,10 @@ export default function Referrals() {
         <p className="text-xs text-stone-500 mt-3 text-center">
           Share this code with other confectionery owners — you both earn 500 SWEET when they join.
         </p>
-      </motion.div>
+      </div>
 
       {/* Apply Code */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15 }}
-        className="bg-stone-900 border border-stone-800/80 rounded-xl p-5"
-      >
+      <div className="bg-stone-900 border border-stone-800 rounded-xl p-5">
         <button
           onClick={() => setShowApply(!showApply)}
           className="w-full flex items-center justify-between text-sm font-semibold text-stone-300 hover:text-white transition-colors"
@@ -208,16 +195,11 @@ export default function Referrals() {
             </button>
           </motion.div>
         )}
-      </motion.div>
+      </div>
 
       {/* Referred Partners List */}
       {stats?.referrals && stats.referrals.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-stone-900 border border-stone-800/80 rounded-xl p-5"
-        >
+        <div className="bg-stone-900 border border-stone-800 rounded-xl p-5">
           <h2 className="text-base font-semibold text-white mb-4">Partners You Referred</h2>
           <div className="space-y-3">
             {stats.referrals.map((ref) => (
@@ -234,17 +216,12 @@ export default function Referrals() {
               </div>
             ))}
           </div>
-        </motion.div>
+        </div>
       )}
 
       {/* Leaderboard */}
       {leaderboard.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
-          className="bg-stone-900 border border-stone-800/80 rounded-xl p-5"
-        >
+        <div className="bg-stone-900 border border-stone-800 rounded-xl p-5">
           <div className="flex items-center gap-2 mb-4">
             <TrophyIcon className="w-5 h-5 text-yellow-500" />
             <h2 className="text-base font-semibold text-white">Top Referrers</h2>
@@ -253,7 +230,7 @@ export default function Referrals() {
             {leaderboard.slice(0, 5).map((entry) => (
               <div key={entry.rank} className="flex items-center gap-3 py-2">
                 <span className="w-6 text-center font-bold text-stone-500 text-sm">
-                  {entry.rank <= 3 ? ['🥇', '🥈', '🥉'][entry.rank - 1] : entry.rank}
+                  {entry.rank}
                 </span>
                 <p className="flex-1 text-sm font-medium text-stone-200">{entry.companyName}</p>
                 <span className="text-sm font-bold text-white">{entry.referralCount}</span>
@@ -261,7 +238,7 @@ export default function Referrals() {
               </div>
             ))}
           </div>
-        </motion.div>
+        </div>
       )}
     </div>
   );

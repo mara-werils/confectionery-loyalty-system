@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import crypto from 'crypto';
+import { RewardCategory } from '@prisma/client';
 import { prisma } from '../utils/prisma';
 import { successResponse } from '../utils/response';
 import { authenticate } from '../middleware/auth';
@@ -47,20 +48,51 @@ function generateCouponCode(): string {
 
 const createSchema = z.object({
   rewardId: z.string().min(1),
+  // Inline reward data for static frontend catalog rewards (lazy-seeded into DB on first use)
+  rewardTitle: z.string().optional(),
+  pointsRequired: z.number().nonnegative().optional(),
+  rewardCategory: z.enum(['DISCOUNT', 'PRODUCT', 'CASHBACK', 'SPECIAL']).optional(),
 });
 
 /**
  * POST /coupons — Issue a real coupon after reward redemption
- * Deducts points, creates coupon record with 30-day expiry
+ * Accepts either a DB reward ID or inline reward data (for static frontend catalog).
+ * Static rewards are lazy-seeded into the rewards table on first redemption.
  */
 router.post('/', authenticate, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const partnerId = req.partner!.id;
-    const { rewardId } = createSchema.parse(req.body);
+    const { rewardId, rewardTitle: inlineTitle, pointsRequired: inlinePoints, rewardCategory: inlineCat } = createSchema.parse(req.body);
 
-    const reward = await prisma.reward.findUnique({ where: { id: rewardId } });
-    if (!reward || !reward.isActive) {
-      throw new AppError('Reward not found or inactive', 404, 'REWARD_NOT_FOUND');
+    // Resolve reward — check DB first, auto-seed if it's a static frontend reward
+    let reward = await prisma.reward.findUnique({ where: { id: rewardId } });
+
+    if (!reward) {
+      if (inlineTitle !== undefined && inlinePoints !== undefined) {
+        // Lazy-seed: first time this static reward is redeemed, persist it into DB.
+        // Using the frontend ID directly so subsequent lookups hit the DB.
+        try {
+          reward = await prisma.reward.create({
+            data: {
+              id: rewardId,
+              title: inlineTitle,
+              pointsRequired: BigInt(inlinePoints),
+              category: (inlineCat ?? 'DISCOUNT') as RewardCategory,
+              isActive: true,
+              available: 999,
+              maxClaims: 0,
+            },
+          });
+        } catch {
+          // Concurrent creation race — fetch the record that won
+          reward = await prisma.reward.findUnique({ where: { id: rewardId } });
+          if (!reward) throw new AppError('Reward not found', 404, 'REWARD_NOT_FOUND');
+        }
+      } else {
+        throw new AppError('Reward not found or inactive', 404, 'REWARD_NOT_FOUND');
+      }
+    } else if (!reward.isActive) {
+      throw new AppError('Reward is not active', 400, 'REWARD_INACTIVE');
     }
 
     let loyaltyPoints = await prisma.loyaltyPoints.findUnique({ where: { partnerId } });
@@ -230,6 +262,7 @@ router.get('/', authenticate, async (req: Request, res: Response, next: NextFunc
     return successResponse(res, coupons.map((c) => ({
       id: c.id,
       code: c.code,
+      rewardId: c.rewardId,
       rewardTitle: c.reward?.title || c.rewardTitle,
       category: c.reward?.category,
       pointsSpent: c.pointsSpent.toString(),
