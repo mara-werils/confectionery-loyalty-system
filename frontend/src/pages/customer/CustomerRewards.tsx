@@ -247,8 +247,7 @@ export default function CustomerRewards() {
         if (active.length > 0) setCoupons(active);
       })
       .catch(() => {});
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
+  }, [token, setCoupons, REWARD_PARTNER_NAME]);
 
   // ── Redeem handler ─────────────────────────────────────────────
   const handleRedeem = async (reward: Reward) => {
