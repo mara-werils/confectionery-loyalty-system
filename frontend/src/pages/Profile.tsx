@@ -43,7 +43,7 @@ function Modal({ open, onClose, title, children }: {
           exit={{ y: 80, opacity: 0 }}
           transition={{ type: 'spring', damping: 22, stiffness: 300 }}
           onClick={(e) => e.stopPropagation()}
-          className="w-full max-w-lg bg-stone-900 border border-white/10 rounded-t-3xl p-6 pb-24 space-y-5"
+          className="w-full max-w-lg bg-stone-900 border border-stone-800 rounded-t-3xl p-6 pb-24 space-y-5"
         >
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-white">{title}</h2>
@@ -225,18 +225,16 @@ export default function Profile() {
     <div className="px-4 py-6 space-y-5 pb-32">
 
       {/* Header */}
-      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="pl-1">
+      <div className="pl-1">
         <h1 className="text-3xl font-bold text-white tracking-tight">{t('profile.title')}</h1>
         <p className="text-stone-400 mt-1 text-sm">{t('profile.subtitle')}</p>
-      </motion.div>
+      </div>
 
       {/* Profile Card */}
-      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
-        className="bg-stone-900 border border-stone-800/80 rounded-2xl p-5"
-      >
+      <div className="bg-stone-900 border border-stone-800 rounded-2xl p-5">
         <div className="flex items-center gap-4">
           <div
-            className="relative w-18 h-18 w-[72px] h-[72px] bg-stone-800 rounded-2xl flex items-center justify-center border border-white/5 cursor-pointer group overflow-hidden shrink-0"
+            className="relative w-[72px] h-[72px] bg-stone-800 rounded-2xl flex items-center justify-center border border-stone-700 cursor-pointer group overflow-hidden shrink-0"
             onClick={() => document.getElementById('avatar-upload')?.click()}
           >
             {avatar
@@ -253,7 +251,7 @@ export default function Profile() {
               {user?.companyName || 'My Account'}
             </h2>
             <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border bg-white/5 text-stone-300 border-white/10">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border bg-stone-800 text-stone-300 border-stone-700">
                 {role === 'business' ? 'Business' : 'Customer'}
               </span>
               <span className={clsx('px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border', TIER_STYLES[tier])}>
@@ -270,31 +268,27 @@ export default function Profile() {
             )}
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* Stats Row */}
-      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-        className="grid grid-cols-3 gap-3"
-      >
+      <div className="grid grid-cols-3 gap-3">
         {[
           { label: 'Balance', value: balance.toLocaleString(), sub: 'SWEET', icon: SparklesIcon },
           { label: 'Lifetime', value: lifetimeEarned.toLocaleString(), sub: 'earned', icon: TrophyIcon },
           { label: 'Coupons', value: useAuthStore.getState().activeCoupons.length, sub: 'active', icon: ClockIcon },
         ].map(({ label, value, sub, icon: Icon }) => (
-          <div key={label} className="bg-stone-900 border border-stone-800/80 rounded-xl p-3 text-center">
+          <div key={label} className="bg-stone-900 border border-stone-800 rounded-xl p-3 text-center">
             <Icon className="w-4 h-4 text-stone-500 mx-auto mb-1" />
             <p className="text-lg font-bold text-white leading-tight">{value}</p>
             <p className="text-[10px] text-stone-500 mt-0.5">{label}</p>
             <p className="text-[9px] text-stone-600">{sub}</p>
           </div>
         ))}
-      </motion.div>
+      </div>
 
       {/* Tier Progress */}
       {tier !== 'GOLD' && (
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.13 }}
-          className="bg-stone-900 border border-stone-800/80 rounded-2xl p-4"
-        >
+        <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4">
           <div className="flex justify-between items-center mb-2">
             <p className="text-xs font-semibold text-stone-400">Progress to {tierInfo.next}</p>
             <p className="text-xs font-mono text-stone-400">{lifetimeEarned.toLocaleString()} / {tierInfo.required.toLocaleString()}</p>
@@ -308,14 +302,12 @@ export default function Profile() {
             />
           </div>
           <p className="text-[10px] text-stone-600 mt-1.5">{progress}% — {(tierInfo.required - lifetimeEarned).toLocaleString()} SWEET to reach {tierInfo.next}</p>
-        </motion.div>
+        </div>
       )}
 
       {/* Wallet Address */}
       {wallet && (
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-          className="bg-stone-900 border border-stone-800/80 rounded-2xl p-4"
-        >
+        <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4">
           <p className="text-xs text-stone-500 mb-2 font-medium">TON Wallet</p>
           <div className="flex items-center gap-3">
             <div className="p-2 bg-blue-500/10 rounded-xl border border-blue-500/20">
@@ -330,14 +322,12 @@ export default function Profile() {
             <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
             <p className="text-[10px] text-stone-600">Connected · TON Testnet</p>
           </div>
-        </motion.div>
+        </div>
       )}
 
       {/* Recent Activity */}
       {token && recentTxs.length > 0 && (
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}
-          className="bg-stone-900 border border-stone-800/80 rounded-2xl p-4"
-        >
+        <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4">
           <p className="text-xs text-stone-500 mb-3 font-medium">Recent Activity</p>
           <div className="space-y-2">
             {recentTxs.map((tx) => (
@@ -353,20 +343,18 @@ export default function Profile() {
               </div>
             ))}
           </div>
-        </motion.div>
+        </div>
       )}
 
       {/* Menu */}
-      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-        className="bg-stone-900 border border-stone-800/80 rounded-2xl overflow-hidden"
-      >
+      <div className="bg-stone-900 border border-stone-800 rounded-2xl overflow-hidden">
         {menuItems.map((item, idx) => (
           <button
             key={idx}
             onClick={item.action}
-            className="w-full flex items-center gap-4 px-4 py-3.5 hover:bg-white/5 transition-colors text-left border-b border-stone-800/60 last:border-0"
+            className="w-full flex items-center gap-4 px-4 py-3.5 hover:bg-stone-800/50 transition-colors text-left border-b border-stone-800 last:border-0"
           >
-            <div className="p-2 bg-white/5 rounded-xl border border-white/5 shrink-0">
+            <div className="p-2 bg-stone-800 rounded-xl border border-stone-700 shrink-0">
               <item.icon className="w-4 h-4 text-stone-300" />
             </div>
             <div className="flex-1 min-w-0">
@@ -376,25 +364,25 @@ export default function Profile() {
             <ChevronRightIcon className="w-4 h-4 text-stone-600 shrink-0" />
           </button>
         ))}
-      </motion.div>
+      </div>
 
       {/* Switch Role */}
-      <motion.button initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
+      <button
         onClick={handleSwitchRole}
-        className="w-full flex items-center justify-center gap-2 py-3.5 bg-white/5 text-stone-300 rounded-2xl font-bold hover:bg-white/10 border border-white/10 transition-colors text-sm"
+        className="w-full flex items-center justify-center gap-2 py-3.5 bg-stone-900 text-stone-300 rounded-2xl font-bold hover:bg-stone-800 border border-stone-700 transition-colors text-sm"
       >
         <ArrowsRightLeftIcon className="w-5 h-5" />
         {role === 'business' ? t('profile.switchToCustomer') : t('profile.switchToBusiness')}
-      </motion.button>
+      </button>
 
       {/* Disconnect */}
-      <motion.button initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+      <button
         onClick={handleDisconnect}
-        className="w-full flex items-center justify-center gap-2 py-3.5 bg-red-500/5 text-red-500 rounded-2xl font-bold hover:bg-red-500/10 border border-red-500/10 transition-colors text-sm"
+        className="w-full flex items-center justify-center gap-2 py-3.5 bg-red-500/5 text-red-500 rounded-2xl font-bold hover:bg-red-500/10 border border-red-500/20 transition-colors text-sm"
       >
         <ArrowRightOnRectangleIcon className="w-5 h-5" />
         {t('profile.disconnect')}
-      </motion.button>
+      </button>
 
       {/* Footer */}
       <div className="text-center pt-2 pb-4">
@@ -459,7 +447,7 @@ export default function Profile() {
       ══════════════════════════════════════════ */}
       <Modal open={activeModal === 'security'} onClose={() => setActiveModal(null)} title="Security">
         <div className="space-y-4">
-          <div className="p-4 bg-white/5 rounded-2xl border border-white/10 space-y-3">
+          <div className="p-4 bg-stone-800/50 rounded-2xl border border-stone-700 space-y-3">
             <p className="text-xs font-bold text-stone-400 uppercase tracking-widest">Connected Wallet</p>
             <div className="flex items-center gap-3">
               <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse shrink-0" />
@@ -478,7 +466,7 @@ export default function Profile() {
             )}
           </div>
 
-          <div className="p-4 bg-white/5 rounded-2xl border border-white/10 space-y-3">
+          <div className="p-4 bg-stone-800/50 rounded-2xl border border-stone-700 space-y-3">
             <p className="text-xs font-bold text-stone-400 uppercase tracking-widest">Authentication</p>
             <div className="flex items-center gap-3">
               <ShieldCheckIcon className="w-5 h-5 text-green-400 shrink-0" />
@@ -489,7 +477,7 @@ export default function Profile() {
             </div>
           </div>
 
-          <div className="p-4 bg-white/5 rounded-2xl border border-white/10 space-y-3">
+          <div className="p-4 bg-stone-800/50 rounded-2xl border border-stone-700 space-y-3">
             <p className="text-xs font-bold text-stone-400 uppercase tracking-widest">SBT Partner Certificate</p>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -509,7 +497,7 @@ export default function Profile() {
             </div>
           </div>
 
-          <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
+          <div className="p-4 bg-stone-800/50 rounded-2xl border border-stone-700">
             <p className="text-xs font-bold text-stone-400 uppercase tracking-widest mb-3">Account Status</p>
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div>
@@ -551,7 +539,7 @@ export default function Profile() {
             { label: 'Push Notifications', subtitle: 'General app and system updates', value: notifPush, set: setNotifPush },
             { label: 'Marketing & Offers', subtitle: 'Special deals from partner confectioneries', value: notifMarketing, set: setNotifMarketing },
           ].map(({ label, subtitle, value, set }) => (
-            <div key={label} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10">
+            <div key={label} className="flex items-center justify-between p-4 bg-stone-800/50 rounded-2xl border border-stone-700">
               <div className="mr-4">
                 <p className="text-sm font-semibold text-white">{label}</p>
                 <p className="text-xs text-stone-500 mt-0.5">{subtitle}</p>
@@ -568,7 +556,7 @@ export default function Profile() {
       ══════════════════════════════════════════ */}
       <Modal open={activeModal === 'help'} onClose={() => setActiveModal(null)} title="Help & Support">
         <div className="space-y-4">
-          <div className="p-4 bg-white/5 rounded-2xl border border-white/10 space-y-3">
+          <div className="p-4 bg-stone-800/50 rounded-2xl border border-stone-700 space-y-3">
             <p className="text-xs font-bold text-stone-400 uppercase tracking-widest">Contact</p>
             <a href="https://t.me/marlenqq" target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-3 py-2 hover:opacity-80 transition-opacity"
@@ -596,7 +584,7 @@ export default function Profile() {
             </a>
           </div>
 
-          <div className="p-4 bg-white/5 rounded-2xl border border-white/10 space-y-3">
+          <div className="p-4 bg-stone-800/50 rounded-2xl border border-stone-700 space-y-3">
             <p className="text-xs font-bold text-stone-400 uppercase tracking-widest">FAQ</p>
             {[
               { q: 'How do I earn SWEET tokens?', a: 'Every purchase at a partner confectionery earns you SWEET tokens. 10% of the purchase amount is converted instantly.' },

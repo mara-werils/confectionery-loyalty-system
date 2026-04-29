@@ -104,7 +104,7 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
             paddingRight: '16px',
           }}
         >
-          <div className="bg-stone-900/90 backdrop-blur-2xl border border-white/8 rounded-2xl px-1 py-1 flex items-center justify-around shadow-[0_-4px_24px_rgba(0,0,0,0.4)]">
+          <div className="bg-stone-900/95 backdrop-blur-xl border border-stone-800 rounded-2xl px-1 py-1 flex items-center justify-around shadow-[0_-4px_24px_rgba(0,0,0,0.4)]">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
               const Icon = isActive ? item.activeIcon : item.icon;
@@ -118,7 +118,7 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
                   {isActive && (
                     <motion.div
                       layoutId="navPill"
-                      className="absolute inset-0 rounded-xl bg-white/8"
+                      className="absolute inset-0 rounded-xl bg-stone-800"
                       transition={{ type: 'spring', bounce: 0.2, duration: 0.5 }}
                     />
                   )}

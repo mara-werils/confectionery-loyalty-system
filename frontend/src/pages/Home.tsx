@@ -144,7 +144,7 @@ export default function Home() {
             transition={{ delay: 0.15, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="w-full max-w-sm"
           >
-            <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-6 text-center">
+            <div className="rounded-2xl border border-stone-800 bg-stone-900/40 p-6 text-center">
               <p className="text-stone-400 text-sm mb-5 leading-relaxed">
                 {t('home.connectWallet')}
               </p>
@@ -193,50 +193,40 @@ export default function Home() {
 
         {/* How it works */}
         {!wallet && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full max-w-sm mt-10"
-          >
-            <p className="text-center text-[11px] text-zinc-600 tracking-widest uppercase mb-5">
+          <div className="w-full max-w-sm mt-10">
+            <p className="text-center text-[11px] text-stone-600 tracking-widest uppercase mb-5">
               How it works
             </p>
             <div className="space-y-3">
               {[
-                { step: '1', icon: '🔗', title: 'Connect TON Wallet', desc: 'Link your TON wallet to get started — no sign-up needed.' },
-                { step: '2', icon: '🏪', title: 'Shop at partner confectioneries', desc: 'Make purchases at Sweet Network partner stores.' },
-                { step: '3', icon: '🍬', title: 'Earn SWEET & redeem rewards', desc: 'Accumulate SWEET tokens and exchange them for real rewards.' },
-              ].map(({ step, icon, title, desc }) => (
+                { step: '1', title: 'Connect TON Wallet', desc: 'Link your TON wallet to get started — no sign-up needed.' },
+                { step: '2', title: 'Shop at partner confectioneries', desc: 'Make purchases at Sweet Network partner stores.' },
+                { step: '3', title: 'Earn SWEET & redeem rewards', desc: 'Accumulate SWEET tokens and exchange them for real rewards.' },
+              ].map(({ step, title, desc }) => (
                 <div
                   key={step}
-                  className="flex items-start gap-4 p-4 rounded-2xl border border-white/5 bg-white/[0.02]"
+                  className="flex items-start gap-4 p-4 rounded-2xl border border-stone-800 bg-stone-900/50"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-amber-400/10 border border-amber-400/15 flex items-center justify-center text-sm flex-shrink-0">
-                    {icon}
+                  <div className="w-8 h-8 rounded-lg bg-amber-400/10 border border-amber-400/20 flex items-center justify-center text-xs font-bold text-amber-400 flex-shrink-0">
+                    {step}
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-white leading-tight">{title}</p>
-                    <p className="text-xs text-zinc-600 mt-0.5 leading-relaxed">{desc}</p>
+                    <p className="text-xs text-stone-600 mt-0.5 leading-relaxed">{desc}</p>
                   </div>
                 </div>
               ))}
             </div>
-          </motion.div>
+          </div>
         )}
       </div>
 
       {/* Bottom hint */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="relative z-10 pb-8 flex justify-center"
-      >
+      <div className="relative z-10 pb-8 flex justify-center">
         <p className="text-[11px] text-stone-700">
           Confectionery Loyalty · AITU 2026
         </p>
-      </motion.div>
+      </div>
     </div>
   );
 }
@@ -263,9 +253,9 @@ function RoleButton({
     <motion.button
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className="group w-full flex items-center gap-4 p-4 rounded-2xl border border-white/8 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/15 transition-all duration-200 text-left"
+      className="group w-full flex items-center gap-4 p-4 rounded-2xl border border-stone-800 bg-stone-900 hover:bg-stone-800 hover:border-stone-700 transition-colors text-left"
     >
-      <div className={`w-10 h-10 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-stone-400 transition-all duration-200 flex-shrink-0 ${accentClasses[accent]}`}>
+      <div className={`w-10 h-10 rounded-xl border border-stone-700 bg-stone-800 flex items-center justify-center text-stone-400 transition-colors flex-shrink-0 ${accentClasses[accent]}`}>
         {icon}
       </div>
       <div>

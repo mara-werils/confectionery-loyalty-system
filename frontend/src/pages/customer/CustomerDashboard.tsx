@@ -76,7 +76,7 @@ export default function CustomerDashboard() {
 
     socket.on('tokens:received', (data: { amount: number; message: string }) => {
       setLiveNotification({ amount: data.amount });
-      toast.success(`+${data.amount} SWEET received!`, { duration: 4000, icon: '🍬' });
+      toast.success(`+${data.amount} SWEET received!`, { duration: 4000 });
       setTimeout(() => fetchData(), 3000);
       setTimeout(() => setLiveNotification(null), 5000);
     });
@@ -168,7 +168,7 @@ export default function CustomerDashboard() {
             exit={{ opacity: 0, y: -20 }}
             className="fixed top-4 left-4 right-4 z-50 flex items-center gap-3 rounded-2xl border border-green-500/30 bg-[#0d0b0a]/90 backdrop-blur-md px-4 py-3 shadow-2xl"
           >
-            <span className="text-xl">🍬</span>
+            <span className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0" />
             <div className="flex-1">
               <p className="text-sm font-bold text-green-400">+{liveNotification.amount} SWEET</p>
               <p className="text-xs text-stone-500">Minted to your wallet</p>
@@ -206,7 +206,7 @@ export default function CustomerDashboard() {
                   {formatBalance(balance)}
                 </p>
               )}
-              <p className="text-xs text-zinc-600 mt-1 font-mono">SWEET tokens</p>
+              <p className="text-xs text-stone-600 mt-1 font-mono">SWEET tokens</p>
               {!loading && currentBalance > 0 && (
                 <p className="text-xs text-amber-400/60 mt-0.5 font-mono">
                   ≈ {(currentBalance * 0.15).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} ₸
@@ -216,10 +216,9 @@ export default function CustomerDashboard() {
 
             <button
               onClick={() => setQrVisible(v => !v)}
-              className="flex flex-col items-center gap-1 px-3 py-2 rounded-xl bg-white/5 border border-white/8 hover:bg-white/8 transition-colors"
+              className="flex flex-col items-center gap-1 px-3 py-2 rounded-xl bg-stone-800 border border-stone-700 hover:bg-stone-700 transition-colors"
             >
-              <span className="text-base">⬛</span>
-              <span className="text-[9px] text-stone-500">QR</span>
+              <span className="text-[9px] font-bold text-stone-400 tracking-wider">QR</span>
             </button>
           </div>
 
@@ -273,15 +272,10 @@ export default function CustomerDashboard() {
       </motion.div>
 
       {/* Quick actions row */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="grid grid-cols-2 gap-3 mb-4"
-      >
+      <div className="grid grid-cols-2 gap-3 mb-4">
         <button
           onClick={() => navigate('/customer/rewards')}
-          className="flex items-center gap-3 p-3.5 rounded-2xl border border-white/8 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/15 transition-all text-left"
+          className="flex items-center gap-3 p-3.5 rounded-2xl border border-stone-800 bg-stone-900 hover:bg-stone-800 hover:border-stone-700 transition-colors text-left"
         >
           <div className="w-8 h-8 rounded-xl bg-amber-400/10 border border-amber-400/20 flex items-center justify-center flex-shrink-0">
             <GiftIcon className="w-4 h-4 text-amber-400" />
@@ -294,7 +288,7 @@ export default function CustomerDashboard() {
 
         <button
           onClick={() => navigate('/achievements')}
-          className="flex items-center gap-3 p-3.5 rounded-2xl border border-white/8 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/15 transition-all text-left"
+          className="flex items-center gap-3 p-3.5 rounded-2xl border border-stone-800 bg-stone-900 hover:bg-stone-800 hover:border-stone-700 transition-colors text-left"
         >
           <div className="w-8 h-8 rounded-xl bg-yellow-400/10 border border-yellow-400/20 flex items-center justify-center flex-shrink-0">
             <TrophyIcon className="w-4 h-4 text-yellow-400" />
@@ -304,16 +298,11 @@ export default function CustomerDashboard() {
             <p className="text-[10px] text-stone-600">NFT badges</p>
           </div>
         </button>
-      </motion.div>
+      </div>
 
       {/* Active Coupons */}
       {activeCoupons && activeCoupons.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="mb-4"
-        >
+        <div className="mb-4">
           <SectionHeader icon={<TicketIcon className="w-3.5 h-3.5" />} label={t('customerDashboard.myCoupons') || 'Active Coupons'} />
           <div className="space-y-2">
             {activeCoupons.map((coupon, i) => (
@@ -333,19 +322,14 @@ export default function CustomerDashboard() {
               </div>
             ))}
           </div>
-        </motion.div>
+        </div>
       )}
 
       {/* Achievements Preview */}
       {unlockedAchievements.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.18 }}
-          className="mb-4"
-        >
+        <div className="mb-4">
           <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2 text-zinc-500">
+            <div className="flex items-center gap-2 text-stone-500">
               <TrophyIcon className="w-3.5 h-3.5" />
               <span className="text-xs font-semibold tracking-wide">My Achievements</span>
             </div>
@@ -362,26 +346,22 @@ export default function CustomerDashboard() {
                 key={ach.id}
                 className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl border border-amber-400/10 bg-amber-400/[0.03]"
               >
-                <span className="text-xl leading-none">{ach.icon || '🏅'}</span>
+                <TrophyIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" />
                 <p className="text-xs font-semibold text-white leading-tight truncate">{ach.name}</p>
               </div>
             ))}
           </div>
-        </motion.div>
+        </div>
       )}
 
       {/* Recent Transactions */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-      >
+      <div>
         <SectionHeader icon={<ClockIcon className="w-3.5 h-3.5" />} label={t('customerDashboard.recentCashback')} />
 
         {loading ? (
           <div className="space-y-2">
             {[1, 2, 3].map(i => (
-              <div key={i} className="h-14 rounded-xl bg-white/[0.02] border border-white/5 animate-pulse" />
+              <div key={i} className="h-14 rounded-xl bg-stone-900 border border-stone-800 animate-pulse" />
             ))}
           </div>
         ) : transactions.length === 0 ? (
@@ -395,7 +375,7 @@ export default function CustomerDashboard() {
             {transactions.map(tx => (
               <div
                 key={tx.hash}
-                className="flex items-center justify-between gap-3 rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3"
+                className="flex items-center justify-between gap-3 rounded-xl border border-stone-800 bg-stone-900/50 px-4 py-3"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center flex-shrink-0">
@@ -415,7 +395,7 @@ export default function CustomerDashboard() {
             ))}
           </div>
         )}
-      </motion.div>
+      </div>
     </div>
   );
 }

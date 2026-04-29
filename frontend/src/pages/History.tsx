@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
 import { Tab } from '@headlessui/react';
 import { ClockIcon, GiftIcon, ArrowDownTrayIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
@@ -150,11 +149,7 @@ export default function History() {
   return (
     <div className="px-4 py-6">
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-8 pl-1 flex items-center justify-between"
-      >
+      <div className="mb-8 pl-1 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-white tracking-tight">{t('history.title')}</h1>
           <p className="text-stone-400 mt-1">{t('history.subtitle')}</p>
@@ -169,19 +164,19 @@ export default function History() {
             CSV
           </button>
         )}
-      </motion.div>
+      </div>
 
       {/* Search + Date Range Filters */}
       <div className="mb-5 space-y-3">
         {/* Search */}
         <div className="relative">
-          <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" />
+          <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-500 pointer-events-none" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by type, description…"
-            className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-zinc-900/60 border border-zinc-800 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-stone-900 border border-stone-800 text-sm text-white placeholder-stone-600 focus:outline-none focus:border-stone-600 transition-colors"
           />
         </div>
 
@@ -192,10 +187,10 @@ export default function History() {
               key={range}
               onClick={() => setDateRange(range)}
               className={clsx(
-                'flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200',
+                'flex-1 py-1.5 rounded-lg text-xs font-semibold transition-colors',
                 dateRange === range
                   ? 'bg-white text-black'
-                  : 'bg-zinc-900/50 text-zinc-500 hover:text-zinc-300 border border-white/5 hover:border-white/10'
+                  : 'bg-stone-900 text-stone-500 hover:text-stone-300 border border-stone-800 hover:border-stone-700'
               )}
             >
               {DATE_RANGE_LABELS[range]}
@@ -212,10 +207,10 @@ export default function History() {
               key={tab.key}
               className={({ selected }) =>
                 clsx(
-                  'flex items-center justify-center gap-2 flex-1 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 focus:outline-none',
+                  'flex items-center justify-center gap-2 flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors focus:outline-none',
                   selected
-                    ? 'bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.3)]'
-                    : 'bg-stone-900/50 text-stone-400 hover:text-stone-200 border border-white/5 hover:border-white/10'
+                    ? 'bg-white text-black'
+                    : 'bg-stone-900 text-stone-400 hover:text-stone-200 border border-stone-800 hover:border-stone-700'
                 )
               }
             >
@@ -228,11 +223,7 @@ export default function History() {
         <Tab.Panels>
           {/* Transactions Panel */}
           <Tab.Panel>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="card"
-            >
+            <div className="card">
               {isLoading ? (
                 <div className="space-y-4">
                   {[1, 2, 3, 4, 5].map((i) => (
@@ -252,16 +243,12 @@ export default function History() {
                   <p className="text-sm mt-1">{t('history.noTransactionsHint')}</p>
                 </div>
               )}
-            </motion.div>
+            </div>
           </Tab.Panel>
 
           {/* Claims Panel */}
           <Tab.Panel>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="space-y-4"
-            >
+            <div className="space-y-4">
               {historyLoading ? (
                 <div className="space-y-4">
                   {[1, 2, 3].map((i) => (
@@ -269,13 +256,10 @@ export default function History() {
                   ))}
                 </div>
               ) : filteredClaims.length > 0 ? (
-                filteredClaims.map((claim, index) => (
-                  <motion.div
+                filteredClaims.map((claim) => (
+                  <div
                     key={claim.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    className="bg-stone-900 border border-stone-800/80 rounded-2xl p-4"
+                    className="bg-stone-900 border border-stone-800 rounded-2xl p-4"
                   >
                     <div className="flex items-center gap-4">
                       <div className="p-3 bg-orange-500/10 rounded-xl border border-orange-500/20 shrink-0">
@@ -311,16 +295,16 @@ export default function History() {
                         </p>
                       </div>
                     </div>
-                  </motion.div>
+                  </div>
                 ))
               ) : (
-                <div className="bg-stone-900 border border-stone-800/80 rounded-2xl text-center py-12">
+                <div className="bg-stone-900 border border-stone-800 rounded-2xl text-center py-12">
                   <GiftIcon className="w-16 h-16 mx-auto mb-4 text-stone-700" />
                   <p className="text-lg font-medium text-white">{t('history.noClaims')}</p>
                   <p className="text-sm mt-1 text-stone-500">{t('history.noClaimsHint')}</p>
                 </div>
               )}
-            </motion.div>
+            </div>
           </Tab.Panel>
         </Tab.Panels>
       </Tab.Group>
