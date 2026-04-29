@@ -1,40 +1,11 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import crypto from 'crypto';
-import https from 'https';
 import { prisma } from '../utils/prisma';
 import { successResponse } from '../utils/response';
 import { authenticate } from '../middleware/auth';
 import { AppError } from '../middleware/errorHandler';
 import { logAction } from '../utils/auditLog';
-
-const SWEET_JETTON = '0:4d3a2278693a04f846b5d83a58e67066bb56ca4f46b1b7cd49992f4114f87c9c';
-
-async function fetchOnchainBalance(walletAddress: string): Promise<bigint> {
-  return new Promise((resolve) => {
-    const url = `https://testnet.tonapi.io/v2/accounts/${walletAddress}/jettons`;
-    https.get(url, { headers: { 'Accept': 'application/json' } }, (res) => {
-      let body = '';
-      res.on('data', (chunk) => { body += chunk; });
-      res.on('end', () => {
-        try {
-          const data = JSON.parse(body);
-          const sweet = (data.balances ?? []).find(
-            (b: { jetton: { address: string; decimals: number }; balance: string }) =>
-              b.jetton?.address?.toLowerCase() === SWEET_JETTON
-          );
-          if (sweet) {
-            resolve(BigInt(sweet.balance) / BigInt(10 ** (sweet.jetton?.decimals ?? 9)));
-          } else {
-            resolve(0n);
-          }
-        } catch {
-          resolve(0n);
-        }
-      });
-    }).on('error', () => resolve(0n));
-  });
-}
 
 const router = Router();
 
