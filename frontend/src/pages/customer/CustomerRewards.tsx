@@ -283,7 +283,6 @@ export default function CustomerRewards() {
         }
       })
       .catch(() => {});
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet?.account.address]);
 
   return (
