@@ -96,7 +96,6 @@ function App() {
           <Route path="/business/dashboard" element={<Dashboard />} />
           <Route path="/business/verify-coupon" element={<CouponVerify />} />
           <Route path="/ai" element={<AIPredictions />} />
-          <Route path="/achievements" element={<Achievements />} />
           <Route path="/blockchain" element={<Blockchain />} />
           <Route path="/swap" element={<Swap />} />
           <Route path="/referrals" element={<Referrals />} />

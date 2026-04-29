@@ -9,12 +9,15 @@ import {
   TicketIcon,
   TrophyIcon,
   ArrowDownIcon,
+  ChevronRightIcon,
 } from '@heroicons/react/24/outline';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { io as socketIO } from 'socket.io-client';
 import toast from 'react-hot-toast';
 import clsx from 'clsx';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '../../services/api';
 
 const TIERS = {
   BRONZE: { next: 'SILVER', threshold: 5000, color: 'text-orange-400', bar: 'from-orange-500 to-amber-400', label: '🥉 Bronze' },
@@ -40,7 +43,7 @@ export default function CustomerDashboard() {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
-  const { activeCoupons, sweetBalance, setSweetBalance } = useAuthStore();
+  const { activeCoupons, sweetBalance, setSweetBalance, token } = useAuthStore();
   const [balance, setBalance] = useState<JettonBalance | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,6 +52,18 @@ export default function CustomerDashboard() {
   const socketRef = useRef<ReturnType<typeof socketIO> | null>(null);
 
   const walletAddress = wallet?.account.address || '';
+
+  const { data: achievementsData } = useQuery({
+    queryKey: ['achievements'],
+    queryFn: () => api.achievements.getAll(),
+    enabled: !!token,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const allAchievements: { id: string; name: string; icon: string; unlockedAt?: string }[] =
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (achievementsData as any)?.data || [];
+  const unlockedAchievements = allAchievements.filter((a) => !!a.unlockedAt).slice(0, 2);
 
   useEffect(() => {
     if (!walletAddress) return;
@@ -191,7 +206,12 @@ export default function CustomerDashboard() {
                   {formatBalance(balance)}
                 </p>
               )}
-              <p className="text-xs text-stone-600 mt-1 font-mono">SWEET tokens</p>
+              <p className="text-xs text-zinc-600 mt-1 font-mono">SWEET tokens</p>
+              {!loading && currentBalance > 0 && (
+                <p className="text-xs text-amber-400/60 mt-0.5 font-mono">
+                  ≈ {(currentBalance * 0.15).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} ₸
+                </p>
+              )}
             </div>
 
             <button
@@ -310,6 +330,40 @@ export default function CustomerDashboard() {
                 <span className="text-xs font-mono font-bold text-amber-400 tracking-wider shrink-0">
                   {coupon.code}
                 </span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
+      {/* Achievements Preview */}
+      {unlockedAchievements.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.18 }}
+          className="mb-4"
+        >
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2 text-zinc-500">
+              <TrophyIcon className="w-3.5 h-3.5" />
+              <span className="text-xs font-semibold tracking-wide">My Achievements</span>
+            </div>
+            <Link
+              to="/achievements"
+              className="flex items-center gap-0.5 text-[10px] text-amber-400/70 hover:text-amber-400 transition-colors font-medium"
+            >
+              See All <ChevronRightIcon className="w-3 h-3" />
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {unlockedAchievements.map((ach) => (
+              <div
+                key={ach.id}
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl border border-amber-400/10 bg-amber-400/[0.03]"
+              >
+                <span className="text-xl leading-none">{ach.icon || '🏅'}</span>
+                <p className="text-xs font-semibold text-white leading-tight truncate">{ach.name}</p>
               </div>
             ))}
           </div>

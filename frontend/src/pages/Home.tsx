@@ -174,6 +174,40 @@ export default function Home() {
             />
           </motion.div>
         )}
+
+        {/* How it works */}
+        {!wallet && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full max-w-sm mt-10"
+          >
+            <p className="text-center text-[11px] text-zinc-600 tracking-widest uppercase mb-5">
+              How it works
+            </p>
+            <div className="space-y-3">
+              {[
+                { step: '1', icon: '🔗', title: 'Connect TON Wallet', desc: 'Link your TON wallet to get started — no sign-up needed.' },
+                { step: '2', icon: '🏪', title: 'Shop at partner confectioneries', desc: 'Make purchases at Sweet Network partner stores.' },
+                { step: '3', icon: '🍬', title: 'Earn SWEET & redeem rewards', desc: 'Accumulate SWEET tokens and exchange them for real rewards.' },
+              ].map(({ step, icon, title, desc }) => (
+                <div
+                  key={step}
+                  className="flex items-start gap-4 p-4 rounded-2xl border border-white/5 bg-white/[0.02]"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-amber-400/10 border border-amber-400/15 flex items-center justify-center text-sm flex-shrink-0">
+                    {icon}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-white leading-tight">{title}</p>
+                    <p className="text-xs text-zinc-600 mt-0.5 leading-relaxed">{desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
       </div>
 
       {/* Bottom hint */}

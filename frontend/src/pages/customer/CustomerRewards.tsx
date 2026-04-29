@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
@@ -266,9 +266,9 @@ export default function CustomerRewards() {
     }
   };
 
-  // ── Sync balance from chain (background, no loading state) ─────
-  if (wallet) {
-    // Fire-and-forget: only update store if chain has fresher data
+  // ── Sync balance from chain once when wallet connects (not on every render) ─
+  useEffect(() => {
+    if (!wallet) return;
     fetch(`https://testnet.tonapi.io/v2/accounts/${wallet.account.address}/jettons`)
       .then(r => r.json())
       .then(data => {
@@ -279,11 +279,12 @@ export default function CustomerRewards() {
         );
         if (sweet) {
           const fresh = Number(BigInt(sweet.balance) / BigInt(10 ** sweet.jetton.decimals));
-          if (fresh !== sweetBalance) setSweetBalance(fresh);
+          setSweetBalance(fresh);
         }
       })
       .catch(() => {});
-  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wallet?.account.address]);
 
   return (
     <div className="pb-28 text-white min-h-screen">

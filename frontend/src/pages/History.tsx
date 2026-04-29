@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Tab } from '@headlessui/react';
-import { ClockIcon, GiftIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+import { ClockIcon, GiftIcon, ArrowDownTrayIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
@@ -14,6 +14,33 @@ const tabs = [
   { key: 'transactions', label: 'Transactions', icon: ClockIcon },
   { key: 'claims', label: 'Claims', icon: GiftIcon },
 ];
+
+type DateRange = 'today' | 'week' | 'month' | 'all';
+
+const DATE_RANGE_LABELS: Record<DateRange, string> = {
+  today: 'Today',
+  week: 'Week',
+  month: 'Month',
+  all: 'All',
+};
+
+function getDateRangeStart(range: DateRange): Date | null {
+  const now = new Date();
+  if (range === 'today') {
+    return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  }
+  if (range === 'week') {
+    const d = new Date(now);
+    d.setDate(d.getDate() - 7);
+    return d;
+  }
+  if (range === 'month') {
+    const d = new Date(now);
+    d.setMonth(d.getMonth() - 1);
+    return d;
+  }
+  return null;
+}
 
 function exportToCSV(data: Record<string, unknown>[], filename: string) {
   if (!data.length) {
@@ -40,6 +67,8 @@ export default function History() {
   const { token } = useAuthStore();
   const [selectedTab, setSelectedTab] = useState(0);
   const [page] = useState(1);
+  const [dateRange, setDateRange] = useState<DateRange>('all');
+  const [search, setSearch] = useState('');
 
   const { data: transactionsData, isLoading: transactionsLoading } = useTransactions(page, 20);
   const { data: historyData, isLoading: historyLoading } = useLoyaltyHistory(page, 20);
@@ -63,6 +92,33 @@ export default function History() {
   }[] = historyData?.data || [];
 
   const isLoading = selectedTab === 0 ? transactionsLoading : historyLoading;
+
+  const rangeStart = getDateRangeStart(dateRange);
+
+  const filteredTransactions = useMemo(() => {
+    const q = search.toLowerCase();
+    return transactions.filter((tx) => {
+      const inRange = !rangeStart || new Date(tx.createdAt) >= rangeStart;
+      const matchSearch =
+        !q ||
+        (tx.description?.toLowerCase().includes(q) ?? false) ||
+        tx.type.toLowerCase().includes(q) ||
+        (tx.partnerName?.toLowerCase().includes(q) ?? false);
+      return inRange && matchSearch;
+    });
+  }, [transactions, rangeStart, search]);
+
+  const filteredClaims = useMemo(() => {
+    const q = search.toLowerCase();
+    return claims.filter((c) => {
+      const inRange = !rangeStart || new Date(c.createdAt) >= rangeStart;
+      const matchSearch =
+        !q ||
+        (c.reward?.title.toLowerCase().includes(q) ?? false) ||
+        c.status.toLowerCase().includes(q);
+      return inRange && matchSearch;
+    });
+  }, [claims, rangeStart, search]);
 
   const handleExport = () => {
     if (selectedTab === 0) {
@@ -115,6 +171,39 @@ export default function History() {
         )}
       </motion.div>
 
+      {/* Search + Date Range Filters */}
+      <div className="mb-5 space-y-3">
+        {/* Search */}
+        <div className="relative">
+          <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by type, description…"
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-zinc-900/60 border border-zinc-800 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
+          />
+        </div>
+
+        {/* Date range tab row */}
+        <div className="flex gap-1.5">
+          {(Object.keys(DATE_RANGE_LABELS) as DateRange[]).map((range) => (
+            <button
+              key={range}
+              onClick={() => setDateRange(range)}
+              className={clsx(
+                'flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200',
+                dateRange === range
+                  ? 'bg-white text-black'
+                  : 'bg-zinc-900/50 text-zinc-500 hover:text-zinc-300 border border-white/5 hover:border-white/10'
+              )}
+            >
+              {DATE_RANGE_LABELS[range]}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Tabs */}
       <Tab.Group selectedIndex={selectedTab} onChange={setSelectedTab}>
         <Tab.List className="flex gap-2 mb-6">
@@ -150,9 +239,9 @@ export default function History() {
                     <div key={i} className="skeleton h-16 rounded-xl" />
                   ))}
                 </div>
-              ) : transactions.length > 0 ? (
+              ) : filteredTransactions.length > 0 ? (
                 <div>
-                  {transactions.map((tx, index) => (
+                  {filteredTransactions.map((tx, index) => (
                     <TransactionItem key={tx.id} {...tx} partnerName={tx.partnerName} index={index} />
                   ))}
                 </div>
@@ -179,8 +268,8 @@ export default function History() {
                     <div key={i} className="skeleton h-16 rounded-xl" />
                   ))}
                 </div>
-              ) : claims.length > 0 ? (
-                claims.map((claim, index) => (
+              ) : filteredClaims.length > 0 ? (
+                filteredClaims.map((claim, index) => (
                   <motion.div
                     key={claim.id}
                     initial={{ opacity: 0, y: 10 }}

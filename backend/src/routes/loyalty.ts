@@ -230,6 +230,14 @@ router.post(
         lifetimeRedeemed: updatedPoints.lifetimeRedeemed.toString(),
       });
 
+      io.to(`partner:${partnerId}`).emit('points:redeemed', {
+        partnerId,
+        pointsSpent: reward.pointsRequired.toString(),
+        newBalance: updatedPoints.balance.toString(),
+        rewardId: reward.id,
+        rewardTitle: reward.title,
+      });
+
       io.to(`partner:${partnerId}`).emit('reward:claimed', {
         claimId: claim.id,
         rewardId: reward.id,
