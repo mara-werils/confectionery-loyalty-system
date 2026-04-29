@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "prisma generate && tsc -p tsconfig.build.json",
-    "start": "node dist/index.js",
+    "start": "prisma migrate deploy && node dist/index.js",
     "test": "jest --passWithNoTests",
     "test:smoke": "jest --testPathPattern=smoke --no-coverage",
     "test:watch": "jest --watch",
