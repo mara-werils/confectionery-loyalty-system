@@ -35,10 +35,10 @@ export default function LiveActivity() {
   };
 
   const getActionEmoji = (action: string) => {
-    if (action === 'earned') return '💰';
+    if (action === 'earned') return '🪙';
     if (action === 'claimed') return '🎁';
-    if (action === 'joined') return '🤝';
-    if (action === 'minted') return '✨';
+    if (action === 'joined') return '◈';
+    if (action === 'minted') return '🏅';
     return '📌';
   };
 

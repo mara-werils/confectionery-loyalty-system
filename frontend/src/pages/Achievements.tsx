@@ -37,20 +37,20 @@ interface AchievementsResponse {
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const CATEGORY_META: Record<string, { label: string; emoji: string; color: string }> = {
-  transactions: { label: 'Transactions', emoji: '⚡',  color: 'text-blue-400' },
-  referrals:    { label: 'Referrals',    emoji: '🤝',  color: 'text-purple-400' },
+  transactions: { label: 'Transactions', emoji: '🔁',  color: 'text-blue-400' },
+  referrals:    { label: 'Referrals',    emoji: '◈',   color: 'text-purple-400' },
   spending:     { label: 'Points',       emoji: '💎',  color: 'text-cyan-400' },
   general:      { label: 'Milestones',   emoji: '🏅',  color: 'text-yellow-400' },
 };
 
 const ACHIEVEMENT_EMOJI: Record<string, string> = {
-  FIRST_PURCHASE:  '🎯',
-  TRANSACTIONS_10: '⚡',
-  TRANSACTIONS_100:'🚀',
-  REFERRER_5:      '🤝',
-  REFERRER_20:     '🌟',
-  POINTS_10000:    '💰',
-  POINTS_100000:   '👑',
+  FIRST_PURCHASE:  '●',
+  TRANSACTIONS_10: '🔁',
+  TRANSACTIONS_100:'📈',
+  REFERRER_5:      '◈',
+  REFERRER_20:     '★',
+  POINTS_10000:    '🪙',
+  POINTS_100000:   '◆',
   TIER_SILVER:     '🥈',
   TIER_GOLD:       '🥇',
 };

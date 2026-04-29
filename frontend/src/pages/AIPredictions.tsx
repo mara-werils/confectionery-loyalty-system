@@ -86,8 +86,8 @@ const TIER_BADGE: Record<string, string> = {
 const CATEGORY_ICON: Record<string, string> = {
   DISCOUNT: '💸',
   PRODUCT: '🎁',
-  CASHBACK: '💰',
-  SPECIAL: '⭐',
+  CASHBACK: '🪙',
+  SPECIAL: '★',
 };
 
 function RiskGauge({ score, level }: { score: number; level: RiskLevel }) {

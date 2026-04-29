@@ -100,7 +100,7 @@ const PARTNERS: Partner[] = [
     name: 'Sweet Platform',
     shortName: 'Platform',
     logo: null,
-    emoji: '⚡',
+    emoji: '🪙',
     city: 'Все партнёры',
     accentFrom: '#d97706',
     accentTo: '#b45309',
