@@ -236,23 +236,10 @@ export default function CustomerRewards() {
 
     setRedeeming(reward.id);
     try {
-      let code: string, expiresAt: string, daysLeft: number;
-
-      try {
-        const res = await api.coupons.create(reward.id) as {
-          data: { code: string; expiresAt: string; daysLeft: number };
-        };
-        code = res.data.code;
-        expiresAt = res.data.expiresAt;
-        daysLeft = res.data.daysLeft;
-      } catch {
-        // Fallback: generate coupon client-side (customers may lack backend JWT)
-        const hex = Array.from(crypto.getRandomValues(new Uint8Array(3)))
-          .map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
-        code = `SWT-${hex}`;
-        expiresAt = new Date(Date.now() + 30 * 86400000).toISOString();
-        daysLeft = 30;
-      }
+      const res = await api.coupons.create(reward.id) as {
+        data: { code: string; expiresAt: string; daysLeft: number };
+      };
+      const { code, expiresAt, daysLeft } = res.data;
 
       const partner = PARTNER_MAP[reward.partnerId] ?? PARTNER_MAP['platform'];
       setSweetBalance(Math.max(0, sweetBalance - reward.pointsRequired));

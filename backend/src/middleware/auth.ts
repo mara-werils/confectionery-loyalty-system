@@ -4,6 +4,9 @@ import jwt from 'jsonwebtoken';
 import { config } from '../config';
 import { prisma } from '../utils/prisma';
 import { AppError } from './errorHandler';
+import { cache } from '../services/redis';
+
+const PARTNER_CACHE_TTL = 60; // 1 minute
 
 export interface JwtPayload {
   sub: string;
@@ -53,20 +56,29 @@ export const authenticate = async (
 
     // Verify user exists
     if (decoded.type === 'partner') {
-      const partner = await prisma.partner.findUnique({
-        where: { id: decoded.sub },
-      });
+      const cacheKey = `partner:auth:${decoded.sub}`;
+      const cached = await cache.get(cacheKey);
 
-      if (!partner || partner.status === 'BANNED') {
-        throw new AppError('Account not found or banned', 401, 'ACCOUNT_INVALID');
+      if (cached) {
+        req.partner = JSON.parse(cached);
+      } else {
+        const partner = await prisma.partner.findUnique({
+          where: { id: decoded.sub },
+        });
+
+        if (!partner || partner.status === 'BANNED') {
+          throw new AppError('Account not found or banned', 401, 'ACCOUNT_INVALID');
+        }
+
+        const partnerData = {
+          id: partner.id,
+          companyName: partner.companyName,
+          tier: partner.tier,
+          walletAddress: partner.walletAddress,
+        };
+        await cache.set(cacheKey, JSON.stringify(partnerData), PARTNER_CACHE_TTL);
+        req.partner = partnerData;
       }
-
-      req.partner = {
-        id: partner.id,
-        companyName: partner.companyName,
-        tier: partner.tier,
-        walletAddress: partner.walletAddress,
-      };
     } else if (decoded.type === 'admin') {
       const admin = await prisma.admin.findUnique({
         where: { id: decoded.sub },
