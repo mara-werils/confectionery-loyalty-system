@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import {
   BuildingStorefrontIcon,
   CurrencyDollarIcon,
@@ -66,22 +65,15 @@ function StatCard({
   value,
   sub,
   growth,
-  delay,
 }: {
   icon: React.ElementType;
   label: string;
   value: string | number;
   sub?: string;
   growth?: number | null;
-  delay: number;
 }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay }}
-      className="bg-stone-900 border border-stone-800/80 rounded-xl p-5 shadow-sm"
-    >
+    <div className="bg-stone-900 border border-stone-800 rounded-xl p-5">
       <div className="flex justify-between items-start mb-3">
         <p className="text-xs text-stone-400 font-medium">{label}</p>
         <Icon className="w-4 h-4 text-stone-600" />
@@ -91,7 +83,7 @@ function StatCard({
         {sub && <p className="text-xs text-stone-500">{sub}</p>}
         <GrowthBadge value={growth} />
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -120,10 +112,10 @@ export default function Stats() {
   return (
     <div className="px-4 py-6 space-y-6">
       {/* Header */}
-      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="pl-1">
+      <div className="pl-1">
         <h1 className="text-3xl font-bold text-white tracking-tight">Ecosystem Stats</h1>
         <p className="text-stone-400 mt-1">Live data from the Sweet Loyalty blockchain</p>
-      </motion.div>
+      </div>
 
       {/* Loading skeleton */}
       {isLoading ? (
@@ -142,7 +134,6 @@ export default function Stats() {
               value={summary?.totalPartners?.toLocaleString() ?? '—'}
               sub="Confectioneries"
               growth={summary?.growth?.partners}
-              delay={0.05}
             />
             <StatCard
               icon={ChartBarIcon}
@@ -150,7 +141,6 @@ export default function Stats() {
               value={summary?.totalTransactions?.toLocaleString() ?? '—'}
               sub="All-time"
               growth={summary?.growth?.transactions}
-              delay={0.1}
             />
             <StatCard
               icon={SparklesIcon}
@@ -158,24 +148,17 @@ export default function Stats() {
               value={summary?.totalPointsIssued?.toLocaleString() ?? '—'}
               sub="Tokens minted"
               growth={summary?.growth?.pointsIssued}
-              delay={0.15}
             />
             <StatCard
               icon={CurrencyDollarIcon}
               label="SWEET Redeemed"
               value={summary?.totalPointsRedeemed?.toLocaleString() ?? '—'}
               sub="Tokens burned"
-              delay={0.2}
             />
           </div>
 
           {/* KPIs */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 }}
-            className="bg-stone-900 border border-stone-800/80 rounded-xl p-5 space-y-4"
-          >
+          <div className="bg-stone-900 border border-stone-800 rounded-xl p-5 space-y-4">
             <h2 className="text-sm font-semibold text-stone-400">Key Performance Indicators</h2>
 
             <div className="flex items-center justify-between py-3 border-b border-stone-800/60">
@@ -201,16 +184,11 @@ export default function Stats() {
                 {summary?.avgPointsPerTransaction?.toFixed(0) ?? '—'}
               </span>
             </div>
-          </motion.div>
+          </div>
 
           {/* Tier Distribution Pie */}
           {tierData.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="bg-stone-900 border border-stone-800/80 rounded-xl p-5"
-            >
+            <div className="bg-stone-900 border border-stone-800 rounded-xl p-5">
               <h2 className="text-sm font-semibold text-stone-400 mb-4">Partner Tier Distribution</h2>
               <div className="flex items-center gap-6">
                 <div className="w-32 h-32">
@@ -259,16 +237,11 @@ export default function Stats() {
                   ))}
                 </div>
               </div>
-            </motion.div>
+            </div>
           )}
 
           {/* Top Partners Leaderboard */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35 }}
-            className="bg-stone-900 border border-stone-800/80 rounded-xl p-5"
-          >
+          <div className="bg-stone-900 border border-stone-800 rounded-xl p-5">
             <h2 className="text-sm font-semibold text-stone-400 mb-4">
               Weekly Leaders
               <span className="ml-2 text-xs text-stone-600 font-normal">by SWEET issued</span>
@@ -291,7 +264,7 @@ export default function Stats() {
                       p.rank === 2 ? 'text-stone-300' :
                       p.rank === 3 ? 'text-orange-400' : 'text-stone-500'
                     }`}>
-                      {p.rank === 1 ? '🥇' : p.rank === 2 ? '🥈' : p.rank === 3 ? '🥉' : p.rank}
+                      {p.rank}
                     </span>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-white truncate">{p.companyName}</p>
@@ -308,7 +281,7 @@ export default function Stats() {
             ) : (
               <p className="text-center text-stone-600 text-sm py-4">No activity this week</p>
             )}
-          </motion.div>
+          </div>
         </>
       )}
     </div>
