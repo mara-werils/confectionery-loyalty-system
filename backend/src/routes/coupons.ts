@@ -60,17 +60,6 @@ router.post('/', authenticate, async (req: Request, res: Response, next: NextFun
       throw new AppError('Reward not found or inactive', 404, 'REWARD_NOT_FOUND');
     }
 
-    // Sync on-chain balance before checking — ensures DB matches real SWEET holdings
-    const partnerRecord = await prisma.partner.findUnique({ where: { id: partnerId } });
-    if (partnerRecord?.walletAddress) {
-      const onchainBalance = await fetchOnchainBalance(partnerRecord.walletAddress);
-      await prisma.loyaltyPoints.upsert({
-        where: { partnerId },
-        update: { balance: onchainBalance },
-        create: { partnerId, balance: onchainBalance, lifetimeEarned: onchainBalance, lifetimeRedeemed: 0n },
-      });
-    }
-
     const loyaltyPoints = await prisma.loyaltyPoints.findUnique({ where: { partnerId } });
     if (!loyaltyPoints || loyaltyPoints.balance < reward.pointsRequired) {
       throw new AppError('Insufficient SWEET balance', 400, 'INSUFFICIENT_BALANCE');

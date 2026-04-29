@@ -98,6 +98,25 @@ router.post(
       });
 
       if (existing) {
+        // Allow upgrading a customer placeholder to a full business partner
+        if (existing.companyName.startsWith('Customer_')) {
+          const updated = await prisma.partner.update({
+            where: { id: existing.id },
+            data: {
+              companyName: data.companyName,
+              email: data.email,
+              phone: data.phone,
+              status: 'PENDING',
+            },
+          });
+          const token = generateToken({ sub: updated.id, walletAddress: updated.walletAddress, type: 'partner' });
+          const refreshToken = generateRefreshToken({ sub: updated.id, walletAddress: updated.walletAddress, type: 'partner' });
+          return successResponse(res, {
+            partner: { id: updated.id, walletAddress: updated.walletAddress, companyName: updated.companyName, tier: updated.tier, status: updated.status },
+            token,
+            refreshToken,
+          }, 'Registration successful', 201);
+        }
         throw new AppError('Partner already registered', 409, 'ALREADY_EXISTS');
       }
 

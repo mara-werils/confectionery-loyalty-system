@@ -73,9 +73,24 @@ export default function BusinessRegister() {
     } catch (error: unknown) {
       const err = error as { message?: string };
       const msg = err?.message || t('common.error');
-      // If the partner already exists, try to log them in instead
+      // If the partner already exists, fetch existing JWT and go straight to dashboard
       if (msg.toLowerCase().includes('already') || msg.toLowerCase().includes('exists')) {
-        toast.error('This wallet is already registered. Please use the login flow from Home.');
+        try {
+          const address = wallet?.account?.address;
+          if (address) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const res: any = await api.auth.customerAuth(address);
+            if (res.data?.token) {
+              setToken(res.data.token);
+              setUser(res.data.partner);
+              navigate('/business/dashboard');
+              return;
+            }
+          }
+        } catch {
+          // fall through to generic error
+        }
+        toast.error('Already registered — please reload the app.');
       } else {
         toast.error(msg);
       }

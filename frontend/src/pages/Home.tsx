@@ -54,6 +54,22 @@ export default function Home() {
 
     setRole(selectedRole);
     if (selectedRole === 'business') {
+      // Check if already registered — if so, skip the registration form
+      const existingToken = useAuthStore.getState().token;
+      if (existingToken) {
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const meRes: any = await api.auth.me();
+          const partner = meRes?.data?.partner;
+          if (partner && !partner.companyName.startsWith('Customer_')) {
+            setUser(partner);
+            navigate('/business/dashboard');
+            return;
+          }
+        } catch {
+          // token invalid or not set — fall through to register
+        }
+      }
       navigate('/business/register');
     } else {
       // Auto-authenticate customer by wallet address so API calls work
