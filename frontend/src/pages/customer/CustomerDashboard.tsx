@@ -20,9 +20,9 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '../../services/api';
 
 const TIERS = {
-  BRONZE: { next: 'SILVER', threshold: 5000, color: 'text-orange-400', bar: 'from-orange-500 to-amber-400', label: '🥉 Bronze' },
-  SILVER: { next: 'GOLD',   threshold: 20000, color: 'text-stone-300',  bar: 'from-stone-400 to-stone-200', label: '🥈 Silver' },
-  GOLD:   { next: 'MAX',    threshold: 0,     color: 'text-amber-400', bar: 'from-amber-400 to-yellow-300', label: '🥇 Gold' },
+  BRONZE: { next: 'SILVER', threshold: 5000, color: 'text-orange-400', bar: 'from-orange-500 to-amber-400', label: 'Bronze' },
+  SILVER: { next: 'GOLD',   threshold: 20000, color: 'text-stone-300',  bar: 'from-stone-400 to-stone-200', label: 'Silver' },
+  GOLD:   { next: 'MAX',    threshold: 0,     color: 'text-amber-400', bar: 'from-amber-400 to-yellow-300', label: 'Gold' },
 } as const;
 
 interface JettonBalance {

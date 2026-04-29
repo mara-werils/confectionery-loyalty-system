@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { config } from '../config';
 import { successResponse, errorResponse } from '../utils/response';
 import { logger } from '../utils/logger';
+import { prisma } from '../utils/prisma';
 
 // Standard TEP-74 transfer opcode
 const Opcodes = {
@@ -125,6 +126,30 @@ export const transferLoyaltyTokens = async (req: Request, res: Response) => {
     );
 
     logger.info(`Transfer transaction broadcasted successfully. Seqno: ${seqno}`);
+
+    // Update DB loyalty balance so customers can redeem coupons immediately
+    try {
+      const rawAddr = toAddress.toRawString();
+      const partner = await prisma.partner.findFirst({ where: { walletAddress: rawAddr } });
+      if (partner) {
+        await prisma.loyaltyPoints.upsert({
+          where: { partnerId: partner.id },
+          update: {
+            balance: { increment: BigInt(amount) },
+            lifetimeEarned: { increment: BigInt(amount) },
+          },
+          create: {
+            partnerId: partner.id,
+            balance: BigInt(amount),
+            lifetimeEarned: BigInt(amount),
+            lifetimeRedeemed: 0n,
+          },
+        });
+        logger.info(`DB loyalty points updated for partner ${partner.id}: +${amount} SWEET`);
+      }
+    } catch (dbErr) {
+      logger.warn('Failed to update loyalty points in DB after transfer (non-critical):', dbErr);
+    }
 
     return successResponse(res, {
       status: 'Transaction Broadcasted',

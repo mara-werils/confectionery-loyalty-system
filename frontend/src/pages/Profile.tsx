@@ -196,7 +196,13 @@ export default function Profile() {
     }
     const newRole = role === 'business' ? 'customer' : 'business';
     setRole(newRole);
-    navigate(newRole === 'business' ? '/business/register' : '/customer/dashboard');
+    if (newRole === 'business') {
+      // Already registered as business — skip registration form
+      const isRegistered = user?.companyName && !user.companyName.startsWith('Customer_');
+      navigate(isRegistered ? '/business/dashboard' : '/business/register');
+    } else {
+      navigate('/customer/dashboard');
+    }
   };
 
   const formatAddress = (addr: string) => `${addr.slice(0, 10)}...${addr.slice(-8)}`;

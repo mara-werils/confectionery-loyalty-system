@@ -37,22 +37,22 @@ interface AchievementsResponse {
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const CATEGORY_META: Record<string, { label: string; emoji: string; color: string }> = {
-  transactions: { label: 'Transactions', emoji: '🔁',  color: 'text-blue-400' },
-  referrals:    { label: 'Referrals',    emoji: '◈',   color: 'text-purple-400' },
-  spending:     { label: 'Points',       emoji: '💎',  color: 'text-cyan-400' },
-  general:      { label: 'Milestones',   emoji: '🏅',  color: 'text-yellow-400' },
+  transactions: { label: 'Transactions', emoji: '↺',  color: 'text-blue-400' },
+  referrals:    { label: 'Referrals',    emoji: '◈',  color: 'text-purple-400' },
+  spending:     { label: 'Points',       emoji: '◆',  color: 'text-cyan-400' },
+  general:      { label: 'Milestones',   emoji: '▲',  color: 'text-yellow-400' },
 };
 
 const ACHIEVEMENT_EMOJI: Record<string, string> = {
   FIRST_PURCHASE:  '●',
-  TRANSACTIONS_10: '🔁',
-  TRANSACTIONS_100:'📈',
+  TRANSACTIONS_10: '↺',
+  TRANSACTIONS_100:'↑',
   REFERRER_5:      '◈',
   REFERRER_20:     '★',
-  POINTS_10000:    '🪙',
-  POINTS_100000:   '◆',
-  TIER_SILVER:     '🥈',
-  TIER_GOLD:       '🥇',
+  POINTS_10000:    '◆',
+  POINTS_100000:   '◆◆',
+  TIER_SILVER:     'Ag',
+  TIER_GOLD:       'Au',
 };
 
 const TON_VIEWER_BASE = 'https://testnet.tonviewer.com/transaction/';
@@ -92,7 +92,7 @@ function NFTBadge({ txHash }: { txHash: string }) {
 function AchievementCard({ achievement, index }: { achievement: Achievement; index: number }) {
   const [expanded, setExpanded] = useState(false);
   const unlocked = !!achievement.unlockedAt;
-  const emoji = ACHIEVEMENT_EMOJI[achievement.code] ?? '🏆';
+  const emoji = ACHIEVEMENT_EMOJI[achievement.code] ?? '◆';
 
   return (
     <motion.div
@@ -242,9 +242,9 @@ export default function Achievements() {
     onSuccess: (res) => {
       const newly: string[] = (res as { data: { newlyUnlocked: string[] } }).data.newlyUnlocked;
       if (newly.length > 0) {
-        toast.success(`🏆 Unlocked: ${newly.join(', ')}`, { duration: 4000 });
+        toast.success(`Unlocked: ${newly.join(', ')}`, { duration: 4000 });
       } else {
-        toast('No new achievements yet.', { icon: '🔍' });
+        toast('No new achievements yet.');
       }
       queryClient.invalidateQueries({ queryKey: ['achievements'] });
     },
@@ -341,7 +341,7 @@ export default function Achievements() {
                   : 'bg-stone-900 border border-stone-800 text-stone-400 hover:border-stone-600'
               }`}
             >
-              {meta ? `${meta.emoji} ${meta.label}` : '🏆 All'}
+              {meta ? `${meta.emoji} ${meta.label}` : 'All'}
             </button>
           );
         })}
