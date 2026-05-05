@@ -3,7 +3,7 @@ import { logger } from '../utils/logger.js';
 
 export async function startBot(): Promise<void> {
   const token = process.env.TELEGRAM_BOT_TOKEN!;
-  const miniAppUrl = process.env.MINI_APP_URL || 'https://sweet-loyalty.netlify.app';
+  const miniAppUrl = process.env.MINI_APP_URL || 'https://confectionery-loyalty-system-fronte.vercel.app/customer/dashboard';
 
   const bot = new Bot(token);
 
