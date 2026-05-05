@@ -201,7 +201,7 @@ export default function Profile() {
       const existingToken = useAuthStore.getState().token;
       if (existingToken) {
         try {
-          const meRes = await api.auth.me() as { data?: { partner?: { companyName: string } } };
+          const meRes = await api.auth.me() as { data?: { partner?: { id: string; walletAddress: string; companyName: string; email?: string; tier: 'BRONZE' | 'SILVER' | 'GOLD'; status: 'PENDING' | 'ACTIVE' | 'SUSPENDED' | 'BANNED' } } };
           const partner = meRes?.data?.partner;
           if (partner && !partner.companyName.startsWith('Customer_')) {
             setUser(partner);
