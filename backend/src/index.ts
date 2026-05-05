@@ -192,6 +192,21 @@ if (config.app.env !== 'test') {
     logger.info(`📚 API Documentation: http://localhost:${PORT}/api/docs`);
     logger.info(`🔗 API Prefix: ${apiPrefix}`);
     logger.info(`🌐 Environment: ${config.app.env}`);
+
+    // Start Telegram bot if token is configured
+    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    if (botToken) {
+      logger.info('[BOT] Token found, starting Telegram bot...');
+      import('./bot/startBot.js').then(({ startBot }) => {
+        startBot().catch((err: unknown) => {
+          logger.error('[BOT] Failed to start Telegram bot:', err);
+        });
+      }).catch((err) => {
+        logger.error('[BOT] Failed to import bot module:', err);
+      });
+    } else {
+      logger.info('[BOT] No TELEGRAM_BOT_TOKEN set, skipping bot');
+    }
   });
 }
 
