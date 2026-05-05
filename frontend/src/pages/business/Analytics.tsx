@@ -75,10 +75,10 @@ const topRewards = [
 ];
 
 const segmentationData = [
-  { name: 'Новые', value: 186, color: '#8b5cf6' },
-  { name: 'Активные', value: 412, color: '#10b981' },
-  { name: 'Спящие', value: 298, color: '#6b7280' },
-  { name: 'VIP', value: 128, color: '#f59e0b' },
+  { name: 'Новые', value: 186, color: '#a8a29e' },
+  { name: 'Активные', value: 412, color: '#f59e0b' },
+  { name: 'Спящие', value: 298, color: '#57534e' },
+  { name: 'VIP', value: 128, color: '#fbbf24' },
 ];
 
 function generateHeatmapData() {
@@ -136,7 +136,7 @@ function KpiCard({ title, value, trend, suffix, idx }: { title: string; value: s
         {value}
         {suffix && <span className="text-sm font-normal text-stone-400 ml-1">{suffix}</span>}
       </span>
-      <div className={clsx('flex items-center gap-1 text-xs font-medium', positive ? 'text-emerald-400' : 'text-red-400')}>
+      <div className={clsx('flex items-center gap-1 text-xs font-medium', positive ? 'text-green-400' : 'text-red-400')}>
         {positive ? <ArrowTrendingUpIcon className="w-3.5 h-3.5" /> : <ArrowTrendingDownIcon className="w-3.5 h-3.5" />}
         <span>{positive ? '+' : ''}{trend}%</span>
         <span className="text-stone-500 ml-1">vs пред. период</span>
@@ -160,7 +160,7 @@ function RevenueTooltip({ active, payload, label }: { active?: boolean; payload?
       {payload.map((p) => (
         <p key={p.dataKey} className="text-white font-medium">
           {p.dataKey === 'revenue' ? 'Выручка' : 'Пред. период'}:{' '}
-          <span className={p.dataKey === 'revenue' ? 'text-violet-400' : 'text-stone-400'}>
+          <span className={p.dataKey === 'revenue' ? 'text-amber-400' : 'text-stone-400'}>
             {p.value.toLocaleString('ru-RU')} T
           </span>
         </p>
@@ -197,7 +197,7 @@ export default function Analytics() {
 
   const maxHeatVal = useMemo(() => Math.max(...heatmap.map((h) => h.count)), [heatmap]);
 
-  const barColors = ['#8b5cf6', '#a78bfa', '#7c3aed', '#c4b5fd', '#6d28d9'];
+  const barColors = ['#f59e0b', '#d97706', '#b45309', '#fbbf24', '#92400e'];
 
   return (
     <div className="space-y-5 pb-8">
@@ -216,7 +216,7 @@ export default function Analytics() {
               onClick={() => setPeriod(p)}
               className={clsx(
                 'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all',
-                period === p ? 'bg-violet-500/20 text-violet-400 ring-1 ring-violet-500/30' : 'text-stone-500 hover:text-stone-300'
+                period === p ? 'bg-amber-500/20 text-amber-400 ring-1 ring-amber-500/30' : 'text-stone-500 hover:text-stone-300'
               )}
             >
               {periodLabels[p]}
@@ -246,8 +246,8 @@ export default function Analytics() {
           <AreaChart data={revenueChartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
             <defs>
               <linearGradient id="gradRevenue" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.35} />
-                <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0} />
+                <stop offset="0%" stopColor="#f59e0b" stopOpacity={0.35} />
+                <stop offset="100%" stopColor="#f59e0b" stopOpacity={0} />
               </linearGradient>
               <linearGradient id="gradPrev" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#57534e" stopOpacity={0.2} />
@@ -259,7 +259,7 @@ export default function Analytics() {
             <YAxis tick={{ fill: '#78716c', fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}k`} />
             <Tooltip content={<RevenueTooltip />} />
             <Area type="monotone" dataKey="prevRevenue" stroke="#57534e" strokeWidth={1.5} fill="url(#gradPrev)" dot={false} />
-            <Area type="monotone" dataKey="revenue" stroke="#8b5cf6" strokeWidth={2} fill="url(#gradRevenue)" dot={false} />
+            <Area type="monotone" dataKey="revenue" stroke="#f59e0b" strokeWidth={2} fill="url(#gradRevenue)" dot={false} />
           </AreaChart>
         </ResponsiveContainer>
       </motion.div>
@@ -295,7 +295,7 @@ export default function Analytics() {
                         <div
                           className="w-full h-7 rounded flex items-center justify-center text-[10px] font-semibold"
                           style={{
-                            backgroundColor: `rgba(139, 92, 246, ${0.1 + intensity * 0.7})`,
+                            backgroundColor: `rgba(245, 158, 11, ${0.1 + intensity * 0.7})`,
                             color: intensity > 0.4 ? '#fff' : '#a8a29e',
                           }}
                         >
@@ -329,7 +329,7 @@ export default function Analytics() {
               <Tooltip
                 contentStyle={{ backgroundColor: '#1c1917', border: '1px solid #44403c', borderRadius: '8px', fontSize: '12px' }}
                 labelStyle={{ color: '#a8a29e' }}
-                itemStyle={{ color: '#8b5cf6' }}
+                itemStyle={{ color: '#fbbf24' }}
                 formatter={(v: number) => [`${v} шт.`, 'Использовано']}
               />
               <Bar dataKey="claims" radius={[0, 6, 6, 0]} barSize={18}>

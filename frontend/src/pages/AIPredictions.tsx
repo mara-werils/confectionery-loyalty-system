@@ -78,7 +78,7 @@ const RISK_CONFIG: Record<RiskLevel, { label: string; color: string; bg: string;
 };
 
 const TIER_BADGE: Record<string, string> = {
-  GOLD:   'text-yellow-400 bg-yellow-400/10 border border-yellow-400/20',
+  GOLD:   'text-amber-400 bg-amber-400/10 border border-amber-400/20',
   SILVER: 'text-stone-300 bg-stone-400/10 border border-stone-400/20',
   BRONZE: 'text-orange-400 bg-orange-400/10 border border-orange-400/20',
 };
@@ -312,11 +312,11 @@ export default function AIPredictions() {
                 <div className="flex items-center gap-1.5 mt-1">
                   <div className="flex-1 h-1.5 bg-stone-800 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-violet-500 rounded-full transition-all duration-1000"
+                      className="h-full bg-amber-500 rounded-full transition-all duration-1000"
                       style={{ width: `${forecast.confidence}%` }}
                     />
                   </div>
-                  <span className="text-xs font-bold text-violet-400">{forecast.confidence}%</span>
+                  <span className="text-xs font-bold text-amber-400">{forecast.confidence}%</span>
                 </div>
               </div>
             </div>
@@ -327,12 +327,12 @@ export default function AIPredictions() {
                 <AreaChart data={chartPoints} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
                   <defs>
                     <linearGradient id="actualGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#a78bfa" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#a78bfa" stopOpacity={0} />
+                      <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="forecastGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#34d399" stopOpacity={0.25} />
-                      <stop offset="95%" stopColor="#34d399" stopOpacity={0} />
+                      <stop offset="5%" stopColor="#78716c" stopOpacity={0.25} />
+                      <stop offset="95%" stopColor="#78716c" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#292524" />
@@ -348,7 +348,7 @@ export default function AIPredictions() {
                   <Area
                     type="monotone"
                     dataKey="actual"
-                    stroke="#a78bfa"
+                    stroke="#f59e0b"
                     strokeWidth={2}
                     fill="url(#actualGrad)"
                     dot={false}
@@ -358,7 +358,7 @@ export default function AIPredictions() {
                   <Area
                     type="monotone"
                     dataKey="predicted"
-                    stroke="#34d399"
+                    stroke="#78716c"
                     strokeWidth={2}
                     strokeDasharray="5 3"
                     fill="url(#forecastGrad)"
@@ -372,11 +372,11 @@ export default function AIPredictions() {
             {/* Legend */}
             <div className="flex items-center gap-4 justify-center">
               <div className="flex items-center gap-1.5">
-                <div className="w-4 h-0.5 bg-violet-400 rounded" />
+                <div className="w-4 h-0.5 bg-amber-400 rounded" />
                 <span className="text-[10px] text-stone-500">{t('ai.actualRevenue')}</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-4 h-0.5 bg-emerald-400 rounded" style={{ backgroundImage: 'repeating-linear-gradient(90deg,#34d399 0,#34d399 5px,transparent 5px,transparent 8px)' }} />
+                <div className="w-4 h-0.5 bg-stone-500 rounded" style={{ backgroundImage: 'repeating-linear-gradient(90deg,#78716c 0,#78716c 5px,transparent 5px,transparent 8px)' }} />
                 <span className="text-[10px] text-stone-500">{t('ai.aiForecast')}</span>
               </div>
             </div>
@@ -407,11 +407,11 @@ export default function AIPredictions() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.05 }}
-                className="bg-violet-500/10 border border-violet-500/20 rounded-xl px-4 py-3"
+                className="bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-3"
               >
                 <div className="flex items-start gap-2">
-                  <BoltIcon className="w-4 h-4 text-violet-400 flex-shrink-0 mt-0.5" />
-                  <p className="text-xs text-violet-300">{personalizedMsg}</p>
+                  <BoltIcon className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-amber-300">{personalizedMsg}</p>
                 </div>
               </motion.div>
             )}
@@ -437,7 +437,7 @@ export default function AIPredictions() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2">
                           <p className="text-sm font-semibold text-white truncate">{rec.title}</p>
-                          <span className="text-xs font-bold text-violet-400 flex-shrink-0">
+                          <span className="text-xs font-bold text-amber-400 flex-shrink-0">
                             {rec.pointsRequired.toLocaleString()} pts
                           </span>
                         </div>
@@ -450,7 +450,7 @@ export default function AIPredictions() {
                       <span className="text-[10px] text-stone-600 w-16">{t('ai.relevance')}</span>
                       <div className="flex-1 h-1.5 bg-stone-800 rounded-full overflow-hidden">
                         <motion.div
-                          className="h-full bg-violet-500 rounded-full"
+                          className="h-full bg-amber-500 rounded-full"
                           initial={{ width: 0 }}
                           animate={{ width: `${rec.score}%` }}
                           transition={{ delay: 0.3 + i * 0.1, duration: 0.8, ease: 'easeOut' }}

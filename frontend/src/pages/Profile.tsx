@@ -323,8 +323,8 @@ export default function Profile() {
         <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4">
           <p className="text-xs text-stone-500 mb-2 font-medium">TON Wallet</p>
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-500/10 rounded-xl border border-blue-500/20">
-              <WalletIcon className="w-4 h-4 text-blue-400" />
+            <div className="p-2 bg-stone-800 rounded-xl border border-stone-700">
+              <WalletIcon className="w-4 h-4 text-stone-300" />
             </div>
             <p className="flex-1 font-mono text-xs text-stone-300 truncate">{formatAddress(wallet.account.address)}</p>
             <button onClick={handleCopyAddress} className="p-2 hover:bg-white/5 rounded-lg transition-colors">
@@ -346,7 +346,7 @@ export default function Profile() {
             {recentTxs.map((tx) => (
               <div key={tx.id} className="flex items-center justify-between py-1">
                 <div className="flex items-center gap-2">
-                  <div className={clsx('w-1.5 h-1.5 rounded-full', tx.type === 'PURCHASE' ? 'bg-green-400' : tx.type === 'REFERRAL' ? 'bg-purple-400' : 'bg-stone-500')} />
+                  <div className={clsx('w-1.5 h-1.5 rounded-full', tx.type === 'PURCHASE' ? 'bg-green-400' : tx.type === 'REFERRAL' ? 'bg-amber-400' : 'bg-stone-500')} />
                   <p className="text-xs text-stone-400 truncate max-w-[160px]">{tx.description || tx.type}</p>
                 </div>
                 <div className="text-right shrink-0">

@@ -152,10 +152,10 @@ const TEXTS: Translations = {
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const CATEGORY_META: Record<Category, { label: string; color: string; bg: string; border: string }> = {
-  DISCOUNT: { label: 'Скидка',   color: 'text-sky-400',    bg: 'bg-sky-500/10',    border: 'border-sky-500/25' },
-  PRODUCT:  { label: 'Продукт',  color: 'text-emerald-400',bg: 'bg-emerald-500/10',border: 'border-emerald-500/25' },
-  CASHBACK: { label: 'Кэшбэк',   color: 'text-amber-400',  bg: 'bg-amber-500/10',  border: 'border-amber-500/25' },
-  SPECIAL:  { label: 'Особое',   color: 'text-violet-400', bg: 'bg-violet-500/10', border: 'border-violet-500/25' },
+  DISCOUNT: { label: 'Скидка',   color: 'text-stone-300', bg: 'bg-stone-800',  border: 'border-stone-700' },
+  PRODUCT:  { label: 'Продукт',  color: 'text-stone-300', bg: 'bg-stone-800',  border: 'border-stone-700' },
+  CASHBACK: { label: 'Кэшбэк',   color: 'text-stone-300', bg: 'bg-stone-800',  border: 'border-stone-700' },
+  SPECIAL:  { label: 'Особое',   color: 'text-stone-300', bg: 'bg-stone-800',  border: 'border-stone-700' },
 };
 
 const CATEGORY_ICON: Record<Category, typeof TagIcon> = {
@@ -498,7 +498,7 @@ function RewardCard({
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1.5">
               {canAfford ? (
-                <CheckCircleSolid className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                <CheckCircleSolid className="w-4 h-4 text-green-400 flex-shrink-0" />
               ) : (
                 <div className="w-4 h-4 rounded-full border-2 border-stone-700 flex-shrink-0" />
               )}
@@ -609,7 +609,7 @@ function MyCouponRow({ code, title, partnerName }: { code: string; title: string
         <span className="font-mono font-black text-sm text-amber-400 tracking-widest">{code}</span>
         <button onClick={handleCopy} className="p-1 hover:bg-stone-800/50 rounded-lg transition-colors">
           {copied
-            ? <CheckIcon className="w-3.5 h-3.5 text-emerald-400" />
+            ? <CheckIcon className="w-3.5 h-3.5 text-green-400" />
             : <ClipboardDocumentIcon className="w-3.5 h-3.5 text-stone-600" />
           }
         </button>
@@ -729,7 +729,7 @@ function CouponSheet({
                       className="flex flex-col items-center gap-1 p-2.5 rounded-xl hover:bg-stone-800/50 transition-colors"
                     >
                       {copied
-                        ? <CheckCircleIcon className="w-5 h-5 text-emerald-400" />
+                        ? <CheckCircleIcon className="w-5 h-5 text-green-400" />
                         : <ClipboardDocumentIcon className="w-5 h-5 text-stone-500" />
                       }
                       <span className="text-[9px] text-stone-600">{copied ? 'Скопировано' : 'Копировать'}</span>

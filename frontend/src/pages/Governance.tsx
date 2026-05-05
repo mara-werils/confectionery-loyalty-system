@@ -129,10 +129,10 @@ const PAST_PROPOSALS_DATA: PastProposalData[] = [
 ];
 
 const STATUS_STYLES: Record<ProposalStatus, { bg: string; text: string }> = {
-  active: { bg: 'bg-emerald-500/15', text: 'text-emerald-400' },
-  passed: { bg: 'bg-amber-500/15', text: 'text-amber-400' },
-  rejected: { bg: 'bg-red-500/15', text: 'text-red-400' },
-  pending: { bg: 'bg-stone-500/15', text: 'text-stone-400' },
+  active: { bg: 'bg-amber-500/15', text: 'text-amber-400' },
+  passed: { bg: 'bg-green-500/15', text: 'text-green-400' },
+  rejected: { bg: 'bg-stone-500/15', text: 'text-stone-400' },
+  pending: { bg: 'bg-stone-500/15', text: 'text-stone-500' },
 };
 
 const CATEGORY_KEYS = [
@@ -342,18 +342,18 @@ export default function Governance() {
               {(p.status === 'active' || p.status === 'passed' || p.status === 'rejected') && totalVotes > 0 && (
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between text-[11px] font-medium">
-                    <span className="text-emerald-400">{t('governance.voteFor')} {forPct}%</span>
-                    <span className="text-red-400">{t('governance.voteAgainst')} {againstPct}%</span>
+                    <span className="text-amber-400">{t('governance.voteFor')} {forPct}%</span>
+                    <span className="text-stone-400">{t('governance.voteAgainst')} {againstPct}%</span>
                   </div>
                   <div className="h-2.5 rounded-full bg-stone-800 overflow-hidden flex">
                     <motion.div
-                      className="bg-emerald-500 rounded-l-full"
+                      className="bg-amber-500 rounded-l-full"
                       initial={{ width: 0 }}
                       animate={{ width: `${forPct}%` }}
                       transition={{ duration: 0.6, ease: 'easeOut' }}
                     />
                     <motion.div
-                      className="bg-red-500 rounded-r-full"
+                      className="bg-stone-500 rounded-r-full"
                       initial={{ width: 0 }}
                       animate={{ width: `${againstPct}%` }}
                       transition={{ duration: 0.6, ease: 'easeOut' }}
@@ -361,7 +361,7 @@ export default function Governance() {
                   </div>
                   <div className="flex items-center justify-between text-[10px] text-stone-500">
                     <span>{totalVotes.toLocaleString()} {t('governance.govVoted')}</span>
-                    <span className={quorumReached(p) ? 'text-emerald-400' : 'text-stone-500'}>
+                    <span className={quorumReached(p) ? 'text-amber-400' : 'text-stone-500'}>
                       {t('governance.quorum')}: {quorumReached(p) ? t('governance.quorumReached') : t('governance.quorumNotReached')}
                     </span>
                   </div>
@@ -375,8 +375,8 @@ export default function Governance() {
                     onClick={() => handleVote(p.id, 'for')}
                     className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold transition-all ${
                       p.userVote === 'for'
-                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 ring-1 ring-emerald-500/20'
-                        : 'bg-stone-800 text-stone-400 border border-stone-700 hover:border-emerald-500/40 hover:text-emerald-400'
+                        ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40 ring-1 ring-amber-500/20'
+                        : 'bg-stone-800 text-stone-400 border border-stone-700 hover:border-amber-500/40 hover:text-amber-400'
                     }`}
                   >
                     <HandThumbUpIcon className="w-4 h-4" />
@@ -386,8 +386,8 @@ export default function Governance() {
                     onClick={() => handleVote(p.id, 'against')}
                     className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold transition-all ${
                       p.userVote === 'against'
-                        ? 'bg-red-500/20 text-red-400 border border-red-500/40 ring-1 ring-red-500/20'
-                        : 'bg-stone-800 text-stone-400 border border-stone-700 hover:border-red-500/40 hover:text-red-400'
+                        ? 'bg-stone-600/20 text-stone-300 border border-stone-500/40 ring-1 ring-stone-500/20'
+                        : 'bg-stone-800 text-stone-400 border border-stone-700 hover:border-stone-500/40 hover:text-stone-300'
                     }`}
                   >
                     <HandThumbDownIcon className="w-4 h-4" />
@@ -417,9 +417,9 @@ export default function Governance() {
         <div className="grid grid-cols-2 gap-3">
           {[
             { label: t('governance.stats.totalProposals'), value: totalProposals.toString(), icon: DocumentTextIcon, color: 'text-amber-400' },
-            { label: t('governance.stats.votesCast'), value: totalVotesCast.toLocaleString(), icon: UserGroupIcon, color: 'text-emerald-400' },
-            { label: t('governance.stats.participation'), value: `${participationRate}%`, icon: CheckBadgeIcon, color: 'text-blue-400' },
-            { label: t('governance.stats.treasury'), value: treasuryBalance, icon: BanknotesIcon, color: 'text-purple-400' },
+            { label: t('governance.stats.votesCast'), value: totalVotesCast.toLocaleString(), icon: UserGroupIcon, color: 'text-stone-300' },
+            { label: t('governance.stats.participation'), value: `${participationRate}%`, icon: CheckBadgeIcon, color: 'text-amber-400' },
+            { label: t('governance.stats.treasury'), value: treasuryBalance, icon: BanknotesIcon, color: 'text-amber-400' },
           ].map((s) => (
             <div key={s.label} className="bg-stone-900 border border-stone-800/80 rounded-xl p-4 flex flex-col gap-1">
               <s.icon className={`w-5 h-5 ${s.color}`} />

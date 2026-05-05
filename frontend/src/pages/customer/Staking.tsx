@@ -272,7 +272,7 @@ export default function Staking() {
           </div>
           <div className="rounded-2xl bg-stone-900 border border-stone-800 p-4">
             <p className="text-[10px] text-stone-500 uppercase tracking-wider mb-1">{t('staking.currentApy')}</p>
-            <p className="text-xl font-black text-emerald-400 tabular-nums">{weightedApy.toFixed(1)}%</p>
+            <p className="text-xl font-black text-amber-400 tabular-nums">{weightedApy.toFixed(1)}%</p>
             <p className="text-[10px] text-stone-600">{t('staking.weightedAvg')}</p>
           </div>
           <div className="rounded-2xl bg-stone-900 border border-stone-800 p-4">
@@ -396,7 +396,7 @@ export default function Staking() {
 function CountdownDisplay({ target }: { target: Date }) {
   const time = getTimeRemaining(target);
   if (time.days === 0 && time.hours === 0 && time.minutes === 0 && time.seconds === 0) {
-    return <p className="text-sm font-semibold text-emerald-400">Готово!</p>;
+    return <p className="text-sm font-semibold text-amber-400">Готово!</p>;
   }
   return (
     <div className="flex items-baseline gap-0.5">

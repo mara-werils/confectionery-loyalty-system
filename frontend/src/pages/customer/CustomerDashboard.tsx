@@ -20,9 +20,9 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '../../services/api';
 
 const TIERS = {
-  BRONZE: { next: 'SILVER', threshold: 5000, color: 'text-orange-400', bar: 'from-orange-500 to-amber-400', label: 'Бронза' },
-  SILVER: { next: 'GOLD',   threshold: 20000, color: 'text-stone-300',  bar: 'from-stone-400 to-stone-200', label: 'Серебро' },
-  GOLD:   { next: 'MAX',    threshold: 0,     color: 'text-amber-400', bar: 'from-amber-400 to-yellow-300', label: 'Золото' },
+  BRONZE: { next: 'SILVER', threshold: 5000, color: 'text-orange-400', bar: 'bg-orange-400', label: 'Бронза' },
+  SILVER: { next: 'GOLD',   threshold: 20000, color: 'text-stone-300',  bar: 'bg-stone-300', label: 'Серебро' },
+  GOLD:   { next: 'MAX',    threshold: 0,     color: 'text-amber-400', bar: 'bg-amber-400', label: 'Золото' },
 } as const;
 
 interface JettonBalance {
@@ -239,7 +239,7 @@ export default function CustomerDashboard() {
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
               transition={{ duration: 1.2, delay: 0.3, ease: 'easeOut' }}
-              className={clsx('h-full rounded-full bg-gradient-to-r', tierData.bar)}
+              className={clsx('h-full rounded-full', tierData.bar)}
             />
           </div>
         </div>

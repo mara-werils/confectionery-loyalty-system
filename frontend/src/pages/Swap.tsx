@@ -146,7 +146,7 @@ export default function Swap() {
             rel="noreferrer"
             className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-900 border border-stone-700 text-xs font-semibold text-stone-300 hover:border-stone-500 transition-colors"
           >
-            <span className="w-2 h-2 rounded-full bg-purple-400"></span>
+            <span className="w-2 h-2 rounded-full bg-amber-400"></span>
             DeDust DEX
             <ArrowTopRightOnSquareIcon className="w-3 h-3" />
           </a>
@@ -173,7 +173,7 @@ export default function Swap() {
                 />
                 <button className="flex items-center gap-2 bg-stone-800 hover:bg-stone-700 px-3 py-1.5 rounded-full transition-colors whitespace-nowrap">
                   {payToken === 'TON' ? (
-                    <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center">
+                    <div className="w-6 h-6 rounded-full bg-stone-600 flex items-center justify-center">
                       <CurrencyDollarIcon className="w-4 h-4 text-white" />
                     </div>
                   ) : (
@@ -189,7 +189,7 @@ export default function Swap() {
                 <span className="text-xs text-stone-500 font-mono">${getUsdValue(payAmount, payToken)}</span>
                 <button
                   onClick={handleMax}
-                  className="text-[10px] font-bold tracking-wider uppercase text-purple-400 hover:text-purple-300 px-2 py-0.5 rounded bg-purple-500/10"
+                  className="text-[10px] font-bold tracking-wider uppercase text-amber-400 hover:text-amber-300 px-2 py-0.5 rounded bg-amber-500/10"
                 >
                   {t('swap.max')}
                 </button>
@@ -224,7 +224,7 @@ export default function Swap() {
                 />
                 <button className="flex items-center gap-2 bg-stone-800 hover:bg-stone-700 px-3 py-1.5 rounded-full transition-colors whitespace-nowrap">
                   {receiveToken === 'TON' ? (
-                    <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center">
+                    <div className="w-6 h-6 rounded-full bg-stone-600 flex items-center justify-center">
                       <CurrencyDollarIcon className="w-4 h-4 text-white" />
                     </div>
                   ) : (
@@ -270,7 +270,7 @@ export default function Swap() {
                       href={DEDUST_SWAP_URL}
                       target="_blank"
                       rel="noreferrer"
-                      className="flex items-center gap-1 text-purple-400 hover:text-purple-300"
+                      className="flex items-center gap-1 text-amber-400 hover:text-amber-300"
                     >
                       DeDust Protocol <ArrowTopRightOnSquareIcon className="w-3 h-3" />
                     </a>
@@ -285,7 +285,7 @@ export default function Swap() {
               disabled={!payAmount || Number(payAmount) <= 0}
               className={`w-full mt-4 py-4 rounded-xl font-bold tracking-wide transition-all shadow-[0_0_20px_rgba(255,255,255,0.05)]
                 ${!wallet
-                  ? 'bg-purple-500 hover:bg-purple-400 text-white'
+                  ? 'bg-amber-500 hover:bg-amber-400 text-black'
                   : (!payAmount || Number(payAmount) <= 0)
                   ? 'bg-white/10 text-white/40 cursor-not-allowed'
                   : 'bg-amber-500 text-black hover:bg-amber-400 hover:shadow-[0_0_30px_rgba(245,158,11,0.15)]'

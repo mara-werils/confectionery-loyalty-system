@@ -30,7 +30,7 @@ export default function LiveActivity() {
 
   const getActionColor = (action: string) => {
     if (action === 'earned') return 'text-green-400';
-    if (action === 'joined') return 'text-blue-400';
+    if (action === 'joined') return 'text-amber-400';
     return 'text-stone-300';
   };
 

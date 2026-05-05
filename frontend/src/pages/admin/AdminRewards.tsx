@@ -34,10 +34,10 @@ interface RewardForm {
 }
 
 const CATEGORY_STYLES: Record<string, string> = {
-  DISCOUNT: 'text-green-400 bg-green-400/10 border-green-400/20',
-  PRODUCT: 'text-blue-400 bg-blue-400/10 border-blue-400/20',
-  CASHBACK: 'text-purple-400 bg-purple-400/10 border-purple-400/20',
-  SPECIAL: 'text-amber-400 bg-amber-400/10 border-amber-400/20',
+  DISCOUNT: 'text-stone-300 bg-stone-800 border-stone-700',
+  PRODUCT: 'text-stone-300 bg-stone-800 border-stone-700',
+  CASHBACK: 'text-stone-300 bg-stone-800 border-stone-700',
+  SPECIAL: 'text-stone-300 bg-stone-800 border-stone-700',
 };
 
 const CATEGORY_LABELS: Record<string, string> = {

@@ -37,10 +37,10 @@ interface AchievementsResponse {
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const CATEGORY_META: Record<string, { label: string; emoji: string; color: string }> = {
-  transactions: { label: 'Транзакции',   emoji: '↺',  color: 'text-blue-400' },
-  referrals:    { label: 'Рефералы',     emoji: '◈',  color: 'text-purple-400' },
-  spending:     { label: 'Баллы',        emoji: '◆',  color: 'text-cyan-400' },
-  general:      { label: 'Достижения',   emoji: '▲',  color: 'text-yellow-400' },
+  transactions: { label: 'Транзакции',   emoji: '↺',  color: 'text-stone-300' },
+  referrals:    { label: 'Рефералы',     emoji: '◈',  color: 'text-stone-300' },
+  spending:     { label: 'Баллы',        emoji: '◆',  color: 'text-stone-300' },
+  general:      { label: 'Достижения',   emoji: '▲',  color: 'text-stone-300' },
 };
 
 const ACHIEVEMENT_EMOJI: Record<string, string> = {
@@ -64,7 +64,7 @@ function ProgressBar({ value, max, unlocked }: { value: number; max: number; unl
   return (
     <div className="w-full h-1.5 bg-stone-800 rounded-full overflow-hidden mt-3">
       <motion.div
-        className={`h-full rounded-full ${unlocked ? 'bg-gradient-to-r from-yellow-400 to-orange-400' : 'bg-stone-600'}`}
+        className={`h-full rounded-full ${unlocked ? 'bg-amber-400' : 'bg-stone-600'}`}
         initial={{ width: 0 }}
         animate={{ width: `${pct}%` }}
         transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }}
@@ -80,7 +80,7 @@ function NFTBadge({ txHash }: { txHash: string }) {
       target="_blank"
       rel="noopener noreferrer"
       onClick={e => e.stopPropagation()}
-      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-500/15 border border-blue-500/30 text-blue-400 text-[10px] font-semibold hover:bg-blue-500/25 transition-colors"
+      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-[10px] font-semibold hover:bg-amber-500/25 transition-colors"
     >
       <CubeTransparentIcon className="w-3 h-3" />
       NFT в сети
@@ -121,7 +121,7 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
 
           {/* NFT sparkle indicator */}
           {unlocked && achievement.nftTxHash && (
-            <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center">
+            <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-500 flex items-center justify-center">
               <SparklesIcon className="w-2.5 h-2.5 text-white" />
             </div>
           )}
@@ -189,10 +189,10 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
               )}
 
               {unlocked && achievement.nftTxHash ? (
-                <div className="rounded-lg bg-blue-500/8 border border-blue-500/20 px-3 py-2 space-y-1">
+                <div className="rounded-lg bg-amber-500/8 border border-amber-500/20 px-3 py-2 space-y-1">
                   <div className="flex items-center gap-1.5">
-                    <CubeTransparentIcon className="w-3.5 h-3.5 text-blue-400" />
-                    <span className="text-[11px] font-semibold text-blue-300">Soul-Bound Token (SBT)</span>
+                    <CubeTransparentIcon className="w-3.5 h-3.5 text-amber-400" />
+                    <span className="text-[11px] font-semibold text-amber-300">Soul-Bound Token (SBT)</span>
                   </div>
                   <p className="text-[10px] text-stone-500 font-mono break-all">{achievement.nftTxHash}</p>
                   <a
@@ -200,7 +200,7 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={e => e.stopPropagation()}
-                    className="inline-flex items-center gap-1 text-[10px] text-blue-400 hover:text-blue-300 underline underline-offset-2"
+                    className="inline-flex items-center gap-1 text-[10px] text-amber-400 hover:text-amber-300 underline underline-offset-2"
                   >
                     Посмотреть транзакцию в TON testnet
                     <ArrowTopRightOnSquareIcon className="w-3 h-3" />
@@ -297,7 +297,7 @@ export default function Achievements() {
           {[
             { label: 'Открыто',       value: `${unlockedCount}/${achievements.length}`, color: 'text-yellow-400' },
             { label: 'Прогресс',      value: `${completionPct}%`,                       color: 'text-green-400' },
-            { label: 'NFT выпущено',  value: nftCount,                                  color: 'text-blue-400' },
+            { label: 'NFT выпущено',  value: nftCount,                                  color: 'text-amber-400' },
           ].map(s => (
             <div key={s.label} className="bg-stone-900 border border-stone-800 rounded-xl p-3 text-center">
               <p className={`text-xl font-black ${s.color}`}>{s.value}</p>
@@ -313,11 +313,11 @@ export default function Achievements() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.1 }}
-          className="bg-blue-500/8 border border-blue-500/20 rounded-xl px-4 py-3 flex items-start gap-3"
+          className="bg-amber-500/8 border border-amber-500/20 rounded-xl px-4 py-3 flex items-start gap-3"
         >
-          <CubeTransparentIcon className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+          <CubeTransparentIcon className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
           <div>
-            <p className="text-xs font-semibold text-blue-300">
+            <p className="text-xs font-semibold text-amber-300">
               {nftCount} Soul-Bound Token{nftCount > 1 ? '-ов' : ''} выпущено в TON testnet
             </p>
             <p className="text-[10px] text-stone-500 mt-0.5">

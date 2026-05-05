@@ -21,17 +21,17 @@ interface AuditEntry {
 }
 
 const ACTION_COLORS: Record<string, string> = {
-  ISSUE_SBT: 'text-red-400 bg-red-400/10 border-red-400/20',
-  REVOKE_SBT: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20',
-  ISSUE_COUPON: 'text-orange-400 bg-orange-400/10 border-orange-400/20',
-  UPDATE_PARTNER: 'text-blue-400 bg-blue-400/10 border-blue-400/20',
-  MINT_TOKENS: 'text-purple-400 bg-purple-400/10 border-purple-400/20',
-  CREATE_REWARD: 'text-green-400 bg-green-400/10 border-green-400/20',
-  UPDATE_REWARD: 'text-cyan-400 bg-cyan-400/10 border-cyan-400/20',
+  ISSUE_SBT: 'text-amber-400 bg-amber-400/10 border-amber-400/20',
+  REVOKE_SBT: 'text-amber-400 bg-amber-400/10 border-amber-400/20',
+  ISSUE_COUPON: 'text-stone-300 bg-stone-400/10 border-stone-400/20',
+  UPDATE_PARTNER: 'text-stone-300 bg-stone-400/10 border-stone-400/20',
+  MINT_TOKENS: 'text-amber-400 bg-amber-400/10 border-amber-400/20',
+  CREATE_REWARD: 'text-stone-300 bg-stone-400/10 border-stone-400/20',
+  UPDATE_REWARD: 'text-stone-300 bg-stone-400/10 border-stone-400/20',
   DELETE_REWARD: 'text-red-400 bg-red-400/10 border-red-400/20',
-  REDEEM_COUPON: 'text-pink-400 bg-pink-400/10 border-pink-400/20',
+  REDEEM_COUPON: 'text-stone-300 bg-stone-400/10 border-stone-400/20',
   LOGIN: 'text-stone-400 bg-stone-400/10 border-stone-400/20',
-  REGISTER: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20',
+  REGISTER: 'text-stone-300 bg-stone-400/10 border-stone-400/20',
 };
 
 const ACTION_LABELS: Record<string, string> = {
@@ -169,11 +169,7 @@ export default function AdminAuditLog() {
                     <div className="relative flex-shrink-0">
                       <div className={`w-3 h-3 rounded-full border-2 ${
                         ACTION_COLORS[log.action]?.includes('text-red') ? 'border-red-400 bg-red-400/30' :
-                        ACTION_COLORS[log.action]?.includes('text-green') ? 'border-green-400 bg-green-400/30' :
-                        ACTION_COLORS[log.action]?.includes('text-blue') ? 'border-blue-400 bg-blue-400/30' :
-                        ACTION_COLORS[log.action]?.includes('text-purple') ? 'border-purple-400 bg-purple-400/30' :
                         ACTION_COLORS[log.action]?.includes('text-amber') ? 'border-amber-400 bg-amber-400/30' :
-                        ACTION_COLORS[log.action]?.includes('text-yellow') ? 'border-yellow-400 bg-yellow-400/30' :
                         'border-stone-500 bg-stone-500/30'
                       }`} />
                     </div>
