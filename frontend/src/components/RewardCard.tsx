@@ -83,13 +83,13 @@ export default function RewardCard({
           )}
         >
           <CategoryIcon className="w-3.5 h-3.5" />
-          {category}
+          {category === 'DISCOUNT' ? 'Скидка' : category === 'PRODUCT' ? 'Продукт' : category === 'CASHBACK' ? 'Кэшбэк' : 'Особый'}
         </div>
 
         {/* Availability badge */}
         {available > 0 && available <= 10 && (
           <div className="absolute top-3 right-3 bg-red-500 text-white px-2 py-0.5 rounded-full text-xs font-bold">
-            Only {available} left!
+            Осталось {available}!
           </div>
         )}
       </div>
@@ -123,12 +123,12 @@ export default function RewardCard({
             )}
           >
             {isClaimPending
-              ? 'Claiming...'
+              ? 'Получение...'
               : !isAvailable
-              ? 'Unavailable'
+              ? 'Недоступно'
               : !canAfford
-              ? `Need ${(points - currentBalance).toLocaleString()} more`
-              : 'Claim'}
+              ? `Нужно ещё ${(points - currentBalance).toLocaleString()}`
+              : 'Получить'}
           </button>
         </div>
       </div>

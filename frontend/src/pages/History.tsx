@@ -10,17 +10,17 @@ import { useTransactions, useLoyaltyHistory } from '../hooks/useApi';
 import { useAuthStore } from '../store/authStore';
 
 const tabs = [
-  { key: 'transactions', label: 'Transactions', icon: ClockIcon },
-  { key: 'claims', label: 'Claims', icon: GiftIcon },
+  { key: 'transactions', label: 'Транзакции', icon: ClockIcon },
+  { key: 'claims', label: 'Награды', icon: GiftIcon },
 ];
 
 type DateRange = 'today' | 'week' | 'month' | 'all';
 
 const DATE_RANGE_LABELS: Record<DateRange, string> = {
-  today: 'Today',
-  week: 'Week',
-  month: 'Month',
-  all: 'All',
+  today: 'Сегодня',
+  week: 'Неделя',
+  month: 'Месяц',
+  all: 'Все',
 };
 
 function getDateRangeStart(range: DateRange): Date | null {
@@ -43,7 +43,7 @@ function getDateRangeStart(range: DateRange): Date | null {
 
 function exportToCSV(data: Record<string, unknown>[], filename: string) {
   if (!data.length) {
-    toast.error('No data to export');
+    toast.error('Нет данных для экспорта');
     return;
   }
   const headers = Object.keys(data[0]);
@@ -58,7 +58,7 @@ function exportToCSV(data: Record<string, unknown>[], filename: string) {
   a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
-  toast.success('CSV exported!');
+  toast.success('CSV экспортирован!');
 }
 
 export default function History() {
@@ -175,7 +175,7 @@ export default function History() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by type, description…"
+            placeholder="Поиск по типу, описанию…"
             className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-stone-900 border border-stone-800 text-sm text-white placeholder-stone-600 focus:outline-none focus:border-stone-600 transition-colors"
           />
         </div>
@@ -270,7 +270,7 @@ export default function History() {
                           {claim.reward?.title || 'Reward'}
                         </h3>
                         <p className="text-sm text-stone-500 mt-0.5">
-                          {new Date(claim.createdAt).toLocaleDateString('en-US', {
+                          {new Date(claim.createdAt).toLocaleDateString('ru-RU', {
                             month: 'short',
                             day: 'numeric',
                             year: 'numeric',

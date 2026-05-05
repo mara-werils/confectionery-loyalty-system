@@ -37,10 +37,10 @@ interface AchievementsResponse {
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const CATEGORY_META: Record<string, { label: string; emoji: string; color: string }> = {
-  transactions: { label: 'Transactions', emoji: '↺',  color: 'text-blue-400' },
-  referrals:    { label: 'Referrals',    emoji: '◈',  color: 'text-purple-400' },
-  spending:     { label: 'Points',       emoji: '◆',  color: 'text-cyan-400' },
-  general:      { label: 'Milestones',   emoji: '▲',  color: 'text-yellow-400' },
+  transactions: { label: 'Транзакции',   emoji: '↺',  color: 'text-blue-400' },
+  referrals:    { label: 'Рефералы',     emoji: '◈',  color: 'text-purple-400' },
+  spending:     { label: 'Баллы',        emoji: '◆',  color: 'text-cyan-400' },
+  general:      { label: 'Достижения',   emoji: '▲',  color: 'text-yellow-400' },
 };
 
 const ACHIEVEMENT_EMOJI: Record<string, string> = {
@@ -83,7 +83,7 @@ function NFTBadge({ txHash }: { txHash: string }) {
       className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-500/15 border border-blue-500/30 text-blue-400 text-[10px] font-semibold hover:bg-blue-500/25 transition-colors"
     >
       <CubeTransparentIcon className="w-3 h-3" />
-      NFT on-chain
+      NFT в сети
       <ArrowTopRightOnSquareIcon className="w-2.5 h-2.5" />
     </a>
   );
@@ -182,7 +182,7 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
             <div className="mt-3 pt-3 border-t border-stone-800 space-y-2">
               {unlocked && achievement.unlockedAt && (
                 <p className="text-[11px] text-stone-500">
-                  Unlocked: {new Date(achievement.unlockedAt).toLocaleDateString('en-GB', {
+                  Открыто: {new Date(achievement.unlockedAt).toLocaleDateString('ru-RU', {
                     day: '2-digit', month: 'short', year: 'numeric',
                   })}
                 </p>
@@ -202,17 +202,17 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
                     onClick={e => e.stopPropagation()}
                     className="inline-flex items-center gap-1 text-[10px] text-blue-400 hover:text-blue-300 underline underline-offset-2"
                   >
-                    View transaction on TON testnet
+                    Посмотреть транзакцию в TON testnet
                     <ArrowTopRightOnSquareIcon className="w-3 h-3" />
                   </a>
                 </div>
               ) : unlocked ? (
                 <div className="rounded-lg bg-stone-800/50 px-3 py-2">
-                  <p className="text-[10px] text-stone-500">NFT minting in progress…</p>
+                  <p className="text-[10px] text-stone-500">NFT выпускается…</p>
                 </div>
               ) : (
                 <p className="text-[11px] text-stone-500">
-                  {achievement.requirement - achievement.progress} more to go
+                  Осталось {achievement.requirement - achievement.progress}
                 </p>
               )}
             </div>
@@ -242,13 +242,13 @@ export default function Achievements() {
     onSuccess: (res) => {
       const newly: string[] = (res as { data: { newlyUnlocked: string[] } }).data.newlyUnlocked;
       if (newly.length > 0) {
-        toast.success(`Unlocked: ${newly.join(', ')}`, { duration: 4000 });
+        toast.success(`Открыто: ${newly.join(', ')}`, { duration: 4000 });
       } else {
-        toast('No new achievements yet.');
+        toast('Новых достижений пока нет.');
       }
       queryClient.invalidateQueries({ queryKey: ['achievements'] });
     },
-    onError: () => toast.error('Failed to check achievements'),
+    onError: () => toast.error('Не удалось проверить достижения'),
   });
 
   const data: AchievementsResponse | undefined = (raw as { data: AchievementsResponse })?.data;
@@ -274,14 +274,14 @@ export default function Achievements() {
             <div className="w-8 h-8 rounded-xl bg-yellow-400/15 border border-yellow-400/25 flex items-center justify-center">
               <TrophySolid className="w-4 h-4 text-yellow-400" />
             </div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">Achievements</h1>
+            <h1 className="text-2xl font-bold text-white tracking-tight">Достижения</h1>
           </div>
           <button
             onClick={() => checkMutation.mutate()}
             disabled={checkMutation.isPending}
             className="text-xs px-3 py-1.5 rounded-full bg-stone-800 border border-stone-700 text-stone-300 hover:bg-stone-700 transition-colors disabled:opacity-50"
           >
-            {checkMutation.isPending ? 'Checking…' : 'Check progress'}
+            {checkMutation.isPending ? 'Проверка…' : 'Проверить'}
           </button>
         </div>
       </motion.div>
@@ -295,9 +295,9 @@ export default function Achievements() {
           className="grid grid-cols-3 gap-3"
         >
           {[
-            { label: 'Unlocked',   value: `${unlockedCount}/${achievements.length}`, color: 'text-yellow-400' },
-            { label: 'Completion', value: `${completionPct}%`,                       color: 'text-green-400' },
-            { label: 'NFTs minted',value: nftCount,                                  color: 'text-blue-400' },
+            { label: 'Открыто',       value: `${unlockedCount}/${achievements.length}`, color: 'text-yellow-400' },
+            { label: 'Прогресс',      value: `${completionPct}%`,                       color: 'text-green-400' },
+            { label: 'NFT выпущено',  value: nftCount,                                  color: 'text-blue-400' },
           ].map(s => (
             <div key={s.label} className="bg-stone-900 border border-stone-800 rounded-xl p-3 text-center">
               <p className={`text-xl font-black ${s.color}`}>{s.value}</p>
@@ -318,10 +318,10 @@ export default function Achievements() {
           <CubeTransparentIcon className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
           <div>
             <p className="text-xs font-semibold text-blue-300">
-              {nftCount} Soul-Bound Token{nftCount > 1 ? 's' : ''} minted on TON testnet
+              {nftCount} Soul-Bound Token{nftCount > 1 ? '-ов' : ''} выпущено в TON testnet
             </p>
             <p className="text-[10px] text-stone-500 mt-0.5">
-              Your achievements are permanently recorded on the blockchain — tap any unlocked badge to view.
+              Ваши д��стижения навсегда записаны в блокчейне — нажмите на любой открытый значок для просмотра.
             </p>
           </div>
         </motion.div>
@@ -341,7 +341,7 @@ export default function Achievements() {
                   : 'bg-stone-900 border border-stone-800 text-stone-400 hover:border-stone-600'
               }`}
             >
-              {meta ? `${meta.emoji} ${meta.label}` : 'All'}
+              {meta ? `${meta.emoji} ${meta.label}` : 'Все'}
             </button>
           );
         })}
@@ -357,7 +357,7 @@ export default function Achievements() {
       ) : filtered.length === 0 ? (
         <div className="text-center py-12">
           <TrophyIcon className="w-12 h-12 text-stone-700 mx-auto mb-3" />
-          <p className="text-stone-500 text-sm">No achievements in this category yet.</p>
+          <p className="text-stone-500 text-sm">Пока нет достижений в этой категории.</p>
         </div>
       ) : (
         <div className="space-y-3">

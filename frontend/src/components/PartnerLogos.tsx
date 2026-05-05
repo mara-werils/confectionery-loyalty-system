@@ -13,8 +13,8 @@ export default function PartnerLogos() {
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold text-white">Trusted Partners</h3>
-                <span className="text-xs text-gray-500">{partners.length} active</span>
+                <h3 className="text-lg font-bold text-white">Наши партнёры</h3>
+                <span className="text-xs text-gray-500">{partners.length} активных</span>
             </div>
 
             <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4">
@@ -48,7 +48,7 @@ export default function PartnerLogos() {
                         <span className="text-stone-600 group-hover:text-white transition-colors">+</span>
                     </div>
                     <span className="text-xs text-stone-500 group-hover:text-white transition-colors whitespace-nowrap">
-                        Join Us
+                        Стать партнёром
                     </span>
                 </motion.div>
             </div>

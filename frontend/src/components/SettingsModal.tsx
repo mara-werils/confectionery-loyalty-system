@@ -23,27 +23,27 @@ interface SettingsModalProps {
 }
 
 const tabs = [
-  { key: 'security' as const, label: 'Security', icon: ShieldCheckIcon },
-  { key: 'notifications' as const, label: 'Notifications', icon: BellIcon },
-  { key: 'help' as const, label: 'Help', icon: QuestionMarkCircleIcon },
+  { key: 'security' as const, label: 'Безопасность', icon: ShieldCheckIcon },
+  { key: 'notifications' as const, label: 'Уведомления', icon: BellIcon },
+  { key: 'help' as const, label: 'Помощь', icon: QuestionMarkCircleIcon },
 ];
 
 const faqs = [
   {
-    question: 'How do I earn SWEET tokens?',
-    answer: 'You earn SWEET tokens with every purchase at partner confectioneries. 1₸ spent = 1 SWEET point.',
+    question: 'Как заработать токены SWEET?',
+    answer: 'Вы получаете SWEET за каждую покупку у партнёрских кондитерских. 1₸ = 1 SWEET балл.',
   },
   {
-    question: 'Can I transfer tokens to another wallet?',
-    answer: 'Yes! SWEET tokens are standard TON Jettons and can be transferred to any compatible wallet.',
+    question: 'Можно ли перевести токены на другой кошелёк?',
+    answer: 'Да! SWEET — стандартные TON Jetton-ы. Их можно перевести на любой совместимый кошелёк.',
   },
   {
-    question: 'How do I redeem rewards?',
-    answer: 'Go to the Rewards tab, choose a reward, and click "Claim". Show the confirmation to the partner.',
+    question: 'Как получить награду?',
+    answer: 'Перейдите во вкладку «Награды», выберите награду и нажмите «Получить». Покажите подтверждение партнёру.',
   },
   {
-    question: 'What are GOV tokens?',
-    answer: 'GOV tokens give you voting power in the DAO. You can participate in governance decisions.',
+    question: 'Что такое токены GOV?',
+    answer: 'GOV-токены дают вам право голоса в DAO. Вы можете участвовать в управлении проектом.',
   },
 ];
 
@@ -67,7 +67,7 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
     if (wallet?.account.address) {
       navigator.clipboard.writeText(wallet.account.address);
       setCopied(true);
-      toast.success('Address copied!');
+      toast.success('Адрес скопирован!');
       setTimeout(() => setCopied(false), 2000);
     }
   };
@@ -110,7 +110,7 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b border-white/10">
                   <Dialog.Title className="text-lg font-bold text-white">
-                    Settings
+                    Настройки
                   </Dialog.Title>
                   <button
                     onClick={onClose}
@@ -152,10 +152,10 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
                       >
                         {/* Wallet Address */}
                         <div className="bg-white/5 rounded-xl p-4">
-                          <p className="text-xs text-gray-500 mb-2">Connected Wallet</p>
+                          <p className="text-xs text-gray-500 mb-2">Подключённый кошелёк</p>
                           <div className="flex items-center gap-2">
                             <code className="flex-1 text-sm text-gray-300 font-mono truncate">
-                              {wallet?.account.address || 'Not connected'}
+                              {wallet?.account.address || 'Не подключён'}
                             </code>
                             <button
                               onClick={handleCopyAddress}
@@ -173,8 +173,8 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
                         {/* 2FA Toggle */}
                         <div className="flex items-center justify-between bg-white/5 rounded-xl p-4">
                           <div>
-                            <p className="font-medium text-white">Two-Factor Auth</p>
-                            <p className="text-xs text-gray-500">Extra security for your account</p>
+                            <p className="font-medium text-white">Двухфакторная аутентификация</p>
+                            <p className="text-xs text-gray-500">Дополнительная защита аккаунта</p>
                           </div>
                           <Switch
                             checked={settings.twoFactorEnabled}
@@ -197,8 +197,8 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
                         <div className="flex items-center gap-3 bg-green-500/10 rounded-xl p-4 border border-green-500/20">
                           <ShieldCheckIcon className="w-8 h-8 text-green-400" />
                           <div>
-                            <p className="font-medium text-green-400">Account Secure</p>
-                            <p className="text-xs text-green-400/70">Your wallet is securely connected via TonConnect</p>
+                            <p className="font-medium text-green-400">Аккаунт защищён</p>
+                            <p className="text-xs text-green-400/70">Кошелёк безопасно подключён через TonConnect</p>
                           </div>
                         </div>
                       </motion.div>
@@ -213,10 +213,10 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
                         className="space-y-3"
                       >
                         {[
-                          { key: 'pushNotifications' as const, label: 'Push Notifications', desc: 'Receive push alerts' },
-                          { key: 'transactionAlerts' as const, label: 'Transaction Alerts', desc: 'Get notified on new transactions' },
-                          { key: 'emailNotifications' as const, label: 'Email Notifications', desc: 'Important updates via email' },
-                          { key: 'marketingEmails' as const, label: 'Marketing Emails', desc: 'Promotions and special offers' },
+                          { key: 'pushNotifications' as const, label: 'Push-уведомления', desc: 'Получать push-оповещения' },
+                          { key: 'transactionAlerts' as const, label: 'Оповещения о транзакциях', desc: 'Уведомлять о новых транзакциях' },
+                          { key: 'emailNotifications' as const, label: 'Email-уведомления', desc: 'Важные обновления по email' },
+                          { key: 'marketingEmails' as const, label: 'Маркетинговые рассылки', desc: 'Акции и специальные предложения' },
                         ].map((item) => (
                           <div key={item.key} className="flex items-center justify-between bg-white/5 rounded-xl p-4">
                             <div>
@@ -251,7 +251,7 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
                         exit={{ opacity: 0, x: 10 }}
                         className="space-y-3"
                       >
-                        <p className="text-sm text-gray-400 mb-4">Frequently Asked Questions</p>
+                        <p className="text-sm text-gray-400 mb-4">Часто задаваемые вопросы</p>
                         
                         {faqs.map((faq, index) => (
                           <div key={index} className="bg-white/5 rounded-xl overflow-hidden">
@@ -285,12 +285,12 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
                         {/* Contact Support */}
                         <button
                           onClick={() => {
-                            toast.success('Support request sent!');
+                            toast.success('Запрос в поддержку отправлен!');
                             onClose();
                           }}
                           className="w-full mt-4 py-3 bg-amber-500 text-black hover:bg-amber-400 rounded-xl font-bold transition-colors"
                         >
-                          Contact Support
+                          Связаться с поддержкой
                         </button>
                       </motion.div>
                     )}

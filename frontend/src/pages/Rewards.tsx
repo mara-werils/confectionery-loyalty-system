@@ -9,10 +9,10 @@ import { useRewards, useClaimReward, useBalance } from '../hooks/useApi';
 import { useTelegram } from '../hooks/useTelegram';
 
 const categories = [
-  { key: 'all', label: 'All', icon: StarIcon },
-  { key: 'DISCOUNT', label: 'Discounts', icon: TagIcon },
-  { key: 'PRODUCT', label: 'Products', icon: GiftIcon },
-  { key: 'CASHBACK', label: 'Cashback', icon: SparklesIcon },
+  { key: 'all', label: 'Все', icon: StarIcon },
+  { key: 'DISCOUNT', label: 'Скидки', icon: TagIcon },
+  { key: 'PRODUCT', label: 'Продукты', icon: GiftIcon },
+  { key: 'CASHBACK', label: 'Кэшбэк', icon: SparklesIcon },
 ];
 
 export default function Rewards() {
@@ -44,7 +44,7 @@ export default function Rewards() {
 
   const handleClaim = async (rewardId: string) => {
     hapticFeedback('medium');
-    const confirmed = await showConfirm('Are you sure you want to claim this reward?');
+    const confirmed = await showConfirm('Вы уверены, что хотите получить эту награду?');
     if (confirmed) {
       hapticFeedback('success');
       claimMutation.mutate(rewardId);
@@ -59,13 +59,13 @@ export default function Rewards() {
         animate={{ opacity: 1, y: 0 }}
         className="mb-8 pl-1"
       >
-        <h1 className="text-3xl font-bold text-white tracking-tight">Rewards</h1>
+        <h1 className="text-3xl font-bold text-white tracking-tight">Награды</h1>
         <p className="text-stone-400 mt-1">
-          You have{' '}
+          У вас{' '}
           <span className="font-semibold text-white bg-white/10 px-2 py-0.5 rounded-md">
             {currentBalance.toLocaleString()}
           </span>{' '}
-          points to spend
+          баллов для обмена
         </p>
       </motion.div>
 
@@ -125,8 +125,8 @@ export default function Rewards() {
               ) : (
                 <div className="text-center py-12 text-accent-400">
                   <GiftIcon className="w-16 h-16 mx-auto mb-4 text-accent-200" />
-                  <p className="text-lg font-medium">No rewards in this category</p>
-                  <p className="text-sm">Check back later for new offers!</p>
+                  <p className="text-lg font-medium">Нет наград в этой категории</p>
+                  <p className="text-sm">Заходите позже — появятся новые предложения!</p>
                 </div>
               )}
             </motion.div>

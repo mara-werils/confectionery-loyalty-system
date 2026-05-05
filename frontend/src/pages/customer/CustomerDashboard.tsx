@@ -20,9 +20,9 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '../../services/api';
 
 const TIERS = {
-  BRONZE: { next: 'SILVER', threshold: 5000, color: 'text-orange-400', bar: 'from-orange-500 to-amber-400', label: 'Bronze' },
-  SILVER: { next: 'GOLD',   threshold: 20000, color: 'text-stone-300',  bar: 'from-stone-400 to-stone-200', label: 'Silver' },
-  GOLD:   { next: 'MAX',    threshold: 0,     color: 'text-amber-400', bar: 'from-amber-400 to-yellow-300', label: 'Gold' },
+  BRONZE: { next: 'SILVER', threshold: 5000, color: 'text-orange-400', bar: 'from-orange-500 to-amber-400', label: 'Бронза' },
+  SILVER: { next: 'GOLD',   threshold: 20000, color: 'text-stone-300',  bar: 'from-stone-400 to-stone-200', label: 'Серебро' },
+  GOLD:   { next: 'MAX',    threshold: 0,     color: 'text-amber-400', bar: 'from-amber-400 to-yellow-300', label: 'Золото' },
 } as const;
 
 interface JettonBalance {
@@ -76,7 +76,7 @@ export default function CustomerDashboard() {
 
     socket.on('tokens:received', (data: { amount: number; message: string }) => {
       setLiveNotification({ amount: data.amount });
-      toast.success(`+${data.amount} SWEET received!`, { duration: 4000 });
+      toast.success(`+${data.amount} SWEET получено!`, { duration: 4000 });
       setTimeout(() => fetchData(), 3000);
       setTimeout(() => setLiveNotification(null), 5000);
     });
@@ -146,10 +146,10 @@ export default function CustomerDashboard() {
 
   const timeAgo = (ts: number) => {
     const diff = Math.floor(Date.now() / 1000) - ts;
-    if (diff < 60) return 'just now';
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-    return `${Math.floor(diff / 86400)}d ago`;
+    if (diff < 60) return 'только что';
+    if (diff < 3600) return `${Math.floor(diff / 60)} мин назад`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)} ч назад`;
+    return `${Math.floor(diff / 86400)} д назад`;
   };
 
   const currentBalance = sweetBalance || Number(formatBalance(balance).replace(/,/g, ''));
@@ -171,7 +171,7 @@ export default function CustomerDashboard() {
             <span className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0" />
             <div className="flex-1">
               <p className="text-sm font-bold text-green-400">+{liveNotification.amount} SWEET</p>
-              <p className="text-xs text-stone-500">Minted to your wallet</p>
+              <p className="text-xs text-stone-500">Зачислено на кошелёк</p>
             </div>
             <span className="w-2 h-2 rounded-full bg-green-400 animate-ping" />
           </motion.div>
@@ -197,7 +197,7 @@ export default function CustomerDashboard() {
           <div className="flex items-start justify-between mb-4">
             <div>
               <p className="text-[11px] text-amber-400/70 font-semibold tracking-widest uppercase mb-1">
-                SWEET Balance
+                Баланс SWEET
               </p>
               {loading ? (
                 <div className="w-28 h-9 rounded-lg bg-white/5 animate-pulse" />
@@ -206,7 +206,7 @@ export default function CustomerDashboard() {
                   {formatBalance(balance)}
                 </p>
               )}
-              <p className="text-xs text-stone-600 mt-1 font-mono">SWEET tokens</p>
+              <p className="text-xs text-stone-600 mt-1 font-mono">токены SWEET</p>
               {!loading && currentBalance > 0 && (
                 <p className="text-xs text-amber-400/60 mt-0.5 font-mono">
                   ≈ {(currentBalance * 0.15).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} ₸
@@ -230,7 +230,7 @@ export default function CustomerDashboard() {
             </div>
             {tier !== 'GOLD' && (
               <span className="text-[10px] text-stone-600">
-                {(tierData.threshold - currentBalance).toLocaleString()} to {tierData.next}
+                {(tierData.threshold - currentBalance).toLocaleString()} до {tierData.next}
               </span>
             )}
           </div>
@@ -282,7 +282,7 @@ export default function CustomerDashboard() {
           </div>
           <div>
             <p className="text-xs font-semibold text-white">{t('customerDashboard.rewardsLink')}</p>
-            <p className="text-[10px] text-stone-600">Redeem</p>
+            <p className="text-[10px] text-stone-600">Обменять</p>
           </div>
         </button>
 
@@ -294,8 +294,8 @@ export default function CustomerDashboard() {
             <TrophyIcon className="w-4 h-4 text-yellow-400" />
           </div>
           <div>
-            <p className="text-xs font-semibold text-white">Achievements</p>
-            <p className="text-[10px] text-stone-600">NFT badges</p>
+            <p className="text-xs font-semibold text-white">Достижения</p>
+            <p className="text-[10px] text-stone-600">NFT значки</p>
           </div>
         </button>
       </div>
@@ -331,13 +331,13 @@ export default function CustomerDashboard() {
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2 text-stone-500">
               <TrophyIcon className="w-3.5 h-3.5" />
-              <span className="text-xs font-semibold tracking-wide">My Achievements</span>
+              <span className="text-xs font-semibold tracking-wide">Мои достижения</span>
             </div>
             <Link
               to="/achievements"
               className="flex items-center gap-0.5 text-[10px] text-amber-400/70 hover:text-amber-400 transition-colors font-medium"
             >
-              See All <ChevronRightIcon className="w-3 h-3" />
+              Все <ChevronRightIcon className="w-3 h-3" />
             </Link>
           </div>
           <div className="grid grid-cols-2 gap-2">

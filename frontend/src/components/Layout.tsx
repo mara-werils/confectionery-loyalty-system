@@ -36,18 +36,18 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
 
   const businessNavItems = [
     { path: '/business/dashboard', label: t('nav.pos'),       icon: HomeIcon,            activeIcon: HomeIconSolid },
-    { path: '/business/verify-coupon', label: 'Verify',       icon: QrCodeIcon,          activeIcon: QrCodeIconSolid },
+    { path: '/business/verify-coupon', label: 'Проверка',     icon: QrCodeIcon,          activeIcon: QrCodeIconSolid },
     { path: '/ai',                 label: 'AI',               icon: SparklesIcon,        activeIcon: SparklesIconSolid },
     { path: '/blockchain',         label: t('nav.blockchain'), icon: CubeTransparentIcon, activeIcon: CubeTransparentIconSolid },
-    { path: '/referrals',          label: 'Refs',             icon: UserPlusIcon,        activeIcon: UserPlusIconSolid },
+    { path: '/referrals',          label: 'Рефы',             icon: UserPlusIcon,        activeIcon: UserPlusIconSolid },
     { path: '/business/profile',   label: t('nav.profile'),   icon: UserCircleIcon,      activeIcon: UserCircleIconSolid },
   ];
 
   const customerNavItems = [
     { path: '/customer/dashboard', label: t('nav.wallet'),  icon: HomeIcon,     activeIcon: HomeIconSolid },
     { path: '/customer/rewards',   label: t('nav.rewards'), icon: GiftIcon,     activeIcon: GiftIconSolid },
-    { path: '/achievements',       label: 'NFTs',           icon: TrophyIcon,   activeIcon: TrophyIconSolid },
-    { path: '/stats',              label: 'Stats',          icon: ChartBarIcon, activeIcon: ChartBarIconSolid },
+    { path: '/achievements',       label: 'NFT',            icon: TrophyIcon,   activeIcon: TrophyIconSolid },
+    { path: '/stats',              label: 'Стат.',          icon: ChartBarIcon, activeIcon: ChartBarIconSolid },
     { path: '/customer/profile',   label: t('nav.profile'), icon: UserCircleIcon, activeIcon: UserCircleIconSolid },
   ];
 

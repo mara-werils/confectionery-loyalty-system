@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import {
-  SparklesIcon,
   ExclamationTriangleIcon,
   CheckCircleIcon,
   ArrowTrendingUpIcon,
@@ -71,10 +70,10 @@ interface RewardRec {
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const RISK_CONFIG: Record<RiskLevel, { label: string; color: string; bg: string; border: string; ring: string }> = {
-  LOW:      { label: 'Low Risk',      color: 'text-green-400',  bg: 'bg-green-400/10',  border: 'border-green-400/20',  ring: '#4ade80' },
-  MEDIUM:   { label: 'Medium Risk',   color: 'text-yellow-400', bg: 'bg-yellow-400/10', border: 'border-yellow-400/20', ring: '#facc15' },
-  HIGH:     { label: 'High Risk',     color: 'text-orange-400', bg: 'bg-orange-400/10', border: 'border-orange-400/20', ring: '#fb923c' },
-  CRITICAL: { label: 'Critical',      color: 'text-red-400',    bg: 'bg-red-400/10',    border: 'border-red-400/20',    ring: '#f87171' },
+  LOW:      { label: 'Низкий',    color: 'text-green-400',  bg: 'bg-green-400/10',  border: 'border-green-400/20',  ring: '#4ade80' },
+  MEDIUM:   { label: 'Средний',   color: 'text-yellow-400', bg: 'bg-yellow-400/10', border: 'border-yellow-400/20', ring: '#facc15' },
+  HIGH:     { label: 'Высокий',   color: 'text-orange-400', bg: 'bg-orange-400/10', border: 'border-orange-400/20', ring: '#fb923c' },
+  CRITICAL: { label: 'Критический', color: 'text-red-400',  bg: 'bg-red-400/10',    border: 'border-red-400/20',    ring: '#f87171' },
 };
 
 const TIER_BADGE: Record<string, string> = {
@@ -125,7 +124,7 @@ function ForecastTooltip({ active, payload, label }: { active?: boolean; payload
       <p className="text-stone-400 mb-1">{label}</p>
       {payload.map((p) => (
         <p key={p.name} className="text-white font-semibold">
-          {p.name === 'actual' ? 'Actual' : 'Forecast'}: {Number(p.value).toLocaleString()} KZT
+          {p.name === 'actual' ? 'Факт' : 'Прогноз'}: {Number(p.value).toLocaleString()} KZT
         </p>
       ))}
     </div>
@@ -168,14 +167,9 @@ export default function AIPredictions() {
         animate={{ opacity: 1, y: 0 }}
         className="space-y-1"
       >
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-violet-500/15 border border-violet-500/25 flex items-center justify-center">
-            <SparklesIcon className="w-4 h-4 text-violet-400" />
-          </div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">AI Insights</h1>
-        </div>
-        <p className="text-xs text-stone-500 pl-10">
-          Predictive analytics · Updated in real-time
+        <h1 className="text-2xl font-bold text-white tracking-tight">AI Аналитика</h1>
+        <p className="text-xs text-stone-500">
+          Прогнозная аналитика · Обновляется в реальном времени
         </p>
       </motion.div>
 
@@ -188,9 +182,9 @@ export default function AIPredictions() {
           className="grid grid-cols-3 gap-3"
         >
           {[
-            { label: 'Critical', count: criticalCount, color: 'text-red-400', bg: 'bg-red-400/8 border-red-400/15' },
-            { label: 'At Risk', count: highCount, color: 'text-orange-400', bg: 'bg-orange-400/8 border-orange-400/15' },
-            { label: 'Healthy', count: lowCount, color: 'text-green-400', bg: 'bg-green-400/8 border-green-400/15' },
+            { label: 'Критические', count: criticalCount, color: 'text-red-400', bg: 'bg-red-400/8 border-red-400/15' },
+            { label: 'Под угрозой', count: highCount, color: 'text-orange-400', bg: 'bg-orange-400/8 border-orange-400/15' },
+            { label: 'Стабильные', count: lowCount, color: 'text-green-400', bg: 'bg-green-400/8 border-green-400/15' },
           ].map(item => (
             <div key={item.label} className={`border rounded-xl p-3 text-center ${item.bg}`}>
               <p className={`text-2xl font-black ${item.color}`}>{item.count}</p>
@@ -204,7 +198,7 @@ export default function AIPredictions() {
       <section className="space-y-3">
         <div className="flex items-center gap-2">
           <ExclamationTriangleIcon className="w-4 h-4 text-stone-500" />
-          <h2 className="text-sm font-semibold text-stone-300">Churn Risk Prediction</h2>
+          <h2 className="text-sm font-semibold text-stone-300">Прогноз оттока клиентов</h2>
         </div>
 
         {churnLoading ? (
@@ -214,7 +208,7 @@ export default function AIPredictions() {
         ) : churnData.length === 0 ? (
           <div className="bg-stone-900 border border-stone-800 rounded-xl p-6 text-center">
             <CheckCircleIcon className="w-8 h-8 text-green-400 mx-auto mb-2" />
-            <p className="text-sm text-stone-400">No active partners to analyse.</p>
+            <p className="text-sm text-stone-400">Нет активных партнёров для анализа.</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -244,9 +238,9 @@ export default function AIPredictions() {
                       {/* Signals */}
                       <div className="mt-2 grid grid-cols-3 gap-x-4 gap-y-1">
                         {[
-                          { label: 'Days idle', value: partner.signals.daysSinceLastTx === 999 ? '—' : `${partner.signals.daysSinceLastTx}d` },
-                          { label: 'Tx (30d)', value: partner.signals.txLast30Days },
-                          { label: 'Freq. drop', value: `${partner.signals.frequencyDrop}%` },
+                          { label: 'Неактивен', value: partner.signals.daysSinceLastTx === 999 ? '—' : `${partner.signals.daysSinceLastTx}д` },
+                          { label: 'Тр. (30д)', value: partner.signals.txLast30Days },
+                          { label: 'Спад част.', value: `${partner.signals.frequencyDrop}%` },
                         ].map(s => (
                           <div key={s.label}>
                             <p className="text-[9px] text-stone-600 uppercase tracking-wide">{s.label}</p>
@@ -259,7 +253,7 @@ export default function AIPredictions() {
 
                   {/* Recommendation pill */}
                   <div className={`rounded-lg px-3 py-2 text-xs ${cfg.bg} border ${cfg.border}`}>
-                    <span className="text-stone-400">Recommendation: </span>
+                    <span className="text-stone-400">Рекомендация: </span>
                     <span className="text-stone-200">{partner.recommendation}</span>
                   </div>
                 </motion.div>
@@ -273,14 +267,14 @@ export default function AIPredictions() {
       <section className="space-y-3">
         <div className="flex items-center gap-2">
           <ChartBarIcon className="w-4 h-4 text-stone-500" />
-          <h2 className="text-sm font-semibold text-stone-300">30-Day Revenue Forecast</h2>
+          <h2 className="text-sm font-semibold text-stone-300">Прогноз выручки на 30 дней</h2>
         </div>
 
         {forecastLoading ? (
           <Skeleton className="h-64" />
         ) : !forecast ? (
           <div className="bg-stone-900 border border-stone-800 rounded-xl p-6 text-center text-stone-500 text-sm">
-            Not enough data to generate a forecast yet.
+            Недостаточно данных для построения прогноза.
           </div>
         ) : (
           <motion.div
@@ -292,13 +286,13 @@ export default function AIPredictions() {
             {/* KPI row */}
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <p className="text-[10px] text-stone-500 uppercase tracking-wide">Forecast Total</p>
+                <p className="text-[10px] text-stone-500 uppercase tracking-wide">Прогноз</p>
                 <p className="text-base font-black text-white mt-0.5">
                   {forecast.totalForecast30Days.toLocaleString()} <span className="text-xs font-normal text-stone-500">KZT</span>
                 </p>
               </div>
               <div>
-                <p className="text-[10px] text-stone-500 uppercase tracking-wide">Trend</p>
+                <p className="text-[10px] text-stone-500 uppercase tracking-wide">Тренд</p>
                 <div className="flex items-center gap-1 mt-0.5">
                   {forecast.trend === 'up' && <ArrowTrendingUpIcon className="w-4 h-4 text-green-400" />}
                   {forecast.trend === 'down' && <ArrowTrendingDownIcon className="w-4 h-4 text-red-400" />}
@@ -312,7 +306,7 @@ export default function AIPredictions() {
                 </div>
               </div>
               <div>
-                <p className="text-[10px] text-stone-500 uppercase tracking-wide">Confidence</p>
+                <p className="text-[10px] text-stone-500 uppercase tracking-wide">Точность</p>
                 <div className="flex items-center gap-1.5 mt-1">
                   <div className="flex-1 h-1.5 bg-stone-800 rounded-full overflow-hidden">
                     <div
@@ -348,7 +342,7 @@ export default function AIPredictions() {
                   />
                   <YAxis tick={{ fontSize: 9, fill: '#52525b' }} />
                   <Tooltip content={<ForecastTooltip />} />
-                  <ReferenceLine x={todayStr} stroke="#52525b" strokeDasharray="4 4" label={{ value: 'Today', fill: '#71717a', fontSize: 9 }} />
+                  <ReferenceLine x={todayStr} stroke="#52525b" strokeDasharray="4 4" label={{ value: 'Сегодня', fill: '#71717a', fontSize: 9 }} />
                   <Area
                     type="monotone"
                     dataKey="actual"
@@ -377,17 +371,17 @@ export default function AIPredictions() {
             <div className="flex items-center gap-4 justify-center">
               <div className="flex items-center gap-1.5">
                 <div className="w-4 h-0.5 bg-violet-400 rounded" />
-                <span className="text-[10px] text-stone-500">Actual revenue</span>
+                <span className="text-[10px] text-stone-500">Фактическая выручка</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-4 h-0.5 bg-emerald-400 rounded" style={{ backgroundImage: 'repeating-linear-gradient(90deg,#34d399 0,#34d399 5px,transparent 5px,transparent 8px)' }} />
-                <span className="text-[10px] text-stone-500">AI forecast</span>
+                <span className="text-[10px] text-stone-500">AI прогноз</span>
               </div>
             </div>
 
             {/* Model note */}
             <p className="text-[10px] text-stone-600 text-center">
-              Linear regression model trained on 90 days of transaction data
+              Модель линейной регрессии на основе данных за 90 дней
             </p>
           </motion.div>
         )}
@@ -397,7 +391,7 @@ export default function AIPredictions() {
       <section className="space-y-3">
         <div className="flex items-center gap-2">
           <GiftIcon className="w-4 h-4 text-stone-500" />
-          <h2 className="text-sm font-semibold text-stone-300">Smart Reward Picks</h2>
+          <h2 className="text-sm font-semibold text-stone-300">Рекомендации наград</h2>
         </div>
 
         {recsLoading ? (
@@ -422,7 +416,7 @@ export default function AIPredictions() {
 
             {recs.length === 0 ? (
               <div className="bg-stone-900 border border-stone-800 rounded-xl p-6 text-center text-stone-500 text-sm">
-                Earn more points to unlock recommendations.
+                Накопите больше баллов для получения рекомендаций.
               </div>
             ) : (
               <div className="space-y-3">
@@ -451,10 +445,10 @@ export default function AIPredictions() {
 
                     {/* Relevance bar */}
                     <div className="mt-3 flex items-center gap-2">
-                      <span className="text-[10px] text-stone-600 w-16">Relevance</span>
+                      <span className="text-[10px] text-stone-600 w-16">Релевантность</span>
                       <div className="flex-1 h-1.5 bg-stone-800 rounded-full overflow-hidden">
                         <motion.div
-                          className="h-full bg-gradient-to-r from-violet-500 to-emerald-400 rounded-full"
+                          className="h-full bg-violet-500 rounded-full"
                           initial={{ width: 0 }}
                           animate={{ width: `${rec.score}%` }}
                           transition={{ delay: 0.3 + i * 0.1, duration: 0.8, ease: 'easeOut' }}

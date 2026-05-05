@@ -113,8 +113,8 @@ export default function Stats() {
     <div className="px-4 py-6 space-y-6">
       {/* Header */}
       <div className="pl-1">
-        <h1 className="text-3xl font-bold text-white tracking-tight">Ecosystem Stats</h1>
-        <p className="text-stone-400 mt-1">Live data from the Sweet Loyalty blockchain</p>
+        <h1 className="text-3xl font-bold text-white tracking-tight">Статистика экосистемы</h1>
+        <p className="text-stone-400 mt-1">Данные из блокчейна Sweet Loyalty в реальном времени</p>
       </div>
 
       {/* Loading skeleton */}
@@ -130,43 +130,43 @@ export default function Stats() {
           <div className="grid grid-cols-2 gap-4">
             <StatCard
               icon={BuildingStorefrontIcon}
-              label="Active Partners"
+              label="Активные партнёры"
               value={summary?.totalPartners?.toLocaleString() ?? '—'}
-              sub="Confectioneries"
+              sub="Кондитерские"
               growth={summary?.growth?.partners}
             />
             <StatCard
               icon={ChartBarIcon}
-              label="Total Transactions"
+              label="Всего транзакций"
               value={summary?.totalTransactions?.toLocaleString() ?? '—'}
-              sub="All-time"
+              sub="За всё время"
               growth={summary?.growth?.transactions}
             />
             <StatCard
               icon={SparklesIcon}
-              label="SWEET Issued"
+              label="SWEET выпущено"
               value={summary?.totalPointsIssued?.toLocaleString() ?? '—'}
-              sub="Tokens minted"
+              sub="Токенов создано"
               growth={summary?.growth?.pointsIssued}
             />
             <StatCard
               icon={CurrencyDollarIcon}
-              label="SWEET Redeemed"
+              label="SWEET потрачено"
               value={summary?.totalPointsRedeemed?.toLocaleString() ?? '—'}
-              sub="Tokens burned"
+              sub="Токенов сожжено"
             />
           </div>
 
           {/* KPIs */}
           <div className="bg-stone-900 border border-stone-800 rounded-xl p-5 space-y-4">
-            <h2 className="text-sm font-semibold text-stone-400">Key Performance Indicators</h2>
+            <h2 className="text-sm font-semibold text-stone-400">Ключевые показатели</h2>
 
             <div className="flex items-center justify-between py-3 border-b border-stone-800/60">
               <div className="flex items-center gap-3">
                 <ArrowTrendingUpIcon className="w-5 h-5 text-green-400" />
                 <div>
-                  <p className="text-sm font-semibold text-white">Redemption Rate</p>
-                  <p className="text-xs text-stone-500">Points redeemed vs issued</p>
+                  <p className="text-sm font-semibold text-white">Уровень погашения</p>
+                  <p className="text-xs text-stone-500">Потрачено / выпущено баллов</p>
                 </div>
               </div>
               <span className="text-lg font-bold text-green-400">{redemptionRate}%</span>
@@ -176,8 +176,8 @@ export default function Stats() {
               <div className="flex items-center gap-3">
                 <TrophyIcon className="w-5 h-5 text-yellow-400" />
                 <div>
-                  <p className="text-sm font-semibold text-white">Avg Points / Transaction</p>
-                  <p className="text-xs text-stone-500">Loyalty engagement score</p>
+                  <p className="text-sm font-semibold text-white">Ср. баллов / транзакция</p>
+                  <p className="text-xs text-stone-500">Показатель вовлечённости</p>
                 </div>
               </div>
               <span className="text-lg font-bold text-white">
@@ -189,7 +189,7 @@ export default function Stats() {
           {/* Tier Distribution Pie */}
           {tierData.length > 0 && (
             <div className="bg-stone-900 border border-stone-800 rounded-xl p-5">
-              <h2 className="text-sm font-semibold text-stone-400 mb-4">Partner Tier Distribution</h2>
+              <h2 className="text-sm font-semibold text-stone-400 mb-4">Распределение по уровням</h2>
               <div className="flex items-center gap-6">
                 <div className="w-32 h-32">
                   <ResponsiveContainer width="100%" height="100%">
@@ -243,8 +243,8 @@ export default function Stats() {
           {/* Top Partners Leaderboard */}
           <div className="bg-stone-900 border border-stone-800 rounded-xl p-5">
             <h2 className="text-sm font-semibold text-stone-400 mb-4">
-              Weekly Leaders
-              <span className="ml-2 text-xs text-stone-600 font-normal">by SWEET issued</span>
+              Лидеры недели
+              <span className="ml-2 text-xs text-stone-600 font-normal">по выпуску SWEET</span>
             </h2>
             {topLoading ? (
               <div className="space-y-3">
@@ -279,7 +279,7 @@ export default function Stats() {
                 ))}
               </div>
             ) : (
-              <p className="text-center text-stone-600 text-sm py-4">No activity this week</p>
+              <p className="text-center text-stone-600 text-sm py-4">Нет активности на этой неделе</p>
             )}
           </div>
         </>

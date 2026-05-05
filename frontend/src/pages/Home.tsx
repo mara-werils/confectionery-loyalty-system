@@ -30,7 +30,7 @@ export default function Home() {
 
       const address = wallet?.account?.address;
       if (!address) {
-        toast.error('Wallet not connected', { id: 'certCheck' });
+        toast.error('Кошелёк не подключён', { id: 'certCheck' });
         return;
       }
 
@@ -47,7 +47,7 @@ export default function Home() {
         setHasBusinessSbt(true);
         toast.success(t('home.certVerified') || 'Partner Certificate Verified!', { id: 'certCheck' });
       } catch {
-        toast.error('Verification failed due to server error', { id: 'certCheck' });
+        toast.error('Ошибка проверки на сервере', { id: 'certCheck' });
         return;
       }
     }
@@ -155,7 +155,7 @@ export default function Home() {
 
             <div className="mt-8 flex items-center gap-4">
               <div className="flex-1 h-px bg-white/5" />
-              <span className="text-[11px] text-stone-600 tracking-widest uppercase">Powered by TON</span>
+              <span className="text-[11px] text-stone-600 tracking-widest uppercase">На базе TON</span>
               <div className="flex-1 h-px bg-white/5" />
             </div>
           </motion.div>
@@ -195,13 +195,13 @@ export default function Home() {
         {!wallet && (
           <div className="w-full max-w-sm mt-10">
             <p className="text-center text-[11px] text-stone-600 tracking-widest uppercase mb-5">
-              How it works
+              Как это работает
             </p>
             <div className="space-y-3">
               {[
-                { step: '1', title: 'Connect TON Wallet', desc: 'Link your TON wallet to get started — no sign-up needed.' },
-                { step: '2', title: 'Shop at partner confectioneries', desc: 'Make purchases at Sweet Network partner stores.' },
-                { step: '3', title: 'Earn SWEET & redeem rewards', desc: 'Accumulate SWEET tokens and exchange them for real rewards.' },
+                { step: '1', title: 'Подключите TON-кошелёк', desc: 'Привяжите кошелёк для начала работы — регистрация не нужна.' },
+                { step: '2', title: 'Покупайте у партнёров', desc: 'Совершайте покупки в кондитерских сети Sweet Network.' },
+                { step: '3', title: 'Копите SWEET и получайте награды', desc: 'Накапливайте токены SWEET и обменивайте их на реальные награды.' },
               ].map(({ step, title, desc }) => (
                 <div
                   key={step}
@@ -224,7 +224,7 @@ export default function Home() {
       {/* Bottom hint */}
       <div className="relative z-10 pb-8 flex justify-center">
         <p className="text-[11px] text-stone-700">
-          Confectionery Loyalty · AITU 2026
+          Кондитерская лояльность · AITU 2026
         </p>
       </div>
     </div>
