@@ -56,9 +56,9 @@ const POOLS: StakingPool[] = [
     minStake: 10,
     totalStaked: 1_245_800,
     stakers: 3_421,
-    accent: 'text-emerald-400',
-    accentBg: 'bg-emerald-500/10',
-    accentBorder: 'border-emerald-500/25',
+    accent: 'text-stone-300',
+    accentBg: 'bg-stone-800',
+    accentBorder: 'border-stone-700',
     icon: BoltIcon,
   },
   {
@@ -70,9 +70,9 @@ const POOLS: StakingPool[] = [
     minStake: 50,
     totalStaked: 3_890_500,
     stakers: 1_876,
-    accent: 'text-amber-400',
-    accentBg: 'bg-amber-500/10',
-    accentBorder: 'border-amber-500/25',
+    accent: 'text-stone-300',
+    accentBg: 'bg-stone-800',
+    accentBorder: 'border-stone-700',
     icon: LockClosedIcon,
   },
   {
@@ -84,9 +84,9 @@ const POOLS: StakingPool[] = [
     minStake: 100,
     totalStaked: 8_720_300,
     stakers: 945,
-    accent: 'text-violet-400',
-    accentBg: 'bg-violet-500/10',
-    accentBorder: 'border-violet-500/25',
+    accent: 'text-stone-300',
+    accentBg: 'bg-stone-800',
+    accentBorder: 'border-stone-700',
     icon: FireIcon,
   },
 ];
@@ -348,25 +348,25 @@ export default function Staking() {
             icon={CurrencyDollarIcon}
             label={t('staking.stats.tvl')}
             value={`${formatNumber(tvl)} SWEET`}
-            accent="text-amber-400"
+            accent="text-stone-300"
           />
           <StatRow
             icon={UserGroupIcon}
             label={t('staking.stats.totalStakers')}
             value={formatNumber(totalStakers)}
-            accent="text-emerald-400"
+            accent="text-stone-300"
           />
           <StatRow
             icon={ArrowTrendingUpIcon}
             label={t('staking.stats.avgApy')}
             value={`${avgApy.toFixed(1)}%`}
-            accent="text-violet-400"
+            accent="text-amber-400"
           />
           <StatRow
             icon={SparklesIcon}
             label={t('staking.stats.distributed')}
             value={`${formatNumber(totalDistributed)} SWEET`}
-            accent="text-sky-400"
+            accent="text-stone-300"
           />
         </div>
       </motion.div>
@@ -445,7 +445,7 @@ function PoolCard({
             </div>
           </div>
           <div className="text-right">
-            <p className={`text-xl font-black ${pool.accent} tabular-nums`}>{pool.apy}%</p>
+            <p className="text-xl font-black text-amber-400 tabular-nums">{pool.apy}%</p>
             <p className="text-[10px] text-stone-600">APY</p>
           </div>
         </div>
@@ -471,15 +471,8 @@ function PoolCard({
         {/* Stake button */}
         <button
           onClick={onStake}
-          className={`w-full py-3 rounded-xl text-sm font-bold transition-all active:scale-[0.98] flex items-center justify-center gap-2 ${
-            pool.id === 'flexible'
-              ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 hover:bg-emerald-500/25'
-              : pool.id === '30day'
-                ? 'bg-amber-500/15 text-amber-400 border border-amber-500/25 hover:bg-amber-500/25'
-                : 'bg-violet-500/15 text-violet-400 border border-violet-500/25 hover:bg-violet-500/25'
-          }`}
+          className="w-full py-3 rounded-xl text-sm font-bold transition-all active:scale-[0.98] flex items-center justify-center gap-2 bg-amber-500 text-black hover:bg-amber-400"
         >
-          <SparklesIcon className="w-4 h-4" />
           {t('staking.stakeButton')}
         </button>
       </div>
@@ -530,11 +523,9 @@ function PositionCard({
             </div>
           </div>
           <div className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
-            isFlexible
-              ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/25'
-              : isLocked
-                ? 'text-amber-400 bg-amber-500/10 border-amber-500/25'
-                : 'text-sky-400 bg-sky-500/10 border-sky-500/25'
+            isLocked
+              ? 'text-amber-400 bg-amber-500/10 border-amber-500/20'
+              : 'text-stone-300 bg-stone-800 border-stone-700'
           }`}>
             {isFlexible ? t('staking.statusFlexible') : isLocked ? t('staking.statusLocked') : t('staking.statusUnlocked')}
           </div>
@@ -548,7 +539,7 @@ function PositionCard({
           </div>
           <div className="text-right">
             <p className="text-[10px] text-stone-500 uppercase tracking-wider">{t('staking.earnedLabel')}</p>
-            <p className={`text-lg font-black tabular-nums ${pool.accent}`}>+{formatNumber(position.earned, 2)}</p>
+            <p className="text-lg font-black tabular-nums text-amber-400">+{formatNumber(position.earned, 2)}</p>
           </div>
         </div>
 
@@ -561,11 +552,7 @@ function PositionCard({
             </div>
             <div className="h-1.5 bg-stone-800 rounded-full overflow-hidden">
               <motion.div
-                className={`h-full rounded-full ${
-                  pool.id === '30day'
-                    ? 'bg-gradient-to-r from-amber-600 to-amber-400'
-                    : 'bg-gradient-to-r from-violet-600 to-violet-400'
-                }`}
+                className="h-full rounded-full bg-amber-500"
                 initial={{ width: 0 }}
                 animate={{ width: `${progress}%` }}
                 transition={{ duration: 1, ease: 'easeOut' }}
@@ -583,21 +570,15 @@ function PositionCard({
           {isFlexible && position.earned > 0.01 && (
             <button
               onClick={onClaim}
-              className="flex-1 py-2.5 rounded-xl text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 hover:bg-emerald-500/25 transition-all active:scale-[0.98] flex items-center justify-center gap-1.5"
+              className="flex-1 py-2.5 rounded-xl text-xs font-bold bg-amber-500 text-black hover:bg-amber-400 transition-all active:scale-[0.98] flex items-center justify-center gap-1.5"
             >
-              <SparklesIcon className="w-3.5 h-3.5" />
               {t('staking.claimRewards')}
             </button>
           )}
           <button
             onClick={onUnstake}
-            className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-[0.98] flex items-center justify-center gap-1.5 ${
-              isLocked
-                ? 'bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20'
-                : 'bg-stone-800 text-stone-300 border border-stone-700 hover:bg-stone-700'
-            }`}
+            className="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-[0.98] flex items-center justify-center gap-1.5 bg-stone-800 text-stone-300 border border-stone-700 hover:bg-stone-700"
           >
-            {isLocked && <ExclamationTriangleIcon className="w-3.5 h-3.5" />}
             {t('staking.unstakeButton')}
           </button>
         </div>
@@ -731,7 +712,7 @@ function StakeModal({
                 </div>
                 <div className="flex items-center justify-between px-4 py-2.5">
                   <span className="text-xs text-stone-500">APY</span>
-                  <span className={`text-xs font-bold ${pool.accent}`}>{pool.apy}%</span>
+                  <span className="text-xs font-bold text-amber-400">{pool.apy}%</span>
                 </div>
                 <div className="flex items-center justify-between px-4 py-2.5">
                   <span className="text-xs text-stone-500">{t('staking.lockPeriod')}</span>
@@ -757,7 +738,7 @@ function StakeModal({
                   ].map(row => (
                     <div key={row.label} className="flex items-center justify-between px-4 py-2 border-b border-stone-800/50 last:border-0">
                       <span className="text-xs text-stone-500">{row.label}</span>
-                      <span className="text-xs font-bold text-emerald-400 tabular-nums">+{formatNumber(row.value, 4)} SWEET</span>
+                      <span className="text-xs font-bold text-amber-400 tabular-nums">+{formatNumber(row.value, 4)} SWEET</span>
                     </div>
                   ))}
                 </motion.div>
@@ -857,7 +838,7 @@ function UnstakeConfirmModal({
                 </div>
                 <div className="flex items-center justify-between px-4 py-2.5">
                   <span className="text-xs text-stone-500">{t('staking.earnedLabel')}</span>
-                  <span className="text-xs font-bold text-emerald-400">+{formatNumber(position.earned, 2)} SWEET</span>
+                  <span className="text-xs font-bold text-amber-400">+{formatNumber(position.earned, 2)} SWEET</span>
                 </div>
                 {isLocked && (
                   <div className="flex items-center justify-between px-4 py-2.5">

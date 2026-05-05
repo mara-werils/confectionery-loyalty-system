@@ -459,10 +459,10 @@ function RewardCard({
           : 'border-stone-800 bg-stone-900/50'
       }`}
     >
-      {/* Top color strip using inline style for dynamic color */}
+      {/* Top color strip */}
       <div
         className="h-0.5 w-full"
-        style={{ background: `linear-gradient(to right, ${partner.accentFrom}, transparent)` }}
+        style={{ backgroundColor: partner.accentFrom }}
       />
 
       <div className="p-4">
@@ -513,7 +513,7 @@ function RewardCard({
               <div className="space-y-1">
                 <div className="h-1 bg-stone-800 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-amber-600 to-amber-400 rounded-full"
+                    className="h-full bg-amber-500 rounded-full"
                     style={{ width: `${progress}%` }}
                   />
                 </div>

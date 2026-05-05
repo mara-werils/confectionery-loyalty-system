@@ -355,6 +355,85 @@
     "referredPartners": "Partners You Referred",
     "topReferrers": "Top Referrers"
   },
+  "governance": {
+    "title": "DAO Governance",
+    "subtitle": "Decentralized governance of the loyalty program. Vote on proposals and influence the future of the ecosystem.",
+    "votingPower": "Your Voting Power",
+    "ofTotalSupply": "of total supply",
+    "delegate": "Delegate",
+    "createProposal": "Create Proposal",
+    "proposalsTitle": "Proposals",
+    "author": "Author",
+    "voteFor": "For",
+    "voteAgainst": "Against",
+    "voteAbstain": "Abstain",
+    "govVoted": "GOV voted",
+    "quorum": "Quorum",
+    "quorumReached": "reached",
+    "quorumNotReached": "not reached",
+    "noDescription": "No description",
+    "startsInDays": "Starts in {{days}} days",
+    "status": {
+      "active": "Active",
+      "passed": "Passed",
+      "rejected": "Rejected",
+      "pending": "Pending"
+    },
+    "categories": {
+      "systemParams": "System Parameters",
+      "newFeatures": "New Features",
+      "partnerships": "Partnerships",
+      "other": "Other"
+    },
+    "proposals": {
+      "1": {
+        "title": "Increase cashback from 10% to 15%",
+        "description": "Proposal to raise the base cashback rate for all loyalty program members from 10% to 15%, which will attract new customers and improve retention of existing ones.",
+        "endsIn": "2 days 14 hours"
+      },
+      "2": {
+        "title": "Add new reward category: Masterclasses",
+        "description": "Add the ability to exchange SWEET tokens for participation in cooking masterclasses by pastry chefs. This will create additional value for program participants.",
+        "endsIn": "4 days 6 hours"
+      },
+      "3": {
+        "title": "Lower Gold tier threshold to 15,000 SWEET",
+        "description": "The current Gold tier threshold of 20,000 SWEET is too high for most participants. Lowering it to 15,000 will increase the number of Gold users by 30%.",
+        "endsIn": "Completed"
+      },
+      "4": {
+        "title": "Kaspi QR payment integration",
+        "description": "Implement Kaspi QR integration for convenient payment at the confectionery with automatic SWEET token accrual for each purchase.",
+        "endsIn": "Starts in 1 day"
+      }
+    },
+    "statsTitle": "Governance Stats",
+    "stats": {
+      "totalProposals": "Total Proposals",
+      "votesCast": "Votes Cast",
+      "participation": "Participation",
+      "treasury": "Treasury"
+    },
+    "pastProposalsTitle": "Past Proposals",
+    "pastProposals": {
+      "1": { "title": "Launch referral program", "result": "94% for", "date": "Mar 12, 2026" },
+      "2": { "title": "Extend coupon validity to 60 days", "result": "78% for", "date": "Feb 28, 2026" },
+      "3": { "title": "Add USDT payment", "result": "38% for", "date": "Feb 15, 2026" },
+      "4": { "title": "Reduce swap fee to 0.5%", "result": "85% for", "date": "Feb 3, 2026" },
+      "5": { "title": "NFT collection rebranding", "result": "42% for", "date": "Jan 20, 2026" }
+    },
+    "form": {
+      "title": "Title",
+      "titlePlaceholder": "Short proposal name",
+      "description": "Description",
+      "descriptionPlaceholder": "Describe your proposal in detail...",
+      "category": "Category",
+      "duration": "Voting Duration",
+      "days": "days",
+      "minRequirement": "Minimum 100 GOV required to create a proposal. You have: 1,250 GOV",
+      "submit": "Publish Proposal"
+    }
+  },
   "admin": {
     "title": "Admin Control Panel",
     "subtitle": "System Master Node",
