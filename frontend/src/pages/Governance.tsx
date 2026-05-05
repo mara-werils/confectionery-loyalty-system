@@ -158,7 +158,8 @@ export default function Governance() {
         if (p.status !== 'active') return p;
 
         const power = 1_250; // user's GOV tokens
-        let { votesFor, votesAgainst, votesAbstain, totalVoters, userVote } = p;
+        const { userVote } = p;
+        let { votesFor, votesAgainst, votesAbstain, totalVoters } = p;
 
         // undo previous vote
         if (userVote === 'for') { votesFor -= power; totalVoters -= 1; }
