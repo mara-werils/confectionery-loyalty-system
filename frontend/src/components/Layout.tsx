@@ -7,10 +7,12 @@ import {
   UserCircleIcon,
   CubeTransparentIcon,
   UserPlusIcon,
-  ChartBarIcon,
   QrCodeIcon,
   SparklesIcon,
   TrophyIcon,
+  ShieldCheckIcon,
+  FireIcon,
+  PresentationChartBarIcon,
 } from '@heroicons/react/24/outline';
 import {
   HomeIcon as HomeIconSolid,
@@ -18,10 +20,12 @@ import {
   UserCircleIcon as UserCircleIconSolid,
   CubeTransparentIcon as CubeTransparentIconSolid,
   UserPlusIcon as UserPlusIconSolid,
-  ChartBarIcon as ChartBarIconSolid,
   QrCodeIcon as QrCodeIconSolid,
   SparklesIcon as SparklesIconSolid,
   TrophyIcon as TrophyIconSolid,
+  ShieldCheckIcon as ShieldCheckIconSolid,
+  FireIcon as FireIconSolid,
+  PresentationChartBarIcon as PresentationChartBarIconSolid,
 } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
 import { changeLanguage, languages } from '../i18n';
@@ -40,14 +44,16 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
     { path: '/ai',                 label: 'AI',               icon: SparklesIcon,        activeIcon: SparklesIconSolid },
     { path: '/blockchain',         label: t('nav.blockchain'), icon: CubeTransparentIcon, activeIcon: CubeTransparentIconSolid },
     { path: '/referrals',          label: 'Рефы',             icon: UserPlusIcon,        activeIcon: UserPlusIconSolid },
+    { path: '/governance',         label: 'DAO',              icon: ShieldCheckIcon,     activeIcon: ShieldCheckIconSolid },
+    { path: '/analytics',          label: 'Аналитика',        icon: PresentationChartBarIcon, activeIcon: PresentationChartBarIconSolid },
     { path: '/business/profile',   label: t('nav.profile'),   icon: UserCircleIcon,      activeIcon: UserCircleIconSolid },
   ];
 
   const customerNavItems = [
     { path: '/customer/dashboard', label: t('nav.wallet'),  icon: HomeIcon,     activeIcon: HomeIconSolid },
     { path: '/customer/rewards',   label: t('nav.rewards'), icon: GiftIcon,     activeIcon: GiftIconSolid },
+    { path: '/staking',             label: t('nav.staking'),  icon: FireIcon,     activeIcon: FireIconSolid },
     { path: '/achievements',       label: 'NFT',            icon: TrophyIcon,   activeIcon: TrophyIconSolid },
-    { path: '/stats',              label: 'Стат.',          icon: ChartBarIcon, activeIcon: ChartBarIconSolid },
     { path: '/customer/profile',   label: t('nav.profile'), icon: UserCircleIcon, activeIcon: UserCircleIconSolid },
   ];
 

@@ -225,7 +225,76 @@
     "history": "История",
     "exchange": "Обмен",
     "blockchain": "Блокчейн",
-    "profile": "Профиль"
+    "profile": "Профиль",
+    "staking": "Стейкинг"
+  },
+  "staking": {
+    "title": "Стейкинг",
+    "subtitle": "Зарабатывайте награды, блокируя SWEET токены",
+    "available": "Доступно",
+    "totalStaked": "Застейкано",
+    "currentApy": "Текущий APY",
+    "weightedAvg": "Средневзвешенный",
+    "earnedRewards": "Заработано",
+    "nextUnlock": "До разблокировки",
+    "poolsTitle": "Пулы стейкинга",
+    "lockPeriod": "Блокировка",
+    "noLock": "Без блокировки",
+    "days": "дн.",
+    "poolTvl": "В пуле",
+    "minStake": "Мин. стейк",
+    "stakeButton": "Застейкать",
+    "myPositions": "Мои позиции",
+    "stakedAmount": "Застейкано",
+    "earnedLabel": "Заработано",
+    "progress": "Прогресс",
+    "statusFlexible": "Гибкий",
+    "statusLocked": "Заблокирован",
+    "statusUnlocked": "Разблокирован",
+    "claimRewards": "Забрать награды",
+    "unstakeButton": "Вывести",
+    "statsTitle": "Статистика стейкинга",
+    "stats": {
+      "tvl": "Общая заблокированная стоимость (TVL)",
+      "totalStakers": "Всего стейкеров",
+      "avgApy": "Средний APY",
+      "distributed": "Всего распределено наград"
+    },
+    "enterAmount": "Сумма стейкинга",
+    "balance": "Баланс",
+    "min": "Мин.",
+    "poolLabel": "Пул",
+    "expectedEarnings": "Ожидаемый доход",
+    "daily": "В день",
+    "weekly": "В неделю",
+    "monthly": "В месяц",
+    "yearly": "В год",
+    "confirmStake": "Подтвердить стейкинг",
+    "unstakeTitle": "Вывод средств",
+    "earlyWithdrawal": "Досрочный вывод",
+    "penaltyWarning": "При досрочном выводе взимается штраф {{percent}}% от суммы стейка",
+    "penalty": "Штраф",
+    "youReceive": "Вы получите",
+    "confirmUnstake": "Подтвердить вывод",
+    "insufficientBalance": "Недостаточно SWEET",
+    "stakeSuccess": "Успешно застейкано {{amount}} SWEET",
+    "unstakeSuccess": "Средства успешно выведены",
+    "unstakeWithPenalty": "Средства выведены со штрафом {{penalty}} SWEET",
+    "claimSuccess": "Получено {{amount}} SWEET наград",
+    "pools": {
+      "flexible": {
+        "name": "Гибкий пул",
+        "desc": "Вывод в любое время"
+      },
+      "30day": {
+        "name": "30-дневный пул",
+        "desc": "Блокировка на 30 дней"
+      },
+      "90day": {
+        "name": "90-дневный пул",
+        "desc": "Максимальная доходность"
+      }
+    }
   },
   "ai": {
     "title": "AI Аналитика",

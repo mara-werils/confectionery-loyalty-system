@@ -131,8 +131,35 @@ export const api = {
     checkSbt: (walletAddress: string) =>
       axiosInstance.get(`/admin/sbt/check/${walletAddress}`),
 
-    getAuditLogs: (params?: { page?: number; limit?: number }) =>
+    getAuditLogs: (params?: { page?: number; limit?: number; action?: string }) =>
       axiosInstance.get('/admin/audit-logs', { params }),
+
+    getStats: () =>
+      axiosInstance.get('/admin/stats'),
+
+    getSettings: () =>
+      axiosInstance.get('/admin/settings'),
+
+    updateSettings: (data: Record<string, unknown>) =>
+      axiosInstance.patch('/admin/settings', data),
+
+    updatePartner: (id: string, data: Record<string, unknown>) =>
+      axiosInstance.patch(`/partners/${id}`, data),
+
+    createReward: (data: {
+      title: string;
+      description: string;
+      pointsRequired: number;
+      category: string;
+      availableQuantity: number;
+      isActive: boolean;
+    }) => axiosInstance.post('/rewards', data),
+
+    updateReward: (id: string, data: Record<string, unknown>) =>
+      axiosInstance.patch(`/rewards/${id}`, data),
+
+    deleteReward: (id: string) =>
+      axiosInstance.delete(`/rewards/${id}`),
   },
 
   // Coupons

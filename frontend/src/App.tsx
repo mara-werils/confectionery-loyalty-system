@@ -15,15 +15,23 @@ import Stats from './pages/Stats';
 
 import AIPredictions from './pages/AIPredictions';
 import Achievements from './pages/Achievements';
+import Governance from './pages/Governance';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminAuthGate from './pages/admin/AdminAuthGate';
+import AdminPartners from './pages/admin/AdminPartners';
+import AdminRewards from './pages/admin/AdminRewards';
+import AdminAuditLog from './pages/admin/AdminAuditLog';
+import AdminSettings from './pages/admin/AdminSettings';
 
 // New role-based pages
 import BusinessRegister from './pages/business/BusinessRegister';
 import CouponVerify from './pages/business/CouponVerify';
+import Analytics from './pages/business/Analytics';
 import CustomerDashboard from './pages/customer/CustomerDashboard';
 import CustomerRewards from './pages/customer/CustomerRewards';
+import Staking from './pages/customer/Staking';
 
 // Components
 import Layout from './components/Layout';
@@ -82,8 +90,14 @@ function App() {
       {/* Public route */}
       <Route path="/" element={<Home />} />
       
-      {/* Admin Route - Hidden */}
-      <Route path="/admin" element={<AdminDashboard />} />
+      {/* Admin Routes with Auth Gate + Admin Layout */}
+      <Route path="/admin" element={<AdminAuthGate />}>
+        <Route index element={<AdminDashboard />} />
+        <Route path="partners" element={<AdminPartners />} />
+        <Route path="rewards" element={<AdminRewards />} />
+        <Route path="audit" element={<AdminAuditLog />} />
+        <Route path="settings" element={<AdminSettings />} />
+      </Route>
       
       {/* Business registration (needs wallet but no layout) */}
       <Route element={<ProtectedRoute />}>
@@ -99,6 +113,8 @@ function App() {
           <Route path="/blockchain" element={<Blockchain />} />
           <Route path="/swap" element={<Swap />} />
           <Route path="/referrals" element={<Referrals />} />
+          <Route path="/governance" element={<Governance />} />
+          <Route path="/analytics" element={<Analytics />} />
           <Route path="/business/profile" element={<Profile />} />
         </Route>
       </Route>
@@ -111,6 +127,8 @@ function App() {
           <Route path="/achievements" element={<Achievements />} />
           <Route path="/history" element={<History />} />
           <Route path="/stats" element={<Stats />} />
+          <Route path="/staking" element={<Staking />} />
+          <Route path="/customer/governance" element={<Governance />} />
           <Route path="/customer/profile" element={<Profile />} />
         </Route>
       </Route>

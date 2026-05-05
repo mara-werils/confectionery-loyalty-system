@@ -225,7 +225,76 @@
     "history": "History",
     "exchange": "Exchange",
     "blockchain": "Blockchain",
-    "profile": "Profile"
+    "profile": "Profile",
+    "staking": "Staking"
+  },
+  "staking": {
+    "title": "Staking",
+    "subtitle": "Earn rewards by locking your SWEET tokens",
+    "available": "Available",
+    "totalStaked": "Total Staked",
+    "currentApy": "Current APY",
+    "weightedAvg": "Weighted average",
+    "earnedRewards": "Earned Rewards",
+    "nextUnlock": "Next Unlock",
+    "poolsTitle": "Staking Pools",
+    "lockPeriod": "Lock Period",
+    "noLock": "No lock",
+    "days": "days",
+    "poolTvl": "Pool TVL",
+    "minStake": "Min. Stake",
+    "stakeButton": "Stake",
+    "myPositions": "My Positions",
+    "stakedAmount": "Staked",
+    "earnedLabel": "Earned",
+    "progress": "Progress",
+    "statusFlexible": "Flexible",
+    "statusLocked": "Locked",
+    "statusUnlocked": "Unlocked",
+    "claimRewards": "Claim Rewards",
+    "unstakeButton": "Unstake",
+    "statsTitle": "Staking Stats",
+    "stats": {
+      "tvl": "Total Value Locked (TVL)",
+      "totalStakers": "Total Stakers",
+      "avgApy": "Average APY",
+      "distributed": "Total Rewards Distributed"
+    },
+    "enterAmount": "Stake Amount",
+    "balance": "Balance",
+    "min": "Min",
+    "poolLabel": "Pool",
+    "expectedEarnings": "Expected Earnings",
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "confirmStake": "Confirm Stake",
+    "unstakeTitle": "Unstake Funds",
+    "earlyWithdrawal": "Early Withdrawal",
+    "penaltyWarning": "Early withdrawal incurs a {{percent}}% penalty on the staked amount",
+    "penalty": "Penalty",
+    "youReceive": "You Receive",
+    "confirmUnstake": "Confirm Unstake",
+    "insufficientBalance": "Insufficient SWEET",
+    "stakeSuccess": "Successfully staked {{amount}} SWEET",
+    "unstakeSuccess": "Funds unstaked successfully",
+    "unstakeWithPenalty": "Funds unstaked with {{penalty}} SWEET penalty",
+    "claimSuccess": "Claimed {{amount}} SWEET rewards",
+    "pools": {
+      "flexible": {
+        "name": "Flexible Pool",
+        "desc": "Withdraw anytime"
+      },
+      "30day": {
+        "name": "30-Day Pool",
+        "desc": "30-day lock period"
+      },
+      "90day": {
+        "name": "90-Day Pool",
+        "desc": "Maximum yield"
+      }
+    }
   },
   "ai": {
     "title": "AI Insights",

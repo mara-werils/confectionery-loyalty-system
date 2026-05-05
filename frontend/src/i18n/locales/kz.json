@@ -225,7 +225,76 @@
     "history": "Тарих",
     "exchange": "Айырбас",
     "blockchain": "Блокчейн",
-    "profile": "Профиль"
+    "profile": "Профиль",
+    "staking": "Стейкинг"
+  },
+  "staking": {
+    "title": "Стейкинг",
+    "subtitle": "SWEET токендерін бұғаттап, сыйлықтар табыңыз",
+    "available": "Қолжетімді",
+    "totalStaked": "Стейкталған",
+    "currentApy": "Ағымдағы APY",
+    "weightedAvg": "Орташа өлшенген",
+    "earnedRewards": "Табылған",
+    "nextUnlock": "Ашылуға дейін",
+    "poolsTitle": "Стейкинг пулдары",
+    "lockPeriod": "Бұғаттау",
+    "noLock": "Бұғаттаусыз",
+    "days": "күн",
+    "poolTvl": "Пулда",
+    "minStake": "Мин. стейк",
+    "stakeButton": "Стейктеу",
+    "myPositions": "Менің позицияларым",
+    "stakedAmount": "Стейкталған",
+    "earnedLabel": "Табылған",
+    "progress": "Прогресс",
+    "statusFlexible": "Икемді",
+    "statusLocked": "Бұғатталған",
+    "statusUnlocked": "Ашылған",
+    "claimRewards": "Сыйлықтарды алу",
+    "unstakeButton": "Шығару",
+    "statsTitle": "Стейкинг статистикасы",
+    "stats": {
+      "tvl": "Жалпы бұғатталған құн (TVL)",
+      "totalStakers": "Барлық стейкерлер",
+      "avgApy": "Орташа APY",
+      "distributed": "Барлық таратылған сыйлықтар"
+    },
+    "enterAmount": "Стейк сомасы",
+    "balance": "Баланс",
+    "min": "Мин",
+    "poolLabel": "Пул",
+    "expectedEarnings": "Күтілетін табыс",
+    "daily": "Күніне",
+    "weekly": "Аптасына",
+    "monthly": "Айына",
+    "yearly": "Жылына",
+    "confirmStake": "Стейкті растау",
+    "unstakeTitle": "Қаражатты шығару",
+    "earlyWithdrawal": "Мерзімінен бұрын шығару",
+    "penaltyWarning": "Мерзімінен бұрын шығаруда стейк сомасынан {{percent}}% айыппұл алынады",
+    "penalty": "Айыппұл",
+    "youReceive": "Сіз аласыз",
+    "confirmUnstake": "Шығаруды растау",
+    "insufficientBalance": "SWEET жеткіліксіз",
+    "stakeSuccess": "{{amount}} SWEET сәтті стейкталды",
+    "unstakeSuccess": "Қаражат сәтті шығарылды",
+    "unstakeWithPenalty": "Қаражат {{penalty}} SWEET айыппұлмен шығарылды",
+    "claimSuccess": "{{amount}} SWEET сыйлық алынды",
+    "pools": {
+      "flexible": {
+        "name": "Икемді пул",
+        "desc": "Кез келген уақытта шығару"
+      },
+      "30day": {
+        "name": "30 күндік пул",
+        "desc": "30 күнге бұғаттау"
+      },
+      "90day": {
+        "name": "90 күндік пул",
+        "desc": "Максималды табыстылық"
+      }
+    }
   },
   "ai": {
     "title": "AI Аналитика",
