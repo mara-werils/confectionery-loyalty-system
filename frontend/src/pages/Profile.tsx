@@ -201,7 +201,7 @@ export default function Profile() {
       const existingToken = useAuthStore.getState().token;
       if (existingToken) {
         try {
-          const meRes: any = await api.auth.me();
+          const meRes = await api.auth.me() as { data?: { partner?: { companyName: string } } };
           const partner = meRes?.data?.partner;
           if (partner && !partner.companyName.startsWith('Customer_')) {
             setUser(partner);
