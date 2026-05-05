@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../services/api';
 import {
@@ -34,6 +35,7 @@ const tierColor: Record<string, string> = {
 };
 
 export default function Referrals() {
+  const { t } = useTranslation();
   const { token } = useAuthStore();
   const queryClient = useQueryClient();
   const [copied, setCopied] = useState(false);
@@ -57,10 +59,10 @@ export default function Referrals() {
     mutationFn: () => api.referrals.generateCode(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['referrals'] });
-      toast.success('Реферальный код создан!');
+      toast.success(t('referrals.codeGenerated'));
     },
     onError: (err: Error) => {
-      toast.error(err.message || 'Не удалось создать реферальный код');
+      toast.error(err.message || t('referrals.generateFailed'));
     },
   });
 
@@ -73,7 +75,7 @@ export default function Referrals() {
       setApplyCode('');
     },
     onError: (err: Error) => {
-      toast.error(err.message || 'Не удалось применить реферальный код');
+      toast.error(err.message || t('referrals.applyFailed'));
     },
   });
 
@@ -84,7 +86,7 @@ export default function Referrals() {
     if (!stats?.referralCode) return;
     navigator.clipboard.writeText(stats.referralCode);
     setCopied(true);
-    toast.success('Скопировано!');
+    toast.success(t('referrals.copied'));
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -92,8 +94,8 @@ export default function Referrals() {
     <div className="px-4 py-6 space-y-6">
       {/* Header */}
       <div className="pl-1">
-        <h1 className="text-3xl font-bold text-white tracking-tight">Реферальная программа</h1>
-        <p className="text-stone-400 mt-1">Приглашайте партнёров — получайте 500 SWEET за реферала</p>
+        <h1 className="text-3xl font-bold text-white tracking-tight">{t('referrals.title')}</h1>
+        <p className="text-stone-400 mt-1">{t('referrals.subtitle')}</p>
       </div>
 
       {/* Stats Row */}
@@ -101,7 +103,7 @@ export default function Referrals() {
         <div className="bg-stone-900 border border-stone-800/80 rounded-xl p-5">
           <div className="flex items-center gap-2 mb-1">
             <UserPlusIcon className="w-4 h-4 text-stone-500" />
-            <p className="text-xs text-stone-400">Приглашено партнёров</p>
+            <p className="text-xs text-stone-400">{t('referrals.partnersReferred')}</p>
           </div>
           <p className="text-3xl font-bold text-white">
             {statsLoading ? <span className="animate-pulse">…</span> : (stats?.totalReferrals ?? 0)}
@@ -110,7 +112,7 @@ export default function Referrals() {
         <div className="bg-stone-900 border border-stone-800/80 rounded-xl p-5">
           <div className="flex items-center gap-2 mb-1">
             <SparklesIcon className="w-4 h-4 text-stone-500" />
-            <p className="text-xs text-stone-400">Заработано бонусов</p>
+            <p className="text-xs text-stone-400">{t('referrals.bonusEarned')}</p>
           </div>
           <p className="text-3xl font-bold text-white">
             {statsLoading ? <span className="animate-pulse">…</span> : (
@@ -127,7 +129,7 @@ export default function Referrals() {
       <div className="bg-stone-900 border border-stone-800 rounded-xl p-5">
         <div className="flex items-center gap-2 mb-4">
           <GiftIcon className="w-5 h-5 text-stone-400" />
-          <h2 className="text-base font-semibold text-white">Ваш реферальный код</h2>
+          <h2 className="text-base font-semibold text-white">{t('referrals.yourCode')}</h2>
         </div>
 
         {stats?.referralCode ? (
@@ -154,12 +156,12 @@ export default function Referrals() {
             disabled={generateMutation.isPending}
             className="w-full py-3 bg-amber-500 text-black font-semibold rounded-xl hover:bg-amber-400 transition-colors disabled:opacity-50"
           >
-            {generateMutation.isPending ? 'Создание…' : 'Создать реферальный код'}
+            {generateMutation.isPending ? t('referrals.generating') : t('referrals.generate')}
           </button>
         )}
 
         <p className="text-xs text-stone-500 mt-3 text-center">
-          Поделитесь кодом с другими владельцами кондитерских — вы оба получите 500 SWEET при регистрации.
+          {t('referrals.shareHint')}
         </p>
       </div>
 
@@ -169,7 +171,7 @@ export default function Referrals() {
           onClick={() => setShowApply(!showApply)}
           className="w-full flex items-center justify-between text-sm font-semibold text-stone-300 hover:text-white transition-colors"
         >
-          <span>Применить реферальный код</span>
+          <span>{t('referrals.applyTitle')}</span>
           <span className="text-stone-600">{showApply ? '▲' : '▼'}</span>
         </button>
 
@@ -181,7 +183,7 @@ export default function Referrals() {
           >
             <input
               type="text"
-              placeholder="Введите код (например A1B2C3D4)"
+              placeholder={t('referrals.enterCode')}
               value={applyCode}
               onChange={(e) => setApplyCode(e.target.value.toUpperCase())}
               className="flex-1 bg-stone-950 border border-stone-800 rounded-xl px-4 py-2.5 text-white font-mono text-sm focus:outline-none focus:border-stone-600 transition-colors placeholder:text-stone-600"
@@ -191,7 +193,7 @@ export default function Referrals() {
               disabled={applyMutation.isPending || !applyCode}
               className="px-4 py-2.5 bg-amber-500 text-black font-semibold rounded-xl hover:bg-amber-400 transition-colors disabled:opacity-50 text-sm"
             >
-              Применить
+              {t('referrals.apply')}
             </button>
           </motion.div>
         )}
@@ -200,7 +202,7 @@ export default function Referrals() {
       {/* Referred Partners List */}
       {stats?.referrals && stats.referrals.length > 0 && (
         <div className="bg-stone-900 border border-stone-800 rounded-xl p-5">
-          <h2 className="text-base font-semibold text-white mb-4">Приглашённые партнёры</h2>
+          <h2 className="text-base font-semibold text-white mb-4">{t('referrals.referredPartners')}</h2>
           <div className="space-y-3">
             {stats.referrals.map((ref) => (
               <div key={ref.id} className="flex items-center justify-between py-2 border-b border-stone-800/60 last:border-0">
@@ -224,7 +226,7 @@ export default function Referrals() {
         <div className="bg-stone-900 border border-stone-800 rounded-xl p-5">
           <div className="flex items-center gap-2 mb-4">
             <TrophyIcon className="w-5 h-5 text-yellow-500" />
-            <h2 className="text-base font-semibold text-white">Лидеры рефералов</h2>
+            <h2 className="text-base font-semibold text-white">{t('referrals.topReferrers')}</h2>
           </div>
           <div className="space-y-2">
             {leaderboard.slice(0, 5).map((entry) => (

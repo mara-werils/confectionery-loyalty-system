@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import {
   ExclamationTriangleIcon,
   CheckCircleIcon,
@@ -140,6 +141,7 @@ function Skeleton({ className }: { className?: string }) {
 // ─── Main Component ──────────────────────────────────────────────────────────
 
 export default function AIPredictions() {
+  const { t } = useTranslation();
   const { data: churnRaw, isLoading: churnLoading } = useAiChurn();
   const { data: forecastRaw, isLoading: forecastLoading } = useAiForecast();
   const { data: recsRaw, isLoading: recsLoading } = useAiRecommendations();
@@ -167,9 +169,9 @@ export default function AIPredictions() {
         animate={{ opacity: 1, y: 0 }}
         className="space-y-1"
       >
-        <h1 className="text-2xl font-bold text-white tracking-tight">AI Аналитика</h1>
+        <h1 className="text-2xl font-bold text-white tracking-tight">{t('ai.title')}</h1>
         <p className="text-xs text-stone-500">
-          Прогнозная аналитика · Обновляется в реальном времени
+          {t('ai.subtitle')}
         </p>
       </motion.div>
 
@@ -182,9 +184,9 @@ export default function AIPredictions() {
           className="grid grid-cols-3 gap-3"
         >
           {[
-            { label: 'Критические', count: criticalCount, color: 'text-red-400', bg: 'bg-red-400/8 border-red-400/15' },
-            { label: 'Под угрозой', count: highCount, color: 'text-orange-400', bg: 'bg-orange-400/8 border-orange-400/15' },
-            { label: 'Стабильные', count: lowCount, color: 'text-green-400', bg: 'bg-green-400/8 border-green-400/15' },
+            { label: t('ai.critical'), count: criticalCount, color: 'text-red-400', bg: 'bg-red-400/8 border-red-400/15' },
+            { label: t('ai.atRisk'), count: highCount, color: 'text-orange-400', bg: 'bg-orange-400/8 border-orange-400/15' },
+            { label: t('ai.healthy'), count: lowCount, color: 'text-green-400', bg: 'bg-green-400/8 border-green-400/15' },
           ].map(item => (
             <div key={item.label} className={`border rounded-xl p-3 text-center ${item.bg}`}>
               <p className={`text-2xl font-black ${item.color}`}>{item.count}</p>
@@ -198,7 +200,7 @@ export default function AIPredictions() {
       <section className="space-y-3">
         <div className="flex items-center gap-2">
           <ExclamationTriangleIcon className="w-4 h-4 text-stone-500" />
-          <h2 className="text-sm font-semibold text-stone-300">Прогноз оттока клиентов</h2>
+          <h2 className="text-sm font-semibold text-stone-300">{t('ai.churnTitle')}</h2>
         </div>
 
         {churnLoading ? (
@@ -208,7 +210,7 @@ export default function AIPredictions() {
         ) : churnData.length === 0 ? (
           <div className="bg-stone-900 border border-stone-800 rounded-xl p-6 text-center">
             <CheckCircleIcon className="w-8 h-8 text-green-400 mx-auto mb-2" />
-            <p className="text-sm text-stone-400">Нет активных партнёров для анализа.</p>
+            <p className="text-sm text-stone-400">{t('ai.noPartners')}</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -253,7 +255,7 @@ export default function AIPredictions() {
 
                   {/* Recommendation pill */}
                   <div className={`rounded-lg px-3 py-2 text-xs ${cfg.bg} border ${cfg.border}`}>
-                    <span className="text-stone-400">Рекомендация: </span>
+                    <span className="text-stone-400">{t('ai.recommendation')}: </span>
                     <span className="text-stone-200">{partner.recommendation}</span>
                   </div>
                 </motion.div>
@@ -267,14 +269,14 @@ export default function AIPredictions() {
       <section className="space-y-3">
         <div className="flex items-center gap-2">
           <ChartBarIcon className="w-4 h-4 text-stone-500" />
-          <h2 className="text-sm font-semibold text-stone-300">Прогноз выручки на 30 дней</h2>
+          <h2 className="text-sm font-semibold text-stone-300">{t('ai.forecastTitle')}</h2>
         </div>
 
         {forecastLoading ? (
           <Skeleton className="h-64" />
         ) : !forecast ? (
           <div className="bg-stone-900 border border-stone-800 rounded-xl p-6 text-center text-stone-500 text-sm">
-            Недостаточно данных для построения прогноза.
+            {t('ai.noForecastData')}
           </div>
         ) : (
           <motion.div
@@ -286,13 +288,13 @@ export default function AIPredictions() {
             {/* KPI row */}
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <p className="text-[10px] text-stone-500 uppercase tracking-wide">Прогноз</p>
+                <p className="text-[10px] text-stone-500 uppercase tracking-wide">{t('ai.forecast')}</p>
                 <p className="text-base font-black text-white mt-0.5">
                   {forecast.totalForecast30Days.toLocaleString()} <span className="text-xs font-normal text-stone-500">KZT</span>
                 </p>
               </div>
               <div>
-                <p className="text-[10px] text-stone-500 uppercase tracking-wide">Тренд</p>
+                <p className="text-[10px] text-stone-500 uppercase tracking-wide">{t('ai.trend')}</p>
                 <div className="flex items-center gap-1 mt-0.5">
                   {forecast.trend === 'up' && <ArrowTrendingUpIcon className="w-4 h-4 text-green-400" />}
                   {forecast.trend === 'down' && <ArrowTrendingDownIcon className="w-4 h-4 text-red-400" />}
@@ -306,7 +308,7 @@ export default function AIPredictions() {
                 </div>
               </div>
               <div>
-                <p className="text-[10px] text-stone-500 uppercase tracking-wide">Точность</p>
+                <p className="text-[10px] text-stone-500 uppercase tracking-wide">{t('ai.confidence')}</p>
                 <div className="flex items-center gap-1.5 mt-1">
                   <div className="flex-1 h-1.5 bg-stone-800 rounded-full overflow-hidden">
                     <div
@@ -371,17 +373,17 @@ export default function AIPredictions() {
             <div className="flex items-center gap-4 justify-center">
               <div className="flex items-center gap-1.5">
                 <div className="w-4 h-0.5 bg-violet-400 rounded" />
-                <span className="text-[10px] text-stone-500">Фактическая выручка</span>
+                <span className="text-[10px] text-stone-500">{t('ai.actualRevenue')}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-4 h-0.5 bg-emerald-400 rounded" style={{ backgroundImage: 'repeating-linear-gradient(90deg,#34d399 0,#34d399 5px,transparent 5px,transparent 8px)' }} />
-                <span className="text-[10px] text-stone-500">AI прогноз</span>
+                <span className="text-[10px] text-stone-500">{t('ai.aiForecast')}</span>
               </div>
             </div>
 
             {/* Model note */}
             <p className="text-[10px] text-stone-600 text-center">
-              Модель линейной регрессии на основе данных за 90 дней
+              {t('ai.modelNote')}
             </p>
           </motion.div>
         )}
@@ -391,7 +393,7 @@ export default function AIPredictions() {
       <section className="space-y-3">
         <div className="flex items-center gap-2">
           <GiftIcon className="w-4 h-4 text-stone-500" />
-          <h2 className="text-sm font-semibold text-stone-300">Рекомендации наград</h2>
+          <h2 className="text-sm font-semibold text-stone-300">{t('ai.recsTitle')}</h2>
         </div>
 
         {recsLoading ? (
@@ -416,7 +418,7 @@ export default function AIPredictions() {
 
             {recs.length === 0 ? (
               <div className="bg-stone-900 border border-stone-800 rounded-xl p-6 text-center text-stone-500 text-sm">
-                Накопите больше баллов для получения рекомендаций.
+                {t('ai.noRecs')}
               </div>
             ) : (
               <div className="space-y-3">
@@ -445,7 +447,7 @@ export default function AIPredictions() {
 
                     {/* Relevance bar */}
                     <div className="mt-3 flex items-center gap-2">
-                      <span className="text-[10px] text-stone-600 w-16">Релевантность</span>
+                      <span className="text-[10px] text-stone-600 w-16">{t('ai.relevance')}</span>
                       <div className="flex-1 h-1.5 bg-stone-800 rounded-full overflow-hidden">
                         <motion.div
                           className="h-full bg-violet-500 rounded-full"
