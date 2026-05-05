@@ -197,9 +197,22 @@ export default function Profile() {
     const newRole = role === 'business' ? 'customer' : 'business';
     setRole(newRole);
     if (newRole === 'business') {
-      // Already registered as business — skip registration form
-      const isRegistered = user?.companyName && !user.companyName.startsWith('Customer_');
-      navigate(isRegistered ? '/business/dashboard' : '/business/register');
+      // Check server-side if already registered as business
+      const existingToken = useAuthStore.getState().token;
+      if (existingToken) {
+        try {
+          const meRes: any = await api.auth.me();
+          const partner = meRes?.data?.partner;
+          if (partner && !partner.companyName.startsWith('Customer_')) {
+            setUser(partner);
+            navigate('/business/dashboard');
+            return;
+          }
+        } catch {
+          // token invalid — fall through to register
+        }
+      }
+      navigate('/business/register');
     } else {
       navigate('/customer/dashboard');
     }
