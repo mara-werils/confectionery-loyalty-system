@@ -565,6 +565,27 @@
     "checkFailed": "Не удалось проверить достижения",
     "emptyCategory": "Пока нет достижений в этой категории."
   },
+  "auditLog": {
+    "title": "Журнал аудита",
+    "subtitle": "Хронология всех системных действий",
+    "filterByAction": "Фильтр по типу действия",
+    "all": "Все",
+    "noRecords": "Записи не найдены",
+    "recordId": "ID записи",
+    "actor": "Актор",
+    "entityType": "Тип сущности",
+    "entityId": "ID сущности",
+    "metadata": "Метаданные",
+    "next": "Далее",
+    "totalRecords": "Всего записей",
+    "page": "Страница",
+    "actions": {
+      "updateReward": "Обн. награды",
+      "redeemCoupon": "Погашение купона",
+      "login": "Вход в систему",
+      "register": "Регистрация"
+    }
+  },
   "adminDash": {
     "totalPartners": "Всего партнёров",
     "transactions": "Транзакций",

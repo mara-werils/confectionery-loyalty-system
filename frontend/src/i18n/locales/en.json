@@ -565,6 +565,27 @@
     "supportSent": "Support request sent!",
     "contactSupport": "Contact support"
   },
+  "auditLog": {
+    "title": "Audit Log",
+    "subtitle": "Chronology of all system actions",
+    "filterByAction": "Filter by action type",
+    "all": "All",
+    "noRecords": "No records found",
+    "recordId": "Record ID",
+    "actor": "Actor",
+    "entityType": "Entity Type",
+    "entityId": "Entity ID",
+    "metadata": "Metadata",
+    "next": "Next",
+    "totalRecords": "Total records",
+    "page": "Page",
+    "actions": {
+      "updateReward": "Update Reward",
+      "redeemCoupon": "Redeem Coupon",
+      "login": "Login",
+      "register": "Registration"
+    }
+  },
   "adminDash": {
     "totalPartners": "Total Partners",
     "transactions": "Transactions",

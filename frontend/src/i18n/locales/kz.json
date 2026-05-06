@@ -565,6 +565,27 @@
     "checkFailed": "Жетістіктерді тексеру сәтсіз аяқталды",
     "emptyCategory": "Бұл санатта жетістіктер жоқ."
   },
+  "auditLog": {
+    "title": "Аудит журналы",
+    "subtitle": "Барлық жүйелік әрекеттердің хронологиясы",
+    "filterByAction": "Әрекет түрі бойынша сүзу",
+    "all": "Барлығы",
+    "noRecords": "Жазбалар табылмады",
+    "recordId": "Жазба ID",
+    "actor": "Актор",
+    "entityType": "Нысан түрі",
+    "entityId": "Нысан ID",
+    "metadata": "Метадеректер",
+    "next": "Келесі",
+    "totalRecords": "Барлық жазбалар",
+    "page": "Бет",
+    "actions": {
+      "updateReward": "Сыйлықты жаңарту",
+      "redeemCoupon": "Купон өтеу",
+      "login": "Жүйеге кіру",
+      "register": "Тіркелу"
+    }
+  },
   "adminDash": {
     "totalPartners": "Барлық серіктестер",
     "transactions": "Транзакциялар",
