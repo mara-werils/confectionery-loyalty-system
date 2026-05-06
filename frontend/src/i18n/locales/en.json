@@ -565,6 +565,18 @@
     "supportSent": "Support request sent!",
     "contactSupport": "Contact support"
   },
+  "adminAuth": {
+    "title": "Restricted Access Zone",
+    "subtitle": "Master administrator login",
+    "emailLabel": "Admin Email",
+    "passwordLabel": "Master Password",
+    "verifying": "Verifying...",
+    "login": "Log In",
+    "success": "Authentication successful",
+    "denied": "Invalid credentials. Access denied.",
+    "notConfigured": "Admin credentials not configured in environment",
+    "footer": "Authorized administrators only"
+  },
   "adminRewards": {
     "title": "Rewards",
     "subtitle": "Manage rewards and bonuses",

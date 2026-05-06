@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ShieldCheckIcon } from '@heroicons/react/24/outline';
+import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import { GlassCard } from '../../components/GlassCard';
 import AdminLayout from './AdminLayout';
 
 export default function AdminAuthGate() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [verifying, setVerifying] = useState(false);
@@ -16,14 +18,16 @@ export default function AdminAuthGate() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setVerifying(true);
-    const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || 'admin@sweetloyalty.kz';
-    const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD || 'MasterKey2026!';
-    if (email === adminEmail && password === adminPassword) {
-      toast.success('Аутентификация успешна');
+    const adminEmail = import.meta.env.VITE_ADMIN_EMAIL;
+    const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD;
+    if (!adminEmail || !adminPassword) {
+      toast.error(t('adminAuth.notConfigured'));
+    } else if (email === adminEmail && password === adminPassword) {
+      toast.success(t('adminAuth.success'));
       sessionStorage.setItem('admin_auth', 'true');
       setIsAuthenticated(true);
     } else {
-      toast.error('Неверные данные. Доступ запрещён.');
+      toast.error(t('adminAuth.denied'));
     }
     setVerifying(false);
   };
@@ -41,13 +45,13 @@ export default function AdminAuthGate() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 mb-6">
             <ShieldCheckIcon className="w-8 h-8 text-amber-500" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">Зона ограниченного доступа</h1>
-          <p className="text-stone-400 text-sm mt-2">Вход мастер-администратора</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t('adminAuth.title')}</h1>
+          <p className="text-stone-400 text-sm mt-2">{t('adminAuth.subtitle')}</p>
         </div>
         <GlassCard className="p-6 border-amber-500/10">
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-stone-500 mb-1.5 uppercase tracking-wider">Email администратора</label>
+              <label className="block text-xs font-medium text-stone-500 mb-1.5 uppercase tracking-wider">{t('adminAuth.emailLabel')}</label>
               <input
                 type="email"
                 required
@@ -58,7 +62,7 @@ export default function AdminAuthGate() {
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-stone-500 mb-1.5 uppercase tracking-wider">Мастер-пароль</label>
+              <label className="block text-xs font-medium text-stone-500 mb-1.5 uppercase tracking-wider">{t('adminAuth.passwordLabel')}</label>
               <input
                 type="password"
                 required
@@ -74,13 +78,13 @@ export default function AdminAuthGate() {
                 disabled={verifying}
                 className="w-full bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-black font-bold py-3.5 rounded-xl transition-all"
               >
-                {verifying ? 'Проверка...' : 'Войти'}
+                {verifying ? t('adminAuth.verifying') : t('adminAuth.login')}
               </button>
             </div>
           </form>
         </GlassCard>
         <p className="text-center text-stone-600 text-[10px] mt-6">
-          Только для авторизованных администраторов
+          {t('adminAuth.footer')}
         </p>
       </motion.div>
     </div>
