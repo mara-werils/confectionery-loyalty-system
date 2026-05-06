@@ -304,9 +304,9 @@ export default function Dashboard() {
                 value={chartPeriod}
                 onChange={(e) => setChartPeriod(e.target.value as 'day' | 'week' | 'month')}
               >
-                <option value="day">За 24 часа</option>
-                <option value="week">За 7 дней</option>
-                <option value="month">За 30 дней</option>
+                <option value="day">{t('dashboard.period24h') || '24 hours'}</option>
+                <option value="week">{t('dashboard.period7d') || '7 days'}</option>
+                <option value="month">{t('dashboard.period30d') || '30 days'}</option>
               </select>
             </div>
             <div className="flex-1 w-full relative">

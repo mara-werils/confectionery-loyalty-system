@@ -273,7 +273,10 @@
     "mintFailed": "Mint broadcast failed",
     "mintError": "Mint transaction error",
     "totalTransactions": "Points Issued",
-    "allTimeRewards": "All-time distributed rewards"
+    "allTimeRewards": "All-time distributed rewards",
+    "period24h": "Last 24 hours",
+    "period7d": "Last 7 days",
+    "period30d": "Last 30 days"
   },
   "nav": {
     "pos": "POS",
