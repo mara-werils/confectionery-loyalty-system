@@ -80,7 +80,7 @@ export default function Rewards() {
                 clsx(
                   'flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-300 focus:outline-none',
                   selected
-                    ? 'bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.3)]'
+                    ? 'bg-white text-black'
                     : 'bg-stone-900/50 text-stone-400 hover:text-stone-200 border border-white/5 hover:border-white/10'
                 )
               }

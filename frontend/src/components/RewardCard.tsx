@@ -88,8 +88,8 @@ export default function RewardCard({
 
         {/* Availability badge */}
         {available > 0 && available <= 10 && (
-          <div className="absolute top-3 right-3 bg-red-500 text-white px-2 py-0.5 rounded-full text-xs font-bold">
-            Осталось {available}!
+          <div className="absolute top-3 right-3 bg-stone-800 text-stone-300 border border-white/10 px-2 py-0.5 rounded-full text-xs font-bold">
+            Осталось {available}
           </div>
         )}
       </div>
