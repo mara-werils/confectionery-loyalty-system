@@ -12,6 +12,7 @@ import {
   ServerIcon,
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
@@ -27,31 +28,32 @@ const ACTION_COLORS: Record<string, string> = {
   REVOKE_SBT: 'text-amber-400 bg-amber-400/10 border-amber-400/20',
 };
 
-const ACTION_LABELS: Record<string, string> = {
-  ISSUE_SBT: 'Выдача SBT',
-  ISSUE_COUPON: 'Выдача купона',
-  UPDATE_PARTNER: 'Обн. партнёра',
-  MINT_TOKENS: 'Минт токенов',
-  CREATE_REWARD: 'Создание награды',
-  DELETE_REWARD: 'Удаление награды',
-  REVOKE_SBT: 'Отзыв SBT',
+const ACTION_LABEL_KEYS: Record<string, string> = {
+  ISSUE_SBT: 'adminDash.actions.issueSbt',
+  ISSUE_COUPON: 'adminDash.actions.issueCoupon',
+  UPDATE_PARTNER: 'adminDash.actions.updatePartner',
+  MINT_TOKENS: 'adminDash.actions.mintTokens',
+  CREATE_REWARD: 'adminDash.actions.createReward',
+  DELETE_REWARD: 'adminDash.actions.deleteReward',
+  REVOKE_SBT: 'adminDash.actions.revokeSbt',
 };
 
-function formatRelative(dateStr: string) {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'Только что';
-  if (mins < 60) return `${mins} мин. назад`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs} ч. назад`;
-  const days = Math.floor(hrs / 24);
-  if (days < 7) return `${days} дн. назад`;
-  return new Date(dateStr).toLocaleDateString('ru-RU');
-}
-
 export default function AdminDashboard() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { setHasBusinessSbt, hasBusinessSbt } = useAuthStore();
+
+  const formatRelative = (dateStr: string) => {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return t('adminDash.justNow');
+    if (mins < 60) return t('adminDash.minsAgo', { n: mins });
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return t('adminDash.hoursAgo', { n: hrs });
+    const days = Math.floor(hrs / 24);
+    if (days < 7) return t('adminDash.daysAgo', { n: days });
+    return new Date(dateStr).toLocaleDateString();
+  };
   const [walletAddress, setWalletAddress] = useState('');
   const [isMinting, setIsMinting] = useState(false);
 
@@ -87,34 +89,34 @@ export default function AdminDashboard() {
     : 0;
 
   const stats = [
-    { label: 'Всего партнёров', value: totalPartners, icon: BuildingStorefrontIcon, color: 'text-stone-300 bg-stone-400/10 border-stone-400/20' },
-    { label: 'Транзакций', value: '---', icon: ArrowsRightLeftIcon, color: 'text-stone-300 bg-stone-400/10 border-stone-400/20' },
-    { label: 'SWEET выпущено', value: '---', icon: CurrencyDollarIcon, color: 'text-amber-400 bg-amber-400/10 border-amber-400/20' },
-    { label: 'Активных наград', value: activeRewards, icon: GiftIcon, color: 'text-amber-400 bg-amber-400/10 border-amber-400/20' },
+    { label: t('adminDash.totalPartners'), value: totalPartners, icon: BuildingStorefrontIcon, color: 'text-stone-300 bg-stone-400/10 border-stone-400/20' },
+    { label: t('adminDash.transactions'), value: '---', icon: ArrowsRightLeftIcon, color: 'text-stone-300 bg-stone-400/10 border-stone-400/20' },
+    { label: t('adminDash.sweetIssued'), value: '---', icon: CurrencyDollarIcon, color: 'text-amber-400 bg-amber-400/10 border-amber-400/20' },
+    { label: t('adminDash.activeRewards'), value: activeRewards, icon: GiftIcon, color: 'text-amber-400 bg-amber-400/10 border-amber-400/20' },
   ];
 
   const quickActions = [
-    { label: 'Добавить награду', path: '/admin/rewards', icon: GiftIcon },
-    { label: 'Партнёры', path: '/admin/partners', icon: BuildingStorefrontIcon },
-    { label: 'Журнал аудита', path: '/admin/audit', icon: ClockIcon },
-    { label: 'Настройки', path: '/admin/settings', icon: ServerIcon },
+    { label: t('adminDash.addReward'), path: '/admin/rewards', icon: GiftIcon },
+    { label: t('adminDash.partners'), path: '/admin/partners', icon: BuildingStorefrontIcon },
+    { label: t('adminDash.auditLog'), path: '/admin/audit', icon: ClockIcon },
+    { label: t('adminDash.settings'), path: '/admin/settings', icon: ServerIcon },
   ];
 
   const handleIssueSbt = async () => {
     if (!walletAddress) {
-      toast.error('Введите адрес кошелька');
+      toast.error(t('adminDash.enterWallet'));
       return;
     }
     setIsMinting(true);
-    toast.loading('Выдача Soulbound Token...', { id: 'adminMint' });
+    toast.loading(t('adminDash.issuingToken'), { id: 'adminMint' });
     try {
       await api.admin.issueSbt(walletAddress);
       setHasBusinessSbt(true);
-      toast.success('SBT успешно выдан!', { id: 'adminMint' });
+      toast.success(t('adminDash.sbtIssued'), { id: 'adminMint' });
       setWalletAddress('');
     } catch (err: unknown) {
       const error = err as { message?: string };
-      toast.error(error?.message || 'Не удалось выдать сертификат', { id: 'adminMint' });
+      toast.error(error?.message || t('adminDash.issueFailed'), { id: 'adminMint' });
     } finally {
       setIsMinting(false);
     }
@@ -122,18 +124,18 @@ export default function AdminDashboard() {
 
   const handleRevokeSbt = async () => {
     if (!walletAddress) {
-      toast.error('Введите адрес кошелька');
+      toast.error(t('adminDash.enterWallet'));
       return;
     }
     setIsMinting(true);
-    toast.loading('Отзыв Soulbound Token...', { id: 'adminRevoke' });
+    toast.loading(t('adminDash.revokingToken'), { id: 'adminRevoke' });
     try {
       await api.admin.revokeSbt(walletAddress);
       setHasBusinessSbt(false);
-      toast.success('SBT успешно отозван', { id: 'adminRevoke' });
+      toast.success(t('adminDash.sbtRevoked'), { id: 'adminRevoke' });
     } catch (err: unknown) {
       const error = err as { message?: string };
-      toast.error(error?.message || 'Не удалось отозвать сертификат', { id: 'adminRevoke' });
+      toast.error(error?.message || t('adminDash.revokeFailed'), { id: 'adminRevoke' });
     } finally {
       setIsMinting(false);
     }
@@ -160,7 +162,7 @@ export default function AdminDashboard() {
 
       {/* Quick Actions */}
       <GlassCard delay={0.15} className="p-5">
-        <h3 className="text-sm font-semibold text-stone-400 mb-3 uppercase tracking-wider">Быстрые действия</h3>
+        <h3 className="text-sm font-semibold text-stone-400 mb-3 uppercase tracking-wider">{t('adminDash.quickActions')}</h3>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {quickActions.map((action) => (
             <button
@@ -181,7 +183,7 @@ export default function AdminDashboard() {
         <GlassCard delay={0.2} className="p-5">
           <h3 className="text-sm font-semibold text-stone-400 mb-4 uppercase tracking-wider flex items-center gap-2">
             <DocumentPlusIcon className="w-4 h-4" />
-            Управление SBT
+            {t('adminDash.sbtManagement')}
           </h3>
           <div className="space-y-3">
             <input
@@ -189,7 +191,7 @@ export default function AdminDashboard() {
               value={walletAddress}
               onChange={(e) => setWalletAddress(e.target.value)}
               className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500/50 transition-colors font-mono"
-              placeholder="UQ... адрес кошелька"
+              placeholder={t('adminDash.walletPlaceholder')}
             />
             <div className="flex gap-2">
               <button
@@ -198,14 +200,14 @@ export default function AdminDashboard() {
                 className="flex-1 bg-amber-500 hover:bg-amber-400 disabled:opacity-40 text-black font-bold py-2.5 rounded-xl transition-all text-sm flex items-center justify-center gap-2"
               >
                 {hasBusinessSbt ? <CheckCircleIcon className="w-4 h-4" /> : <DocumentPlusIcon className="w-4 h-4" />}
-                {isMinting ? 'Минтинг...' : 'Выдать SBT'}
+                {isMinting ? t('adminDash.minting') : t('adminDash.issueSbt')}
               </button>
               <button
                 onClick={handleRevokeSbt}
                 disabled={isMinting || !walletAddress}
                 className="flex-1 bg-transparent border border-red-500/30 hover:bg-red-500/10 text-red-400 font-bold py-2.5 rounded-xl transition-all text-sm"
               >
-                Отозвать
+                {t('adminDash.revoke')}
               </button>
             </div>
           </div>
@@ -215,20 +217,20 @@ export default function AdminDashboard() {
         <GlassCard delay={0.25} className="p-5">
           <h3 className="text-sm font-semibold text-stone-400 mb-4 uppercase tracking-wider flex items-center gap-2">
             <ServerIcon className="w-4 h-4" />
-            Состояние системы
+            {t('adminDash.systemHealth')}
           </h3>
           <div className="space-y-3">
             {[
-              { name: 'API сервер', status: 'online' },
-              { name: 'База данных', status: 'online' },
-              { name: 'TON Блокчейн', status: 'online' },
-              { name: 'Смарт-контракты', status: 'online' },
+              { name: t('adminDash.svcApi'), status: 'online' },
+              { name: t('adminDash.svcDb'), status: 'online' },
+              { name: t('adminDash.svcTon'), status: 'online' },
+              { name: t('adminDash.svcContracts'), status: 'online' },
             ].map((svc) => (
               <div key={svc.name} className="flex items-center justify-between py-2 px-3 bg-stone-800/30 rounded-xl">
                 <span className="text-sm text-stone-300">{svc.name}</span>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-400 shadow-[0_0_6px_rgba(74,222,128,0.6)]" />
-                  <span className="text-xs text-green-400 font-medium">Активен</span>
+                  <span className="text-xs text-green-400 font-medium">{t('adminDash.online')}</span>
                 </div>
               </div>
             ))}
@@ -241,13 +243,13 @@ export default function AdminDashboard() {
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-stone-400 uppercase tracking-wider flex items-center gap-2">
             <ClockIcon className="w-4 h-4" />
-            Последняя активность
+            {t('adminDash.recentActivity')}
           </h3>
           <button
             onClick={() => navigate('/admin/audit')}
             className="text-xs text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1"
           >
-            Все записи <ArrowRightIcon className="w-3 h-3" />
+            {t('adminDash.viewAll')} <ArrowRightIcon className="w-3 h-3" />
           </button>
         </div>
         {auditLoading ? (
@@ -268,7 +270,7 @@ export default function AdminDashboard() {
                     ACTION_COLORS[log.action] || 'text-stone-400 bg-stone-400/10 border-stone-400/20'
                   }`}
                 >
-                  {ACTION_LABELS[log.action] || log.action.replace(/_/g, ' ')}
+                  {ACTION_LABEL_KEYS[log.action] ? t(ACTION_LABEL_KEYS[log.action]) : log.action.replace(/_/g, ' ')}
                 </span>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs text-stone-400 truncate">
@@ -281,7 +283,7 @@ export default function AdminDashboard() {
             ))}
           </div>
         ) : (
-          <p className="text-center text-stone-600 text-sm py-6">Нет записей</p>
+          <p className="text-center text-stone-600 text-sm py-6">{t('adminDash.noRecords')}</p>
         )}
       </GlassCard>
     </div>
