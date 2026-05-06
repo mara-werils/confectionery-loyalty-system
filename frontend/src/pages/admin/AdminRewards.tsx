@@ -10,6 +10,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import { api } from '../../services/api';
 import { GlassCard } from '../../components/GlassCard';
 
@@ -40,11 +41,11 @@ const CATEGORY_STYLES: Record<string, string> = {
   SPECIAL: 'text-stone-300 bg-stone-800 border-stone-700',
 };
 
-const CATEGORY_LABELS: Record<string, string> = {
-  DISCOUNT: 'Скидка',
-  PRODUCT: 'Продукт',
-  CASHBACK: 'Кэшбэк',
-  SPECIAL: 'Особое',
+const CATEGORY_LABEL_KEYS: Record<string, string> = {
+  DISCOUNT: 'rewards.categoryDiscount',
+  PRODUCT: 'rewards.categoryProduct',
+  CASHBACK: 'rewards.categoryCashback',
+  SPECIAL: 'rewards.categorySpecial',
 };
 
 const CATEGORY_ICONS: Record<string, string> = {
@@ -64,6 +65,7 @@ const emptyForm: RewardForm = {
 };
 
 export default function AdminRewards() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -92,10 +94,10 @@ export default function AdminRewards() {
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'rewards'] });
-      toast.success('Награда создана');
+      toast.success(t('adminRewards.created'));
       closeModal();
     },
-    onError: (err: Error) => toast.error(err.message || 'Ошибка создания'),
+    onError: (err: Error) => toast.error(err.message || t('adminRewards.createError')),
   });
 
   const updateMutation = useMutation({
@@ -103,20 +105,20 @@ export default function AdminRewards() {
       api.admin.updateReward(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'rewards'] });
-      toast.success('Награда обновлена');
+      toast.success(t('adminRewards.updated'));
       closeModal();
     },
-    onError: (err: Error) => toast.error(err.message || 'Ошибка обновления'),
+    onError: (err: Error) => toast.error(err.message || t('adminRewards.updateError')),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => api.admin.deleteReward(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'rewards'] });
-      toast.success('Награда удалена');
+      toast.success(t('adminRewards.deleted'));
       setDeleteConfirm(null);
     },
-    onError: (err: Error) => toast.error(err.message || 'Ошибка удаления'),
+    onError: (err: Error) => toast.error(err.message || t('adminRewards.deleteError')),
   });
 
   const closeModal = () => {
@@ -147,7 +149,7 @@ export default function AdminRewards() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.title.trim()) {
-      toast.error('Введите название награды');
+      toast.error(t('adminRewards.enterTitle'));
       return;
     }
     if (editingId) {
@@ -164,15 +166,15 @@ export default function AdminRewards() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Награды</h1>
-          <p className="text-sm text-stone-500 mt-1">Управление наградами и бонусами</p>
+          <h1 className="text-2xl font-bold text-white">{t('adminRewards.title')}</h1>
+          <p className="text-sm text-stone-500 mt-1">{t('adminRewards.subtitle')}</p>
         </div>
         <button
           onClick={openCreate}
           className="flex items-center gap-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-xl transition-all text-sm"
         >
           <PlusIcon className="w-4 h-4" />
-          Добавить
+          {t('adminRewards.add')}
         </button>
       </div>
 
@@ -184,9 +186,9 @@ export default function AdminRewards() {
             !categoryFilter ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30' : 'bg-stone-800 text-stone-400 border border-stone-700 hover:border-stone-600'
           }`}
         >
-          Все
+          {t('auditLog.all')}
         </button>
-        {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
+        {Object.entries(CATEGORY_LABEL_KEYS).map(([key, labelKey]) => (
           <button
             key={key}
             onClick={() => setCategoryFilter(key)}
@@ -196,7 +198,7 @@ export default function AdminRewards() {
                 : 'bg-stone-800 text-stone-400 border border-stone-700 hover:border-stone-600'
             }`}
           >
-            {label}
+            {t(labelKey)}
           </button>
         ))}
       </div>
@@ -211,12 +213,12 @@ export default function AdminRewards() {
       ) : rewards.length === 0 ? (
         <GlassCard className="p-12 text-center">
           <GiftIcon className="w-12 h-12 text-stone-700 mx-auto mb-3" />
-          <p className="text-stone-500 text-sm">Награды не найдены</p>
+          <p className="text-stone-500 text-sm">{t('adminRewards.noRewards')}</p>
           <button
             onClick={openCreate}
             className="mt-4 text-sm text-amber-400 hover:text-amber-300 transition-colors"
           >
-            Создать первую награду
+            {t('adminRewards.createFirst')}
           </button>
         </GlassCard>
       ) : (
@@ -234,7 +236,7 @@ export default function AdminRewards() {
                   {CATEGORY_ICONS[reward.category]}
                 </div>
                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${CATEGORY_STYLES[reward.category]}`}>
-                  {CATEGORY_LABELS[reward.category]}
+                  {t(CATEGORY_LABEL_KEYS[reward.category])}
                 </span>
               </div>
 
@@ -245,10 +247,10 @@ export default function AdminRewards() {
                 <div className="flex items-center gap-1">
                   <TagIcon className="w-3.5 h-3.5 text-amber-400" />
                   <span className="text-sm font-bold text-amber-400">{reward.pointsRequired}</span>
-                  <span className="text-[10px] text-stone-500">баллов</span>
+                  <span className="text-[10px] text-stone-500">pts</span>
                 </div>
                 <span className="text-[11px] text-stone-500">
-                  Кол-во: {reward.availableQuantity}
+                  {t('adminRewards.qty')}: {reward.availableQuantity}
                 </span>
               </div>
 
@@ -259,7 +261,7 @@ export default function AdminRewards() {
                   className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-stone-800 border border-stone-700 text-stone-300 hover:border-amber-500/30 hover:text-amber-400 transition-all text-xs"
                 >
                   <PencilSquareIcon className="w-3.5 h-3.5" />
-                  Изменить
+                  {t('adminRewards.edit')}
                 </button>
                 <button
                   onClick={(e) => { e.stopPropagation(); setDeleteConfirm(reward.id); }}
@@ -292,7 +294,7 @@ export default function AdminRewards() {
             >
               <div className="flex items-center justify-between px-6 py-4 border-b border-stone-800">
                 <h3 className="text-lg font-semibold text-white">
-                  {editingId ? 'Редактирование награды' : 'Новая награда'}
+                  {editingId ? t('adminRewards.editReward') : t('adminRewards.newReward')}
                 </h3>
                 <button onClick={closeModal} className="p-1.5 rounded-lg hover:bg-stone-800 transition-colors">
                   <XMarkIcon className="w-5 h-5 text-stone-500" />
@@ -300,7 +302,7 @@ export default function AdminRewards() {
               </div>
               <form onSubmit={handleSubmit} className="p-6 space-y-4">
                 <div>
-                  <label className="block text-xs font-medium text-stone-500 mb-1.5 uppercase tracking-wider">Название</label>
+                  <label className="block text-xs font-medium text-stone-500 mb-1.5 uppercase tracking-wider">{t('adminRewards.nameLabel')}</label>
                   <input
                     type="text"
                     required
@@ -311,7 +313,7 @@ export default function AdminRewards() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-stone-500 mb-1.5 uppercase tracking-wider">Описание</label>
+                  <label className="block text-xs font-medium text-stone-500 mb-1.5 uppercase tracking-wider">{t('adminRewards.descLabel')}</label>
                   <textarea
                     value={form.description}
                     onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -322,7 +324,7 @@ export default function AdminRewards() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-medium text-stone-500 mb-1.5 uppercase tracking-wider">Баллы</label>
+                    <label className="block text-xs font-medium text-stone-500 mb-1.5 uppercase tracking-wider">{t('adminRewards.pointsLabel')}</label>
                     <input
                       type="number"
                       min={1}
@@ -333,7 +335,7 @@ export default function AdminRewards() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-stone-500 mb-1.5 uppercase tracking-wider">Кол-во</label>
+                    <label className="block text-xs font-medium text-stone-500 mb-1.5 uppercase tracking-wider">{t('adminRewards.qty')}</label>
                     <input
                       type="number"
                       min={0}
@@ -345,19 +347,19 @@ export default function AdminRewards() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-stone-500 mb-1.5 uppercase tracking-wider">Категория</label>
+                  <label className="block text-xs font-medium text-stone-500 mb-1.5 uppercase tracking-wider">{t('adminRewards.categoryLabel')}</label>
                   <select
                     value={form.category}
                     onChange={(e) => setForm({ ...form, category: e.target.value })}
                     className="w-full bg-stone-800 border border-stone-700 rounded-xl px-4 py-2.5 text-sm text-stone-300 focus:outline-none focus:border-amber-500/50 appearance-none cursor-pointer"
                   >
-                    {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
-                      <option key={key} value={key}>{label}</option>
+                    {Object.entries(CATEGORY_LABEL_KEYS).map(([key, labelKey]) => (
+                      <option key={key} value={key}>{t(labelKey)}</option>
                     ))}
                   </select>
                 </div>
                 <div className="flex items-center justify-between py-2">
-                  <span className="text-sm text-stone-300">Активна</span>
+                  <span className="text-sm text-stone-300">{t('adminRewards.active')}</span>
                   <button
                     type="button"
                     onClick={() => setForm({ ...form, isActive: !form.isActive })}
@@ -376,14 +378,14 @@ export default function AdminRewards() {
                     disabled={isSaving}
                     className="flex-1 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-black font-bold py-2.5 rounded-xl transition-all text-sm"
                   >
-                    {isSaving ? 'Сохранение...' : editingId ? 'Сохранить' : 'Создать'}
+                    {isSaving ? t('adminRewards.saving') : editingId ? t('common.save') : t('adminRewards.create')}
                   </button>
                   <button
                     type="button"
                     onClick={closeModal}
                     className="px-6 py-2.5 rounded-xl text-sm font-medium border border-stone-700 text-stone-400 hover:bg-stone-800 transition-all"
                   >
-                    Отмена
+                    {t('common.cancel')}
                   </button>
                 </div>
               </form>
@@ -409,15 +411,15 @@ export default function AdminRewards() {
               className="bg-stone-900 border border-stone-800 rounded-2xl w-full max-w-sm shadow-2xl p-6"
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 className="text-lg font-semibold text-white mb-2">Удалить награду?</h3>
-              <p className="text-sm text-stone-400 mb-6">Это действие нельзя отменить. Награда будет удалена навсегда.</p>
+              <h3 className="text-lg font-semibold text-white mb-2">{t('adminRewards.deleteConfirm')}</h3>
+              <p className="text-sm text-stone-400 mb-6">{t('adminRewards.deleteWarning')}</p>
               <div className="flex gap-3">
                 <button
                   onClick={() => deleteMutation.mutate(deleteConfirm)}
                   disabled={deleteMutation.isPending}
                   className="flex-1 bg-red-500 hover:bg-red-400 disabled:opacity-50 text-white font-bold py-2.5 rounded-xl transition-all text-sm"
                 >
-                  {deleteMutation.isPending ? 'Удаление...' : 'Удалить'}
+                  {deleteMutation.isPending ? t('adminRewards.deleting') : t('adminRewards.delete')}
                 </button>
                 <button
                   onClick={() => setDeleteConfirm(null)}
