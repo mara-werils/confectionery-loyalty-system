@@ -70,7 +70,7 @@ export default function Referrals() {
     mutationFn: (code: string) => api.referrals.applyCode(code),
     onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: ['referrals'] });
-      toast.success(`Реферал применён! Приглашён: ${(res as { data: { referrer: string } }).data?.referrer}`);
+      toast.success(t('referrals.applied', { referrer: (res as { data: { referrer: string } }).data?.referrer }));
       setShowApply(false);
       setApplyCode('');
     },
@@ -209,7 +209,7 @@ export default function Referrals() {
                 <div>
                   <p className="text-sm font-semibold text-white">{ref.companyName}</p>
                   <p className="text-xs text-stone-500">
-                    Присоединился {new Date(ref.createdAt).toLocaleDateString('ru-RU', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    {t('referrals.joined')} {new Date(ref.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                   </p>
                 </div>
                 <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${tierColor[ref.tier] || tierColor.BRONZE}`}>
@@ -236,7 +236,7 @@ export default function Referrals() {
                 </span>
                 <p className="flex-1 text-sm font-medium text-stone-200">{entry.companyName}</p>
                 <span className="text-sm font-bold text-white">{entry.referralCount}</span>
-                <span className="text-xs text-stone-500">реф.</span>
+                <span className="text-xs text-stone-500">{t('referrals.refs')}</span>
               </div>
             ))}
           </div>

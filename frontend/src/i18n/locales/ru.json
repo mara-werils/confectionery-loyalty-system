@@ -26,7 +26,18 @@
     "mintingCert": "Чеканка бизнес-сертификата (SBT) на кошелек...",
     "mintSuccess": "SBT сертификат успешно отчеканен!",
     "minting": "Чеканка...",
-    "getDemoCert": "Получить демо бизнес-сертификат (SBT)"
+    "getDemoCert": "Получить демо бизнес-сертификат (SBT)",
+    "poweredByTon": "На базе TON",
+    "howItWorks": "Как это работает",
+    "step1Title": "Подключите TON-кошелёк",
+    "step1Desc": "Привяжите кошелёк для начала работы — регистрация не нужна.",
+    "step2Title": "Покупайте у партнёров",
+    "step2Desc": "Совершайте покупки в кондитерских сети Sweet Network.",
+    "step3Title": "Копите SWEET и получайте награды",
+    "step3Desc": "Накапливайте токены SWEET и обменивайте их на реальные награды.",
+    "footer": "Кондитерская лояльность · AITU 2026",
+    "walletNotConnected": "Кошелёк не подключён",
+    "serverCheckError": "Ошибка проверки на сервере"
   },
   "register": {
     "title": "Регистрация бизнеса",
@@ -63,7 +74,24 @@
     "recentCashback": "Последний кэшбэк",
     "noTransactions": "Транзакций пока нет",
     "noTransactionsHint": "Покажите QR-код в партнёрской кондитерской для получения SWEET",
-    "cashback": "Кэшбэк"
+    "cashback": "Кэшбэк",
+    "sweetBalance": "Баланс SWEET",
+    "sweetTokens": "токены SWEET",
+    "creditedToWallet": "Зачислено на кошелёк",
+    "sweetReceived": "+{{amount}} SWEET получено!",
+    "exchange": "Обменять",
+    "achievementsTitle": "Достижения",
+    "nftBadges": "NFT значки",
+    "myAchievements": "Мои достижения",
+    "viewAll": "Все",
+    "tierBronze": "Бронза",
+    "tierSilver": "Серебро",
+    "tierGold": "Золото",
+    "toNext": "до {{next}}",
+    "justNow": "только что",
+    "minsAgo": "{{n}} мин назад",
+    "hoursAgo": "{{n}} ч назад",
+    "daysAgo": "{{n}} д назад"
   },
   "rewards": {
     "title": "Каталог наград",
@@ -387,7 +415,10 @@
     "applyFailed": "Не удалось применить реферальный код",
     "copied": "Скопировано!",
     "referredPartners": "Приглашённые партнёры",
-    "topReferrers": "Лидеры рефералов"
+    "topReferrers": "Лидеры рефералов",
+    "applied": "Реферал применён! Приглашён: {{referrer}}",
+    "refs": "реф.",
+    "joined": "Присоединился"
   },
   "governance": {
     "title": "Управление DAO",
@@ -467,6 +498,40 @@
       "minRequirement": "Минимум 100 GOV для создания предложения. У вас: 1,250 GOV",
       "submit": "Опубликовать предложение"
     }
+  },
+  "settings": {
+    "title": "Настройки",
+    "tabs": {
+      "security": "Безопасность",
+      "notifications": "Уведомления",
+      "help": "Помощь"
+    },
+    "connectedWallet": "Подключённый кошелёк",
+    "notConnected": "Не подключён",
+    "addressCopied": "Адрес скопирован!",
+    "twoFactor": "Двухфакторная аутентификация",
+    "twoFactorDesc": "Дополнительная защита аккаунта",
+    "accountSecured": "Аккаунт защищён",
+    "accountSecuredDesc": "Кошелёк безопасно подключён через TonConnect",
+    "pushNotifications": "Push-уведомления",
+    "pushNotificationsDesc": "Получать push-оповещения",
+    "transactionAlerts": "Оповещения о транзакциях",
+    "transactionAlertsDesc": "Уведомлять о новых транзакциях",
+    "emailNotifications": "Email-уведомления",
+    "emailNotificationsDesc": "Важные обновления по email",
+    "marketingEmails": "Маркетинговые рассылки",
+    "marketingEmailsDesc": "Акции и специальные предложения",
+    "faqTitle": "Часто задаваемые вопросы",
+    "faq1q": "Как заработать токены SWEET?",
+    "faq1a": "Вы получаете SWEET за каждую покупку у партнёрских кондитерских. 1₸ = 1 SWEET балл.",
+    "faq2q": "Можно ли перевести токены на другой кошелёк?",
+    "faq2a": "Да! SWEET — стандартные TON Jetton-ы. Их можно перевести на любой совместимый кошелёк.",
+    "faq3q": "Как получить награду?",
+    "faq3a": "Перейдите во вкладку «Награды», выберите награду и нажмите «Получить». Покажите подтверждение партнёру.",
+    "faq4q": "Что такое токены GOV?",
+    "faq4a": "GOV-токены дают вам право голоса в DAO. Вы можете участвовать в управлении проектом.",
+    "supportSent": "Запрос в поддержку отправлен!",
+    "contactSupport": "Связаться с поддержкой"
   },
   "achievements": {
     "title": "Достижения",

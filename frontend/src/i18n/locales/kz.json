@@ -26,7 +26,18 @@
     "mintingCert": "Бизнес-сертификатын (SBT) әмиянға шығару...",
     "mintSuccess": "SBT сертификаты сәтті шығарылды!",
     "minting": "Шығарылуда...",
-    "getDemoCert": "Демо бизнес-сертификатын алу (SBT)"
+    "getDemoCert": "Демо бизнес-сертификатын алу (SBT)",
+    "poweredByTon": "TON негізінде",
+    "howItWorks": "Қалай жұмыс істейді",
+    "step1Title": "TON әмиянын қосыңыз",
+    "step1Desc": "Бастау үшін әмиянды байлаңыз — тіркелу қажет емес.",
+    "step2Title": "Серіктестерден сатып алыңыз",
+    "step2Desc": "Sweet Network кондитерліктерінде сатып алу жасаңыз.",
+    "step3Title": "SWEET жинап, сыйлықтар алыңыз",
+    "step3Desc": "SWEET токендерін жинап, нақты сыйлықтарға айырбастаңыз.",
+    "footer": "Кондитерлік адалдық · AITU 2026",
+    "walletNotConnected": "Әмиян қосылмаған",
+    "serverCheckError": "Серверде тексеру қатесі"
   },
   "register": {
     "title": "Бизнесті тіркеу",
@@ -63,7 +74,24 @@
     "recentCashback": "Соңғы кэшбэк",
     "noTransactions": "Әзірге транзакциялар жоқ",
     "noTransactionsHint": "SWEET алу үшін серіктес кондитерлікте QR кодын көрсетіңіз",
-    "cashback": "Кэшбэк"
+    "cashback": "Кэшбэк",
+    "sweetBalance": "SWEET балансы",
+    "sweetTokens": "SWEET токендер",
+    "creditedToWallet": "Әмиянға аударылды",
+    "sweetReceived": "+{{amount}} SWEET алынды!",
+    "exchange": "Айырбастау",
+    "achievementsTitle": "Жетістіктер",
+    "nftBadges": "NFT белгілер",
+    "myAchievements": "Менің жетістіктерім",
+    "viewAll": "Барлығы",
+    "tierBronze": "Қола",
+    "tierSilver": "Күміс",
+    "tierGold": "Алтын",
+    "toNext": "{{next}} дейін",
+    "justNow": "жаңа ғана",
+    "minsAgo": "{{n}} мин бұрын",
+    "hoursAgo": "{{n}} сағ бұрын",
+    "daysAgo": "{{n}} күн бұрын"
   },
   "rewards": {
     "title": "Сыйлықтар каталогы",
@@ -387,7 +415,10 @@
     "applyFailed": "Реферал кодын қолдану сәтсіз аяқталды",
     "copied": "Көшірілді!",
     "referredPartners": "Шақырылған серіктестер",
-    "topReferrers": "Үздік рефералшылар"
+    "topReferrers": "Үздік рефералшылар",
+    "applied": "Реферал қолданылды! Шақырылды: {{referrer}}",
+    "refs": "реф.",
+    "joined": "Қосылды"
   },
   "governance": {
     "title": "DAO басқару",
@@ -467,6 +498,40 @@
       "minRequirement": "Ұсыныс жасау үшін кемінде 100 GOV қажет. Сізде: 1,250 GOV",
       "submit": "Ұсынысты жариялау"
     }
+  },
+  "settings": {
+    "title": "Параметрлер",
+    "tabs": {
+      "security": "Қауіпсіздік",
+      "notifications": "Хабарламалар",
+      "help": "Көмек"
+    },
+    "connectedWallet": "Қосылған әмиян",
+    "notConnected": "Қосылмаған",
+    "addressCopied": "Мекенжай көшірілді!",
+    "twoFactor": "Екі факторлы аутентификация",
+    "twoFactorDesc": "Аккаунтты қосымша қорғау",
+    "accountSecured": "Аккаунт қорғалған",
+    "accountSecuredDesc": "Әмиян TonConnect арқылы қауіпсіз қосылған",
+    "pushNotifications": "Push-хабарламалар",
+    "pushNotificationsDesc": "Push-ескертулер алу",
+    "transactionAlerts": "Транзакция ескертулері",
+    "transactionAlertsDesc": "Жаңа транзакциялар туралы хабарлау",
+    "emailNotifications": "Email-хабарламалар",
+    "emailNotificationsDesc": "Маңызды жаңартулар email арқылы",
+    "marketingEmails": "Маркетинг хаттары",
+    "marketingEmailsDesc": "Акциялар мен арнайы ұсыныстар",
+    "faqTitle": "Жиі қойылатын сұрақтар",
+    "faq1q": "SWEET токендерін қалай табуға болады?",
+    "faq1a": "Серіктес кондитерліктердегі әр сатып алу үшін SWEET аласыз. 1₸ = 1 SWEET ұпай.",
+    "faq2q": "Токендерді басқа әмиянға аударуға болады ма?",
+    "faq2a": "Иә! SWEET — стандартты TON Jetton. Оларды кез келген үйлесімді әмиянға аударуға болады.",
+    "faq3q": "Сыйлықты қалай алуға болады?",
+    "faq3a": "Сыйлықтар қойындысына өтіңіз, сыйлықты таңдап, Алу батырмасын басыңыз. Растауды серіктеске көрсетіңіз.",
+    "faq4q": "GOV токендері дегеніміз не?",
+    "faq4a": "GOV токендері DAO-да дауыс беру құқығын береді. Жобаны басқаруға қатыса аласыз.",
+    "supportSent": "Қолдау сұрауы жіберілді!",
+    "contactSupport": "Қолдау қызметіне хабарласу"
   },
   "achievements": {
     "title": "Жетістіктер",

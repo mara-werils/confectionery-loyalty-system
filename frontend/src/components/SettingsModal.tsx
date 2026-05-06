@@ -13,6 +13,7 @@ import {
 import { useTonWallet } from '@tonconnect/ui-react';
 import clsx from 'clsx';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 
 type TabType = 'security' | 'notifications' | 'help';
 
@@ -22,35 +23,24 @@ interface SettingsModalProps {
   initialTab?: TabType;
 }
 
-const tabs = [
-  { key: 'security' as const, label: 'Безопасность', icon: ShieldCheckIcon },
-  { key: 'notifications' as const, label: 'Уведомления', icon: BellIcon },
-  { key: 'help' as const, label: 'Помощь', icon: QuestionMarkCircleIcon },
-];
-
-const faqs = [
-  {
-    question: 'Как заработать токены SWEET?',
-    answer: 'Вы получаете SWEET за каждую покупку у партнёрских кондитерских. 1₸ = 1 SWEET балл.',
-  },
-  {
-    question: 'Можно ли перевести токены на другой кошелёк?',
-    answer: 'Да! SWEET — стандартные TON Jetton-ы. Их можно перевести на любой совместимый кошелёк.',
-  },
-  {
-    question: 'Как получить награду?',
-    answer: 'Перейдите во вкладку «Награды», выберите награду и нажмите «Получить». Покажите подтверждение партнёру.',
-  },
-  {
-    question: 'Что такое токены GOV?',
-    answer: 'GOV-токены дают вам право голоса в DAO. Вы можете участвовать в управлении проектом.',
-  },
+const tabKeys = [
+  { key: 'security' as const, icon: ShieldCheckIcon },
+  { key: 'notifications' as const, icon: BellIcon },
+  { key: 'help' as const, icon: QuestionMarkCircleIcon },
 ];
 
 export default function SettingsModal({ isOpen, onClose, initialTab = 'security' }: SettingsModalProps) {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<TabType>(initialTab);
   const [copied, setCopied] = useState(false);
   const wallet = useTonWallet();
+
+  const faqs = [
+    { question: t('settings.faq1q'), answer: t('settings.faq1a') },
+    { question: t('settings.faq2q'), answer: t('settings.faq2a') },
+    { question: t('settings.faq3q'), answer: t('settings.faq3a') },
+    { question: t('settings.faq4q'), answer: t('settings.faq4a') },
+  ];
   
   // Settings state
   const [settings, setSettings] = useState({
@@ -67,7 +57,7 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
     if (wallet?.account.address) {
       navigator.clipboard.writeText(wallet.account.address);
       setCopied(true);
-      toast.success('Адрес скопирован!');
+      toast.success(t('settings.addressCopied'));
       setTimeout(() => setCopied(false), 2000);
     }
   };
@@ -110,7 +100,7 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b border-white/10">
                   <Dialog.Title className="text-lg font-bold text-white">
-                    Настройки
+                    {t('settings.title')}
                   </Dialog.Title>
                   <button
                     onClick={onClose}
@@ -122,7 +112,7 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
 
                 {/* Tabs */}
                 <div className="flex border-b border-white/10">
-                  {tabs.map((tab) => (
+                  {tabKeys.map((tab) => (
                     <button
                       key={tab.key}
                       onClick={() => setActiveTab(tab.key)}
@@ -134,7 +124,7 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
                       )}
                     >
                       <tab.icon className="w-4 h-4" />
-                      {tab.label}
+                      {t(`settings.tabs.${tab.key}`)}
                     </button>
                   ))}
                 </div>
@@ -152,10 +142,10 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
                       >
                         {/* Wallet Address */}
                         <div className="bg-white/5 rounded-xl p-4">
-                          <p className="text-xs text-gray-500 mb-2">Подключённый кошелёк</p>
+                          <p className="text-xs text-gray-500 mb-2">{t('settings.connectedWallet')}</p>
                           <div className="flex items-center gap-2">
                             <code className="flex-1 text-sm text-gray-300 font-mono truncate">
-                              {wallet?.account.address || 'Не подключён'}
+                              {wallet?.account.address || t('settings.notConnected')}
                             </code>
                             <button
                               onClick={handleCopyAddress}
@@ -173,8 +163,8 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
                         {/* 2FA Toggle */}
                         <div className="flex items-center justify-between bg-white/5 rounded-xl p-4">
                           <div>
-                            <p className="font-medium text-white">Двухфакторная аутентификация</p>
-                            <p className="text-xs text-gray-500">Дополнительная защита аккаунта</p>
+                            <p className="font-medium text-white">{t('settings.twoFactor')}</p>
+                            <p className="text-xs text-gray-500">{t('settings.twoFactorDesc')}</p>
                           </div>
                           <Switch
                             checked={settings.twoFactorEnabled}
@@ -197,8 +187,8 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
                         <div className="flex items-center gap-3 bg-green-500/10 rounded-xl p-4 border border-green-500/20">
                           <ShieldCheckIcon className="w-8 h-8 text-green-400" />
                           <div>
-                            <p className="font-medium text-green-400">Аккаунт защищён</p>
-                            <p className="text-xs text-green-400/70">Кошелёк безопасно подключён через TonConnect</p>
+                            <p className="font-medium text-green-400">{t('settings.accountSecured')}</p>
+                            <p className="text-xs text-green-400/70">{t('settings.accountSecuredDesc')}</p>
                           </div>
                         </div>
                       </motion.div>
@@ -213,10 +203,10 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
                         className="space-y-3"
                       >
                         {[
-                          { key: 'pushNotifications' as const, label: 'Push-уведомления', desc: 'Получать push-оповещения' },
-                          { key: 'transactionAlerts' as const, label: 'Оповещения о транзакциях', desc: 'Уведомлять о новых транзакциях' },
-                          { key: 'emailNotifications' as const, label: 'Email-уведомления', desc: 'Важные обновления по email' },
-                          { key: 'marketingEmails' as const, label: 'Маркетинговые рассылки', desc: 'Акции и специальные предложения' },
+                          { key: 'pushNotifications' as const, label: t('settings.pushNotifications'), desc: t('settings.pushNotificationsDesc') },
+                          { key: 'transactionAlerts' as const, label: t('settings.transactionAlerts'), desc: t('settings.transactionAlertsDesc') },
+                          { key: 'emailNotifications' as const, label: t('settings.emailNotifications'), desc: t('settings.emailNotificationsDesc') },
+                          { key: 'marketingEmails' as const, label: t('settings.marketingEmails'), desc: t('settings.marketingEmailsDesc') },
                         ].map((item) => (
                           <div key={item.key} className="flex items-center justify-between bg-white/5 rounded-xl p-4">
                             <div>
@@ -251,7 +241,7 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
                         exit={{ opacity: 0, x: 10 }}
                         className="space-y-3"
                       >
-                        <p className="text-sm text-gray-400 mb-4">Часто задаваемые вопросы</p>
+                        <p className="text-sm text-gray-400 mb-4">{t('settings.faqTitle')}</p>
                         
                         {faqs.map((faq, index) => (
                           <div key={index} className="bg-white/5 rounded-xl overflow-hidden">
@@ -285,12 +275,12 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
                         {/* Contact Support */}
                         <button
                           onClick={() => {
-                            toast.success('Запрос в поддержку отправлен!');
+                            toast.success(t('settings.supportSent'));
                             onClose();
                           }}
                           className="w-full mt-4 py-3 bg-amber-500 text-black hover:bg-amber-400 rounded-xl font-bold transition-colors"
                         >
-                          Связаться с поддержкой
+                          {t('settings.contactSupport')}
                         </button>
                       </motion.div>
                     )}

@@ -26,7 +26,18 @@
     "mintingCert": "Minting Business Certificate SBT...",
     "mintSuccess": "SBT Certificate successfully minted to your wallet!",
     "minting": "Minting...",
-    "getDemoCert": "Get Demo Business Certificate (SBT)"
+    "getDemoCert": "Get Demo Business Certificate (SBT)",
+    "poweredByTon": "Powered by TON",
+    "howItWorks": "How it works",
+    "step1Title": "Connect your TON wallet",
+    "step1Desc": "Link your wallet to get started — no registration needed.",
+    "step2Title": "Shop at partner stores",
+    "step2Desc": "Make purchases at Sweet Network confectioneries.",
+    "step3Title": "Earn SWEET and claim rewards",
+    "step3Desc": "Accumulate SWEET tokens and exchange them for real rewards.",
+    "footer": "Confectionery loyalty · AITU 2026",
+    "walletNotConnected": "Wallet not connected",
+    "serverCheckError": "Server verification error"
   },
   "register": {
     "title": "Business Registration",
@@ -63,7 +74,24 @@
     "recentCashback": "Recent Cashback",
     "noTransactions": "No transactions yet",
     "noTransactionsHint": "Show your QR code at a partner confectionery to earn SWEET",
-    "cashback": "Cashback"
+    "cashback": "Cashback",
+    "sweetBalance": "SWEET Balance",
+    "sweetTokens": "SWEET tokens",
+    "creditedToWallet": "Credited to wallet",
+    "sweetReceived": "+{{amount}} SWEET received!",
+    "exchange": "Exchange",
+    "achievementsTitle": "Achievements",
+    "nftBadges": "NFT badges",
+    "myAchievements": "My achievements",
+    "viewAll": "All",
+    "tierBronze": "Bronze",
+    "tierSilver": "Silver",
+    "tierGold": "Gold",
+    "toNext": "to {{next}}",
+    "justNow": "just now",
+    "minsAgo": "{{n}} min ago",
+    "hoursAgo": "{{n}} h ago",
+    "daysAgo": "{{n}} d ago"
   },
   "rewards": {
     "title": "Rewards Catalog",
@@ -387,7 +415,10 @@
     "applyFailed": "Failed to apply referral code",
     "copied": "Copied to clipboard!",
     "referredPartners": "Partners You Referred",
-    "topReferrers": "Top Referrers"
+    "topReferrers": "Top Referrers",
+    "applied": "Referral applied! Invited: {{referrer}}",
+    "refs": "refs",
+    "joined": "Joined"
   },
   "governance": {
     "title": "DAO Governance",
@@ -496,6 +527,40 @@
     "noNew": "No new achievements yet.",
     "checkFailed": "Failed to check achievements",
     "emptyCategory": "No achievements in this category yet."
+  },
+  "settings": {
+    "title": "Settings",
+    "tabs": {
+      "security": "Security",
+      "notifications": "Notifications",
+      "help": "Help"
+    },
+    "connectedWallet": "Connected wallet",
+    "notConnected": "Not connected",
+    "addressCopied": "Address copied!",
+    "twoFactor": "Two-factor authentication",
+    "twoFactorDesc": "Additional account protection",
+    "accountSecured": "Account secured",
+    "accountSecuredDesc": "Wallet securely connected via TonConnect",
+    "pushNotifications": "Push notifications",
+    "pushNotificationsDesc": "Receive push alerts",
+    "transactionAlerts": "Transaction alerts",
+    "transactionAlertsDesc": "Notify about new transactions",
+    "emailNotifications": "Email notifications",
+    "emailNotificationsDesc": "Important updates via email",
+    "marketingEmails": "Marketing emails",
+    "marketingEmailsDesc": "Promotions and special offers",
+    "faqTitle": "Frequently asked questions",
+    "faq1q": "How to earn SWEET tokens?",
+    "faq1a": "You earn SWEET for every purchase at partner confectioneries. 1₸ = 1 SWEET point.",
+    "faq2q": "Can I transfer tokens to another wallet?",
+    "faq2a": "Yes! SWEET are standard TON Jettons. You can transfer them to any compatible wallet.",
+    "faq3q": "How to claim a reward?",
+    "faq3a": "Go to the Rewards tab, choose a reward and tap Claim. Show the confirmation to the partner.",
+    "faq4q": "What are GOV tokens?",
+    "faq4a": "GOV tokens give you voting rights in the DAO. You can participate in project governance.",
+    "supportSent": "Support request sent!",
+    "contactSupport": "Contact support"
   },
   "admin": {
     "title": "Admin Control Panel",
