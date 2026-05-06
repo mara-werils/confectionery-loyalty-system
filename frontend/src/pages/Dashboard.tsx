@@ -131,7 +131,7 @@ export default function Dashboard() {
       {/* Header */}
       <div className="mb-8 border-b border-stone-800/80 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4 mt-4">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-white">
+          <h1 className="text-3xl font-bold tracking-tight text-white">
             {t('dashboard.title')}
           </h1>
           <p className="text-stone-400 mt-1.5 text-sm">{t('dashboard.subtitle')}</p>

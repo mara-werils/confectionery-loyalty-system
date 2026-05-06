@@ -68,6 +68,26 @@
   "rewards": {
     "title": "Сыйлықтар каталогы",
     "subtitle": "Серіктес кондитерліктерде SWEET-ті нақты сыйлықтарға айырбастаңыз",
+    "pointsForExchange": "ұпай айырбасқа",
+    "youHave": "Сізде",
+    "categories": {
+      "all": "Барлығы",
+      "discount": "Жеңілдіктер",
+      "product": "Өнімдер",
+      "cashback": "Кэшбэк"
+    },
+    "confirmClaim": "Бұл сыйлықты алғыңыз келетініне сенімдісіз бе?",
+    "emptyTitle": "Бұл санатта сыйлықтар жоқ",
+    "emptySubtitle": "Кейінірек тексеріңіз — жаңа ұсыныстар келеді!",
+    "categoryDiscount": "Жеңілдік",
+    "categoryProduct": "Өнім",
+    "categoryCashback": "Кэшбэк",
+    "categorySpecial": "Ерекше",
+    "remaining": "Қалды",
+    "claiming": "Алынуда...",
+    "unavailable": "Қолжетімсіз",
+    "needMore": "Тағы {{amount}} қажет",
+    "claim": "Алу",
     "backToDashboard": "Әмиянға оралу",
     "redeem": "Айырбастау",
     "available": "қолжетімді",
@@ -119,6 +139,15 @@
       "transactions": "Транзакциялар",
       "claims": "Алулар"
     },
+    "dateRange": {
+      "today": "Бүгін",
+      "week": "Апта",
+      "month": "Ай",
+      "all": "Барлығы"
+    },
+    "searchPlaceholder": "Түрі, сипаттамасы бойынша іздеу…",
+    "noExportData": "Экспорттауға деректер жоқ",
+    "csvExported": "CSV экспортталды!",
     "noTransactions": "Әзірге транзакциялар жоқ",
     "noTransactionsHint": "Ұпай жинау үшін сатып алу жасаңыз",
     "noClaims": "Алған ұпайлар жоқ",
@@ -438,6 +467,35 @@
       "minRequirement": "Ұсыныс жасау үшін кемінде 100 GOV қажет. Сізде: 1,250 GOV",
       "submit": "Ұсынысты жариялау"
     }
+  },
+  "achievements": {
+    "title": "Жетістіктер",
+    "categories": {
+      "all": "Барлығы",
+      "transactions": "Транзакциялар",
+      "referrals": "Рефералдар",
+      "spending": "Ұпайлар",
+      "general": "Жетістіктер"
+    },
+    "stats": {
+      "unlocked": "Ашылған",
+      "progress": "Прогресс",
+      "nftMinted": "NFT шығарылған"
+    },
+    "sbtBanner": "Soul-Bound Token TON testnet-те шығарылды",
+    "sbtBannerDesc": "Жетістіктеріңіз блокчейнде мәңгілікке жазылды — кез келген ашылған белгішені қараңыз.",
+    "nftOnchain": "NFT желіде",
+    "sbtLabel": "Soul-Bound Token (SBT)",
+    "viewTx": "TON testnet-те транзакцияны қарау",
+    "nftMinting": "NFT шығарылуда…",
+    "remaining": "Қалды",
+    "unlockedAt": "Ашылған",
+    "checking": "Тексеру…",
+    "check": "Тексеру",
+    "newlyUnlocked": "Ашылды: {{items}}",
+    "noNew": "Жаңа жетістіктер әлі жоқ.",
+    "checkFailed": "Жетістіктерді тексеру сәтсіз аяқталды",
+    "emptyCategory": "Бұл санатта жетістіктер жоқ."
   },
   "admin": {
     "title": "Әкімші тақтасы",

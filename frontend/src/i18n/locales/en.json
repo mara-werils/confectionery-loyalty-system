@@ -68,6 +68,26 @@
   "rewards": {
     "title": "Rewards Catalog",
     "subtitle": "Exchange SWEET for real rewards at partner confectioneries",
+    "pointsForExchange": "points for exchange",
+    "youHave": "You have",
+    "categories": {
+      "all": "All",
+      "discount": "Discounts",
+      "product": "Products",
+      "cashback": "Cashback"
+    },
+    "confirmClaim": "Are you sure you want to claim this reward?",
+    "emptyTitle": "No rewards in this category",
+    "emptySubtitle": "Check back later — new offers coming soon!",
+    "categoryDiscount": "Discount",
+    "categoryProduct": "Product",
+    "categoryCashback": "Cashback",
+    "categorySpecial": "Special",
+    "remaining": "Left",
+    "claiming": "Claiming...",
+    "unavailable": "Unavailable",
+    "needMore": "Need {{amount}} more",
+    "claim": "Claim",
     "backToDashboard": "Back to Dashboard",
     "redeem": "Redeem",
     "available": "available",
@@ -119,6 +139,15 @@
       "transactions": "Transactions",
       "claims": "Claims"
     },
+    "dateRange": {
+      "today": "Today",
+      "week": "Week",
+      "month": "Month",
+      "all": "All"
+    },
+    "searchPlaceholder": "Search by type, description…",
+    "noExportData": "No data to export",
+    "csvExported": "CSV exported!",
     "noTransactions": "No transactions yet",
     "noTransactionsHint": "Make a purchase to start earning points",
     "noClaims": "No claims yet",
@@ -438,6 +467,35 @@
       "minRequirement": "Minimum 100 GOV required to create a proposal. You have: 1,250 GOV",
       "submit": "Publish Proposal"
     }
+  },
+  "achievements": {
+    "title": "Achievements",
+    "categories": {
+      "all": "All",
+      "transactions": "Transactions",
+      "referrals": "Referrals",
+      "spending": "Points",
+      "general": "Achievements"
+    },
+    "stats": {
+      "unlocked": "Unlocked",
+      "progress": "Progress",
+      "nftMinted": "NFT Minted"
+    },
+    "sbtBanner": "Soul-Bound Token(s) minted on TON testnet",
+    "sbtBannerDesc": "Your achievements are permanently recorded on the blockchain — tap any unlocked badge to view.",
+    "nftOnchain": "NFT on-chain",
+    "sbtLabel": "Soul-Bound Token (SBT)",
+    "viewTx": "View transaction on TON testnet",
+    "nftMinting": "NFT is being minted…",
+    "remaining": "Remaining",
+    "unlockedAt": "Unlocked",
+    "checking": "Checking…",
+    "check": "Check",
+    "newlyUnlocked": "Unlocked: {{items}}",
+    "noNew": "No new achievements yet.",
+    "checkFailed": "Failed to check achievements",
+    "emptyCategory": "No achievements in this category yet."
   },
   "admin": {
     "title": "Admin Control Panel",

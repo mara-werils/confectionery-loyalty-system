@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { GiftIcon, SparklesIcon, TagIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
+import { useTranslation } from 'react-i18next';
 
 interface RewardCardProps {
   id: string;
@@ -43,6 +44,7 @@ export default function RewardCard({
   onClaim,
   isClaimPending,
 }: RewardCardProps) {
+  const { t } = useTranslation();
   const points = Number(pointsRequired);
   const canAfford = currentBalance >= points;
   const isAvailable = isActive && available > 0;
@@ -83,13 +85,13 @@ export default function RewardCard({
           )}
         >
           <CategoryIcon className="w-3.5 h-3.5" />
-          {category === 'DISCOUNT' ? 'Скидка' : category === 'PRODUCT' ? 'Продукт' : category === 'CASHBACK' ? 'Кэшбэк' : 'Особый'}
+          {category === 'DISCOUNT' ? t('rewards.categoryDiscount') : category === 'PRODUCT' ? t('rewards.categoryProduct') : category === 'CASHBACK' ? t('rewards.categoryCashback') : t('rewards.categorySpecial')}
         </div>
 
         {/* Availability badge */}
         {available > 0 && available <= 10 && (
           <div className="absolute top-3 right-3 bg-stone-800 text-stone-300 border border-white/10 px-2 py-0.5 rounded-full text-xs font-bold">
-            Осталось {available}
+            {t('rewards.remaining')} {available}
           </div>
         )}
       </div>
@@ -123,12 +125,12 @@ export default function RewardCard({
             )}
           >
             {isClaimPending
-              ? 'Получение...'
+              ? t('rewards.claiming')
               : !isAvailable
-              ? 'Недоступно'
+              ? t('rewards.unavailable')
               : !canAfford
-              ? `Нужно ещё ${(points - currentBalance).toLocaleString()}`
-              : 'Получить'}
+              ? t('rewards.needMore', { amount: (points - currentBalance).toLocaleString() })
+              : t('rewards.claim')}
           </button>
         </div>
       </div>

@@ -68,6 +68,26 @@
   "rewards": {
     "title": "Каталог наград",
     "subtitle": "Обменивайте SWEET на реальные награды в партнёрских кондитерских",
+    "pointsForExchange": "баллов для обмена",
+    "youHave": "У вас",
+    "categories": {
+      "all": "Все",
+      "discount": "Скидки",
+      "product": "Продукты",
+      "cashback": "Кэшбэк"
+    },
+    "confirmClaim": "Вы уверены, что хотите получить эту награду?",
+    "emptyTitle": "Нет наград в этой категории",
+    "emptySubtitle": "Заходите позже — появятся новые предложения!",
+    "categoryDiscount": "Скидка",
+    "categoryProduct": "Продукт",
+    "categoryCashback": "Кэшбэк",
+    "categorySpecial": "Особый",
+    "remaining": "Осталось",
+    "claiming": "Получение...",
+    "unavailable": "Недоступно",
+    "needMore": "Нужно ещё {{amount}}",
+    "claim": "Получить",
     "backToDashboard": "Назад к кошельку",
     "redeem": "Обменять",
     "available": "в наличии",
@@ -119,6 +139,15 @@
       "transactions": "Транзакции",
       "claims": "Получения"
     },
+    "dateRange": {
+      "today": "Сегодня",
+      "week": "Неделя",
+      "month": "Месяц",
+      "all": "Все"
+    },
+    "searchPlaceholder": "Поиск по типу, описанию…",
+    "noExportData": "Нет данных для экспорта",
+    "csvExported": "CSV экспортирован!",
     "noTransactions": "Транзакций пока нет",
     "noTransactionsHint": "Совершите покупку, чтобы накапливать баллы",
     "noClaims": "Нет полученных наград",
@@ -438,6 +467,35 @@
       "minRequirement": "Минимум 100 GOV для создания предложения. У вас: 1,250 GOV",
       "submit": "Опубликовать предложение"
     }
+  },
+  "achievements": {
+    "title": "Достижения",
+    "categories": {
+      "all": "Все",
+      "transactions": "Транзакции",
+      "referrals": "Рефералы",
+      "spending": "Баллы",
+      "general": "Достижения"
+    },
+    "stats": {
+      "unlocked": "Открыто",
+      "progress": "Прогресс",
+      "nftMinted": "NFT выпущено"
+    },
+    "sbtBanner": "Soul-Bound Token-ов выпущено в TON testnet",
+    "sbtBannerDesc": "Ваши достижения навсегда записаны в блокчейне — нажмите на любой открытый значок для просмотра.",
+    "nftOnchain": "NFT в сети",
+    "sbtLabel": "Soul-Bound Token (SBT)",
+    "viewTx": "Посмотреть транзакцию в TON testnet",
+    "nftMinting": "NFT выпускается…",
+    "remaining": "Осталось",
+    "unlockedAt": "Открыто",
+    "checking": "Проверка…",
+    "check": "Проверить",
+    "newlyUnlocked": "Открыто: {{items}}",
+    "noNew": "Новых достижений пока нет.",
+    "checkFailed": "Не удалось проверить достижения",
+    "emptyCategory": "Пока нет достижений в этой категории."
   },
   "admin": {
     "title": "Панель Администратора",

@@ -10,18 +10,12 @@ import { useTransactions, useLoyaltyHistory } from '../hooks/useApi';
 import { useAuthStore } from '../store/authStore';
 
 const tabs = [
-  { key: 'transactions', label: 'Транзакции', icon: ClockIcon },
-  { key: 'claims', label: 'Награды', icon: GiftIcon },
+  { key: 'transactions', icon: ClockIcon },
+  { key: 'claims', icon: GiftIcon },
 ];
 
 type DateRange = 'today' | 'week' | 'month' | 'all';
-
-const DATE_RANGE_LABELS: Record<DateRange, string> = {
-  today: 'Сегодня',
-  week: 'Неделя',
-  month: 'Месяц',
-  all: 'Все',
-};
+const DATE_RANGES: DateRange[] = ['today', 'week', 'month', 'all'];
 
 function getDateRangeStart(range: DateRange): Date | null {
   const now = new Date();
@@ -41,9 +35,9 @@ function getDateRangeStart(range: DateRange): Date | null {
   return null;
 }
 
-function exportToCSV(data: Record<string, unknown>[], filename: string) {
+function exportToCSV(data: Record<string, unknown>[], filename: string, t: (key: string) => string) {
   if (!data.length) {
-    toast.error('Нет данных для экспорта');
+    toast.error(t('history.noExportData'));
     return;
   }
   const headers = Object.keys(data[0]);
@@ -58,7 +52,7 @@ function exportToCSV(data: Record<string, unknown>[], filename: string) {
   a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
-  toast.success('CSV экспортирован!');
+  toast.success(t('history.csvExported'));
 }
 
 export default function History() {
@@ -130,7 +124,8 @@ export default function History() {
           description: tx.description || '',
           date: new Date(tx.createdAt).toLocaleString(),
         })),
-        'sweet_transactions.csv'
+        'sweet_transactions.csv',
+        t
       );
     } else {
       exportToCSV(
@@ -141,7 +136,8 @@ export default function History() {
           status: c.status,
           date: new Date(c.createdAt).toLocaleString(),
         })),
-        'sweet_claims.csv'
+        'sweet_claims.csv',
+        t
       );
     }
   };
@@ -175,14 +171,14 @@ export default function History() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Поиск по типу, описанию…"
+            placeholder={t('history.searchPlaceholder')}
             className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-stone-900 border border-stone-800 text-sm text-white placeholder-stone-600 focus:outline-none focus:border-stone-600 transition-colors"
           />
         </div>
 
         {/* Date range tab row */}
         <div className="flex gap-1.5">
-          {(Object.keys(DATE_RANGE_LABELS) as DateRange[]).map((range) => (
+          {DATE_RANGES.map((range) => (
             <button
               key={range}
               onClick={() => setDateRange(range)}
@@ -193,7 +189,7 @@ export default function History() {
                   : 'bg-stone-900 text-stone-500 hover:text-stone-300 border border-stone-800 hover:border-stone-700'
               )}
             >
-              {DATE_RANGE_LABELS[range]}
+              {t(`history.dateRange.${range}`)}
             </button>
           ))}
         </div>
