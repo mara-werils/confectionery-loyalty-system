@@ -226,7 +226,12 @@
     "exchange": "Обмен",
     "blockchain": "Блокчейн",
     "profile": "Профиль",
-    "staking": "Стейкинг"
+    "staking": "Стейкинг",
+    "verify": "Проверка",
+    "ai": "AI",
+    "referrals": "Рефы",
+    "governance": "DAO",
+    "analytics": "Аналитика"
   },
   "staking": {
     "title": "Стейкинг",

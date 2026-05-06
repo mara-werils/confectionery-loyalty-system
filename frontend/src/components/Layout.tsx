@@ -40,12 +40,12 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
 
   const businessNavItems = [
     { path: '/business/dashboard', label: t('nav.pos'),       icon: HomeIcon,            activeIcon: HomeIconSolid },
-    { path: '/business/verify-coupon', label: 'Проверка',     icon: QrCodeIcon,          activeIcon: QrCodeIconSolid },
-    { path: '/ai',                 label: 'AI',               icon: SparklesIcon,        activeIcon: SparklesIconSolid },
-    { path: '/blockchain',         label: t('nav.blockchain'), icon: CubeTransparentIcon, activeIcon: CubeTransparentIconSolid },
-    { path: '/referrals',          label: 'Рефы',             icon: UserPlusIcon,        activeIcon: UserPlusIconSolid },
-    { path: '/governance',         label: 'DAO',              icon: ShieldCheckIcon,     activeIcon: ShieldCheckIconSolid },
-    { path: '/analytics',          label: 'Аналитика',        icon: PresentationChartBarIcon, activeIcon: PresentationChartBarIconSolid },
+    { path: '/business/verify-coupon', label: t('nav.verify'),     icon: QrCodeIcon,          activeIcon: QrCodeIconSolid },
+    { path: '/ai',                 label: t('nav.ai'),          icon: SparklesIcon,        activeIcon: SparklesIconSolid },
+    { path: '/blockchain',         label: t('nav.blockchain'),  icon: CubeTransparentIcon, activeIcon: CubeTransparentIconSolid },
+    { path: '/referrals',          label: t('nav.referrals'),   icon: UserPlusIcon,        activeIcon: UserPlusIconSolid },
+    { path: '/governance',         label: t('nav.governance'),  icon: ShieldCheckIcon,     activeIcon: ShieldCheckIconSolid },
+    { path: '/analytics',          label: t('nav.analytics'),   icon: PresentationChartBarIcon, activeIcon: PresentationChartBarIconSolid },
     { path: '/business/profile',   label: t('nav.profile'),   icon: UserCircleIcon,      activeIcon: UserCircleIconSolid },
   ];
 

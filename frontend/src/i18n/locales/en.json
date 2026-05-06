@@ -226,7 +226,12 @@
     "exchange": "Exchange",
     "blockchain": "Blockchain",
     "profile": "Profile",
-    "staking": "Staking"
+    "staking": "Staking",
+    "verify": "Verify",
+    "ai": "AI",
+    "referrals": "Refs",
+    "governance": "DAO",
+    "analytics": "Analytics"
   },
   "staking": {
     "title": "Staking",

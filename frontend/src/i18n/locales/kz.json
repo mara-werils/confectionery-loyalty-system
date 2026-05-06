@@ -226,7 +226,12 @@
     "exchange": "Айырбас",
     "blockchain": "Блокчейн",
     "profile": "Профиль",
-    "staking": "Стейкинг"
+    "staking": "Стейкинг",
+    "verify": "Тексеру",
+    "ai": "AI",
+    "referrals": "Рефтер",
+    "governance": "DAO",
+    "analytics": "Аналитика"
   },
   "staking": {
     "title": "Стейкинг",
