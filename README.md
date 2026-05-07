@@ -8,8 +8,6 @@
 
 This project implements a complete loyalty system for confectionery businesses (bakeries, cafes, pastry shops) in Kazakhstan. Partners earn loyalty points on purchases and can redeem them for rewards. The system is built on the TON blockchain for transparency and security.
 
-**AITU Diploma Project 2026**
-
 ### Key Features
 
 - **Blockchain-Powered**: Jetton tokens on TON for transparent point tracking
@@ -245,14 +243,6 @@ Before mainnet deployment:
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file.
-
-## Team
-
-**AITU Diploma Project Team 2026**
-
-- Smart Contracts Developer - Marlen Amanbayev
-- Backend Developer - Sayan Aukatov
-- Frontend Developer - Azamat Nagumanov
 
 ## Support
 
