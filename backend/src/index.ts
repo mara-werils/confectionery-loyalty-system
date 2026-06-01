@@ -80,6 +80,11 @@ app.use(cors({
   credentials: true,
 }));
 
+// BigInt → string serialization
+app.set('json replacer', (_key: string, value: unknown) =>
+  typeof value === 'bigint' ? value.toString() : value
+);
+
 // Request parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));

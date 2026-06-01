@@ -16,6 +16,7 @@ import { CheckCircleIcon as CheckCircleSolid } from '@heroicons/react/24/solid';
 import { useAuthStore } from '../../store/authStore';
 import { useTonWallet } from '@tonconnect/ui-react';
 import toast from 'react-hot-toast';
+import confetti from 'canvas-confetti';
 import { api } from '../../services/api';
 
 // ─── Data definitions ────────────────────────────────────────────────────────
@@ -273,6 +274,7 @@ export default function CustomerRewards() {
       addCoupon({ code, rewardTitleKey: reward.titleKey, partnerName: partner.name });
 
       setSheet({ code, reward, partner, expiresAt, daysLeft });
+      confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
     } catch (err: unknown) {
       toast.error((err as { message?: string })?.message ?? 'Ошибка при выдаче купона');
     } finally {

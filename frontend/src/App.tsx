@@ -1,21 +1,21 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useTonWallet } from '@tonconnect/ui-react';
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 
-// Pages
+// Pages — eagerly loaded (critical path)
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
-
 import History from './pages/History';
 import Profile from './pages/Profile';
-import Blockchain from './pages/Blockchain';
-import Swap from './pages/Swap';
 import Referrals from './pages/Referrals';
 import Stats from './pages/Stats';
 
-import AIPredictions from './pages/AIPredictions';
-import Achievements from './pages/Achievements';
-import Governance from './pages/Governance';
+// Pages — lazy loaded (heavy / secondary)
+const Blockchain = lazy(() => import('./pages/Blockchain'));
+const Swap = lazy(() => import('./pages/Swap'));
+const AIPredictions = lazy(() => import('./pages/AIPredictions'));
+const Achievements = lazy(() => import('./pages/Achievements'));
+const Governance = lazy(() => import('./pages/Governance'));
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -28,7 +28,7 @@ import AdminSettings from './pages/admin/AdminSettings';
 // New role-based pages
 import BusinessRegister from './pages/business/BusinessRegister';
 import CouponVerify from './pages/business/CouponVerify';
-import Analytics from './pages/business/Analytics';
+const Analytics = lazy(() => import('./pages/business/Analytics'));
 import CustomerDashboard from './pages/customer/CustomerDashboard';
 import CustomerRewards from './pages/customer/CustomerRewards';
 import Staking from './pages/customer/Staking';
@@ -36,6 +36,7 @@ import Staking from './pages/customer/Staking';
 // Components
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
+import { FEATURES } from './config/features';
 
 // Hooks
 import { useTelegram } from './hooks/useTelegram';
@@ -85,7 +86,14 @@ function App() {
     }
   }, [tg?.themeParams]);
 
+  const LazyFallback = (
+    <div className="min-h-screen bg-[#0d0b0a] flex items-center justify-center">
+      <div className="w-8 h-8 border-2 border-amber-400/30 border-t-amber-400 rounded-full animate-spin" />
+    </div>
+  );
+
   return (
+    <Suspense fallback={LazyFallback}>
     <Routes>
       {/* Public route */}
       <Route path="/" element={<Home />} />
@@ -111,9 +119,9 @@ function App() {
           <Route path="/business/verify-coupon" element={<CouponVerify />} />
           <Route path="/ai" element={<AIPredictions />} />
           <Route path="/blockchain" element={<Blockchain />} />
-          <Route path="/swap" element={<Swap />} />
+          <Route path="/swap" element={FEATURES.SWAP ? <Swap /> : <Navigate to="/business/dashboard" replace />} />
           <Route path="/referrals" element={<Referrals />} />
-          <Route path="/governance" element={<Governance />} />
+          <Route path="/governance" element={FEATURES.GOVERNANCE ? <Governance /> : <Navigate to="/business/dashboard" replace />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/business/profile" element={<Profile />} />
         </Route>
@@ -127,8 +135,8 @@ function App() {
           <Route path="/achievements" element={<Achievements />} />
           <Route path="/history" element={<History />} />
           <Route path="/stats" element={<Stats />} />
-          <Route path="/staking" element={<Staking />} />
-          <Route path="/customer/governance" element={<Governance />} />
+          <Route path="/staking" element={FEATURES.STAKING ? <Staking /> : <Navigate to="/customer/dashboard" replace />} />
+          <Route path="/customer/governance" element={FEATURES.GOVERNANCE ? <Governance /> : <Navigate to="/customer/dashboard" replace />} />
           <Route path="/customer/profile" element={<Profile />} />
         </Route>
       </Route>
@@ -141,6 +149,7 @@ function App() {
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </Suspense>
   );
 }
 

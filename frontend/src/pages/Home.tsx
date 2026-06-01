@@ -96,6 +96,14 @@ export default function Home() {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(245,158,11,0.08),transparent)]" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_40%_40%_at_80%_80%,rgba(180,122,90,0.05),transparent)]" />
 
+      {/* Testnet Demo Badge */}
+      <div className="absolute top-5 left-5 z-20">
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-500/10 border border-blue-500/20">
+          <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+          <span className="text-[10px] font-semibold text-blue-400 tracking-wide">TON TESTNET</span>
+        </div>
+      </div>
+
       {/* Language switcher */}
       <div className="absolute top-5 right-5 z-20 flex gap-1">
         {languages.map((lang) => (

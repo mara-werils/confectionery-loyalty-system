@@ -50,6 +50,35 @@ router.get(
 
 /**
  * @swagger
+ * /loyalty/config:
+ *   get:
+ *     summary: Get loyalty program configuration
+ *     tags: [Loyalty]
+ *     responses:
+ *       200:
+ *         description: Config parameters
+ */
+router.get('/config', async (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    const cashbackSetting = await prisma.systemSetting.findUnique({
+      where: { key: 'cashback_rate' },
+    });
+    const cashbackRate = cashbackSetting ? parseFloat(cashbackSetting.value) : 0.10;
+
+    const tierSettings = {
+      BRONZE: { threshold: 0, cashback: 0.10 },
+      SILVER: { threshold: 5000, cashback: 0.12 },
+      GOLD: { threshold: 20000, cashback: 0.15 },
+    };
+
+    return successResponse(res, { cashbackRate, tiers: tierSettings });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+/**
+ * @swagger
  * /loyalty/history:
  *   get:
  *     summary: Get loyalty points history

@@ -18,12 +18,10 @@ import toast from 'react-hot-toast';
 import clsx from 'clsx';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../services/api';
+import { TIER_CONFIG } from '../../config/tiers';
+import AnimatedNumber from '../../components/AnimatedNumber';
 
-const TIERS = {
-  BRONZE: { next: 'SILVER', threshold: 5000, color: 'text-orange-400', bar: 'bg-orange-400', labelKey: 'customerDashboard.tierBronze' },
-  SILVER: { next: 'GOLD', threshold: 20000, color: 'text-stone-300', bar: 'bg-stone-300', labelKey: 'customerDashboard.tierSilver' },
-  GOLD: { next: 'MAX', threshold: 0, color: 'text-amber-400', bar: 'bg-amber-400', labelKey: 'customerDashboard.tierGold' },
-} as const;
+const TIERS = TIER_CONFIG;
 
 interface JettonBalance {
   balance: string;
@@ -207,7 +205,7 @@ export default function CustomerDashboard() {
                 <div className="w-28 h-9 rounded-lg bg-white/5 animate-pulse" />
               ) : (
                 <p className="text-4xl font-black tracking-tight text-white">
-                  {formatBalance(balance)}
+                  <AnimatedNumber value={currentBalance} />
                 </p>
               )}
               <p className="text-xs text-stone-600 mt-1 font-mono">{t('customerDashboard.sweetTokens')}</p>
@@ -274,6 +272,37 @@ export default function CustomerDashboard() {
           )}
         </AnimatePresence>
       </motion.div>
+
+      {/* Next Reward Progress */}
+      {!loading && currentBalance > 0 && currentBalance < 500 && (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="mb-4 p-4 rounded-2xl border border-amber-400/10 bg-amber-400/[0.03]"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <GiftIcon className="w-4 h-4 text-amber-400" />
+              <span className="text-xs font-semibold text-stone-300">{t('customerDashboard.nextReward') || 'Next Reward'}</span>
+            </div>
+            <span className="text-[10px] text-amber-400 font-mono">
+              {currentBalance}/500 SWEET
+            </span>
+          </div>
+          <div className="h-2 bg-stone-800 rounded-full overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${Math.min(100, (currentBalance / 500) * 100)}%` }}
+              transition={{ duration: 1.5, delay: 0.5, ease: 'easeOut' }}
+              className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500"
+            />
+          </div>
+          <p className="text-[10px] text-stone-600 mt-1.5">
+            {t('customerDashboard.moreToUnlock', { amount: (500 - currentBalance).toLocaleString() }) || `${(500 - currentBalance).toLocaleString()} more SWEET to unlock your first reward`}
+          </p>
+        </motion.div>
+      )}
 
       {/* Quick actions row */}
       <div className="grid grid-cols-2 gap-3 mb-4">
