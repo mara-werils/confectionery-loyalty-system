@@ -33,5 +33,5 @@ export default function AnimatedNumber({
     return unsubscribe;
   }, [display]);
 
-  return <motion.span ref={ref} className={className} />;
+  return <motion.span ref={ref} className={className}>{formatter(0)}</motion.span>;
 }
