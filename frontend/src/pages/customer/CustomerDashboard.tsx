@@ -479,7 +479,7 @@ function DailyCheckinCard() {
               : 'bg-stone-800 text-stone-500 cursor-not-allowed'
           }`}
         >
-          {claimMutation.isPending ? '...' : canClaim ? `+${status.nextBonus} SWEET` : 'Claimed'}
+          {claimMutation.isPending ? '...' : canClaim ? `+${status?.nextBonus || 10} SWEET` : 'Claimed'}
         </button>
       </div>
 
