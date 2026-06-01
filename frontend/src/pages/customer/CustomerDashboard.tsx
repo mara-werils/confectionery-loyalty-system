@@ -13,7 +13,6 @@ import {
 } from '@heroicons/react/24/outline';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
-import toast from 'react-hot-toast';
 import clsx from 'clsx';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../services/api';
