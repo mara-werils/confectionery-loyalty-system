@@ -12,12 +12,15 @@ import {
   ChevronRightIcon,
 } from '@heroicons/react/24/outline';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
 import clsx from 'clsx';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../services/api';
 import { TIER_CONFIG } from '../../config/tiers';
 import AnimatedNumber from '../../components/AnimatedNumber';
+import LiveFeed from '../../components/LiveFeed';
+import { useMutation } from '@tanstack/react-query';
 
 const TIERS = TIER_CONFIG;
 
@@ -232,6 +235,12 @@ export default function CustomerDashboard() {
         </AnimatePresence>
       </motion.div>
 
+      {/* Live Activity Feed */}
+      <LiveFeed />
+
+      {/* Daily Check-in */}
+      <DailyCheckinCard />
+
       {/* Next Reward Progress */}
       {!loading && currentBalance > 0 && currentBalance < 500 && (
         <motion.div
@@ -398,5 +407,96 @@ function SectionHeader({ icon, label }: { icon: React.ReactNode; label: string }
       {icon}
       <span className="text-xs font-semibold tracking-wide">{label}</span>
     </div>
+  );
+}
+
+function DailyCheckinCard() {
+  const { t } = useTranslation();
+  const { token, setSweetBalance, sweetBalance } = useAuthStore();
+
+  const { data: statusRaw, refetch } = useQuery({
+    queryKey: ['checkin-status'],
+    queryFn: () => api.checkin.status(),
+    enabled: !!token,
+  });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const status = (statusRaw as any)?.data;
+
+  const claimMutation = useMutation({
+    mutationFn: () => api.checkin.claim(),
+    onSuccess: (res) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const data = (res as any).data;
+      setSweetBalance(sweetBalance + data.bonus);
+      toast.success(data.message);
+      refetch();
+    },
+    onError: () => toast.error('Already claimed!'),
+  });
+
+  if (!status) return null;
+
+  const streak = status.currentStreak || 0;
+  const canClaim = status.canClaim;
+  const multiplier = status.multiplier || 1;
+  const days = status.history || [];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.2 }}
+      className="mb-4 bg-stone-900 border border-stone-800 rounded-2xl p-4"
+    >
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <span className="text-lg">🔥</span>
+          <div>
+            <p className="text-xs font-bold text-white">{t('checkin.dailyBonus') || 'Daily Bonus'}</p>
+            <p className="text-[10px] text-stone-500">
+              {streak > 0 ? `${streak} day streak · x${multiplier}` : t('checkin.startStreak') || 'Start your streak!'}
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={() => canClaim && claimMutation.mutate()}
+          disabled={!canClaim || claimMutation.isPending}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            canClaim
+              ? 'bg-amber-500 text-black hover:bg-amber-400'
+              : 'bg-stone-800 text-stone-500 cursor-not-allowed'
+          }`}
+        >
+          {claimMutation.isPending ? '...' : canClaim ? `+${status.nextBonus} SWEET` : 'Claimed'}
+        </button>
+      </div>
+
+      {/* Week dots */}
+      <div className="flex items-center justify-between gap-1">
+        {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, i) => {
+          const today = new Date();
+          const dayDate = new Date(today);
+          dayDate.setDate(today.getDate() - today.getDay() + i + 1);
+          const dateStr = dayDate.toISOString().split('T')[0];
+          const checked = days.some((d: { date: string }) => d.date === dateStr);
+          const isToday = dateStr === today.toISOString().split('T')[0];
+
+          return (
+            <div key={i} className="flex flex-col items-center gap-1">
+              <span className="text-[9px] text-stone-600">{day}</span>
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border transition-all ${
+                checked
+                  ? 'bg-amber-400 border-amber-400 text-black'
+                  : isToday
+                    ? 'border-amber-400/50 text-amber-400 bg-amber-400/10'
+                    : 'border-stone-700 text-stone-600 bg-stone-800'
+              }`}>
+                {checked ? '✓' : isToday ? '·' : ''}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </motion.div>
   );
 }

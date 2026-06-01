@@ -25,6 +25,9 @@ import referralRoutes from './routes/referrals';
 import achievementRoutes from './routes/achievements';
 import couponRoutes from './routes/coupons';
 import aiRoutes from './routes/ai';
+import spinRoutes from './routes/spin';
+import checkinRoutes from './routes/checkin';
+import giftRoutes from './routes/gift';
 
 
 // Initialize Express app
@@ -147,6 +150,9 @@ app.use(`${apiPrefix}/coupons`, couponRoutes);
 app.use(`${apiPrefix}/admin`, adminRoutes);
 app.use('/webhook', webhookRoutes);
 app.use(`${apiPrefix}/ai`, aiRoutes);
+app.use(`${apiPrefix}/spin`, spinRoutes);
+app.use(`${apiPrefix}/checkin`, checkinRoutes);
+app.use(`${apiPrefix}/gift`, giftRoutes);
 
 // ============================================================================
 // SOCKET.IO
