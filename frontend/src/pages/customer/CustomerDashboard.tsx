@@ -21,8 +21,8 @@ import { api } from '../../services/api';
 
 const TIERS = {
   BRONZE: { next: 'SILVER', threshold: 5000, color: 'text-orange-400', bar: 'bg-orange-400', labelKey: 'customerDashboard.tierBronze' },
-  SILVER: { next: 'GOLD',   threshold: 20000, color: 'text-stone-300',  bar: 'bg-stone-300', labelKey: 'customerDashboard.tierSilver' },
-  GOLD:   { next: 'MAX',    threshold: 0,     color: 'text-amber-400', bar: 'bg-amber-400', labelKey: 'customerDashboard.tierGold' },
+  SILVER: { next: 'GOLD', threshold: 20000, color: 'text-stone-300', bar: 'bg-stone-300', labelKey: 'customerDashboard.tierSilver' },
+  GOLD: { next: 'MAX', threshold: 0, color: 'text-amber-400', bar: 'bg-amber-400', labelKey: 'customerDashboard.tierGold' },
 } as const;
 
 interface JettonBalance {
@@ -60,9 +60,10 @@ export default function CustomerDashboard() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const allAchievements: { id: string; name: string; icon: string; unlockedAt?: string }[] =
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (achievementsData as any)?.data || [];
+  // Ensure we have an array for achievements.data — the API may return an object in error cases
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const rawAchievements = (achievementsData as any)?.data;
+  const allAchievements: { id: string; name: string; icon: string; unlockedAt?: string }[] = Array.isArray(rawAchievements) ? rawAchievements : [];
   const unlockedAchievements = allAchievements.filter((a) => !!a.unlockedAt).slice(0, 2);
 
   useEffect(() => {
