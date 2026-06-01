@@ -59,7 +59,7 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
   const navItems = variant === 'customer' ? customerNavItems : businessNavItems;
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-[#0d0b0a]">
+    <div className="min-h-screen flex flex-col items-center bg-[#100c0a]">
       {/* Language switcher — top right */}
       <div className="w-full max-w-2xl px-4 pt-4 flex justify-end z-50">
         <div className="flex items-center gap-0.5">
@@ -102,7 +102,7 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
         <div
           className="w-full max-w-2xl mx-auto"
           style={{
-            background: 'linear-gradient(to top, #0d0b0a 60%, transparent)',
+            background: 'linear-gradient(to top, #100c0a 60%, transparent)',
             paddingBottom: '12px',
             paddingTop: '20px',
             paddingLeft: '16px',
@@ -114,7 +114,7 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
               Powered by TON Blockchain
             </span>
           </div>
-          <div className="bg-stone-900/95 backdrop-blur-xl border border-stone-800 rounded-2xl px-1 py-1 flex items-center justify-around shadow-[0_-4px_24px_rgba(0,0,0,0.4)]">
+          <div className="bg-[#1a1412]/95 backdrop-blur-xl border border-[#2a2018] rounded-2xl px-1 py-1 flex items-center justify-around shadow-[0_-4px_24px_rgba(0,0,0,0.4)]">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
               const Icon = isActive ? item.activeIcon : item.icon;
@@ -128,7 +128,7 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
                   {isActive && (
                     <motion.div
                       layoutId="navPill"
-                      className="absolute inset-0 rounded-xl bg-stone-800"
+                      className="absolute inset-0 rounded-xl bg-[#2a2018]"
                       transition={{ type: 'spring', bounce: 0.2, duration: 0.5 }}
                     />
                   )}

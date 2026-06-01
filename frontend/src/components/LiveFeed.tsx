@@ -11,20 +11,20 @@ interface FeedItem {
 }
 
 const ICONS: Record<string, string> = {
-  spin: '🎰',
-  checkin: '📅',
-  gift: '🎁',
-  purchase: '🍰',
-  redeem: '🎫',
+  spin: '◆',
+  checkin: '●',
+  gift: '→',
+  purchase: '↑',
+  redeem: '★',
 };
 
 // Seed data for demo (shown before real events arrive)
 const SEED_FEED: FeedItem[] = [
-  { id: 's1', type: 'purchase', message: 'Customer earned 120 SWEET at Panaderia', amount: 120, timestamp: new Date(Date.now() - 120000).toISOString() },
-  { id: 's2', type: 'spin', message: 'Customer won 50 SWEET on Spin Wheel', amount: 50, timestamp: new Date(Date.now() - 300000).toISOString() },
-  { id: 's3', type: 'gift', message: 'Customer sent 25 SWEET as a gift', amount: 25, timestamp: new Date(Date.now() - 600000).toISOString() },
-  { id: 's4', type: 'checkin', message: 'Customer claimed daily bonus (+20 SWEET, 5 day streak)', amount: 20, timestamp: new Date(Date.now() - 900000).toISOString() },
-  { id: 's5', type: 'purchase', message: 'Customer earned 80 SWEET at Home Macaron', amount: 80, timestamp: new Date(Date.now() - 1500000).toISOString() },
+  { id: 's1', type: 'purchase', message: '+120 SWEET earned at Panaderia', amount: 120, timestamp: new Date(Date.now() - 120000).toISOString() },
+  { id: 's2', type: 'spin', message: '+50 SWEET won on Spin Wheel', amount: 50, timestamp: new Date(Date.now() - 300000).toISOString() },
+  { id: 's3', type: 'gift', message: '25 SWEET gifted to a friend', amount: 25, timestamp: new Date(Date.now() - 600000).toISOString() },
+  { id: 's4', type: 'checkin', message: '+20 SWEET daily bonus (5 day streak)', amount: 20, timestamp: new Date(Date.now() - 900000).toISOString() },
+  { id: 's5', type: 'purchase', message: '+80 SWEET earned at Home Macaron', amount: 80, timestamp: new Date(Date.now() - 1500000).toISOString() },
 ];
 
 function timeAgo(ts: string): string {
@@ -69,8 +69,8 @@ export default function LiveFeed() {
   if (!current) return null;
 
   return (
-    <div className="mb-4 overflow-hidden rounded-xl border border-stone-800/60 bg-stone-900/50">
-      <div className="flex items-center gap-1.5 px-3 py-1 bg-stone-800/50">
+    <div className="mb-4 overflow-hidden rounded-xl border border-amber-900/20 bg-[#1a1412]/60">
+      <div className="flex items-center gap-1.5 px-3 py-1 bg-amber-900/10">
         <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
         <span className="text-[9px] font-semibold text-stone-500 uppercase tracking-wider">Live Activity</span>
       </div>

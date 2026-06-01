@@ -10,8 +10,8 @@ import toast from 'react-hot-toast';
 
 const SEGMENTS = [5, 10, 15, 20, 25, 50, 100, 500];
 const COLORS = [
-  '#44403c', '#292524', '#44403c', '#292524',
-  '#44403c', '#292524', '#44403c', '#292524',
+  '#2a2018', '#1a1412', '#2a2018', '#1a1412',
+  '#2a2018', '#1a1412', '#2a2018', '#1a1412',
 ];
 const SEGMENT_ANGLE = 360 / SEGMENTS.length;
 

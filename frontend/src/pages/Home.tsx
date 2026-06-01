@@ -91,7 +91,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0d0b0a] text-white relative overflow-hidden flex flex-col">
+    <div className="min-h-screen bg-[#100c0a] text-white relative overflow-hidden flex flex-col">
       {/* Background texture */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(245,158,11,0.08),transparent)]" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_40%_40%_at_80%_80%,rgba(180,122,90,0.05),transparent)]" />
@@ -132,7 +132,9 @@ export default function Home() {
         >
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-6 relative">
             <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-amber-400/20 to-orange-600/10 border border-amber-400/20" />
-            <span className="text-3xl relative z-10">🍬</span>
+            <svg className="w-8 h-8 text-amber-400 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
+            </svg>
           </div>
 
           <h1 className="text-5xl font-black tracking-tight mb-2">
