@@ -522,11 +522,10 @@ function PositionCard({
               </p>
             </div>
           </div>
-          <div className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
-            isLocked
+          <div className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${isLocked
               ? 'text-amber-400 bg-amber-500/10 border-amber-500/20'
               : 'text-stone-300 bg-stone-800 border-stone-700'
-          }`}>
+            }`}>
             {isFlexible ? t('staking.statusFlexible') : isLocked ? t('staking.statusLocked') : t('staking.statusUnlocked')}
           </div>
         </div>
@@ -748,11 +747,10 @@ function StakeModal({
               <button
                 onClick={() => numAmount > 0 && isValid && onConfirm(pool.id, numAmount)}
                 disabled={!isValid || numAmount <= 0}
-                className={`w-full py-3.5 rounded-2xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${
-                  isValid && numAmount > 0
+                className={`w-full py-2.5 rounded-2xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${isValid && numAmount > 0
                     ? 'bg-amber-500 text-black hover:bg-amber-400 active:scale-[0.98]'
                     : 'bg-stone-800 text-stone-600 cursor-not-allowed'
-                }`}
+                  }`}
               >
                 <CheckCircleIcon className="w-4.5 h-4.5" />
                 {t('staking.confirmStake')}
@@ -855,17 +853,16 @@ function UnstakeConfirmModal({
               <div className="flex gap-3">
                 <button
                   onClick={onClose}
-                  className="flex-1 py-3.5 rounded-2xl text-sm font-bold bg-stone-800 text-stone-300 border border-stone-700 hover:bg-stone-700 transition-all active:scale-[0.98]"
+                  className="flex-1 py-2.5 rounded-2xl text-sm font-bold bg-stone-800 text-stone-300 border border-stone-700 hover:bg-stone-700 transition-all active:scale-[0.98]"
                 >
                   {t('common.cancel')}
                 </button>
                 <button
                   onClick={() => onConfirm(position)}
-                  className={`flex-1 py-3.5 rounded-2xl text-sm font-bold transition-all active:scale-[0.98] ${
-                    isLocked
+                  className={`flex-1 py-2.5 rounded-2xl text-sm font-bold transition-all active:scale-[0.98] ${isLocked
                       ? 'bg-red-500 text-white hover:bg-red-400'
                       : 'bg-amber-500 text-black hover:bg-amber-400'
-                  }`}
+                    }`}
                 >
                   {t('staking.confirmUnstake')}
                 </button>
