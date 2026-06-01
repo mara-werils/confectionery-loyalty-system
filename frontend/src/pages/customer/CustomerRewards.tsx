@@ -110,68 +110,68 @@ const PARTNERS: Partner[] = [
 const PARTNER_MAP = Object.fromEntries(PARTNERS.map(p => [p.id, p]));
 
 const REWARDS: Reward[] = [
-  { id: 'hm-1', partnerId: 'homemacaron',   titleKey: 'hm-1-title', descKey: 'hm-1-desc', pointsRequired: 100,  category: 'DISCOUNT', available: 999 },
-  { id: 'hm-2', partnerId: 'homemacaron',   titleKey: 'hm-2-title', descKey: 'hm-2-desc', pointsRequired: 350,  category: 'PRODUCT',  available: 50  },
-  { id: 'ql-1', partnerId: 'qulpynai',      titleKey: 'ql-1-title', descKey: 'ql-1-desc', pointsRequired: 150,  category: 'DISCOUNT', available: 500 },
-  { id: 'ql-2', partnerId: 'qulpynai',      titleKey: 'ql-2-title', descKey: 'ql-2-desc', pointsRequired: 200,  category: 'PRODUCT',  available: 100 },
-  { id: 'pn-1', partnerId: 'panaderia',     titleKey: 'pn-1-title', descKey: 'pn-1-desc', pointsRequired: 180,  category: 'PRODUCT',  available: 200 },
-  { id: 'pn-2', partnerId: 'panaderia',     titleKey: 'pn-2-title', descKey: 'pn-2-desc', pointsRequired: 300,  category: 'DISCOUNT', available: 80  },
-  { id: 'mr-1', partnerId: 'marrone_rosso', titleKey: 'mr-1-title', descKey: 'mr-1-desc', pointsRequired: 80,   category: 'PRODUCT',  available: 300 },
-  { id: 'mr-2', partnerId: 'marrone_rosso', titleKey: 'mr-2-title', descKey: 'mr-2-desc', pointsRequired: 400,  category: 'SPECIAL',  available: 50  },
-  { id: 'tt-1', partnerId: 'taptatti',      titleKey: 'tt-1-title', descKey: 'tt-1-desc', pointsRequired: 500,  category: 'DISCOUNT', available: 100 },
-  { id: 'tt-2', partnerId: 'taptatti',      titleKey: 'tt-2-title', descKey: 'tt-2-desc', pointsRequired: 250,  category: 'SPECIAL',  available: 300 },
-  { id: 'pw-1', partnerId: 'platform',      titleKey: 'pw-1-title', descKey: 'pw-1-desc', pointsRequired: 500,  category: 'CASHBACK', available: 999 },
+  { id: 'hm-1', partnerId: 'homemacaron', titleKey: 'hm-1-title', descKey: 'hm-1-desc', pointsRequired: 100, category: 'DISCOUNT', available: 999 },
+  { id: 'hm-2', partnerId: 'homemacaron', titleKey: 'hm-2-title', descKey: 'hm-2-desc', pointsRequired: 350, category: 'PRODUCT', available: 50 },
+  { id: 'ql-1', partnerId: 'qulpynai', titleKey: 'ql-1-title', descKey: 'ql-1-desc', pointsRequired: 150, category: 'DISCOUNT', available: 500 },
+  { id: 'ql-2', partnerId: 'qulpynai', titleKey: 'ql-2-title', descKey: 'ql-2-desc', pointsRequired: 200, category: 'PRODUCT', available: 100 },
+  { id: 'pn-1', partnerId: 'panaderia', titleKey: 'pn-1-title', descKey: 'pn-1-desc', pointsRequired: 180, category: 'PRODUCT', available: 200 },
+  { id: 'pn-2', partnerId: 'panaderia', titleKey: 'pn-2-title', descKey: 'pn-2-desc', pointsRequired: 300, category: 'DISCOUNT', available: 80 },
+  { id: 'mr-1', partnerId: 'marrone_rosso', titleKey: 'mr-1-title', descKey: 'mr-1-desc', pointsRequired: 80, category: 'PRODUCT', available: 300 },
+  { id: 'mr-2', partnerId: 'marrone_rosso', titleKey: 'mr-2-title', descKey: 'mr-2-desc', pointsRequired: 400, category: 'SPECIAL', available: 50 },
+  { id: 'tt-1', partnerId: 'taptatti', titleKey: 'tt-1-title', descKey: 'tt-1-desc', pointsRequired: 500, category: 'DISCOUNT', available: 100 },
+  { id: 'tt-2', partnerId: 'taptatti', titleKey: 'tt-2-title', descKey: 'tt-2-desc', pointsRequired: 250, category: 'SPECIAL', available: 300 },
+  { id: 'pw-1', partnerId: 'platform', titleKey: 'pw-1-title', descKey: 'pw-1-desc', pointsRequired: 500, category: 'CASHBACK', available: 999 },
 ];
 
 type Translations = Record<string, { en: string; ru: string; kz: string }>;
 const TEXTS: Translations = {
-  'hm-1-title': { en: '10% Discount on Macarons',       ru: 'Скидка 10% на макаруны',            kz: 'Макарундарға 10% жеңілдік' },
-  'hm-1-desc':  { en: 'Get 10% off any macaron set',    ru: 'Скидка 10% на любой набор макарунов', kz: 'Кез келген макарун жинағына 10%' },
-  'hm-2-title': { en: 'Free Box of 6 Macarons',         ru: 'Бесплатная коробка из 6 макарунов',  kz: '6 макарун тегін қорабы' },
-  'hm-2-desc':  { en: 'Free box of 6 assorted macarons',ru: 'Коробка из 6 ассорти макарунов',     kz: '6 ассорти макарун қорабы' },
-  'ql-1-title': { en: '15% Discount on Pastries',       ru: 'Скидка 15% на выпечку',             kz: 'Пісірілгенге 15% жеңілдік' },
-  'ql-1-desc':  { en: '15% off any pastry at Qulpynai', ru: 'Скидка 15% в любом Qulpynai',       kz: 'Кез келген Qulpynai-да 15%' },
-  'ql-2-title': { en: 'Free Samsa',                     ru: 'Бесплатная самса',                  kz: 'Тегін самса' },
-  'ql-2-desc':  { en: 'Free samsa with any drink',      ru: 'Бесплатная самса при покупке напитка', kz: 'Сусын алғанда тегін самса' },
-  'pn-1-title': { en: 'Free Croissant',                 ru: 'Бесплатный круассан',               kz: 'Тегін круассан' },
-  'pn-1-desc':  { en: 'Fresh Spanish-style croissant',  ru: 'Свежий круассан в испанском стиле', kz: 'Испандық стильдегі жаңа круассан' },
-  'pn-2-title': { en: '20% off Artisan Bread',          ru: 'Скидка 20% на ремесленный хлеб',    kz: 'Нанға 20% жеңілдік' },
-  'pn-2-desc':  { en: '20% off sourdough bread',        ru: 'Скидка 20% на любой хлеб на закваске', kz: 'Ашытқы нанға 20%' },
-  'mr-1-title': { en: 'Free Espresso',                  ru: 'Бесплатный эспрессо',               kz: 'Тегін эспрессо' },
-  'mr-1-desc':  { en: 'Free espresso or americano',     ru: 'Эспрессо или американо в подарок',  kz: 'Тегін эспрессо немесе американо' },
-  'mr-2-title': { en: '2-for-1 Cakes',                  ru: '2 торта по цене 1',                 kz: '1 бағасына 2 торт' },
-  'mr-2-desc':  { en: 'Buy one slice, get one free',    ru: 'Один кусок — второй бесплатно',     kz: 'Бір кесім — екіншісі тегін' },
-  'tt-1-title': { en: '25% off Custom Cakes',           ru: 'Скидка 25% на торты на заказ',      kz: 'Тапсырыс тортына 25%' },
-  'tt-1-desc':  { en: '25% off custom cake with delivery', ru: 'Торт на заказ со скидкой 25%',   kz: 'Жеткізумен тапсырыс тортына 25%' },
-  'tt-2-title': { en: 'Free Delivery',                  ru: 'Бесплатная доставка',               kz: 'Тегін жеткізу' },
-  'tt-2-desc':  { en: 'Free delivery across Kazakhstan', ru: 'Бесплатная доставка по Казахстану', kz: 'Қазақстан бойынша тегін жеткізу' },
-  'pw-1-title': { en: '+5% Cashback Boost',             ru: 'Буст кэшбэка +5%',                  kz: '+5% кэшбэк бусты' },
-  'pw-1-desc':  { en: 'Extra cashback on next purchase', ru: 'Дополнительные 5% кэшбэка',        kz: 'Келесі сатып алуда қосымша 5%' },
+  'hm-1-title': { en: '10% Discount on Macarons', ru: 'Скидка 10% на макаруны', kz: 'Макарундарға 10% жеңілдік' },
+  'hm-1-desc': { en: 'Get 10% off any macaron set', ru: 'Скидка 10% на любой набор макарунов', kz: 'Кез келген макарун жинағына 10%' },
+  'hm-2-title': { en: 'Free Box of 6 Macarons', ru: 'Бесплатная коробка из 6 макарунов', kz: '6 макарун тегін қорабы' },
+  'hm-2-desc': { en: 'Free box of 6 assorted macarons', ru: 'Коробка из 6 ассорти макарунов', kz: '6 ассорти макарун қорабы' },
+  'ql-1-title': { en: '15% Discount on Pastries', ru: 'Скидка 15% на выпечку', kz: 'Пісірілгенге 15% жеңілдік' },
+  'ql-1-desc': { en: '15% off any pastry at Qulpynai', ru: 'Скидка 15% в любом Qulpynai', kz: 'Кез келген Qulpynai-да 15%' },
+  'ql-2-title': { en: 'Free Samsa', ru: 'Бесплатная самса', kz: 'Тегін самса' },
+  'ql-2-desc': { en: 'Free samsa with any drink', ru: 'Бесплатная самса при покупке напитка', kz: 'Сусын алғанда тегін самса' },
+  'pn-1-title': { en: 'Free Croissant', ru: 'Бесплатный круассан', kz: 'Тегін круассан' },
+  'pn-1-desc': { en: 'Fresh Spanish-style croissant', ru: 'Свежий круассан в испанском стиле', kz: 'Испандық стильдегі жаңа круассан' },
+  'pn-2-title': { en: '20% off Artisan Bread', ru: 'Скидка 20% на ремесленный хлеб', kz: 'Нанға 20% жеңілдік' },
+  'pn-2-desc': { en: '20% off sourdough bread', ru: 'Скидка 20% на любой хлеб на закваске', kz: 'Ашытқы нанға 20%' },
+  'mr-1-title': { en: 'Free Espresso', ru: 'Бесплатный эспрессо', kz: 'Тегін эспрессо' },
+  'mr-1-desc': { en: 'Free espresso or americano', ru: 'Эспрессо или американо в подарок', kz: 'Тегін эспрессо немесе американо' },
+  'mr-2-title': { en: '2-for-1 Cakes', ru: '2 торта по цене 1', kz: '1 бағасына 2 торт' },
+  'mr-2-desc': { en: 'Buy one slice, get one free', ru: 'Один кусок — второй бесплатно', kz: 'Бір кесім — екіншісі тегін' },
+  'tt-1-title': { en: '25% off Custom Cakes', ru: 'Скидка 25% на торты на заказ', kz: 'Тапсырыс тортына 25%' },
+  'tt-1-desc': { en: '25% off custom cake with delivery', ru: 'Торт на заказ со скидкой 25%', kz: 'Жеткізумен тапсырыс тортына 25%' },
+  'tt-2-title': { en: 'Free Delivery', ru: 'Бесплатная доставка', kz: 'Тегін жеткізу' },
+  'tt-2-desc': { en: 'Free delivery across Kazakhstan', ru: 'Бесплатная доставка по Казахстану', kz: 'Қазақстан бойынша тегін жеткізу' },
+  'pw-1-title': { en: '+5% Cashback Boost', ru: 'Буст кэшбэка +5%', kz: '+5% кэшбэк бусты' },
+  'pw-1-desc': { en: 'Extra cashback on next purchase', ru: 'Дополнительные 5% кэшбэка', kz: 'Келесі сатып алуда қосымша 5%' },
 };
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const CATEGORY_META: Record<Category, { label: string; color: string; bg: string; border: string }> = {
-  DISCOUNT: { label: 'Скидка',   color: 'text-stone-300', bg: 'bg-stone-800',  border: 'border-stone-700' },
-  PRODUCT:  { label: 'Продукт',  color: 'text-stone-300', bg: 'bg-stone-800',  border: 'border-stone-700' },
-  CASHBACK: { label: 'Кэшбэк',   color: 'text-stone-300', bg: 'bg-stone-800',  border: 'border-stone-700' },
-  SPECIAL:  { label: 'Особое',   color: 'text-stone-300', bg: 'bg-stone-800',  border: 'border-stone-700' },
+const CATEGORY_META: Record<Category, { labelKey: string; color: string; bg: string; border: string }> = {
+  DISCOUNT: { labelKey: 'rewards.categoryDiscount', color: 'text-stone-300', bg: 'bg-stone-800', border: 'border-stone-700' },
+  PRODUCT: { labelKey: 'rewards.categoryProduct', color: 'text-stone-300', bg: 'bg-stone-800', border: 'border-stone-700' },
+  CASHBACK: { labelKey: 'rewards.categoryCashback', color: 'text-stone-300', bg: 'bg-stone-800', border: 'border-stone-700' },
+  SPECIAL: { labelKey: 'rewards.categorySpecial', color: 'text-stone-300', bg: 'bg-stone-800', border: 'border-stone-700' },
 };
 
 const CATEGORY_ICON: Record<Category, typeof TagIcon> = {
   DISCOUNT: TagIcon,
-  PRODUCT:  GiftIcon,
+  PRODUCT: GiftIcon,
   CASHBACK: SparklesIcon,
-  SPECIAL:  SparklesIcon,
+  SPECIAL: SparklesIcon,
 };
 
-const FILTER_TABS: { id: FilterTab; label: string }[] = [
-  { id: 'all',        label: 'Все' },
-  { id: 'affordable', label: 'Доступные' },
-  { id: 'DISCOUNT',   label: 'Скидки' },
-  { id: 'PRODUCT',    label: 'Продукты' },
-  { id: 'SPECIAL',    label: 'Особые' },
-  { id: 'CASHBACK',   label: 'Кэшбэк' },
+const FILTER_TABS: { id: FilterTab; labelKey: string }[] = [
+  { id: 'all', labelKey: 'rewards.categories.all' },
+  { id: 'affordable', labelKey: 'rewards.categories.affordable' },
+  { id: 'DISCOUNT', labelKey: 'rewards.categories.discount' },
+  { id: 'PRODUCT', labelKey: 'rewards.categories.product' },
+  { id: 'SPECIAL', labelKey: 'rewards.categories.special' },
+  { id: 'CASHBACK', labelKey: 'rewards.categories.cashback' },
 ];
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -188,7 +188,7 @@ interface IssuedCoupon {
 
 export default function CustomerRewards() {
   const wallet = useTonWallet();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const lang = (i18n.language as 'en' | 'ru' | 'kz') || 'ru';
 
   const { addCoupon, setCoupons, sweetBalance, setSweetBalance, activeCoupons, token } = useAuthStore();
@@ -230,7 +230,7 @@ export default function CustomerRewards() {
   // ── Reward → partner name map for DB sync ──────────────────────
   const REWARD_PARTNER_NAME = useMemo(() =>
     Object.fromEntries(REWARDS.map(r => [r.id, PARTNER_MAP[r.partnerId]?.name ?? 'Sweet Platform'])),
-  []);
+    []);
 
   // ── Sync coupons from DB once on mount / when token available ──
   useEffect(() => {
@@ -246,13 +246,13 @@ export default function CustomerRewards() {
           }));
         if (active.length > 0) setCoupons(active);
       })
-      .catch(() => {});
+      .catch(() => { });
   }, [token, setCoupons, REWARD_PARTNER_NAME]);
 
   // ── Redeem handler ─────────────────────────────────────────────
   const handleRedeem = async (reward: Reward) => {
     if (sweetBalance < reward.pointsRequired) {
-      toast.error('Недостаточно SWEET');
+      toast.error(t('rewards.notEnoughSweet'));
       return;
     }
 
@@ -296,7 +296,7 @@ export default function CustomerRewards() {
           setSweetBalance(fresh);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, [wallet?.account.address]);
 
   return (
@@ -305,7 +305,7 @@ export default function CustomerRewards() {
       {/* ── Header ──────────────────────────────────────────────── */}
       <div className="mb-4">
         <div className="flex items-start justify-between mb-1">
-          <h1 className="text-2xl font-black tracking-tight">Rewards</h1>
+          <h1 className="text-2xl font-black tracking-tight">{t('rewards.title')}</h1>
 
           {/* Balance pill */}
           <div className="flex flex-col items-end">
@@ -321,8 +321,8 @@ export default function CustomerRewards() {
 
         <p className="text-xs text-stone-500">
           {affordableCount > 0
-            ? `${affordableCount} наград доступно прямо сейчас`
-            : 'Накапливай SWEET — обменивай на награды'}
+            ? t('rewards.availableNow', { count: affordableCount })
+            : t('rewards.accumulateSweet')}
         </p>
       </div>
 
@@ -336,7 +336,7 @@ export default function CustomerRewards() {
             <div className="flex items-center gap-2.5">
               <TicketIcon className="w-4 h-4 text-amber-400" />
               <span className="text-sm font-semibold text-amber-300">
-                Мои купоны
+                {t('rewards.myCoupons')}
               </span>
               <span className="text-[10px] bg-amber-400/20 text-amber-400 font-bold px-1.5 py-0.5 rounded-full">
                 {activeCoupons.length}
@@ -372,13 +372,12 @@ export default function CustomerRewards() {
           <button
             key={tab.id}
             onClick={() => setCategoryFilter(tab.id)}
-            className={`flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all border whitespace-nowrap ${
-              categoryFilter === tab.id
+            className={`flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all border whitespace-nowrap ${categoryFilter === tab.id
                 ? 'bg-white text-black border-white'
                 : 'bg-transparent text-stone-500 border-stone-800 hover:border-stone-600 hover:text-stone-300'
-            }`}
+              }`}
           >
-            {tab.label}
+            {t(tab.labelKey)}
           </button>
         ))}
       </div>
@@ -386,7 +385,7 @@ export default function CustomerRewards() {
       {/* ── Partner filter pills ─────────────────────────────────── */}
       <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-4 px-4 pb-1 mb-5">
         <PartnerPill
-          label="Все партнёры"
+          label={t('rewards.allPartners')}
           active={partnerFilter === null}
           onClick={() => setPartnerFilter(null)}
         />
@@ -445,6 +444,7 @@ function RewardCard({
   isRedeeming: boolean;
   onRedeem: () => void;
 }) {
+  const { t } = useTranslation();
   const canAfford = balance >= reward.pointsRequired;
   const progress = Math.min(100, Math.round((balance / reward.pointsRequired) * 100));
   const need = reward.pointsRequired - balance;
@@ -453,11 +453,10 @@ function RewardCard({
 
   return (
     <div
-      className={`relative rounded-2xl overflow-hidden border transition-colors ${
-        canAfford
+      className={`relative rounded-2xl overflow-hidden border transition-colors ${canAfford
           ? 'border-stone-700 bg-stone-900'
           : 'border-stone-800 bg-stone-900/50'
-      }`}
+        }`}
     >
       {/* Top color strip */}
       <div
@@ -481,7 +480,7 @@ function RewardCard({
 
           <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-semibold ${catMeta.bg} ${catMeta.color} ${catMeta.border}`}>
             <CatIcon className="w-2.5 h-2.5" />
-            {catMeta.label}
+            {t(catMeta.labelKey)}
           </span>
         </div>
 
@@ -518,7 +517,7 @@ function RewardCard({
                   />
                 </div>
                 <p className="text-[10px] text-stone-600">
-                  Ещё <span className="text-stone-400 font-semibold">{need.toLocaleString()} SWEET</span>
+                  {t('rewards.needMore', { amount: need.toLocaleString() })}
                 </p>
               </div>
             )}
@@ -527,21 +526,20 @@ function RewardCard({
           <button
             onClick={onRedeem}
             disabled={!canAfford || isRedeeming}
-            className={`flex-shrink-0 flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${
-              canAfford
+            className={`flex-shrink-0 flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${canAfford
                 ? 'bg-amber-500 text-black hover:bg-amber-400 active:scale-95'
                 : 'bg-stone-800/60 text-stone-600 cursor-not-allowed'
-            }`}
+              }`}
           >
             {isRedeeming ? (
               <span className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin block" />
             ) : canAfford ? (
               <>
                 <TicketIcon className="w-3.5 h-3.5" />
-                Получить
+                {t('rewards.claim')}
               </>
             ) : (
-              'Не хватает'
+              t('rewards.unavailable')
             )}
           </button>
         </div>
@@ -571,11 +569,10 @@ function PartnerPill({
     <button
       onClick={onClick}
       style={active && accent ? { borderColor: `${accent}50`, background: `${accent}18` } : undefined}
-      className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all border whitespace-nowrap ${
-        active
+      className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all border whitespace-nowrap ${active
           ? 'text-white'
           : 'bg-transparent text-stone-500 border-stone-800 hover:border-stone-600 hover:text-stone-300'
-      }`}
+        }`}
     >
       {logo ? (
         <img src={logo} alt={label} className="w-3.5 h-3.5 rounded object-cover" />
@@ -590,12 +587,13 @@ function PartnerPill({
 // ─── MyCouponRow ──────────────────────────────────────────────────────────────
 
 function MyCouponRow({ code, title, partnerName }: { code: string; title: string; partnerName: string }) {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(code);
     setCopied(true);
-    toast.success('Скопировано', { duration: 1000 });
+    toast.success(t('rewards.copied'), { duration: 1000 });
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -621,13 +619,14 @@ function MyCouponRow({ code, title, partnerName }: { code: string; title: string
 // ─── EmptyState ───────────────────────────────────────────────────────────────
 
 function EmptyState({ categoryFilter, affordableCount }: { categoryFilter: FilterTab; affordableCount: number }) {
+  const { t } = useTranslation();
   if (categoryFilter === 'affordable' && affordableCount === 0) {
     return (
       <div className="py-14 text-center">
         <GiftIcon className="w-12 h-12 text-stone-700 mx-auto mb-4" />
-        <p className="text-sm font-semibold text-stone-400">Пока недостаточно SWEET</p>
+        <p className="text-sm font-semibold text-stone-400">{t('rewards.notEnoughSweet')}</p>
         <p className="text-xs text-stone-600 mt-1 max-w-[200px] mx-auto">
-          Совершай покупки у партнёров — получай кэшбэк токенами
+          {t('rewards.earnSweetHint')}
         </p>
       </div>
     );
@@ -635,7 +634,7 @@ function EmptyState({ categoryFilter, affordableCount }: { categoryFilter: Filte
   return (
     <div className="py-14 text-center">
       <GiftIcon className="w-10 h-10 text-stone-800 mx-auto mb-3" />
-      <p className="text-sm text-stone-500">Нет наград в этой категории</p>
+      <p className="text-sm text-stone-500">{t('rewards.emptyTitle')}</p>
     </div>
   );
 }
@@ -651,13 +650,14 @@ function CouponSheet({
   getText: (key: string) => string;
   onClose: () => void;
 }) {
+  const { t, i18n } = useTranslation();
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
     if (!coupon) return;
     navigator.clipboard.writeText(coupon.code);
     setCopied(true);
-    toast.success('Скопировано!', { duration: 1200 });
+    toast.success(t('rewards.copied'), { duration: 1200 });
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -719,7 +719,7 @@ function CouponSheet({
 
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-[10px] text-stone-600 uppercase tracking-widest mb-1.5">Код купона</p>
+                      <p className="text-[10px] text-stone-600 uppercase tracking-widest mb-1.5">{t('rewards.couponCode')}</p>
                       <p className="text-3xl font-black font-mono tracking-[0.2em] text-amber-400">
                         {coupon.code}
                       </p>
@@ -732,7 +732,7 @@ function CouponSheet({
                         ? <CheckCircleIcon className="w-5 h-5 text-green-400" />
                         : <ClipboardDocumentIcon className="w-5 h-5 text-stone-500" />
                       }
-                      <span className="text-[9px] text-stone-600">{copied ? 'Скопировано' : 'Копировать'}</span>
+                      <span className="text-[9px] text-stone-600">{copied ? t('rewards.copied') : t('rewards.copy')}</span>
                     </button>
                   </div>
                 </div>
@@ -741,9 +741,9 @@ function CouponSheet({
               {/* Details */}
               <div className="rounded-2xl bg-stone-900 border border-stone-800 divide-y divide-stone-800 mb-5">
                 {[
-                  { label: 'Потрачено',       value: `${coupon.reward.pointsRequired.toLocaleString()} SWEET`, accent: true },
-                  { label: 'Действует',        value: `${coupon.daysLeft} дней`, warn: coupon.daysLeft <= 3 },
-                  { label: 'Истекает',         value: new Date(coupon.expiresAt).toLocaleDateString('ru', { day: 'numeric', month: 'long', year: 'numeric' }) },
+                  { label: t('rewards.spent'), value: `${coupon.reward.pointsRequired.toLocaleString()} ${t('common.sweet')}`, accent: true },
+                  { label: t('rewards.validity'), value: `${coupon.daysLeft} ${t('rewards.days')}`, warn: coupon.daysLeft <= 3 },
+                  { label: t('rewards.expires'), value: new Date(coupon.expiresAt).toLocaleDateString(i18n.language === 'kz' ? 'kk' : i18n.language === 'ru' ? 'ru' : 'en', { day: 'numeric', month: 'long', year: 'numeric' }) },
                 ].map(row => (
                   <div key={row.label} className="flex items-center justify-between px-4 py-2.5">
                     <span className="text-xs text-stone-500">{row.label}</span>
@@ -755,14 +755,14 @@ function CouponSheet({
               </div>
 
               <p className="text-[11px] text-stone-600 text-center mb-5">
-                Покажи код кассиру в {coupon.partner.name}
+                {t('rewards.couponReady')} {coupon.partner.name}
               </p>
 
               <button
                 onClick={onClose}
                 className="w-full py-3.5 bg-amber-500 text-black font-bold rounded-2xl hover:bg-amber-400 transition-colors text-sm"
               >
-                Готово
+                {t('rewards.close')}
               </button>
             </div>
           </motion.div>

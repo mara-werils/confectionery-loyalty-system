@@ -3,6 +3,12 @@ import { useAuthStore } from '../store/authStore';
 
 const API_URL = import.meta.env.VITE_API_URL || '/api/v1';
 
+if (import.meta.env.PROD && !import.meta.env.VITE_API_URL) {
+  console.error(
+    'VITE_API_URL is not configured. On Vercel, /api/v1 requests will hit the frontend unless you set the backend URL.'
+  );
+}
+
 // Create axios instance
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: API_URL,

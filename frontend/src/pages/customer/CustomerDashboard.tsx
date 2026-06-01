@@ -19,8 +19,8 @@ import { api } from '../../services/api';
 
 const TIERS = {
   BRONZE: { next: 'SILVER', threshold: 5000, color: 'text-orange-400', bar: 'bg-orange-400', labelKey: 'customerDashboard.tierBronze' },
-  SILVER: { next: 'GOLD',   threshold: 20000, color: 'text-stone-300',  bar: 'bg-stone-300', labelKey: 'customerDashboard.tierSilver' },
-  GOLD:   { next: 'MAX',    threshold: 0,     color: 'text-amber-400', bar: 'bg-amber-400', labelKey: 'customerDashboard.tierGold' },
+  SILVER: { next: 'GOLD', threshold: 20000, color: 'text-stone-300', bar: 'bg-stone-300', labelKey: 'customerDashboard.tierSilver' },
+  GOLD: { next: 'MAX', threshold: 0, color: 'text-amber-400', bar: 'bg-amber-400', labelKey: 'customerDashboard.tierGold' },
 } as const;
 
 interface JettonBalance {

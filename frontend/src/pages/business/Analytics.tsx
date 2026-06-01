@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import {
   AreaChart,
   Area,
@@ -27,7 +28,6 @@ import toast from 'react-hot-toast';
 // Period helpers
 // ---------------------------------------------------------------------------
 type Period = '7d' | '30d' | '90d' | 'all';
-const periodLabels: Record<Period, string> = { '7d': '7д', '30d': '30д', '90d': '90д', all: 'Все' };
 
 // ---------------------------------------------------------------------------
 // Mock data generators
@@ -51,10 +51,10 @@ function generateRevenueData(days: number) {
 }
 
 const kpiData: Record<Period, { revenue: number; revenueTrend: number; clients: number; clientsTrend: number; avgCheck: number; avgCheckTrend: number; rewardConversion: number; rewardConversionTrend: number }> = {
-  '7d':  { revenue: 487200, revenueTrend: 12.4,  clients: 34,  clientsTrend: 8.2,   avgCheck: 3420, avgCheckTrend: 5.1,   rewardConversion: 68, rewardConversionTrend: 3.7 },
-  '30d': { revenue: 1843500, revenueTrend: 9.8,  clients: 128, clientsTrend: 15.3,  avgCheck: 3180, avgCheckTrend: -2.1,  rewardConversion: 72, rewardConversionTrend: 6.2 },
-  '90d': { revenue: 5290800, revenueTrend: 18.2, clients: 412, clientsTrend: 22.7,  avgCheck: 3350, avgCheckTrend: 1.4,   rewardConversion: 65, rewardConversionTrend: -1.8 },
-  all:   { revenue: 12450000, revenueTrend: 24.5, clients: 1024, clientsTrend: 31.0, avgCheck: 3290, avgCheckTrend: 3.6,   rewardConversion: 70, rewardConversionTrend: 4.1 },
+  '7d': { revenue: 487200, revenueTrend: 12.4, clients: 34, clientsTrend: 8.2, avgCheck: 3420, avgCheckTrend: 5.1, rewardConversion: 68, rewardConversionTrend: 3.7 },
+  '30d': { revenue: 1843500, revenueTrend: 9.8, clients: 128, clientsTrend: 15.3, avgCheck: 3180, avgCheckTrend: -2.1, rewardConversion: 72, rewardConversionTrend: 6.2 },
+  '90d': { revenue: 5290800, revenueTrend: 18.2, clients: 412, clientsTrend: 22.7, avgCheck: 3350, avgCheckTrend: 1.4, rewardConversion: 65, rewardConversionTrend: -1.8 },
+  all: { revenue: 12450000, revenueTrend: 24.5, clients: 1024, clientsTrend: 31.0, avgCheck: 3290, avgCheckTrend: 3.6, rewardConversion: 70, rewardConversionTrend: 4.1 },
 };
 
 const cohortData = [
@@ -74,15 +74,7 @@ const topRewards = [
   { name: 'Набор макарон', claims: 156 },
 ];
 
-const segmentationData = [
-  { name: 'Новые', value: 186, color: '#a8a29e' },
-  { name: 'Активные', value: 412, color: '#f59e0b' },
-  { name: 'Спящие', value: 298, color: '#57534e' },
-  { name: 'VIP', value: 128, color: '#fbbf24' },
-];
-
-function generateHeatmapData() {
-  const days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+function generateHeatmapData(dayLabels: string[]) {
   const data: { day: string; hour: number; count: number }[] = [];
   for (let d = 0; d < 7; d++) {
     for (let h = 0; h < 24; h++) {
@@ -103,7 +95,7 @@ function generateHeatmapData() {
         if (h >= 10 && h <= 16) base = 30 + Math.random() * 20;
         else if (h >= 0 && h <= 8) base = Math.random() * 2;
       }
-      data.push({ day: days[d], hour: h, count: Math.round(base) });
+      data.push({ day: dayLabels[d], hour: h, count: Math.round(base) });
     }
   }
   return data;
@@ -122,6 +114,7 @@ const fadeUp = {
 // ---------------------------------------------------------------------------
 
 function KpiCard({ title, value, trend, suffix, idx }: { title: string; value: string; trend: number; suffix?: string; idx: number }) {
+  const { t } = useTranslation();
   const positive = trend >= 0;
   return (
     <motion.div
@@ -139,7 +132,7 @@ function KpiCard({ title, value, trend, suffix, idx }: { title: string; value: s
       <div className={clsx('flex items-center gap-1 text-xs font-medium', positive ? 'text-green-400' : 'text-red-400')}>
         {positive ? <ArrowTrendingUpIcon className="w-3.5 h-3.5" /> : <ArrowTrendingDownIcon className="w-3.5 h-3.5" />}
         <span>{positive ? '+' : ''}{trend}%</span>
-        <span className="text-stone-500 ml-1">vs пред. период</span>
+        <span className="text-stone-500 ml-1">{t('analyticsPage.vsPrevPeriod')}</span>
       </div>
     </motion.div>
   );
@@ -153,13 +146,14 @@ function formatCurrency(n: number) {
 
 // Custom tooltip for the area chart
 function RevenueTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number; dataKey: string }>; label?: string }) {
+  const { t } = useTranslation();
   if (!active || !payload?.length) return null;
   return (
     <div className="bg-stone-900 border border-stone-700 rounded-xl px-3 py-2 shadow-xl text-xs">
       <p className="text-stone-400 mb-1">{label}</p>
       {payload.map((p) => (
         <p key={p.dataKey} className="text-white font-medium">
-          {p.dataKey === 'revenue' ? 'Выручка' : 'Пред. период'}:{' '}
+          {p.dataKey === 'revenue' ? t('analyticsPage.revenue') : t('analyticsPage.vsPrevPeriod')}:{' '}
           <span className={p.dataKey === 'revenue' ? 'text-amber-400' : 'text-stone-400'}>
             {p.value.toLocaleString('ru-RU')} T
           </span>
@@ -187,9 +181,12 @@ function PieLabel({ cx, cy, midAngle, innerRadius, outerRadius, percent }: { cx:
 // Main Component
 // ---------------------------------------------------------------------------
 export default function Analytics() {
+  const { t } = useTranslation();
   const [period, setPeriod] = useState<Period>('30d');
   const kpi = kpiData[period];
-  const heatmap = useMemo(() => generateHeatmapData(), []);
+
+  const dayLabels = [t('analyticsPage.mon'), t('analyticsPage.tue'), t('analyticsPage.wed'), t('analyticsPage.thu'), t('analyticsPage.fri'), t('analyticsPage.sat'), t('analyticsPage.sun')];
+  const heatmap = useMemo(() => generateHeatmapData(dayLabels), [dayLabels]);
   const revenueChartData = useMemo(() => {
     const days = period === '7d' ? 7 : period === '30d' ? 30 : period === '90d' ? 90 : 180;
     return generateRevenueData(days);
@@ -198,6 +195,21 @@ export default function Analytics() {
   const maxHeatVal = useMemo(() => Math.max(...heatmap.map((h) => h.count)), [heatmap]);
 
   const barColors = ['#f59e0b', '#d97706', '#b45309', '#fbbf24', '#92400e'];
+
+  const periodLabels: Record<Period, string> = {
+    '7d': t('analyticsPage.periods.7d'),
+    '30d': t('analyticsPage.periods.30d'),
+    '90d': t('analyticsPage.periods.90d'),
+    all: t('analyticsPage.periods.all'),
+  };
+
+  // Generate segmentation data with i18n
+  const segmentationData = [
+    { name: t('analyticsPage.new'), value: 186, color: '#a8a29e' },
+    { name: t('analyticsPage.active'), value: 412, color: '#f59e0b' },
+    { name: t('analyticsPage.sleeping'), value: 298, color: '#57534e' },
+    { name: t('analyticsPage.vip'), value: 128, color: '#fbbf24' },
+  ];
 
   return (
     <div className="space-y-5 pb-8">
@@ -208,7 +220,7 @@ export default function Analytics() {
         transition={{ duration: 0.4 }}
         className="flex items-center justify-between"
       >
-        <h1 className="text-2xl font-bold text-white">Аналитика</h1>
+        <h1 className="text-2xl font-bold text-white">{t('analyticsPage.title')}</h1>
         <div className="flex gap-1 bg-stone-900 border border-stone-800 rounded-xl p-0.5">
           {(Object.keys(periodLabels) as Period[]).map((p) => (
             <button
@@ -227,10 +239,10 @@ export default function Analytics() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 gap-3">
-        <KpiCard idx={0} title="Выручка за период" value={`${formatCurrency(kpi.revenue)} T`} trend={kpi.revenueTrend} />
-        <KpiCard idx={1} title="Новые клиенты" value={kpi.clients.toString()} trend={kpi.clientsTrend} />
-        <KpiCard idx={2} title="Средний чек" value={`${kpi.avgCheck.toLocaleString('ru-RU')} T`} trend={kpi.avgCheckTrend} />
-        <KpiCard idx={3} title="Конверсия наград" value={`${kpi.rewardConversion}`} trend={kpi.rewardConversionTrend} suffix="%" />
+        <KpiCard idx={0} title={t('analyticsPage.revenue')} value={`${formatCurrency(kpi.revenue)} T`} trend={kpi.revenueTrend} />
+        <KpiCard idx={1} title={t('analyticsPage.newClients')} value={kpi.clients.toString()} trend={kpi.clientsTrend} />
+        <KpiCard idx={2} title={t('analyticsPage.avgCheck')} value={`${kpi.avgCheck.toLocaleString('ru-RU')} T`} trend={kpi.avgCheckTrend} />
+        <KpiCard idx={3} title={t('analyticsPage.rewardConversion')} value={`${kpi.rewardConversion}`} trend={kpi.rewardConversionTrend} suffix="%" />
       </div>
 
       {/* Revenue Chart */}
@@ -241,7 +253,7 @@ export default function Analytics() {
         animate="visible"
         className="bg-stone-900 border border-stone-800 rounded-2xl p-4"
       >
-        <h2 className="text-white text-sm font-semibold mb-3">Динамика выручки</h2>
+        <h2 className="text-white text-sm font-semibold mb-3">{t('analyticsPage.revenueDynamics')}</h2>
         <ResponsiveContainer width="100%" height={220}>
           <AreaChart data={revenueChartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
             <defs>
@@ -272,12 +284,12 @@ export default function Analytics() {
         animate="visible"
         className="bg-stone-900 border border-stone-800 rounded-2xl p-4"
       >
-        <h2 className="text-white text-sm font-semibold mb-3">Когортный анализ удержания</h2>
+        <h2 className="text-white text-sm font-semibold mb-3">{t('analyticsPage.cohortRetention')}</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
               <tr>
-                <th className="text-left text-stone-500 font-medium pb-2 pr-3 whitespace-nowrap">Когорта</th>
+                <th className="text-left text-stone-500 font-medium pb-2 pr-3 whitespace-nowrap">{t('analyticsPage.cohort')}</th>
                 {['M0', 'M1', 'M2', 'M3', 'M4', 'M5'].map((m) => (
                   <th key={m} className="text-center text-stone-500 font-medium pb-2 px-1 min-w-[36px]">{m}</th>
                 ))}
@@ -321,7 +333,7 @@ export default function Analytics() {
           animate="visible"
           className="bg-stone-900 border border-stone-800 rounded-2xl p-4"
         >
-          <h2 className="text-white text-sm font-semibold mb-3">Топ наград по использованию</h2>
+          <h2 className="text-white text-sm font-semibold mb-3">{t('analyticsPage.topRewardsByUsage')}</h2>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={topRewards} layout="vertical" margin={{ top: 0, right: 10, left: 0, bottom: 0 }}>
               <XAxis type="number" tick={{ fill: '#78716c', fontSize: 10 }} tickLine={false} axisLine={false} />
@@ -330,7 +342,7 @@ export default function Analytics() {
                 contentStyle={{ backgroundColor: '#1c1917', border: '1px solid #44403c', borderRadius: '8px', fontSize: '12px' }}
                 labelStyle={{ color: '#a8a29e' }}
                 itemStyle={{ color: '#fbbf24' }}
-                formatter={(v: number) => [`${v} шт.`, 'Использовано']}
+                formatter={(v: number) => [`${v} ${t('analyticsPage.used')}`, t('analyticsPage.used')]}
               />
               <Bar dataKey="claims" radius={[0, 6, 6, 0]} barSize={18}>
                 {topRewards.map((_, i) => (
@@ -349,7 +361,7 @@ export default function Analytics() {
           animate="visible"
           className="bg-stone-900 border border-stone-800 rounded-2xl p-4"
         >
-          <h2 className="text-white text-sm font-semibold mb-3">Сегментация клиентов</h2>
+          <h2 className="text-white text-sm font-semibold mb-3">{t('analyticsPage.customerSegmentation')}</h2>
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
               <Pie
@@ -379,7 +391,7 @@ export default function Analytics() {
               />
               <Tooltip
                 contentStyle={{ backgroundColor: '#1c1917', border: '1px solid #44403c', borderRadius: '8px', fontSize: '12px' }}
-                formatter={(v: number, name: string) => [`${v} чел.`, name]}
+                formatter={(v: number, name: string) => [`${v} ${t('analyticsPage.people')}`, name]}
               />
             </PieChart>
           </ResponsiveContainer>
@@ -394,7 +406,7 @@ export default function Analytics() {
         animate="visible"
         className="bg-stone-900 border border-stone-800 rounded-2xl p-4"
       >
-        <h2 className="text-white text-sm font-semibold mb-3">Активность по времени</h2>
+        <h2 className="text-white text-sm font-semibold mb-3">{t('analyticsPage.activityByTime')}</h2>
         <div className="overflow-x-auto">
           <div className="min-w-[600px]">
             {/* Hours header */}
@@ -405,7 +417,7 @@ export default function Analytics() {
               ))}
             </div>
             {/* Rows */}
-            {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map((day) => (
+            {dayLabels.map((day) => (
               <div key={day} className="flex items-center mb-0.5">
                 <div className="w-8 shrink-0 text-[10px] text-stone-500 font-medium">{day}</div>
                 {Array.from({ length: 24 }, (_, h) => {
@@ -421,7 +433,7 @@ export default function Analytics() {
                           ? '#292524'
                           : `rgba(245, 158, 11, ${0.15 + intensity * 0.75})`,
                       }}
-                      title={`${day} ${h}:00 — ${val} транзакций`}
+                      title={`${day} ${h}:00 — ${val} ${t('analyticsPage.transactions')}`}
                     />
                   );
                 })}
@@ -429,7 +441,7 @@ export default function Analytics() {
             ))}
             {/* Legend */}
             <div className="flex items-center justify-end gap-1 mt-2">
-              <span className="text-[9px] text-stone-600">Мало</span>
+              <span className="text-[9px] text-stone-600">{t('analyticsPage.few')}</span>
               {[0.1, 0.3, 0.5, 0.7, 0.9].map((v) => (
                 <div
                   key={v}
@@ -437,7 +449,7 @@ export default function Analytics() {
                   style={{ backgroundColor: `rgba(245, 158, 11, ${0.15 + v * 0.75})` }}
                 />
               ))}
-              <span className="text-[9px] text-stone-600">Много</span>
+              <span className="text-[9px] text-stone-600">{t('analyticsPage.many')}</span>
             </div>
           </div>
         </div>
@@ -449,11 +461,11 @@ export default function Analytics() {
         variants={fadeUp}
         initial="hidden"
         animate="visible"
-        onClick={() => toast('Отчет формируется...', { icon: '📄', style: { background: '#1c1917', color: '#fff', border: '1px solid #44403c' } })}
+        onClick={() => toast(t('analyticsPage.generatingReport'), { icon: '📄', style: { background: '#1c1917', color: '#fff', border: '1px solid #44403c' } })}
         className="w-full flex items-center justify-center gap-2 bg-stone-900 border border-stone-800 rounded-2xl py-3.5 text-sm font-semibold text-stone-300 hover:text-white hover:border-stone-700 transition-all active:scale-[0.98]"
       >
         <ArrowDownTrayIcon className="w-4.5 h-4.5" />
-        Экспорт в PDF
+        {t('analyticsPage.exportPdf')}
       </motion.button>
     </div>
   );
