@@ -56,12 +56,12 @@ export default function Dashboard() {
   const { data: growthData } = useAnalyticsGrowth(chartPeriod);
   const { data: summaryData } = useAnalyticsSummary();
 
-  const chartData: { name: string; value: number }[] = growthData?.data?.map(
-    (d: { date: string; totalPoints: number }) => ({
+  const chartData: { name: string; value: number }[] = Array.isArray(growthData?.data)
+    ? growthData.data.map((d: { date: string; totalPoints: number }) => ({
       name: new Date(d.date).toLocaleDateString('en', { weekday: 'short', month: 'short', day: 'numeric' }),
-      value: d.totalPoints,
-    })
-  ) || [];
+      value: Number.isFinite(d.totalPoints) ? d.totalPoints : 0,
+    }))
+    : [];
 
   const summary = summaryData?.data;
 

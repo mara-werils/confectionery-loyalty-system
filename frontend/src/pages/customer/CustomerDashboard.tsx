@@ -38,6 +38,16 @@ interface Transaction {
   timestamp: number;
 }
 
+function safeFromJettonRaw(rawBalance: string, decimals: number): number {
+  try {
+    const safeDecimals = Number.isFinite(decimals) ? Math.max(0, Math.min(30, decimals)) : 9;
+    const divisor = 10n ** BigInt(safeDecimals);
+    return Number(BigInt(rawBalance) / divisor);
+  } catch {
+    return 0;
+  }
+}
+
 export default function CustomerDashboard() {
   const wallet = useTonWallet();
   const navigate = useNavigate();
@@ -101,7 +111,7 @@ export default function CustomerDashboard() {
         );
         if (sweet) {
           setBalance({ balance: sweet.balance, decimals: sweet.jetton?.decimals || 9 });
-          setSweetBalance(Number(BigInt(sweet.balance) / BigInt(10 ** (sweet.jetton?.decimals || 9))));
+          setSweetBalance(safeFromJettonRaw(sweet.balance, sweet.jetton?.decimals || 9));
         }
       }
 
@@ -136,7 +146,7 @@ export default function CustomerDashboard() {
 
   const formatBalance = (bal: JettonBalance | null) => {
     if (!bal) return sweetBalance > 0 ? sweetBalance.toLocaleString() : '0';
-    return Number(BigInt(bal.balance) / BigInt(10 ** bal.decimals)).toLocaleString();
+    return safeFromJettonRaw(bal.balance, bal.decimals).toLocaleString();
   };
 
   const formatAddress = (addr: string) => {
@@ -152,7 +162,7 @@ export default function CustomerDashboard() {
     return t('customerDashboard.daysAgo', { n: Math.floor(diff / 86400) });
   };
 
-  const currentBalance = sweetBalance || Number(formatBalance(balance).replace(/,/g, ''));
+  const currentBalance = sweetBalance > 0 ? sweetBalance : safeFromJettonRaw(balance?.balance || '0', balance?.decimals || 9);
   const tier = currentBalance >= 20000 ? 'GOLD' : currentBalance >= 5000 ? 'SILVER' : 'BRONZE';
   const tierData = TIERS[tier];
   const progress = tier === 'GOLD' ? 100 : Math.min(100, Math.round((currentBalance / tierData.threshold) * 100));
