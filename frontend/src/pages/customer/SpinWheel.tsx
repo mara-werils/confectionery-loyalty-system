@@ -32,34 +32,60 @@ export default function SpinWheel() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const status = (statusRaw as any)?.data;
 
+  // Client-side weighted random pick
+  const pickLocalPrize = (): number => {
+    const PRIZES = [
+      { value: 5, weight: 30 }, { value: 10, weight: 25 }, { value: 15, weight: 18 },
+      { value: 20, weight: 12 }, { value: 25, weight: 7 }, { value: 50, weight: 5 },
+      { value: 100, weight: 2 }, { value: 500, weight: 1 },
+    ];
+    const total = PRIZES.reduce((s, p) => s + p.weight, 0);
+    let rand = Math.random() * total;
+    for (const p of PRIZES) { rand -= p.weight; if (rand <= 0) return p.value; }
+    return 5;
+  };
+
+  const doSpin = (prize: number) => {
+    const idx = SEGMENTS.indexOf(prize);
+    const targetAngle = 360 * (5 + Math.random() * 3) + (360 - idx * SEGMENT_ANGLE - SEGMENT_ANGLE / 2);
+    setRotation(prev => prev + targetAngle);
+    setSpinning(true);
+    setTimeout(() => {
+      setSpinning(false);
+      setResult(prize);
+      setSweetBalance(sweetBalance + prize);
+      confetti({ particleCount: 200, spread: 90, origin: { y: 0.5 } });
+      toast.success(`+${prize} SWEET!`, { duration: 3000 });
+      queryClient.invalidateQueries({ queryKey: ['spin-status'] });
+      // Save cooldown to localStorage
+      localStorage.setItem('lastSpin', new Date().toISOString());
+    }, 4500);
+  };
+
   const spinMutation = useMutation({
     mutationFn: () => api.spin.play(),
     onSuccess: (res) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const prize = (res as any).data.prize as number;
-      const idx = SEGMENTS.indexOf(prize);
-      // Calculate target angle: spin 5+ full rotations + land on prize segment
-      const targetAngle = 360 * (5 + Math.random() * 3) + (360 - idx * SEGMENT_ANGLE - SEGMENT_ANGLE / 2);
-
-      setRotation(prev => prev + targetAngle);
-      setSpinning(true);
-
-      // After animation ends
-      setTimeout(() => {
-        setSpinning(false);
-        setResult(prize);
-        setSweetBalance(sweetBalance + prize);
-        confetti({ particleCount: 200, spread: 90, origin: { y: 0.5 } });
-        toast.success(`+${prize} SWEET!`, { duration: 3000 });
-        queryClient.invalidateQueries({ queryKey: ['spin-status'] });
-      }, 4500);
+      doSpin(prize);
     },
     onError: () => {
-      toast.error(t('spinWheel.alreadySpun') || 'Already spun today!');
+      // Fallback: client-side spin when backend unavailable
+      const prize = pickLocalPrize();
+      doSpin(prize);
     },
   });
 
-  const canSpin = status?.canSpin && !spinning;
+  // Check cooldown: backend status OR localStorage fallback
+  const localSpunToday = (() => {
+    const last = localStorage.getItem('lastSpin');
+    if (!last) return false;
+    const lastDate = new Date(last);
+    const today = new Date();
+    return lastDate.toDateString() === today.toDateString();
+  })();
+
+  const canSpin = (status?.canSpin ?? !localSpunToday) && !spinning;
 
   const formatTimeLeft = () => {
     if (!status?.nextSpinAt) return '';

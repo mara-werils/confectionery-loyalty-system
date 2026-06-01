@@ -304,7 +304,44 @@
     "ai": "AI",
     "referrals": "Refs",
     "governance": "DAO",
-    "analytics": "Analytics"
+    "analytics": "Analytics",
+    "spin": "Spin",
+    "gift": "Gift"
+  },
+  "spinWheel": {
+    "title": "Spin & Win",
+    "subtitle": "Spin the wheel once a day to win bonus SWEET tokens!",
+    "spin": "SPIN!",
+    "spinning": "Spinning...",
+    "won": "Added to your balance!",
+    "alreadySpun": "Already spun today!",
+    "nextIn": "Next spin in",
+    "comeBack": "Come back tomorrow!",
+    "prizes": "Prize Pool"
+  },
+  "checkin": {
+    "dailyBonus": "Daily Bonus",
+    "startStreak": "Start your streak!",
+    "claimed": "Claimed"
+  },
+  "gift": {
+    "title": "Gift SWEET",
+    "subtitle": "Send SWEET tokens to a friend. Only possible with blockchain!",
+    "yourBalance": "Your Balance",
+    "recipient": "Recipient Wallet",
+    "amount": "Amount",
+    "message": "Message (optional)",
+    "messagePlaceholder": "Happy birthday!",
+    "sending": "Sending",
+    "to": "To",
+    "sendButton": "Send Gift",
+    "sent": "Sent!",
+    "sentSuccess": "Sent!",
+    "sentTo": "Sent to",
+    "receivedFrom": "Received from",
+    "history": "Gift History",
+    "whyBlockchain": "Why blockchain matters",
+    "whyBlockchainDesc": "Traditional loyalty points (Starbucks Stars, airline miles) cannot be gifted or transferred. With SWEET tokens on TON blockchain, you truly own your rewards and can share them freely."
   },
   "staking": {
     "title": "Staking",
