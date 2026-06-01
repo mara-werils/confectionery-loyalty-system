@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useTonWallet } from '@tonconnect/ui-react';
-import { Component, type ErrorInfo, type ReactNode, useEffect } from 'react';
+import { useEffect } from 'react';
 
 // Pages
 import Home from './pages/Home';
@@ -53,38 +53,6 @@ const RoleGuard = ({ allowedRole, children }: { allowedRole: 'business' | 'custo
   }
   return <>{children}</>;
 };
-
-class RouteErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
-  state = { hasError: false };
-
-  static getDerivedStateFromError() {
-    return { hasError: true };
-  }
-
-  componentDidCatch(error: Error, info: ErrorInfo) {
-    console.error('Route render error:', error, info);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className="min-h-screen bg-[#0d0b0a] text-white flex items-center justify-center p-6">
-          <div className="w-full max-w-md rounded-2xl border border-stone-800 bg-stone-900 p-5 text-center">
-            <p className="text-sm font-semibold text-stone-200 mb-2">Ошибка загрузки страницы</p>
-            <p className="text-xs text-stone-500 mb-4">Попробуйте открыть раздел заново.</p>
-            <button
-              onClick={() => window.location.reload()}
-              className="w-full py-2.5 rounded-xl bg-amber-500 text-black text-sm font-bold hover:bg-amber-400 transition-colors"
-            >
-              Перезагрузить
-            </button>
-          </div>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
-}
 
 function App() {
   const { tg, isExpanded } = useTelegram();
@@ -139,7 +107,7 @@ function App() {
       {/* Business routes with business layout */}
       <Route element={<ProtectedRoute />}>
         <Route element={<RoleGuard allowedRole="business"><Layout variant="business" /></RoleGuard>}>
-          <Route path="/business/dashboard" element={<RouteErrorBoundary><Dashboard /></RouteErrorBoundary>} />
+          <Route path="/business/dashboard" element={<Dashboard />} />
           <Route path="/business/verify-coupon" element={<CouponVerify />} />
           <Route path="/ai" element={<AIPredictions />} />
           <Route path="/blockchain" element={<Blockchain />} />
@@ -154,7 +122,7 @@ function App() {
       {/* Customer routes with customer layout */}
       <Route element={<ProtectedRoute />}>
         <Route element={<RoleGuard allowedRole="customer"><Layout variant="customer" /></RoleGuard>}>
-          <Route path="/customer/dashboard" element={<RouteErrorBoundary><CustomerDashboard /></RouteErrorBoundary>} />
+          <Route path="/customer/dashboard" element={<CustomerDashboard />} />
           <Route path="/customer/rewards" element={<CustomerRewards />} />
           <Route path="/achievements" element={<Achievements />} />
           <Route path="/history" element={<History />} />
