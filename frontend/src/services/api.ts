@@ -198,6 +198,25 @@ export const api = {
     check:        () => axiosInstance.post('/achievements/check'),
     getLeaderboard: () => axiosInstance.get('/achievements/leaderboard'),
   },
+
+  // Spin Wheel
+  spin: {
+    status: () => axiosInstance.get('/spin/status'),
+    play:   () => axiosInstance.post('/spin/play'),
+  },
+
+  // Daily Check-in
+  checkin: {
+    status: () => axiosInstance.get('/checkin/status'),
+    claim:  () => axiosInstance.post('/checkin/claim'),
+  },
+
+  // Gift Tokens
+  gift: {
+    send:    (receiverWallet: string, amount: number, message?: string) =>
+      axiosInstance.post('/gift/send', { receiverWallet, amount, message }),
+    history: () => axiosInstance.get('/gift/history'),
+  },
 };
 
 export default axiosInstance;

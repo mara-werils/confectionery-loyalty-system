@@ -32,6 +32,8 @@ const Analytics = lazy(() => import('./pages/business/Analytics'));
 import CustomerDashboard from './pages/customer/CustomerDashboard';
 import CustomerRewards from './pages/customer/CustomerRewards';
 import Staking from './pages/customer/Staking';
+const SpinWheel = lazy(() => import('./pages/customer/SpinWheel'));
+const GiftTokens = lazy(() => import('./pages/customer/GiftTokens'));
 
 // Components
 import Layout from './components/Layout';
@@ -132,6 +134,8 @@ function App() {
         <Route element={<RoleGuard allowedRole="customer"><Layout variant="customer" /></RoleGuard>}>
           <Route path="/customer/dashboard" element={<CustomerDashboard />} />
           <Route path="/customer/rewards" element={<CustomerRewards />} />
+          <Route path="/customer/spin" element={<SpinWheel />} />
+          <Route path="/customer/gift" element={<GiftTokens />} />
           <Route path="/achievements" element={<Achievements />} />
           <Route path="/history" element={<History />} />
           <Route path="/stats" element={<Stats />} />

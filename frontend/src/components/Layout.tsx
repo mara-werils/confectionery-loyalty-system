@@ -53,8 +53,8 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
   const customerNavItems = [
     { path: '/customer/dashboard', label: t('nav.wallet'),  icon: HomeIcon,     activeIcon: HomeIconSolid },
     { path: '/customer/rewards',   label: t('nav.rewards'), icon: GiftIcon,     activeIcon: GiftIconSolid },
-    ...(FEATURES.STAKING ? [{ path: '/staking', label: t('nav.staking'), icon: FireIcon, activeIcon: FireIconSolid }] : []),
-    { path: '/achievements',       label: 'NFT',            icon: TrophyIcon,   activeIcon: TrophyIconSolid },
+    { path: '/customer/spin',     label: t('nav.spin') || 'Spin',  icon: SparklesIcon, activeIcon: SparklesIconSolid },
+    { path: '/customer/gift',     label: t('nav.gift') || 'Gift',  icon: FireIcon,     activeIcon: FireIconSolid },
     { path: '/customer/profile',   label: t('nav.profile'), icon: UserCircleIcon, activeIcon: UserCircleIconSolid },
   ];
 
