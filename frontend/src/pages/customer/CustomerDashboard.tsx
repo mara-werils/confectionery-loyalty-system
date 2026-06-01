@@ -119,11 +119,6 @@ export default function CustomerDashboard() {
 
   useEffect(() => { fetchData(); }, [walletAddress, location.pathname]);
 
-  const formatBalance = (bal: JettonBalance | null) => {
-    if (!bal) return sweetBalance > 0 ? sweetBalance.toLocaleString() : '0';
-    return safeFromJettonRaw(bal.balance, bal.decimals).toLocaleString();
-  };
-
   const formatAddress = (addr: string) => {
     if (!addr || addr.length < 12) return addr;
     return addr.slice(0, 6) + '…' + addr.slice(-4);
