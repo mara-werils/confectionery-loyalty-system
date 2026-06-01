@@ -68,11 +68,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             toastOptions={{
               duration: 4000,
               style: {
-                background: '#1c1917',
-                color: '#fff',
+                background: 'var(--sweet-card)',
+                color: 'var(--sweet-text)',
                 borderRadius: '16px',
                 padding: '12px 16px',
-                border: '1px solid #292524',
+                border: '1px solid var(--sweet-border)',
                 fontSize: '14px',
                 fontWeight: 500,
               },

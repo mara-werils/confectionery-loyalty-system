@@ -207,7 +207,7 @@ export default function SpinWheel() {
         className={`w-full max-w-xs py-4 rounded-2xl text-lg font-bold transition-all ${
           canSpin
             ? 'bg-amber-500 text-black hover:bg-amber-400 shadow-lg shadow-amber-500/25'
-            : 'bg-stone-800 text-stone-500 cursor-not-allowed'
+            : 'cursor-not-allowed'
         }`}
       >
         {spinning ? (
@@ -227,12 +227,12 @@ export default function SpinWheel() {
 
       {/* Info */}
       <div className="mt-6 w-full max-w-xs">
-        <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4">
-          <p className="text-xs font-semibold text-stone-400 mb-3">{t('spinWheel.prizes') || 'Prize Pool'}</p>
+        <div className="rounded-2xl p-4" style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)' }}>
+          <p className="text-xs font-semibold mb-3" style={{ color: 'var(--sweet-text-secondary)' }}>{t('spinWheel.prizes') || 'Prize Pool'}</p>
           <div className="grid grid-cols-4 gap-2">
             {SEGMENTS.map(v => (
               <div key={v} className={`text-center py-1.5 rounded-lg text-xs font-bold ${
-                v >= 100 ? 'bg-amber-400/15 text-amber-400 border border-amber-400/20' : 'bg-stone-800 text-stone-400'
+                v >= 100 ? 'bg-amber-400/15 text-amber-400 border border-amber-400/20' : 'text-stone-400'
               }`}>
                 {v}
               </div>

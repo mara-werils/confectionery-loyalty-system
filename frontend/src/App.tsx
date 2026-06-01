@@ -89,7 +89,7 @@ function App() {
   }, [tg?.themeParams]);
 
   const LazyFallback = (
-    <div className="min-h-screen bg-[#0d0b0a] flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--sweet-bg)' }}>
       <div className="w-8 h-8 border-2 border-amber-400/30 border-t-amber-400 rounded-full animate-spin" />
     </div>
   );

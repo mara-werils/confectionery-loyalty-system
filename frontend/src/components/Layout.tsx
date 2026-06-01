@@ -12,6 +12,8 @@ import {
   ShieldCheckIcon,
   FireIcon,
   PresentationChartBarIcon,
+  SunIcon,
+  MoonIcon,
 } from '@heroicons/react/24/outline';
 import {
   HomeIcon as HomeIconSolid,
@@ -28,6 +30,7 @@ import {
 import clsx from 'clsx';
 import { changeLanguage, languages } from '../i18n';
 import { FEATURES } from '../config/features';
+import { useTheme } from '../hooks/useTheme';
 
 interface LayoutProps {
   variant?: 'business' | 'customer';
@@ -36,6 +39,7 @@ interface LayoutProps {
 export default function Layout({ variant = 'business' }: LayoutProps) {
   const location = useLocation();
   const { t, i18n } = useTranslation();
+  const { isDark, toggle } = useTheme();
 
   const businessNavItems = [
     { path: '/business/dashboard', label: t('nav.pos'),       icon: HomeIcon,            activeIcon: HomeIconSolid },
@@ -59,9 +63,20 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
   const navItems = variant === 'customer' ? customerNavItems : businessNavItems;
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-[#100c0a]">
-      {/* Language switcher — top right */}
-      <div className="w-full max-w-2xl px-4 pt-4 flex justify-end z-50">
+    <div className="min-h-screen flex flex-col items-center transition-colors" style={{ background: 'var(--sweet-bg)' }}>
+      {/* Top bar: theme toggle + language switcher */}
+      <div className="w-full max-w-2xl px-4 pt-4 flex justify-between z-50">
+        <button
+          onClick={toggle}
+          className="w-8 h-8 rounded-full flex items-center justify-center transition-all"
+          style={{
+            background: 'var(--sweet-accent-dim)',
+            color: 'var(--sweet-accent)',
+          }}
+        >
+          {isDark ? <SunIcon className="w-4 h-4" /> : <MoonIcon className="w-4 h-4" />}
+        </button>
+
         <div className="flex items-center gap-0.5">
           {languages.map((l) => (
             <button
@@ -71,8 +86,9 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
                 'w-8 h-8 rounded-full text-sm flex items-center justify-center transition-all',
                 i18n.language === l.code
                   ? 'bg-amber-400/15 text-amber-400 ring-1 ring-amber-400/30'
-                  : 'text-stone-600 hover:text-stone-400'
+                  : 'opacity-50 hover:opacity-80'
               )}
+              style={{ color: i18n.language === l.code ? undefined : 'var(--sweet-text-muted)' }}
               title={l.name}
             >
               <span>{l.flag}</span>
@@ -102,7 +118,7 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
         <div
           className="w-full max-w-2xl mx-auto"
           style={{
-            background: 'linear-gradient(to top, #100c0a 60%, transparent)',
+            background: `linear-gradient(to top, var(--sweet-bg) 60%, transparent)`,
             paddingBottom: '12px',
             paddingTop: '20px',
             paddingLeft: '16px',
@@ -110,11 +126,17 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
           }}
         >
           <div className="flex justify-center mb-1">
-            <span className="text-[8px] font-semibold text-stone-700 tracking-widest uppercase">
+            <span className="text-[8px] font-semibold tracking-widest uppercase" style={{ color: 'var(--sweet-text-faint)' }}>
               Powered by TON Blockchain
             </span>
           </div>
-          <div className="bg-[#1a1412]/95 backdrop-blur-xl border border-[#2a2018] rounded-2xl px-1 py-1 flex items-center justify-around shadow-[0_-4px_24px_rgba(0,0,0,0.4)]">
+          <div
+            className="backdrop-blur-xl rounded-2xl px-1 py-1 flex items-center justify-around shadow-lg transition-colors"
+            style={{
+              background: `color-mix(in srgb, var(--sweet-nav) 95%, transparent)`,
+              border: `1px solid var(--sweet-border)`,
+            }}
+          >
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
               const Icon = isActive ? item.activeIcon : item.icon;
@@ -128,22 +150,23 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
                   {isActive && (
                     <motion.div
                       layoutId="navPill"
-                      className="absolute inset-0 rounded-xl bg-[#2a2018]"
+                      className="absolute inset-0 rounded-xl"
+                      style={{ background: 'var(--sweet-nav-active)' }}
                       transition={{ type: 'spring', bounce: 0.2, duration: 0.5 }}
                     />
                   )}
 
-                  <div className={clsx(
-                    'relative z-10 transition-all duration-200',
-                    isActive ? 'text-white' : 'text-stone-600 group-hover:text-stone-400'
-                  )}>
+                  <div
+                    className="relative z-10 transition-all duration-200"
+                    style={{ color: isActive ? 'var(--sweet-text)' : 'var(--sweet-text-muted)' }}
+                  >
                     <Icon className="w-5 h-5" />
                   </div>
 
-                  <span className={clsx(
-                    'relative z-10 text-[9px] font-semibold mt-0.5 tracking-wide transition-all duration-200',
-                    isActive ? 'text-white' : 'text-stone-600'
-                  )}>
+                  <span
+                    className="relative z-10 text-[9px] font-semibold mt-0.5 tracking-wide transition-all duration-200"
+                    style={{ color: isActive ? 'var(--sweet-text)' : 'var(--sweet-text-muted)' }}
+                  >
                     {item.label}
                   </span>
                 </NavLink>

@@ -86,7 +86,7 @@ export default function GiftTokens() {
       </motion.div>
 
       {/* Balance */}
-      <div className="flex items-center justify-between mb-5 bg-stone-900 border border-stone-800 rounded-2xl p-4">
+      <div className="flex items-center justify-between mb-5 sweet-card rounded-2xl p-4">
         <span className="text-sm text-stone-400">{t('gift.yourBalance') || 'Your Balance'}</span>
         <span className="text-lg font-black text-amber-400">{sweetBalance.toLocaleString()} SWEET</span>
       </div>
@@ -96,7 +96,7 @@ export default function GiftTokens() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="bg-stone-900 border border-stone-800 rounded-2xl p-5 mb-5 space-y-4"
+        className="sweet-card rounded-2xl p-5 mb-5 space-y-4"
       >
         {/* Recipient */}
         <div>
@@ -108,7 +108,7 @@ export default function GiftTokens() {
             value={address}
             onChange={e => setAddress(e.target.value)}
             placeholder="UQ... or EQ..."
-            className="w-full bg-stone-950 border border-stone-800 rounded-xl px-4 py-3 text-sm text-white placeholder-stone-600 focus:border-amber-400/50 focus:outline-none transition-colors font-mono"
+            className="w-full sweet-input rounded-xl px-4 py-3 text-sm font-mono"
           />
         </div>
 
@@ -125,7 +125,7 @@ export default function GiftTokens() {
               placeholder="0"
               min="1"
               max={sweetBalance}
-              className="w-full bg-stone-950 border border-stone-800 rounded-xl px-4 py-3 text-sm text-white placeholder-stone-600 focus:border-amber-400/50 focus:outline-none transition-colors"
+              className="w-full sweet-input rounded-xl px-4 py-3 text-sm"
             />
             <button
               onClick={() => setAmount(String(sweetBalance))}
@@ -147,7 +147,7 @@ export default function GiftTokens() {
             onChange={e => setMessage(e.target.value)}
             placeholder={t('gift.messagePlaceholder') || 'Happy birthday!'}
             maxLength={200}
-            className="w-full bg-stone-950 border border-stone-800 rounded-xl px-4 py-3 text-sm text-white placeholder-stone-600 focus:border-amber-400/50 focus:outline-none transition-colors"
+            className="w-full sweet-input rounded-xl px-4 py-3 text-sm"
           />
         </div>
 
@@ -176,7 +176,7 @@ export default function GiftTokens() {
           className={`w-full py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all ${
             isValid
               ? 'bg-pink-500 text-white hover:bg-pink-400 shadow-lg shadow-pink-500/20'
-              : 'bg-stone-800 text-stone-500 cursor-not-allowed'
+              : 'sweet-card cursor-not-allowed opacity-50'
           }`}
         >
           {sendMutation.isPending ? (
@@ -190,7 +190,7 @@ export default function GiftTokens() {
       </motion.div>
 
       {/* Why blockchain banner */}
-      <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4 mb-5">
+      <div className="sweet-card rounded-2xl p-4 mb-5">
         <p className="text-xs font-semibold text-amber-400 mb-1">{t('gift.whyBlockchain') || 'Why blockchain matters'}</p>
         <p className="text-[11px] text-stone-500 leading-relaxed">
           {t('gift.whyBlockchainDesc') || 'Traditional loyalty points (Starbucks Stars, airline miles) cannot be gifted or transferred. With SWEET tokens on TON blockchain, you truly own your rewards and can share them freely.'}
@@ -203,7 +203,7 @@ export default function GiftTokens() {
           <p className="text-xs font-semibold text-stone-400 mb-3">{t('gift.history') || 'Gift History'}</p>
           <div className="space-y-2">
             {history.map((g: { id: string; direction: string; amount: number; senderWallet: string; receiverWallet: string; createdAt: string }) => (
-              <div key={g.id} className="flex items-center justify-between bg-stone-900 border border-stone-800 rounded-xl px-4 py-3">
+              <div key={g.id} className="flex items-center justify-between sweet-card rounded-xl px-4 py-3">
                 <div className="flex items-center gap-3">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
                     g.direction === 'sent' ? 'bg-pink-500/10' : 'bg-green-500/10'

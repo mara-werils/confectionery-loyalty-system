@@ -458,7 +458,7 @@ function DailyCheckinCard() {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
-      className="mb-4 bg-[#1a1412] border border-[#2a2018] rounded-2xl p-4"
+      className="mb-4 sweet-card rounded-2xl p-4"
     >
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">

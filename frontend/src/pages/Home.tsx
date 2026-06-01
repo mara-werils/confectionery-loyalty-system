@@ -91,7 +91,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#100c0a] text-white relative overflow-hidden flex flex-col">
+    <div className="min-h-screen relative overflow-hidden flex flex-col transition-colors" style={{ background: 'var(--sweet-bg)', color: 'var(--sweet-text)' }}>
       {/* Background texture */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(245,158,11,0.08),transparent)]" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_40%_40%_at_80%_80%,rgba(180,122,90,0.05),transparent)]" />
