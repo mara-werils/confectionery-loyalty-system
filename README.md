@@ -48,7 +48,7 @@ This project implements a complete loyalty system for confectionery businesses (
 
 1. **Clone the repository**
  ```bash
- git clone https://github.com/aitu-loyalty/loyalty-system.git
+ git clone https://github.com/mara-werils/confectionery-loyalty-system.git
  cd loyalty-system
  ```
 
