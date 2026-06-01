@@ -29,6 +29,7 @@ import {
 } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
 import { changeLanguage, languages } from '../i18n';
+import { FEATURES } from '../config/features';
 
 interface LayoutProps {
   variant?: 'business' | 'customer';
@@ -44,7 +45,7 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
     { path: '/ai',                 label: t('nav.ai'),          icon: SparklesIcon,        activeIcon: SparklesIconSolid },
     { path: '/blockchain',         label: t('nav.blockchain'),  icon: CubeTransparentIcon, activeIcon: CubeTransparentIconSolid },
     { path: '/referrals',          label: t('nav.referrals'),   icon: UserPlusIcon,        activeIcon: UserPlusIconSolid },
-    { path: '/governance',         label: t('nav.governance'),  icon: ShieldCheckIcon,     activeIcon: ShieldCheckIconSolid },
+    ...(FEATURES.GOVERNANCE ? [{ path: '/governance', label: t('nav.governance'), icon: ShieldCheckIcon, activeIcon: ShieldCheckIconSolid }] : []),
     { path: '/analytics',          label: t('nav.analytics'),   icon: PresentationChartBarIcon, activeIcon: PresentationChartBarIconSolid },
     { path: '/business/profile',   label: t('nav.profile'),   icon: UserCircleIcon,      activeIcon: UserCircleIconSolid },
   ];
@@ -52,7 +53,7 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
   const customerNavItems = [
     { path: '/customer/dashboard', label: t('nav.wallet'),  icon: HomeIcon,     activeIcon: HomeIconSolid },
     { path: '/customer/rewards',   label: t('nav.rewards'), icon: GiftIcon,     activeIcon: GiftIconSolid },
-    { path: '/staking',             label: t('nav.staking'),  icon: FireIcon,     activeIcon: FireIconSolid },
+    ...(FEATURES.STAKING ? [{ path: '/staking', label: t('nav.staking'), icon: FireIcon, activeIcon: FireIconSolid }] : []),
     { path: '/achievements',       label: 'NFT',            icon: TrophyIcon,   activeIcon: TrophyIconSolid },
     { path: '/customer/profile',   label: t('nav.profile'), icon: UserCircleIcon, activeIcon: UserCircleIconSolid },
   ];
@@ -110,6 +111,11 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
             paddingRight: '16px',
           }}
         >
+          <div className="flex justify-center mb-1">
+            <span className="text-[8px] font-semibold text-stone-700 tracking-widest uppercase">
+              Powered by TON Blockchain
+            </span>
+          </div>
           <div className="bg-stone-900/95 backdrop-blur-xl border border-stone-800 rounded-2xl px-1 py-1 flex items-center justify-around shadow-[0_-4px_24px_rgba(0,0,0,0.4)]">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;

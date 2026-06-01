@@ -13,6 +13,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../services/api';
 import { useAuthStore } from '../store/authStore';
 import toast from 'react-hot-toast';
+import confetti from 'canvas-confetti';
 import { useTranslation } from 'react-i18next';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -246,6 +247,7 @@ export default function Achievements() {
     onSuccess: (res) => {
       const newly: string[] = (res as { data: { newlyUnlocked: string[] } }).data.newlyUnlocked;
       if (newly.length > 0) {
+        confetti({ particleCount: 150, spread: 80, origin: { y: 0.5 } });
         toast.success(t('achievements.newlyUnlocked', { items: newly.join(', ') }), { duration: 4000 });
       } else {
         toast(t('achievements.noNew'));

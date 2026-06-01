@@ -22,6 +22,8 @@ const Scanner = lazy(() =>
   import('@yudiel/react-qr-scanner').then((module) => ({ default: module.Scanner }))
 );
 
+const CASHBACK_RATE = 0.10;
+
 // Validate TON address format (UQ.../EQ.../kQ...)
 function isValidTonAddress(addr: string): boolean {
   if (!addr) return false;
@@ -113,7 +115,7 @@ export default function Dashboard() {
       toast.error('Invalid TON wallet address');
       return;
     }
-    const cashback = Math.floor(purchaseAmt * 0.1);
+    const cashback = Math.floor(purchaseAmt * CASHBACK_RATE);
     setLoading(true);
     try {
       toast.loading(`Sending ${cashback} SWEET...`, { id: 'transfer' });
@@ -281,9 +283,9 @@ export default function Dashboard() {
               </div>
 
               <div className="bg-stone-950/50 border border-stone-800/80 px-4 py-3 rounded-lg flex justify-between items-center mt-auto">
-                <span className="text-sm text-stone-400 truncate pr-2">{t('dashboard.cashbackReward') || 'Loyalty Reward'} (10%)</span>
+                <span className="text-sm text-stone-400 truncate pr-2">{t('dashboard.cashbackReward') || 'Loyalty Reward'} ({CASHBACK_RATE * 100}%)</span>
                 <span className="font-mono text-sm font-medium text-stone-200 shrink-0">
-                  +{Math.floor(Number(posAmount) * 0.1)} SWEET
+                  +{Math.floor(Number(posAmount) * CASHBACK_RATE)} SWEET
                 </span>
               </div>
 
@@ -430,7 +432,16 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <div className="px-5 pb-5">
+              <div className="px-5 pb-5 space-y-2">
+                <a
+                  href={`https://testnet.tonviewer.com/transaction/${receipt.txId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-2.5 border border-stone-700 text-stone-300 font-semibold rounded-xl hover:bg-stone-800 transition-colors text-sm flex items-center justify-center gap-2"
+                >
+                  <ArrowUpRightIcon className="w-4 h-4" />
+                  View on TON Explorer
+                </a>
                 <button
                   onClick={() => setReceipt(null)}
                   className="w-full py-3 bg-amber-500 text-black font-bold rounded-xl hover:bg-amber-400 transition-colors text-sm"
