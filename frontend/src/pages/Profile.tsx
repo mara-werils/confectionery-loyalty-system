@@ -86,7 +86,20 @@ const TIER_NEXT: Record<string, { next: string; required: number }> = {
 export default function Profile() {
   const [tonConnectUI] = useTonConnectUI();
   const wallet = useTonWallet();
-  const { user, role, setRole, logout, avatar, setAvatar, hasBusinessSbt, setHasBusinessSbt, setUser, sweetBalance, token } = useAuthStore();
+  const {
+    user,
+    role,
+    setRole,
+    logout,
+    avatar,
+    setAvatar,
+    hasBusinessSbt,
+    setHasBusinessSbt,
+    setUser,
+    setToken,
+    sweetBalance,
+    token,
+  } = useAuthStore();
   const { hapticFeedback } = useTelegram();
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -215,6 +228,29 @@ export default function Profile() {
       setRole('business');
       navigate('/business/register');
     } else {
+      // Re-auth as customer to avoid stale/invalid session after role switch
+      const address = wallet?.account?.address;
+      if (address) {
+        try {
+          const res = await api.auth.customerAuth(address) as {
+            data?: {
+              token?: string;
+              partner?: {
+                id: string;
+                walletAddress: string;
+                companyName: string;
+                email?: string;
+                tier: 'BRONZE' | 'SILVER' | 'GOLD';
+                status: 'PENDING' | 'ACTIVE' | 'SUSPENDED' | 'BANNED';
+              };
+            };
+          };
+          if (res.data?.token) setToken(res.data.token);
+          if (res.data?.partner) setUser(res.data.partner);
+        } catch {
+          // Non-fatal: keep navigation, dashboard has its own fallbacks
+        }
+      }
       setRole('customer');
       navigate('/customer/dashboard');
     }
