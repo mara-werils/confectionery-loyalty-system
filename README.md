@@ -89,34 +89,36 @@ This project implements a complete loyalty system for confectionery businesses (
 
 ## Project Structure
 
-```
+``` python
  contracts/ # TON smart contracts (FunC)
- contracts/ # FunC source files
- wrappers/ # TypeScript wrappers
- tests/ # Contract tests
- scripts/ # Deployment scripts
+    contracts/ # FunC source files
+    wrappers/ # TypeScript wrappers
+    tests/ # Contract tests
+    scripts/ # Deployment scripts
 
  backend/ # Express.js API
- src/
- config/ # Configuration
- middleware/ # Express middleware
- routes/ # API routes
- services/ # Business logic
- utils/ # Utilities
- prisma/ # Database schema
+    src/
+    config/ # Configuration
+    middleware/ # Express middleware
+    routes/ # API routes
+    services/ # Business logic
+    utils/ # Utilities
+    prisma/ # Database schema
 
  frontend/ # React Telegram Mini App
- src/
- components/ # React components
- pages/ # Page components
- hooks/ # Custom hooks
- services/ # API services
- store/ # Zustand store
- public/ # Static assets
+    src/
+    components/ # React components
+    pages/ # Page components
+    hooks/ # Custom hooks
+    services/ # API services
+    store/ # Zustand store
+    public/ # Static assets
+
+ bot/ # Telegram bot server
+    src/
 
  docker/ # Docker configurations
  .github/ # GitHub Actions
- docs/ # Documentation
 ```
 
 ## Configuration
