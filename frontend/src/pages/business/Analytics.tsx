@@ -74,13 +74,6 @@ const topRewards = [
   { name: 'Набор макарон', claims: 156 },
 ];
 
-const segmentationData = [
-  { name: 'Новые', value: 186, color: '#a8a29e' },
-  { name: 'Активные', value: 412, color: '#f59e0b' },
-  { name: 'Спящие', value: 298, color: '#57534e' },
-  { name: 'VIP', value: 128, color: '#fbbf24' },
-];
-
 function generateHeatmapData(dayLabels: string[]) {
   const data: { day: string; hour: number; count: number }[] = [];
   for (let d = 0; d < 7; d++) {
