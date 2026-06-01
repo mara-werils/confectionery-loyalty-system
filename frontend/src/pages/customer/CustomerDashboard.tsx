@@ -37,13 +37,11 @@ interface Transaction {
 }
 
 function safeFromJettonRaw(rawBalance: string, decimals: number): number {
-  try {
-    const safeDecimals = Number.isFinite(decimals) ? Math.max(0, Math.min(30, decimals)) : 9;
-    const divisor = 10n ** BigInt(safeDecimals);
-    return Number(BigInt(rawBalance) / divisor);
-  } catch {
-    return 0;
-  }
+  const safeDecimals = Number.isFinite(decimals) ? Math.max(0, Math.min(18, decimals)) : 9;
+  const parsed = Number(rawBalance);
+  if (!Number.isFinite(parsed)) return 0;
+  const divisor = Math.pow(10, safeDecimals);
+  return Math.floor(parsed / divisor);
 }
 
 export default function CustomerDashboard() {
