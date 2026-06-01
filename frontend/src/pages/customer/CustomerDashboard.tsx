@@ -64,9 +64,12 @@ export default function CustomerDashboard() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const allAchievements: { id: string; name: string; icon: string; unlockedAt?: string }[] =
+  const rawAchievements =
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (achievementsData as any)?.data || [];
+    (achievementsData as any)?.data;
+  const allAchievements: { id: string; name: string; icon: string; unlockedAt?: string }[] = Array.isArray(rawAchievements)
+    ? rawAchievements
+    : [];
   const unlockedAchievements = allAchievements.filter((a) => !!a.unlockedAt).slice(0, 2);
 
   // NOTE: realtime socket updates are intentionally disabled here for maximum webview stability.
@@ -78,7 +81,7 @@ export default function CustomerDashboard() {
       const res = await fetch(`https://testnet.tonapi.io/v2/accounts/${walletAddress}/jettons`);
       const data = await res.json();
 
-      if (data.balances?.length > 0) {
+      if (Array.isArray(data?.balances) && data.balances.length > 0) {
         const sweet = data.balances.find(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (b: any) => b.jetton?.address?.toLowerCase() === '0:4d3a2278693a04f846b5d83a58e67066bb56ca4f46b1b7cd49992f4114f87c9c'
@@ -92,7 +95,7 @@ export default function CustomerDashboard() {
       const txRes = await fetch(`https://testnet.tonapi.io/v2/accounts/${walletAddress}/events?limit=10`);
       const txData = await txRes.json();
 
-      if (txData.events) {
+      if (Array.isArray(txData?.events)) {
         const parsed: Transaction[] = txData.events
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           .filter((e: any) => e.actions?.some((a: any) => a.type === 'JettonTransfer'))

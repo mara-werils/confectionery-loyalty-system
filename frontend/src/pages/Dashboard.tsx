@@ -56,13 +56,21 @@ export default function Dashboard() {
   const { data: summaryData } = useAnalyticsSummary();
 
   const chartData: { name: string; value: number }[] = Array.isArray(growthData?.data)
-    ? growthData.data.map((d: { date: string; totalPoints: number }) => ({
-      name: new Date(d.date).toLocaleDateString('en', { weekday: 'short', month: 'short', day: 'numeric' }),
-      value: Number.isFinite(d.totalPoints) ? d.totalPoints : 0,
-    }))
+    ? growthData.data.map((d: { date?: string; totalPoints?: number }, index: number) => {
+      const parsedDate = d?.date ? new Date(d.date) : null;
+      const isValidDate = !!parsedDate && !Number.isNaN(parsedDate.getTime());
+      return {
+        name: isValidDate
+          ? parsedDate.toLocaleDateString('en', { weekday: 'short', month: 'short', day: 'numeric' })
+          : `#${index + 1}`,
+        value: typeof d?.totalPoints === 'number' && Number.isFinite(d.totalPoints) ? d.totalPoints : 0,
+      };
+    })
     : [];
 
-  const summary = summaryData?.data;
+  const summary = summaryData && typeof summaryData === 'object' && 'data' in summaryData
+    ? (summaryData as { data?: { totalPartners?: number; totalTransactions?: number } }).data
+    : undefined;
 
   useEffect(() => {
     if (wallet?.account.address) {
