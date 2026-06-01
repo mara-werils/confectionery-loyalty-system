@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTonWallet } from '@tonconnect/ui-react';
 import { QRCodeSVG } from 'qrcode.react';
@@ -13,7 +13,6 @@ import {
 } from '@heroicons/react/24/outline';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
-import { io as socketIO } from 'socket.io-client';
 import toast from 'react-hot-toast';
 import clsx from 'clsx';
 import { useQuery } from '@tanstack/react-query';
@@ -57,9 +56,7 @@ export default function CustomerDashboard() {
   const [balance, setBalance] = useState<JettonBalance | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
-  const [liveNotification, setLiveNotification] = useState<{ amount: number } | null>(null);
   const [qrVisible, setQrVisible] = useState(false);
-  const socketRef = useRef<ReturnType<typeof socketIO> | null>(null);
 
   const walletAddress = wallet?.account.address || '';
 
@@ -75,32 +72,7 @@ export default function CustomerDashboard() {
     (achievementsData as any)?.data || [];
   const unlockedAchievements = allAchievements.filter((a) => !!a.unlockedAt).slice(0, 2);
 
-  useEffect(() => {
-    if (!walletAddress) return;
-
-    try {
-      const API_URL = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:3001';
-      const socket = socketIO(API_URL, { transports: ['websocket', 'polling'] });
-      socketRef.current = socket;
-
-      socket.on('connect', () => { socket.emit('subscribe:wallet', walletAddress); });
-
-      socket.on('tokens:received', (data: { amount: number; message: string }) => {
-        setLiveNotification({ amount: data.amount });
-        toast.success(t('customerDashboard.sweetReceived', { amount: data.amount }), { duration: 4000 });
-        setTimeout(() => fetchData(), 3000);
-        setTimeout(() => setLiveNotification(null), 5000);
-      });
-
-      return () => {
-        socket.emit('unsubscribe:wallet', walletAddress);
-        socket.disconnect();
-      };
-    } catch {
-      // Keep dashboard usable even if socket transport is unavailable in current webview
-      return;
-    }
-  }, [walletAddress]);
+  // NOTE: realtime socket updates are intentionally disabled here for maximum webview stability.
 
   const fetchData = async () => {
     if (!walletAddress) return;
@@ -174,25 +146,6 @@ export default function CustomerDashboard() {
 
   return (
     <div className="pb-28 text-white">
-      {/* Live Notification */}
-      <AnimatePresence>
-        {liveNotification && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed top-4 left-4 right-4 z-50 flex items-center gap-3 rounded-2xl border border-green-500/30 bg-[#0d0b0a]/90 backdrop-blur-md px-4 py-3 shadow-2xl"
-          >
-            <span className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0" />
-            <div className="flex-1">
-              <p className="text-sm font-bold text-green-400">+{liveNotification.amount} SWEET</p>
-              <p className="text-xs text-stone-500">{t('customerDashboard.creditedToWallet')}</p>
-            </div>
-            <span className="w-2 h-2 rounded-full bg-green-400 animate-ping" />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Hero Balance Card */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}

@@ -1,6 +1,5 @@
 import { lazy, Suspense, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { EcosystemService } from '../services/ecosystem';
 import { useTonWallet } from '@tonconnect/ui-react';
 import { useTranslation } from 'react-i18next';
@@ -64,7 +63,6 @@ export default function Dashboard() {
     : [];
 
   const summary = summaryData?.data;
-  const canRenderChart = typeof window !== 'undefined' && typeof window.ResizeObserver !== 'undefined';
 
   useEffect(() => {
     if (wallet?.account.address) {
@@ -314,56 +312,20 @@ export default function Dashboard() {
               </select>
             </div>
             <div className="flex-1 w-full relative">
-              {canRenderChart ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#ffffff" stopOpacity={0.1} />
-                        <stop offset="95%" stopColor="#ffffff" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <XAxis dataKey="name" stroke="#52525b" tick={{ fontSize: 12, fill: '#71717a' }} axisLine={false} tickLine={false} dy={10} />
-                    <YAxis stroke="#52525b" tick={{ fontSize: 12, fill: '#71717a' }} axisLine={false} tickLine={false} dx={-10} />
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#292524" />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: '#1c1917',
-                        border: '1px solid #292524',
-                        borderRadius: '8px',
-                        fontSize: '12px',
-                        color: '#fff',
-                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
-                      }}
-                      itemStyle={{ color: '#e4e4e7' }}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="value"
-                      stroke="#a1a1aa"
-                      strokeWidth={2}
-                      fillOpacity={1}
-                      fill="url(#colorValue)"
-                      activeDot={{ r: 4, strokeWidth: 0, fill: '#fff' }}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="h-full rounded-lg border border-stone-800 bg-stone-950/40 p-4 overflow-y-auto">
-                  {chartData.length === 0 ? (
-                    <p className="text-xs text-stone-500">No growth data yet</p>
-                  ) : (
-                    <div className="space-y-2">
-                      {chartData.slice(-10).map((row) => (
-                        <div key={row.name} className="flex items-center justify-between text-xs">
-                          <span className="text-stone-500">{row.name}</span>
-                          <span className="text-stone-200 font-semibold">{row.value.toLocaleString()}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
+              <div className="h-full rounded-lg border border-stone-800 bg-stone-950/40 p-4 overflow-y-auto">
+                {chartData.length === 0 ? (
+                  <p className="text-xs text-stone-500">No growth data yet</p>
+                ) : (
+                  <div className="space-y-2">
+                    {chartData.slice(-10).map((row) => (
+                      <div key={row.name} className="flex items-center justify-between text-xs">
+                        <span className="text-stone-500">{row.name}</span>
+                        <span className="text-stone-200 font-semibold">{row.value.toLocaleString()}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
