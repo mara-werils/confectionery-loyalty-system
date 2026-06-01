@@ -471,7 +471,7 @@ function PoolCard({
         {/* Stake button */}
         <button
           onClick={onStake}
-          className="w-[100px] h-[100px] rounded-2xl text-sm font-bold transition-all active:scale-[0.98] flex items-center justify-center gap-2 bg-amber-500 text-black hover:bg-amber-400"
+          className="w-full py-3 rounded-xl text-sm font-bold transition-all active:scale-[0.98] flex items-center justify-center gap-2 bg-amber-500 text-black hover:bg-amber-400"
         >
           {t('staking.stakeButton')}
         </button>
