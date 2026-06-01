@@ -6,6 +6,7 @@ import { generateToken, generateRefreshToken, authenticate } from '../middleware
 import { authRateLimiter } from '../middleware/rateLimiter';
 import { AppError } from '../middleware/errorHandler';
 import { verifyWalletSignature, verifyNonce } from '../services/ton';
+import { config } from '../config';
 
 const router = Router();
 

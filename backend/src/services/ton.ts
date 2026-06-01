@@ -93,7 +93,7 @@ export async function getJettonBalance(
       logger.debug(`Jetton balance request returned ${res.status} for ${ownerAddress}`);
       return 0n;
     }
-    const data = await res.json();
+    const data = (await res.json()) as { balance?: string };
     return BigInt(data.balance || '0');
   } catch (error) {
     logger.error('Failed to get jetton balance:', error);
