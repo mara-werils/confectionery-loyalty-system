@@ -78,23 +78,28 @@ export default function CustomerDashboard() {
   useEffect(() => {
     if (!walletAddress) return;
 
-    const API_URL = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:3001';
-    const socket = socketIO(API_URL, { transports: ['websocket', 'polling'] });
-    socketRef.current = socket;
+    try {
+      const API_URL = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:3001';
+      const socket = socketIO(API_URL, { transports: ['websocket', 'polling'] });
+      socketRef.current = socket;
 
-    socket.on('connect', () => { socket.emit('subscribe:wallet', walletAddress); });
+      socket.on('connect', () => { socket.emit('subscribe:wallet', walletAddress); });
 
-    socket.on('tokens:received', (data: { amount: number; message: string }) => {
-      setLiveNotification({ amount: data.amount });
-      toast.success(t('customerDashboard.sweetReceived', { amount: data.amount }), { duration: 4000 });
-      setTimeout(() => fetchData(), 3000);
-      setTimeout(() => setLiveNotification(null), 5000);
-    });
+      socket.on('tokens:received', (data: { amount: number; message: string }) => {
+        setLiveNotification({ amount: data.amount });
+        toast.success(t('customerDashboard.sweetReceived', { amount: data.amount }), { duration: 4000 });
+        setTimeout(() => fetchData(), 3000);
+        setTimeout(() => setLiveNotification(null), 5000);
+      });
 
-    return () => {
-      socket.emit('unsubscribe:wallet', walletAddress);
-      socket.disconnect();
-    };
+      return () => {
+        socket.emit('unsubscribe:wallet', walletAddress);
+        socket.disconnect();
+      };
+    } catch {
+      // Keep dashboard usable even if socket transport is unavailable in current webview
+      return;
+    }
   }, [walletAddress]);
 
   const fetchData = async () => {
