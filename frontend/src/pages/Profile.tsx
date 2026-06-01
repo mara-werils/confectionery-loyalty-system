@@ -29,6 +29,22 @@ import { useState, useEffect } from 'react';
 import { api } from '../services/api';
 import { useBalance, useLoyaltyHistory } from '../hooks/useApi';
 
+const safeStorageGet = (key: string) => {
+  try {
+    return window.localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+};
+
+const safeStorageSet = (key: string, value: string) => {
+  try {
+    window.localStorage.setItem(key, value);
+  } catch {
+    // Storage can be unavailable in restricted webviews.
+  }
+};
+
 // ─── Modal ───────────────────────────────────────────────────────
 function Modal({ open, onClose, title, children }: {
   open: boolean; onClose: () => void; title: string; children: React.ReactNode;
@@ -112,15 +128,15 @@ export default function Profile() {
   const [isSaving, setIsSaving] = useState(false);
 
   // Notification settings
-  const [notifPush, setNotifPush] = useState(() => localStorage.getItem('notif_push') !== 'false');
-  const [notifCashback, setNotifCashback] = useState(() => localStorage.getItem('notif_cashback') !== 'false');
-  const [notifRewards, setNotifRewards] = useState(() => localStorage.getItem('notif_rewards') !== 'false');
-  const [notifMarketing, setNotifMarketing] = useState(() => localStorage.getItem('notif_marketing') === 'true');
+  const [notifPush, setNotifPush] = useState(() => safeStorageGet('notif_push') !== 'false');
+  const [notifCashback, setNotifCashback] = useState(() => safeStorageGet('notif_cashback') !== 'false');
+  const [notifRewards, setNotifRewards] = useState(() => safeStorageGet('notif_rewards') !== 'false');
+  const [notifMarketing, setNotifMarketing] = useState(() => safeStorageGet('notif_marketing') === 'true');
 
-  useEffect(() => { localStorage.setItem('notif_push', String(notifPush)); }, [notifPush]);
-  useEffect(() => { localStorage.setItem('notif_cashback', String(notifCashback)); }, [notifCashback]);
-  useEffect(() => { localStorage.setItem('notif_rewards', String(notifRewards)); }, [notifRewards]);
-  useEffect(() => { localStorage.setItem('notif_marketing', String(notifMarketing)); }, [notifMarketing]);
+  useEffect(() => { safeStorageSet('notif_push', String(notifPush)); }, [notifPush]);
+  useEffect(() => { safeStorageSet('notif_cashback', String(notifCashback)); }, [notifCashback]);
+  useEffect(() => { safeStorageSet('notif_rewards', String(notifRewards)); }, [notifRewards]);
+  useEffect(() => { safeStorageSet('notif_marketing', String(notifMarketing)); }, [notifMarketing]);
 
   // Real balance + recent activity
   const { data: balanceData } = useBalance();
@@ -167,7 +183,7 @@ export default function Profile() {
   const handleAvatarSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) { toast.error('Image must be under 2MB'); return; }
+    if (file.size > 512 * 1024) { toast.error('Image must be under 512KB'); return; }
     const reader = new FileReader();
     reader.onloadend = () => { setAvatar(reader.result as string); toast.success('Avatar updated!'); };
     reader.readAsDataURL(file);

@@ -68,8 +68,11 @@ export default function CustomerDashboard() {
   useEffect(() => {
     if (!walletAddress) return;
 
-    const API_URL = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:3001';
-    const socket = socketIO(API_URL, { transports: ['websocket', 'polling'] });
+    const socketUrl =
+      import.meta.env.VITE_WS_URL ||
+      import.meta.env.VITE_API_URL?.replace(/\/(api\/v1|v1|api)\/?$/, '') ||
+      (import.meta.env.DEV ? 'http://localhost:3001' : window.location.origin);
+    const socket = socketIO(socketUrl, { transports: ['websocket', 'polling'] });
     socketRef.current = socket;
 
     socket.on('connect', () => { socket.emit('subscribe:wallet', walletAddress); });

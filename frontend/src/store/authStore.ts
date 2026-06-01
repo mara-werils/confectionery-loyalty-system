@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist, StateStorage } from 'zustand/middleware';
 
 export type UserRole = 'business' | 'customer' | null;
 
@@ -39,6 +39,32 @@ interface AuthState {
   setHasBusinessSbt: (has: boolean) => void;
   setSweetBalance: (balance: number) => void;
 }
+
+const noopStorage = new Map<string, string>();
+
+const safeStorage: StateStorage = {
+  getItem: (name) => {
+    try {
+      return window.localStorage.getItem(name);
+    } catch {
+      return noopStorage.get(name) ?? null;
+    }
+  },
+  setItem: (name, value) => {
+    try {
+      window.localStorage.setItem(name, value);
+    } catch {
+      noopStorage.set(name, value);
+    }
+  },
+  removeItem: (name) => {
+    try {
+      window.localStorage.removeItem(name);
+    } catch {
+      noopStorage.delete(name);
+    }
+  },
+};
 
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -81,13 +107,14 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
+      storage: createJSONStorage(() => safeStorage),
       partialize: (state) => ({
         token: state.token,
         refreshToken: state.refreshToken,
         user: state.user,
         role: state.role,
+        isAuthenticated: state.isAuthenticated,
         spentPoints: state.spentPoints,
-        avatar: state.avatar,
         activeCoupons: state.activeCoupons,
         hasBusinessSbt: state.hasBusinessSbt,
         sweetBalance: state.sweetBalance,

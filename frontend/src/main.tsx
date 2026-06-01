@@ -40,6 +40,12 @@ const getManifestUrl = () => {
     return `${baseUrl}/api/tonconnect-manifest.json?origin=${encodeURIComponent(origin)}`;
   }
 
+  if (import.meta.env.PROD) {
+    console.error(
+      'VITE_TONCONNECT_MANIFEST_URL or an absolute VITE_API_URL is required in production for reliable TonConnect restore.'
+    );
+  }
+
   // 3. Fallback: assume API is on the same origin (local or proxied)
   // If the origin already ends with something, we just append. 
   // But usually origin is clean.
