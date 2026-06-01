@@ -680,9 +680,9 @@ function CouponSheet({
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 32, stiffness: 320 }}
-            className="fixed bottom-0 left-0 right-0 z-50 flex justify-center"
+            className="fixed bottom-28 left-0 right-0 z-[60] flex justify-center px-4"
           >
-            <div className="w-full max-w-2xl bg-stone-950 border-t border-stone-800 rounded-t-3xl px-5 pt-4 pb-10">
+            <div className="w-full max-w-2xl max-h-[calc(100vh-9rem)] overflow-y-auto bg-stone-950 border border-stone-800 rounded-3xl px-5 pt-4 pb-6">
               {/* Handle */}
               <div className="flex justify-center mb-5">
                 <div className="w-10 h-1 rounded-full bg-white/15" />

@@ -61,7 +61,7 @@ export default function Home() {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const meRes: any = await api.auth.me();
           const partner = meRes?.data?.partner;
-          if (partner && !partner.companyName.startsWith('Customer_')) {
+          if (partner && !partner.companyName?.startsWith('Customer_')) {
             setUser(partner);
             navigate('/business/dashboard');
             return;

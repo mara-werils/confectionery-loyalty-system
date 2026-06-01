@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { Scanner } from '@yudiel/react-qr-scanner';
+import { lazy, Suspense, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { EcosystemService } from '../services/ecosystem';
@@ -19,6 +18,10 @@ import {
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 import { useAnalyticsGrowth, useAnalyticsSummary } from '../hooks/useApi';
+
+const Scanner = lazy(() =>
+  import('@yudiel/react-qr-scanner').then((module) => ({ default: module.Scanner }))
+);
 
 // Validate TON address format (UQ.../EQ.../kQ...)
 function isValidTonAddress(addr: string): boolean {
@@ -363,19 +366,27 @@ export default function Dashboard() {
               </button>
             </div>
             <div className="bg-black relative aspect-square">
-              <Scanner
-                onScan={(result) => {
-                  if (result && result.length > 0) {
-                    let address = result[0].rawValue;
-                    if (address.startsWith('ton://transfer/')) {
-                       address = address.replace('ton://transfer/', '').split('?')[0];
+              <Suspense
+                fallback={
+                  <div className="absolute inset-0 flex items-center justify-center bg-black">
+                    <div className="w-8 h-8 border-2 border-stone-700 border-t-amber-400 rounded-full animate-spin" />
+                  </div>
+                }
+              >
+                <Scanner
+                  onScan={(result) => {
+                    if (result && result.length > 0) {
+                      let address = result[0].rawValue;
+                      if (address.startsWith('ton://transfer/')) {
+                         address = address.replace('ton://transfer/', '').split('?')[0];
+                      }
+                      setClientWalletAddress(address);
+                      setShowScanner(false);
+                      toast.success(t('dashboard.walletTarget') || 'Wallet address captured!');
                     }
-                    setClientWalletAddress(address);
-                    setShowScanner(false);
-                    toast.success(t('dashboard.walletTarget') || 'Wallet address captured!');
-                  }
-                }}
-              />
+                  }}
+                />
+              </Suspense>
             </div>
           </motion.div>
         </div>

@@ -195,7 +195,6 @@ export default function Profile() {
       }
     }
     const newRole = role === 'business' ? 'customer' : 'business';
-    setRole(newRole);
     if (newRole === 'business') {
       // Check server-side if already registered as business
       const existingToken = useAuthStore.getState().token;
@@ -203,8 +202,9 @@ export default function Profile() {
         try {
           const meRes = await api.auth.me() as { data?: { partner?: { id: string; walletAddress: string; companyName: string; email?: string; tier: 'BRONZE' | 'SILVER' | 'GOLD'; status: 'PENDING' | 'ACTIVE' | 'SUSPENDED' | 'BANNED' } } };
           const partner = meRes?.data?.partner;
-          if (partner && !partner.companyName.startsWith('Customer_')) {
+          if (partner && !partner.companyName?.startsWith('Customer_')) {
             setUser(partner);
+            setRole('business');
             navigate('/business/dashboard');
             return;
           }
@@ -212,8 +212,10 @@ export default function Profile() {
           // token invalid — fall through to register
         }
       }
+      setRole('business');
       navigate('/business/register');
     } else {
+      setRole('customer');
       navigate('/customer/dashboard');
     }
   };
