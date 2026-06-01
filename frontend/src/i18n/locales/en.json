@@ -699,5 +699,43 @@
     "revokeSuccess": "Certificate has been revoked.",
     "revokeButton": "Revoke Certificate (Burn SBT)",
     "disclaimer": "This panel is strictly for Master Administrators to issue Soulbound Tokens to verified B2B partners for full ecosystem integration."
+  },
+  "analyticsPage": {
+    "title": "Analytics",
+    "periods": {
+      "7d": "7d",
+      "30d": "30d",
+      "90d": "90d",
+      "all": "All"
+    },
+    "revenue": "Revenue for period",
+    "newClients": "New clients",
+    "avgCheck": "Average check",
+    "rewardConversion": "Reward conversion",
+    "vsPrevPeriod": "vs previous period",
+    "revenueDynamics": "Revenue dynamics",
+    "cohortRetention": "Cohort retention analysis",
+    "cohort": "Cohort",
+    "topRewardsByUsage": "Top rewards by usage",
+    "used": "Used",
+    "customerSegmentation": "Customer segmentation",
+    "new": "New",
+    "active": "Active",
+    "sleeping": "Sleeping",
+    "vip": "VIP",
+    "people": "people",
+    "activityByTime": "Activity by time",
+    "few": "Few",
+    "many": "Many",
+    "transactions": "transactions",
+    "exportPdf": "Export to PDF",
+    "generatingReport": "Report is being generated...",
+    "mon": "Mon",
+    "tue": "Tue",
+    "wed": "Wed",
+    "thu": "Thu",
+    "fri": "Fri",
+    "sat": "Sat",
+    "sun": "Sun"
   }
 }

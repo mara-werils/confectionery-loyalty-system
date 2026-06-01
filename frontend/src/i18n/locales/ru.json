@@ -699,5 +699,43 @@
     "revokeSuccess": "Сертификат успешно отозван (сожжен).",
     "revokeButton": "Отозвать сертификат (Сжечь SBT)",
     "disclaimer": "Данная панель предназначена строго для администраторов для выдачи Soulbound токенов проверенным B2B партнерам."
+  },
+  "analyticsPage": {
+    "title": "Аналитика",
+    "periods": {
+      "7d": "7д",
+      "30d": "30д",
+      "90d": "90д",
+      "all": "Все"
+    },
+    "revenue": "Выручка за период",
+    "newClients": "Новые клиенты",
+    "avgCheck": "Средний чек",
+    "rewardConversion": "Конверсия наград",
+    "vsPrevPeriod": "vs пред. период",
+    "revenueDynamics": "Динамика выручки",
+    "cohortRetention": "Когортный анализ удержания",
+    "cohort": "Когорта",
+    "topRewardsByUsage": "Топ наград по использованию",
+    "used": "Использовано",
+    "customerSegmentation": "Сегментация клиентов",
+    "new": "Новые",
+    "active": "Активные",
+    "sleeping": "Спящие",
+    "vip": "VIP",
+    "people": "чел.",
+    "activityByTime": "Активность по времени",
+    "few": "Мало",
+    "many": "Много",
+    "transactions": "транзакций",
+    "exportPdf": "Экспорт в PDF",
+    "generatingReport": "Отчет формируется...",
+    "mon": "Пн",
+    "tue": "Вт",
+    "wed": "Ср",
+    "thu": "Чт",
+    "fri": "Пт",
+    "sat": "Сб",
+    "sun": "Вс"
   }
 }
