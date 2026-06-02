@@ -25,69 +25,66 @@ export default function Home() {
   }, [wallet, role, navigate]);
 
   const handleRoleSelect = async (selectedRole: 'business' | 'customer') => {
-    if (selectedRole === 'business') {
-      toast.loading(t('home.checkingCert') || 'Verifying Partner Certificate on TON...', { id: 'certCheck' });
+    const address = wallet?.account?.address;
 
-      const address = wallet?.account?.address;
-      if (!address) {
-        toast.error(t('home.walletNotConnected'), { id: 'certCheck' });
-        return;
-      }
+    if (!address) {
+      toast.error(t('home.walletNotConnected'));
+      return;
+    }
 
+    if (selectedRole === 'customer') {
+      // Auto-authenticate customer by wallet address — find-or-create
       try {
-        await new Promise(r => setTimeout(r, 1000));
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const res: any = await api.admin.checkSbt(address);
-
-        if (!res.data || !res.data.hasSbt) {
-          toast.error(t('home.noCertFound') || 'Access Denied: Partner SBT Certificate not found in wallet.', { id: 'certCheck' });
-          return;
+        const res: any = await api.auth.customerAuth(address);
+        if (res.data?.token) {
+          setToken(res.data.token);
+          setUser(res.data.partner);
         }
+      } catch {
+        // Non-fatal: navigation still proceeds
+      }
+      setRole('customer');
+      navigate('/customer/dashboard');
+      return;
+    }
 
+    // Business role: soft SBT check — warn but never block
+    try {
+      toast.loading(t('home.checkingCert') || 'Checking Partner Certificate...', { id: 'certCheck' });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const res: any = await api.admin.checkSbt(address);
+      if (res.data?.hasSbt) {
         setHasBusinessSbt(true);
         toast.success(t('home.certVerified') || 'Partner Certificate Verified!', { id: 'certCheck' });
+      } else {
+        toast(t('home.noCertFound') || 'No Partner SBT found — demo mode, continuing anyway.', { id: 'certCheck', icon: 'ℹ️' });
+      }
+    } catch {
+      // SBT check failure is not a blocker
+      toast.dismiss('certCheck');
+    }
+
+    setRole('business');
+
+    // Check if already registered as a full business partner
+    const existingToken = useAuthStore.getState().token;
+    if (existingToken) {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const meRes: any = await api.auth.me();
+        const partner = meRes?.data?.partner;
+        if (partner && !partner.companyName?.startsWith('Customer_')) {
+          setUser(partner);
+          navigate('/business/dashboard');
+          return;
+        }
       } catch {
-        toast.error(t('home.serverCheckError'), { id: 'certCheck' });
-        return;
+        // Stale token — interceptor will clear it; fall through to register
       }
     }
 
-    setRole(selectedRole);
-    if (selectedRole === 'business') {
-      // Check if already registered — if so, skip the registration form
-      const existingToken = useAuthStore.getState().token;
-      if (existingToken) {
-        try {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const meRes: any = await api.auth.me();
-          const partner = meRes?.data?.partner;
-          if (partner && !partner.companyName?.startsWith('Customer_')) {
-            setUser(partner);
-            navigate('/business/dashboard');
-            return;
-          }
-        } catch {
-          // token invalid or not set — fall through to register
-        }
-      }
-      navigate('/business/register');
-    } else {
-      // Auto-authenticate customer by wallet address so API calls work
-      const address = wallet?.account?.address;
-      if (address) {
-        try {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const res: any = await api.auth.customerAuth(address);
-          if (res.data?.token) {
-            setToken(res.data.token);
-            setUser(res.data.partner);
-          }
-        } catch {
-          // Non-fatal: customer can still browse, coupon redemption will show proper error
-        }
-      }
-      navigate('/customer/dashboard');
-    }
+    navigate('/business/register');
   };
 
   return (

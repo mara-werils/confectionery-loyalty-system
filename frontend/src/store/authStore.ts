@@ -98,11 +98,13 @@ export const useAuthStore = create<AuthState>()(
           token: null,
           refreshToken: null,
           user: null,
+          walletAddress: null,
           role: null,
           isAuthenticated: false,
           spentPoints: 0,
           activeCoupons: [],
           hasBusinessSbt: false,
+          sweetBalance: 0,
         }),
     }),
     {

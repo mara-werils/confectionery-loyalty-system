@@ -32,6 +32,10 @@ import giftRoutes from './routes/gift';
 
 // Initialize Express app
 const app = express();
+
+// Trust first proxy (Cloudflare / reverse-proxy) so rate-limiter sees real IPs
+app.set('trust proxy', 1);
+
 const httpServer = createServer(app);
 
 // Initialize Socket.IO

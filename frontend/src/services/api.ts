@@ -33,8 +33,13 @@ axiosInstance.interceptors.response.use(
     const message = error.response?.data?.message || 'An error occurred';
     const code = error.response?.data?.error?.code;
 
-    // Handle token expiration
-    if (error.response?.status === 401 && code === 'TOKEN_EXPIRED') {
+    // Handle stale/invalid tokens — clear state and redirect to home
+    const STALE_TOKEN_CODES = ['TOKEN_EXPIRED', 'ACCOUNT_INVALID', 'UNAUTHORIZED'];
+    if (
+      error.response?.status === 401 &&
+      (!code || STALE_TOKEN_CODES.includes(code)) &&
+      window.location.pathname !== '/'
+    ) {
       useAuthStore.getState().logout();
       window.location.href = '/';
     }
