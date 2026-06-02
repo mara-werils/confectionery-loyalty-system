@@ -7,10 +7,9 @@ import {
   SparklesIcon,
   TicketIcon,
   ClipboardDocumentIcon,
-  CheckCircleIcon,
   CheckIcon,
   XMarkIcon,
-  ChevronRightIcon,
+  ChevronDownIcon,
 } from '@heroicons/react/24/outline';
 import { CheckCircleIcon as CheckCircleSolid } from '@heroicons/react/24/solid';
 import { useAuthStore } from '../../store/authStore';
@@ -19,7 +18,7 @@ import toast from 'react-hot-toast';
 import confetti from 'canvas-confetti';
 import { api } from '../../services/api';
 
-// ─── Data definitions ────────────────────────────────────────────────────────
+// ─── Types ──────────────────────────────────────────────────────────────────
 
 type Category = 'DISCOUNT' | 'PRODUCT' | 'CASHBACK' | 'SPECIAL';
 type FilterTab = 'all' | 'affordable' | Category;
@@ -29,10 +28,8 @@ interface Partner {
   name: string;
   shortName: string;
   logo: string | null;
-  emoji: string;
+  initial: string;
   city: string;
-  accentFrom: string;
-  accentTo: string;
 }
 
 interface Reward {
@@ -45,67 +42,23 @@ interface Reward {
   available: number;
 }
 
+interface IssuedCoupon {
+  code: string;
+  reward: Reward;
+  partner: Partner;
+  expiresAt: string;
+  daysLeft: number;
+}
+
+// ─── Data ───────────────────────────────────────────────────────────────────
+
 const PARTNERS: Partner[] = [
-  {
-    id: 'homemacaron',
-    name: 'Home Macaron',
-    shortName: 'Macaron',
-    logo: '/confectionary_logos/home_macaron.jpg',
-    emoji: 'HM',
-    city: 'Алматы',
-    accentFrom: '#be185d',
-    accentTo: '#9f1239',
-  },
-  {
-    id: 'qulpynai',
-    name: 'Qulpynai',
-    shortName: 'Qulpynai',
-    logo: null,
-    emoji: 'Q',
-    city: 'Алматы · 25 филиалов',
-    accentFrom: '#b45309',
-    accentTo: '#92400e',
-  },
-  {
-    id: 'panaderia',
-    name: 'Panaderia',
-    shortName: 'Panaderia',
-    logo: null,
-    emoji: 'P',
-    city: 'Алматы',
-    accentFrom: '#c2410c',
-    accentTo: '#9a3412',
-  },
-  {
-    id: 'marrone_rosso',
-    name: 'Marrone Rosso',
-    shortName: 'Marrone',
-    logo: null,
-    emoji: 'MR',
-    city: 'Алматы · Астана',
-    accentFrom: '#b91c1c',
-    accentTo: '#991b1b',
-  },
-  {
-    id: 'taptatti',
-    name: 'TapTatti',
-    shortName: 'TapTatti',
-    logo: null,
-    emoji: 'TT',
-    city: 'Астана · Доставка по КЗ',
-    accentFrom: '#7c3aed',
-    accentTo: '#6d28d9',
-  },
-  {
-    id: 'platform',
-    name: 'Sweet Platform',
-    shortName: 'Platform',
-    logo: null,
-    emoji: 'SW',
-    city: 'Все партнёры',
-    accentFrom: '#d97706',
-    accentTo: '#b45309',
-  },
+  { id: 'homemacaron', name: 'Home Macaron', shortName: 'Macaron', logo: '/confectionary_logos/home_macaron.jpg', initial: 'HM', city: 'Алматы' },
+  { id: 'qulpynai', name: 'Qulpynai', shortName: 'Qulpynai', logo: null, initial: 'Q', city: 'Алматы' },
+  { id: 'panaderia', name: 'Panaderia', shortName: 'Panaderia', logo: null, initial: 'P', city: 'Алматы' },
+  { id: 'marrone_rosso', name: 'Marrone Rosso', shortName: 'Marrone', logo: null, initial: 'MR', city: 'Алматы · Астана' },
+  { id: 'taptatti', name: 'TapTatti', shortName: 'TapTatti', logo: null, initial: 'TT', city: 'Астана' },
+  { id: 'platform', name: 'Sweet Platform', shortName: 'Platform', logo: null, initial: 'SW', city: 'Все партнёры' },
 ];
 
 const PARTNER_MAP = Object.fromEntries(PARTNERS.map(p => [p.id, p]));
@@ -150,15 +103,6 @@ const TEXTS: Translations = {
   'pw-1-desc': { en: 'Extra cashback on next purchase', ru: 'Дополнительные 5% кэшбэка', kz: 'Келесі сатып алуда қосымша 5%' },
 };
 
-// ─── Constants ───────────────────────────────────────────────────────────────
-
-const CATEGORY_META: Record<Category, { labelKey: string; color: string; bg: string; border: string }> = {
-  DISCOUNT: { labelKey: 'rewards.categoryDiscount', color: 'text-stone-300', bg: 'bg-stone-800', border: 'border-stone-700' },
-  PRODUCT: { labelKey: 'rewards.categoryProduct', color: 'text-stone-300', bg: 'bg-stone-800', border: 'border-stone-700' },
-  CASHBACK: { labelKey: 'rewards.categoryCashback', color: 'text-stone-300', bg: 'bg-stone-800', border: 'border-stone-700' },
-  SPECIAL: { labelKey: 'rewards.categorySpecial', color: 'text-stone-300', bg: 'bg-stone-800', border: 'border-stone-700' },
-};
-
 const CATEGORY_ICON: Record<Category, typeof TagIcon> = {
   DISCOUNT: TagIcon,
   PRODUCT: GiftIcon,
@@ -175,17 +119,7 @@ const FILTER_TABS: { id: FilterTab; labelKey: string }[] = [
   { id: 'CASHBACK', labelKey: 'rewards.categories.cashback' },
 ];
 
-// ─── Types ───────────────────────────────────────────────────────────────────
-
-interface IssuedCoupon {
-  code: string;
-  reward: Reward;
-  partner: Partner;
-  expiresAt: string;
-  daysLeft: number;
-}
-
-// ─── Main component ───────────────────────────────────────────────────────────
+// ─── Main component ─────────────────────────────────────────────────────────
 
 export default function CustomerRewards() {
   const wallet = useTonWallet();
@@ -200,40 +134,30 @@ export default function CustomerRewards() {
   const [sheet, setSheet] = useState<IssuedCoupon | null>(null);
   const [showMyCoupons, setShowMyCoupons] = useState(false);
 
-  const getText = (key: string): string =>
-    TEXTS[key]?.[lang] ?? TEXTS[key]?.en ?? key;
+  const getText = (key: string): string => TEXTS[key]?.[lang] ?? TEXTS[key]?.en ?? key;
 
-  // ── Filtered + sorted reward list ──────────────────────────────
   const visibleRewards = useMemo(() => {
     let list = REWARDS;
-
-    if (partnerFilter) {
-      list = list.filter(r => r.partnerId === partnerFilter);
-    }
-
+    if (partnerFilter) list = list.filter(r => r.partnerId === partnerFilter);
     if (categoryFilter === 'affordable') {
       list = list.filter(r => r.pointsRequired <= sweetBalance);
     } else if (categoryFilter !== 'all') {
       list = list.filter(r => r.category === categoryFilter);
     }
-
-    // Sort: affordable first, then by cost ascending
     return [...list].sort((a, b) => {
-      const aAfford = a.pointsRequired <= sweetBalance ? 0 : 1;
-      const bAfford = b.pointsRequired <= sweetBalance ? 0 : 1;
-      if (aAfford !== bAfford) return aAfford - bAfford;
+      const aOk = a.pointsRequired <= sweetBalance ? 0 : 1;
+      const bOk = b.pointsRequired <= sweetBalance ? 0 : 1;
+      if (aOk !== bOk) return aOk - bOk;
       return a.pointsRequired - b.pointsRequired;
     });
   }, [partnerFilter, categoryFilter, sweetBalance]);
 
   const affordableCount = REWARDS.filter(r => r.pointsRequired <= sweetBalance).length;
 
-  // ── Reward → partner name map for DB sync ──────────────────────
   const REWARD_PARTNER_NAME = useMemo(() =>
     Object.fromEntries(REWARDS.map(r => [r.id, PARTNER_MAP[r.partnerId]?.name ?? 'Sweet Platform'])),
-    []);
+  []);
 
-  // ── Sync coupons from DB once on mount / when token available ──
   useEffect(() => {
     if (!token) return;
     (api.coupons.list() as Promise<{ data: Array<{ code: string; rewardId: string; status: string }> }>)
@@ -247,42 +171,9 @@ export default function CustomerRewards() {
           }));
         if (active.length > 0) setCoupons(active);
       })
-      .catch(() => { });
+      .catch(() => {});
   }, [token, setCoupons, REWARD_PARTNER_NAME]);
 
-  // ── Redeem handler ─────────────────────────────────────────────
-  const handleRedeem = async (reward: Reward) => {
-    if (sweetBalance < reward.pointsRequired) {
-      toast.error(t('rewards.notEnoughSweet'));
-      return;
-    }
-
-    setRedeeming(reward.id);
-    try {
-      const res = await api.coupons.create(
-        reward.id,
-        getText(reward.titleKey),
-        reward.pointsRequired,
-        reward.category,
-      ) as {
-        data: { code: string; expiresAt: string; daysLeft: number };
-      };
-      const { code, expiresAt, daysLeft } = res.data;
-
-      const partner = PARTNER_MAP[reward.partnerId] ?? PARTNER_MAP['platform'];
-      setSweetBalance(Math.max(0, sweetBalance - reward.pointsRequired));
-      addCoupon({ code, rewardTitleKey: reward.titleKey, partnerName: partner.name });
-
-      setSheet({ code, reward, partner, expiresAt, daysLeft });
-      confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
-    } catch (err: unknown) {
-      toast.error((err as { message?: string })?.message ?? 'Ошибка при выдаче купона');
-    } finally {
-      setRedeeming(null);
-    }
-  };
-
-  // ── Sync balance from chain once when wallet connects (not on every render) ─
   useEffect(() => {
     if (!wallet) return;
     fetch(`https://testnet.tonapi.io/v2/accounts/${wallet.account.address}/jettons`)
@@ -293,70 +184,87 @@ export default function CustomerRewards() {
             b.jetton?.address?.toLowerCase() ===
             '0:4d3a2278693a04f846b5d83a58e67066bb56ca4f46b1b7cd49992f4114f87c9c'
         );
-        if (sweet) {
-          const fresh = Number(BigInt(sweet.balance) / BigInt(10 ** sweet.jetton.decimals));
-          setSweetBalance(fresh);
-        }
+        if (sweet) setSweetBalance(Number(BigInt(sweet.balance) / BigInt(10 ** sweet.jetton.decimals)));
       })
-      .catch(() => { });
+      .catch(() => {});
   }, [wallet?.account.address]);
 
+  const handleRedeem = async (reward: Reward) => {
+    if (sweetBalance < reward.pointsRequired) {
+      toast.error(t('rewards.notEnoughSweet'));
+      return;
+    }
+    setRedeeming(reward.id);
+    try {
+      const res = await api.coupons.create(
+        reward.id, getText(reward.titleKey), reward.pointsRequired, reward.category,
+      ) as { data: { code: string; expiresAt: string; daysLeft: number } };
+      const { code, expiresAt, daysLeft } = res.data;
+      const partner = PARTNER_MAP[reward.partnerId] ?? PARTNER_MAP['platform'];
+      setSweetBalance(Math.max(0, sweetBalance - reward.pointsRequired));
+      addCoupon({ code, rewardTitleKey: reward.titleKey, partnerName: partner.name });
+      setSheet({ code, reward, partner, expiresAt, daysLeft });
+      confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
+    } catch (err: unknown) {
+      toast.error((err as { message?: string })?.message ?? 'Error issuing coupon');
+    } finally {
+      setRedeeming(null);
+    }
+  };
+
   return (
-    <div className="pb-28 text-white min-h-screen">
+    <div className="pb-28 min-h-screen">
 
-      {/* ── Header ──────────────────────────────────────────────── */}
-      <div className="mb-4">
-        <div className="flex items-start justify-between mb-1">
-          <h1 className="text-2xl font-black tracking-tight">{t('rewards.title')}</h1>
-
-          {/* Balance pill */}
-          <div className="flex flex-col items-end">
-            <div className="flex items-center gap-1.5 bg-amber-400/10 border border-amber-400/20 rounded-full px-3 py-1.5">
-              <SparklesIcon className="w-3.5 h-3.5 text-amber-400" />
-              <span className="text-sm font-black text-amber-400 tabular-nums">
-                {sweetBalance.toLocaleString()}
-              </span>
-            </div>
-            <span className="text-[10px] text-stone-600 mt-0.5 pr-1">SWEET</span>
+      {/* Header */}
+      <div className="mb-5">
+        <div className="flex items-center justify-between mb-1">
+          <h1 className="text-2xl font-black tracking-tight" style={{ color: 'var(--sweet-text)' }}>
+            {t('rewards.title')}
+          </h1>
+          <div
+            className="flex items-center gap-1.5 rounded-full px-3 py-1.5"
+            style={{ background: 'var(--sweet-accent-dim)', border: '1px solid var(--sweet-accent-dim)' }}
+          >
+            <SparklesIcon className="w-3.5 h-3.5" style={{ color: 'var(--sweet-accent)' }} />
+            <span className="text-sm font-black tabular-nums" style={{ color: 'var(--sweet-accent)' }}>
+              {sweetBalance.toLocaleString()}
+            </span>
           </div>
         </div>
-
-        <p className="text-xs text-stone-500">
+        <p className="text-xs" style={{ color: 'var(--sweet-text-muted)' }}>
           {affordableCount > 0
             ? t('rewards.availableNow', { count: affordableCount })
             : t('rewards.accumulateSweet')}
         </p>
       </div>
 
-      {/* ── My Coupons strip ────────────────────────────────────── */}
+      {/* My Coupons */}
       {activeCoupons.length > 0 && (
-        <div className="mb-4">
+        <div className="mb-5">
           <button
             onClick={() => setShowMyCoupons(v => !v)}
-            className="w-full flex items-center justify-between px-4 py-3 rounded-2xl border border-amber-400/20 bg-amber-400/[0.05] hover:bg-amber-400/[0.08] transition-colors"
+            className="w-full flex items-center justify-between px-4 py-3 rounded-2xl transition-colors sweet-card"
           >
             <div className="flex items-center gap-2.5">
-              <TicketIcon className="w-4 h-4 text-amber-400" />
-              <span className="text-sm font-semibold text-amber-300">
+              <TicketIcon className="w-4 h-4" style={{ color: 'var(--sweet-accent)' }} />
+              <span className="text-sm font-semibold" style={{ color: 'var(--sweet-text)' }}>
                 {t('rewards.myCoupons')}
               </span>
-              <span className="text-[10px] bg-amber-400/20 text-amber-400 font-bold px-1.5 py-0.5 rounded-full">
+              <span
+                className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                style={{ background: 'var(--sweet-accent-dim)', color: 'var(--sweet-accent)' }}
+              >
                 {activeCoupons.length}
               </span>
             </div>
-            <ChevronRightIcon
-              className={`w-4 h-4 text-amber-400/60 transition-transform ${showMyCoupons ? 'rotate-90' : ''}`}
+            <ChevronDownIcon
+              className={`w-4 h-4 transition-transform ${showMyCoupons ? 'rotate-180' : ''}`}
+              style={{ color: 'var(--sweet-text-muted)' }}
             />
           </button>
-
           <AnimatePresence>
             {showMyCoupons && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="overflow-hidden"
-              >
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
                 <div className="pt-2 space-y-2">
                   {activeCoupons.map((c, i) => (
                     <MyCouponRow key={i} code={c.code} title={getText(c.rewardTitleKey)} partnerName={c.partnerName} />
@@ -368,23 +276,24 @@ export default function CustomerRewards() {
         </div>
       )}
 
-      {/* ── Category filter tabs ─────────────────────────────────── */}
+      {/* Category filter */}
       <div className="flex gap-1.5 overflow-x-auto no-scrollbar -mx-4 px-4 pb-1 mb-3">
         {FILTER_TABS.map(tab => (
           <button
             key={tab.id}
             onClick={() => setCategoryFilter(tab.id)}
-            className={`flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all border whitespace-nowrap ${categoryFilter === tab.id
-                ? 'bg-white text-black border-white'
-                : 'bg-transparent text-stone-500 border-stone-800 hover:border-stone-600 hover:text-stone-300'
-              }`}
+            className="flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all border whitespace-nowrap"
+            style={categoryFilter === tab.id
+              ? { background: 'var(--sweet-accent)', color: 'var(--sweet-bg)', borderColor: 'var(--sweet-accent)' }
+              : { background: 'transparent', color: 'var(--sweet-text-muted)', borderColor: 'var(--sweet-border)' }
+            }
           >
             {t(tab.labelKey)}
           </button>
         ))}
       </div>
 
-      {/* ── Partner filter pills ─────────────────────────────────── */}
+      {/* Partner filter */}
       <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-4 px-4 pb-1 mb-5">
         <PartnerPill
           label={t('rewards.allPartners')}
@@ -396,129 +305,123 @@ export default function CustomerRewards() {
             key={p.id}
             label={p.shortName}
             logo={p.logo}
-            emoji={p.emoji}
+            initial={p.initial}
             active={partnerFilter === p.id}
-            accent={p.accentFrom}
             onClick={() => setPartnerFilter(partnerFilter === p.id ? null : p.id)}
           />
         ))}
       </div>
 
-      {/* ── Reward list ──────────────────────────────────────────── */}
+      {/* Reward list */}
       {visibleRewards.length === 0 ? (
         <EmptyState categoryFilter={categoryFilter} affordableCount={affordableCount} />
       ) : (
         <div className="space-y-3">
-          {visibleRewards.map((reward) => (
-            <RewardCard
+          {visibleRewards.map((reward, i) => (
+            <motion.div
               key={reward.id}
-              reward={reward}
-              partner={PARTNER_MAP[reward.partnerId] ?? PARTNER_MAP['platform']}
-              balance={sweetBalance}
-              getText={getText}
-              isRedeeming={redeeming === reward.id}
-              onRedeem={() => handleRedeem(reward)}
-            />
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.04, duration: 0.3 }}
+            >
+              <RewardCard
+                reward={reward}
+                partner={PARTNER_MAP[reward.partnerId] ?? PARTNER_MAP['platform']}
+                balance={sweetBalance}
+                getText={getText}
+                isRedeeming={redeeming === reward.id}
+                onRedeem={() => handleRedeem(reward)}
+              />
+            </motion.div>
           ))}
         </div>
       )}
 
-      {/* ── Coupon bottom sheet ──────────────────────────────────── */}
       <CouponSheet coupon={sheet} getText={getText} onClose={() => setSheet(null)} />
     </div>
   );
 }
 
-// ─── RewardCard ───────────────────────────────────────────────────────────────
+// ─── RewardCard ─────────────────────────────────────────────────────────────
 
 function RewardCard({
-  reward,
-  partner,
-  balance,
-  getText,
-  isRedeeming,
-  onRedeem,
+  reward, partner, balance, getText, isRedeeming, onRedeem,
 }: {
-  reward: Reward;
-  partner: Partner;
-  balance: number;
-  getText: (key: string) => string;
-  isRedeeming: boolean;
-  onRedeem: () => void;
+  reward: Reward; partner: Partner; balance: number;
+  getText: (key: string) => string; isRedeeming: boolean; onRedeem: () => void;
 }) {
   const { t } = useTranslation();
   const canAfford = balance >= reward.pointsRequired;
   const progress = Math.min(100, Math.round((balance / reward.pointsRequired) * 100));
   const need = reward.pointsRequired - balance;
-  const catMeta = CATEGORY_META[reward.category];
   const CatIcon = CATEGORY_ICON[reward.category];
 
   return (
     <div
-      className={`relative rounded-2xl overflow-hidden border transition-colors ${canAfford
-          ? 'border-stone-700 bg-stone-900'
-          : 'border-stone-800 bg-stone-900/50'
-        }`}
+      className="rounded-2xl overflow-hidden transition-all"
+      style={{
+        background: 'var(--sweet-card)',
+        border: '1px solid var(--sweet-border)',
+        opacity: canAfford ? 1 : 0.7,
+      }}
     >
-      {/* Top color strip */}
-      <div
-        className="h-0.5 w-full"
-        style={{ backgroundColor: partner.accentFrom }}
-      />
-
       <div className="p-4">
-        {/* Partner + Category row */}
+        {/* Partner + Category */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             {partner.logo ? (
               <img src={partner.logo} alt={partner.name} className="w-5 h-5 rounded object-cover" />
             ) : (
-              <span className="text-base leading-none">{partner.emoji}</span>
+              <div
+                className="w-5 h-5 rounded flex items-center justify-center text-[9px] font-bold"
+                style={{ background: 'var(--sweet-accent-dim)', color: 'var(--sweet-accent)' }}
+              >
+                {partner.initial}
+              </div>
             )}
-            <span className="text-[11px] font-semibold text-stone-500">{partner.shortName}</span>
-            <span className="text-stone-700">·</span>
-            <span className="text-[10px] text-stone-600">{partner.city}</span>
+            <span className="text-[11px] font-medium" style={{ color: 'var(--sweet-text-secondary)' }}>
+              {partner.shortName}
+            </span>
           </div>
 
-          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-semibold ${catMeta.bg} ${catMeta.color} ${catMeta.border}`}>
+          <span
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold"
+            style={{ background: 'var(--sweet-accent-dim)', color: 'var(--sweet-text-secondary)' }}
+          >
             <CatIcon className="w-2.5 h-2.5" />
-            {t(catMeta.labelKey)}
+            {t(`rewards.category${reward.category.charAt(0) + reward.category.slice(1).toLowerCase()}`)}
           </span>
         </div>
 
         {/* Title + Description */}
-        <p className={`text-[15px] font-bold leading-snug mb-1 ${canAfford ? 'text-white' : 'text-stone-400'}`}>
+        <p className="text-[15px] font-bold leading-snug mb-1" style={{ color: 'var(--sweet-text)' }}>
           {getText(reward.titleKey)}
         </p>
-        <p className="text-[12px] text-stone-500 leading-relaxed mb-4 line-clamp-2">
+        <p className="text-[12px] leading-relaxed mb-4 line-clamp-2" style={{ color: 'var(--sweet-text-muted)' }}>
           {getText(reward.descKey)}
         </p>
 
-        {/* Bottom: cost + action */}
+        {/* Cost + Action */}
         <div className="flex items-center justify-between gap-3">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1.5">
               {canAfford ? (
-                <CheckCircleSolid className="w-4 h-4 text-green-400 flex-shrink-0" />
+                <CheckCircleSolid className="w-4 h-4 flex-shrink-0" style={{ color: '#22c55e' }} />
               ) : (
-                <div className="w-4 h-4 rounded-full border-2 border-stone-700 flex-shrink-0" />
+                <div className="w-4 h-4 rounded-full flex-shrink-0" style={{ border: '2px solid var(--sweet-border)' }} />
               )}
-              <span className={`text-sm font-black tabular-nums ${canAfford ? 'text-amber-400' : 'text-stone-500'}`}>
+              <span className="text-sm font-black tabular-nums" style={{ color: canAfford ? 'var(--sweet-accent)' : 'var(--sweet-text-muted)' }}>
                 {reward.pointsRequired.toLocaleString()}
               </span>
-              <span className="text-[10px] text-stone-600 font-semibold">SWEET</span>
+              <span className="text-[10px] font-semibold" style={{ color: 'var(--sweet-text-faint)' }}>SWEET</span>
             </div>
 
-            {/* Progress bar for unaffordable */}
             {!canAfford && (
               <div className="space-y-1">
-                <div className="h-1 bg-stone-800 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-amber-500 rounded-full"
-                    style={{ width: `${progress}%` }}
-                  />
+                <div className="h-1 rounded-full overflow-hidden" style={{ background: 'var(--sweet-border)' }}>
+                  <div className="h-full rounded-full" style={{ width: `${progress}%`, background: 'var(--sweet-accent)' }} />
                 </div>
-                <p className="text-[10px] text-stone-600">
+                <p className="text-[10px]" style={{ color: 'var(--sweet-text-faint)' }}>
                   {t('rewards.needMore', { amount: need.toLocaleString() })}
                 </p>
               </div>
@@ -528,13 +431,14 @@ function RewardCard({
           <button
             onClick={onRedeem}
             disabled={!canAfford || isRedeeming}
-            className={`flex-shrink-0 flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${canAfford
-                ? 'bg-amber-500 text-black hover:bg-amber-400 active:scale-95'
-                : 'bg-stone-800/60 text-stone-600 cursor-not-allowed'
-              }`}
+            className="flex-shrink-0 flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-95"
+            style={canAfford
+              ? { background: 'var(--sweet-accent)', color: 'var(--sweet-bg)' }
+              : { background: 'var(--sweet-border)', color: 'var(--sweet-text-faint)', cursor: 'not-allowed' }
+            }
           >
             {isRedeeming ? (
-              <span className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin block" />
+              <span className="w-4 h-4 border-2 rounded-full animate-spin block" style={{ borderColor: 'var(--sweet-bg)', borderTopColor: 'transparent' }} />
             ) : canAfford ? (
               <>
                 <TicketIcon className="w-3.5 h-3.5" />
@@ -550,43 +454,33 @@ function RewardCard({
   );
 }
 
-// ─── PartnerPill ──────────────────────────────────────────────────────────────
+// ─── PartnerPill ────────────────────────────────────────────────────────────
 
 function PartnerPill({
-  label,
-  logo,
-  emoji,
-  active,
-  accent,
-  onClick,
+  label, logo, initial, active, onClick,
 }: {
-  label: string;
-  logo?: string | null;
-  emoji?: string;
-  active: boolean;
-  accent?: string;
-  onClick: () => void;
+  label: string; logo?: string | null; initial?: string; active: boolean; onClick: () => void;
 }) {
   return (
     <button
       onClick={onClick}
-      style={active && accent ? { borderColor: `${accent}50`, background: `${accent}18` } : undefined}
-      className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all border whitespace-nowrap ${active
-          ? 'text-white'
-          : 'bg-transparent text-stone-500 border-stone-800 hover:border-stone-600 hover:text-stone-300'
-        }`}
+      className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all border whitespace-nowrap"
+      style={active
+        ? { background: 'var(--sweet-accent-dim)', borderColor: 'var(--sweet-accent)', color: 'var(--sweet-text)' }
+        : { background: 'transparent', borderColor: 'var(--sweet-border)', color: 'var(--sweet-text-muted)' }
+      }
     >
       {logo ? (
         <img src={logo} alt={label} className="w-3.5 h-3.5 rounded object-cover" />
-      ) : emoji ? (
-        <span className="text-[12px] leading-none">{emoji}</span>
+      ) : initial ? (
+        <span className="text-[10px] font-bold" style={{ color: 'var(--sweet-accent)' }}>{initial}</span>
       ) : null}
       {label}
     </button>
   );
 }
 
-// ─── MyCouponRow ──────────────────────────────────────────────────────────────
+// ─── MyCouponRow ────────────────────────────────────────────────────────────
 
 function MyCouponRow({ code, title, partnerName }: { code: string; title: string; partnerName: string }) {
   const { t } = useTranslation();
@@ -600,58 +494,43 @@ function MyCouponRow({ code, title, partnerName }: { code: string; title: string
   };
 
   return (
-    <div className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl border border-dashed border-amber-400/15 bg-amber-400/[0.03]">
+    <div className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl sweet-card" style={{ borderStyle: 'dashed' }}>
       <div className="min-w-0">
-        <p className="text-xs font-semibold text-white truncate">{title}</p>
-        <p className="text-[10px] text-stone-600">{partnerName}</p>
+        <p className="text-xs font-semibold truncate" style={{ color: 'var(--sweet-text)' }}>{title}</p>
+        <p className="text-[10px]" style={{ color: 'var(--sweet-text-muted)' }}>{partnerName}</p>
       </div>
       <div className="flex items-center gap-2 flex-shrink-0">
-        <span className="font-mono font-black text-sm text-amber-400 tracking-widest">{code}</span>
-        <button onClick={handleCopy} className="p-1 hover:bg-stone-800/50 rounded-lg transition-colors">
-          {copied
-            ? <CheckIcon className="w-3.5 h-3.5 text-green-400" />
-            : <ClipboardDocumentIcon className="w-3.5 h-3.5 text-stone-600" />
-          }
+        <span className="font-mono font-black text-sm tracking-widest" style={{ color: 'var(--sweet-accent)' }}>{code}</span>
+        <button onClick={handleCopy} className="p-1 rounded-lg transition-colors" style={{ color: 'var(--sweet-text-muted)' }}>
+          {copied ? <CheckIcon className="w-3.5 h-3.5" style={{ color: '#22c55e' }} /> : <ClipboardDocumentIcon className="w-3.5 h-3.5" />}
         </button>
       </div>
     </div>
   );
 }
 
-// ─── EmptyState ───────────────────────────────────────────────────────────────
+// ─── EmptyState ─────────────────────────────────────────────────────────────
 
 function EmptyState({ categoryFilter, affordableCount }: { categoryFilter: FilterTab; affordableCount: number }) {
   const { t } = useTranslation();
-  if (categoryFilter === 'affordable' && affordableCount === 0) {
-    return (
-      <div className="py-14 text-center">
-        <GiftIcon className="w-12 h-12 text-stone-700 mx-auto mb-4" />
-        <p className="text-sm font-semibold text-stone-400">{t('rewards.notEnoughSweet')}</p>
-        <p className="text-xs text-stone-600 mt-1 max-w-[200px] mx-auto">
-          {t('rewards.earnSweetHint')}
-        </p>
-      </div>
-    );
-  }
   return (
     <div className="py-14 text-center">
-      <GiftIcon className="w-10 h-10 text-stone-800 mx-auto mb-3" />
-      <p className="text-sm text-stone-500">{t('rewards.emptyTitle')}</p>
+      <GiftIcon className="w-10 h-10 mx-auto mb-3" style={{ color: 'var(--sweet-text-faint)' }} />
+      <p className="text-sm font-semibold" style={{ color: 'var(--sweet-text-secondary)' }}>
+        {categoryFilter === 'affordable' && affordableCount === 0 ? t('rewards.notEnoughSweet') : t('rewards.emptyTitle')}
+      </p>
+      {categoryFilter === 'affordable' && affordableCount === 0 && (
+        <p className="text-xs mt-1 max-w-[200px] mx-auto" style={{ color: 'var(--sweet-text-muted)' }}>
+          {t('rewards.earnSweetHint')}
+        </p>
+      )}
     </div>
   );
 }
 
-// ─── CouponSheet ──────────────────────────────────────────────────────────────
+// ─── CouponSheet ────────────────────────────────────────────────────────────
 
-function CouponSheet({
-  coupon,
-  getText,
-  onClose,
-}: {
-  coupon: IssuedCoupon | null;
-  getText: (key: string) => string;
-  onClose: () => void;
-}) {
+function CouponSheet({ coupon, getText, onClose }: { coupon: IssuedCoupon | null; getText: (key: string) => string; onClose: () => void }) {
   const { t, i18n } = useTranslation();
   const [copied, setCopied] = useState(false);
 
@@ -667,102 +546,92 @@ function CouponSheet({
     <AnimatePresence>
       {coupon && (
         <>
-          {/* Backdrop */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }}
             onClick={onClose}
           />
-
-          {/* Sheet */}
           <motion.div
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
+            initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 32, stiffness: 320 }}
             className="fixed bottom-28 left-0 right-0 z-[60] flex justify-center px-4"
           >
-            <div className="w-full max-w-2xl max-h-[calc(100vh-9rem)] overflow-y-auto bg-stone-950 border border-stone-800 rounded-3xl px-5 pt-4 pb-6">
-              {/* Handle */}
+            <div
+              className="w-full max-w-2xl max-h-[calc(100vh-9rem)] overflow-y-auto rounded-3xl px-5 pt-4 pb-6"
+              style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)' }}
+            >
               <div className="flex justify-center mb-5">
-                <div className="w-10 h-1 rounded-full bg-white/15" />
+                <div className="w-10 h-1 rounded-full" style={{ background: 'var(--sweet-border-light)' }} />
               </div>
 
-              {/* Success icon */}
+              {/* Header */}
               <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-2xl flex items-center justify-center text-xl"
-                    style={{ background: `${coupon.partner.accentFrom}25`, border: `1px solid ${coupon.partner.accentFrom}40` }}>
-                    {coupon.partner.emoji}
+                  <div
+                    className="w-11 h-11 rounded-2xl flex items-center justify-center text-sm font-bold"
+                    style={{ background: 'var(--sweet-accent-dim)', color: 'var(--sweet-accent)' }}
+                  >
+                    {coupon.partner.initial}
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-stone-400">{coupon.partner.name}</p>
-                    <p className="text-sm font-bold text-white">{getText(coupon.reward.titleKey)}</p>
+                    <p className="text-xs font-medium" style={{ color: 'var(--sweet-text-secondary)' }}>{coupon.partner.name}</p>
+                    <p className="text-sm font-bold" style={{ color: 'var(--sweet-text)' }}>{getText(coupon.reward.titleKey)}</p>
                   </div>
                 </div>
-                <button onClick={onClose} className="p-2 hover:bg-stone-800/50 rounded-xl transition-colors">
-                  <XMarkIcon className="w-5 h-5 text-stone-500" />
+                <button onClick={onClose} className="p-2 rounded-xl transition-colors">
+                  <XMarkIcon className="w-5 h-5" style={{ color: 'var(--sweet-text-muted)' }} />
                 </button>
               </div>
 
-              {/* The coupon code */}
-              <div className="relative rounded-2xl overflow-hidden mb-4">
-                {/* Ticket bg */}
-                <div
-                  className="absolute inset-0 opacity-[0.06]"
-                  style={{ background: `linear-gradient(135deg, ${coupon.partner.accentFrom}, ${coupon.partner.accentTo})` }}
-                />
-                <div className="relative border border-dashed border-amber-400/30 rounded-2xl px-5 py-5">
-                  {/* Notches */}
-                  <div className="absolute top-1/2 -left-3 w-6 h-6 rounded-full bg-stone-950 -translate-y-1/2" />
-                  <div className="absolute top-1/2 -right-3 w-6 h-6 rounded-full bg-stone-950 -translate-y-1/2" />
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-[10px] text-stone-600 uppercase tracking-widest mb-1.5">{t('rewards.couponCode')}</p>
-                      <p className="text-3xl font-black font-mono tracking-[0.2em] text-amber-400">
-                        {coupon.code}
-                      </p>
-                    </div>
-                    <button
-                      onClick={handleCopy}
-                      className="flex flex-col items-center gap-1 p-2.5 rounded-xl hover:bg-stone-800/50 transition-colors"
-                    >
-                      {copied
-                        ? <CheckCircleIcon className="w-5 h-5 text-green-400" />
-                        : <ClipboardDocumentIcon className="w-5 h-5 text-stone-500" />
-                      }
-                      <span className="text-[9px] text-stone-600">{copied ? t('rewards.copied') : t('rewards.copy')}</span>
-                    </button>
+              {/* Coupon code */}
+              <div
+                className="relative rounded-2xl overflow-hidden mb-4 px-5 py-5"
+                style={{ border: '1px dashed var(--sweet-accent)', background: 'var(--sweet-accent-dim)' }}
+              >
+                <div className="absolute top-1/2 -left-3 w-6 h-6 rounded-full -translate-y-1/2" style={{ background: 'var(--sweet-card)' }} />
+                <div className="absolute top-1/2 -right-3 w-6 h-6 rounded-full -translate-y-1/2" style={{ background: 'var(--sweet-card)' }} />
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-widest mb-1.5" style={{ color: 'var(--sweet-text-muted)' }}>{t('rewards.couponCode')}</p>
+                    <p className="text-2xl font-black font-mono tracking-[0.15em]" style={{ color: 'var(--sweet-accent)' }}>
+                      {coupon.code}
+                    </p>
                   </div>
+                  <button onClick={handleCopy} className="flex flex-col items-center gap-1 p-2.5 rounded-xl transition-colors">
+                    {copied
+                      ? <CheckIcon className="w-5 h-5" style={{ color: '#22c55e' }} />
+                      : <ClipboardDocumentIcon className="w-5 h-5" style={{ color: 'var(--sweet-text-muted)' }} />}
+                    <span className="text-[9px]" style={{ color: 'var(--sweet-text-faint)' }}>
+                      {copied ? t('rewards.copied') : t('rewards.copy')}
+                    </span>
+                  </button>
                 </div>
               </div>
 
               {/* Details */}
-              <div className="rounded-2xl bg-stone-900 border border-stone-800 divide-y divide-stone-800 mb-5">
+              <div className="rounded-2xl overflow-hidden mb-5" style={{ background: 'var(--sweet-bg)', border: '1px solid var(--sweet-border)' }}>
                 {[
-                  { label: t('rewards.spent'), value: `${coupon.reward.pointsRequired.toLocaleString()} ${t('common.sweet')}`, accent: true },
+                  { label: t('rewards.spent'), value: `${coupon.reward.pointsRequired.toLocaleString()} SWEET`, accent: true },
                   { label: t('rewards.validity'), value: `${coupon.daysLeft} ${t('rewards.days')}`, warn: coupon.daysLeft <= 3 },
                   { label: t('rewards.expires'), value: new Date(coupon.expiresAt).toLocaleDateString(i18n.language === 'kz' ? 'kk' : i18n.language === 'ru' ? 'ru' : 'en', { day: 'numeric', month: 'long', year: 'numeric' }) },
-                ].map(row => (
-                  <div key={row.label} className="flex items-center justify-between px-4 py-2.5">
-                    <span className="text-xs text-stone-500">{row.label}</span>
-                    <span className={`text-xs font-semibold ${row.warn ? 'text-red-400' : row.accent ? 'text-amber-400' : 'text-stone-300'}`}>
+                ].map((row, i) => (
+                  <div key={row.label} className="flex items-center justify-between px-4 py-2.5" style={i > 0 ? { borderTop: '1px solid var(--sweet-border)' } : {}}>
+                    <span className="text-xs" style={{ color: 'var(--sweet-text-muted)' }}>{row.label}</span>
+                    <span className="text-xs font-semibold" style={{ color: row.warn ? '#ef4444' : row.accent ? 'var(--sweet-accent)' : 'var(--sweet-text-secondary)' }}>
                       {row.value}
                     </span>
                   </div>
                 ))}
               </div>
 
-              <p className="text-[11px] text-stone-600 text-center mb-5">
+              <p className="text-[11px] text-center mb-5" style={{ color: 'var(--sweet-text-faint)' }}>
                 {t('rewards.couponReady')} {coupon.partner.name}
               </p>
 
               <button
                 onClick={onClose}
-                className="w-full py-3.5 bg-amber-500 text-black font-bold rounded-2xl hover:bg-amber-400 transition-colors text-sm"
+                className="w-full py-3.5 font-bold rounded-2xl transition-colors text-sm"
+                style={{ background: 'var(--sweet-accent)', color: 'var(--sweet-bg)' }}
               >
                 {t('rewards.close')}
               </button>
