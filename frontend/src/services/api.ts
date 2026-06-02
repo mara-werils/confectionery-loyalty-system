@@ -82,6 +82,8 @@ export const api = {
 
     update: (id: string, data: Partial<{ companyName: string; email: string }>) =>
       axiosInstance.patch(`/partners/${id}`, data),
+
+    ecosystem: () => axiosInstance.get('/partners/ecosystem'),
   },
 
   // Loyalty
@@ -111,6 +113,9 @@ export const api = {
 
     create: (data: { amount: number; type: string; description?: string }) =>
       axiosInstance.post('/transactions', data),
+
+    onChain: (params?: { page?: number; limit?: number }) =>
+      axiosInstance.get('/transactions/on-chain', { params }),
   },
 
   // Rewards

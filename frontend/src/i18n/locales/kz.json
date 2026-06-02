@@ -337,7 +337,41 @@
     "governance": "DAO",
     "analytics": "Аналитика",
     "spin": "Доңғалақ",
-    "gift": "Сыйлық"
+    "gift": "Сыйлық",
+    "ecosystem": "Серіктестер",
+    "explorer": "Эксплорер"
+  },
+  "explorer": {
+    "title": "Блокчейн Эксплорер",
+    "subtitle": "TON блокчейнінде расталған барлық SWEET транзакциялар",
+    "connected": "TON Testnet-ке қосылды",
+    "lastUpdated": "Жаңартылды",
+    "confirmed": "Расталды",
+    "copyHash": "Хэшті көшіру",
+    "viewOnExplorer": "TON Explorer-де қарау",
+    "jettonContract": "Jetton смарт-контракты (SWEET)",
+    "viewContract": "Ашу",
+    "loadMore": "Көбірек жүктеу",
+    "footerNote": "Барлық транзакциялар TON блокчейнінде мәңгі жазылған және жалпыға қолжетімді.",
+    "stats": {
+      "totalTx": "Транзакциялар",
+      "onChainVerified": "TON-да расталды",
+      "totalMinted": "Барлығы шығарылды",
+      "allTime": "SWEET барлық уақытта",
+      "network": "Желі",
+      "contract": "Контракт"
+    },
+    "types": {
+      "PURCHASE": "Сатып алу",
+      "BONUS": "Бонус",
+      "REFERRAL": "Реферал",
+      "PROMOTION": "Акция",
+      "REDEMPTION": "Өтеу"
+    },
+    "empty": {
+      "title": "On-chain транзакциялар жоқ",
+      "subtitle": "TON блокчейнінде сатып алулар жазылғаннан кейін олар осында нақты уақытта пайда болады."
+    }
   },
   "spinWheel": {
     "title": "Бақыт доңғалағы",
@@ -825,5 +859,24 @@
     "fri": "Жм",
     "sat": "Сн",
     "sun": "Жк"
+  },
+  "ecosystem": {
+    "badge": "Коалициялық желі",
+    "title": "Sweet Экожүйесі",
+    "subtitle": "{{count}} серіктес кондитерлікте SWEET токенін тауып, жұмсаңыз",
+    "networkTitle": "Коалициялық желі картасы",
+    "networkCaption": "Әр түйін — SWEET токені арқылы TON желісімен байланысқан серіктес кондитерлік",
+    "statPartners": "Серіктестер",
+    "statSweet": "Берілген SWEET",
+    "statTx": "Транзакциялар",
+    "statAvg": "Орт. сыйақы",
+    "filterAll": "Барлығы",
+    "filterGold": "Алтын",
+    "filterSilver": "Күміс",
+    "filterBronze": "Қола",
+    "noPartners": "Серіктестер табылмады",
+    "noPartnersHint": "Серіктестер коалицияға қосылғаннан кейін пайда болады",
+    "poweredBy": "TON Blockchain негізіндегі коалиция",
+    "thesis": "AITU Диплом жобасы 2026 — Смарт-контрактілерге негізделген адалдық жүйесі"
   }
 }

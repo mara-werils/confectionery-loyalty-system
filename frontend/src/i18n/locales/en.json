@@ -337,7 +337,41 @@
     "governance": "DAO",
     "analytics": "Analytics",
     "spin": "Spin",
-    "gift": "Gift"
+    "gift": "Gift",
+    "ecosystem": "Partners",
+    "explorer": "Explorer"
+  },
+  "explorer": {
+    "title": "Blockchain Explorer",
+    "subtitle": "All SWEET transactions verified on TON blockchain",
+    "connected": "Connected to TON Testnet",
+    "lastUpdated": "Updated",
+    "confirmed": "Confirmed",
+    "copyHash": "Copy hash",
+    "viewOnExplorer": "View on TON Explorer",
+    "jettonContract": "Jetton Smart Contract (SWEET)",
+    "viewContract": "View",
+    "loadMore": "Load more",
+    "footerNote": "All transactions are permanently recorded on the TON blockchain and publicly verifiable.",
+    "stats": {
+      "totalTx": "On-chain Txns",
+      "onChainVerified": "Verified on TON",
+      "totalMinted": "Total Minted",
+      "allTime": "All-time SWEET",
+      "network": "Network",
+      "contract": "Contract"
+    },
+    "types": {
+      "PURCHASE": "Purchase",
+      "BONUS": "Bonus",
+      "REFERRAL": "Referral",
+      "PROMOTION": "Promotion",
+      "REDEMPTION": "Redemption"
+    },
+    "empty": {
+      "title": "No on-chain transactions yet",
+      "subtitle": "Once purchases are recorded on TON blockchain, they will appear here in real time."
+    }
   },
   "spinWheel": {
     "title": "Spin & Win",
@@ -825,5 +859,24 @@
     "fri": "Fri",
     "sat": "Sat",
     "sun": "Sun"
+  },
+  "ecosystem": {
+    "badge": "Coalition Network",
+    "title": "Sweet Ecosystem",
+    "subtitle": "Earn and spend SWEET tokens at {{count}} partner confectioneries across Kazakhstan",
+    "networkTitle": "Coalition Network Map",
+    "networkCaption": "Each node is a partner confectionery — all connected via SWEET tokens on TON blockchain",
+    "statPartners": "Partners",
+    "statSweet": "SWEET issued",
+    "statTx": "Transactions",
+    "statAvg": "Avg reward",
+    "filterAll": "All Tiers",
+    "filterGold": "Gold",
+    "filterSilver": "Silver",
+    "filterBronze": "Bronze",
+    "noPartners": "No partners found",
+    "noPartnersHint": "Partners will appear here once they join the coalition",
+    "poweredBy": "Coalition powered by TON Blockchain",
+    "thesis": "AITU Diploma Project 2026 — Smart-Contract Loyalty System"
   }
 }

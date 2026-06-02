@@ -30,6 +30,8 @@ import CustomerDashboard from './pages/customer/CustomerDashboard';
 import CustomerRewards from './pages/customer/CustomerRewards';
 const SpinWheel = lazy(() => import('./pages/customer/SpinWheel'));
 const GiftTokens = lazy(() => import('./pages/customer/GiftTokens'));
+const Ecosystem = lazy(() => import('./pages/customer/Ecosystem'));
+const Explorer = lazy(() => import('./pages/customer/Explorer'));
 
 // Components
 import Layout from './components/Layout';
@@ -132,6 +134,8 @@ function App() {
           <Route path="/customer/rewards" element={<CustomerRewards />} />
           <Route path="/customer/spin" element={<SpinWheel />} />
           <Route path="/customer/gift" element={<GiftTokens />} />
+          <Route path="/customer/ecosystem" element={<Ecosystem />} />
+          <Route path="/customer/explorer" element={<Explorer />} />
           <Route path="/achievements" element={<Achievements />} />
           <Route path="/history" element={<History />} />
           <Route path="/stats" element={<Stats />} />

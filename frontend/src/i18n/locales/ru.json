@@ -337,7 +337,41 @@
     "governance": "DAO",
     "analytics": "Аналитика",
     "spin": "Колесо",
-    "gift": "Подарок"
+    "gift": "Подарок",
+    "ecosystem": "Партнёры",
+    "explorer": "Эксплорер"
+  },
+  "explorer": {
+    "title": "Блокчейн Эксплорер",
+    "subtitle": "Все SWEET транзакции, верифицированные в TON блокчейне",
+    "connected": "Подключено к TON Testnet",
+    "lastUpdated": "Обновлено",
+    "confirmed": "Подтверждено",
+    "copyHash": "Скопировать хэш",
+    "viewOnExplorer": "Смотреть в TON Explorer",
+    "jettonContract": "Смарт-контракт Jetton (SWEET)",
+    "viewContract": "Открыть",
+    "loadMore": "Загрузить ещё",
+    "footerNote": "Все транзакции навсегда записаны в блокчейне TON и доступны для публичной проверки.",
+    "stats": {
+      "totalTx": "Транзакций",
+      "onChainVerified": "Верифицировано в TON",
+      "totalMinted": "Всего выпущено",
+      "allTime": "SWEET за всё время",
+      "network": "Сеть",
+      "contract": "Контракт"
+    },
+    "types": {
+      "PURCHASE": "Покупка",
+      "BONUS": "Бонус",
+      "REFERRAL": "Реферал",
+      "PROMOTION": "Акция",
+      "REDEMPTION": "Погашение"
+    },
+    "empty": {
+      "title": "Нет on-chain транзакций",
+      "subtitle": "Как только покупки будут записаны в TON блокчейне, они появятся здесь в реальном времени."
+    }
   },
   "spinWheel": {
     "title": "Колесо Фортуны",
@@ -825,5 +859,24 @@
     "fri": "Пт",
     "sat": "Сб",
     "sun": "Вс"
+  },
+  "ecosystem": {
+    "badge": "Коалиционная сеть",
+    "title": "Sweet Экосистема",
+    "subtitle": "Зарабатывайте и тратьте SWEET токены в {{count}} кондитерских-партнёрах",
+    "networkTitle": "Карта коалиционной сети",
+    "networkCaption": "Каждый узел — кондитерская-партнёр, объединённые через SWEET токены в сети TON",
+    "statPartners": "Партнёры",
+    "statSweet": "Выдано SWEET",
+    "statTx": "Транзакции",
+    "statAvg": "Ср. награда",
+    "filterAll": "Все тиры",
+    "filterGold": "Золото",
+    "filterSilver": "Серебро",
+    "filterBronze": "Бронза",
+    "noPartners": "Партнёры не найдены",
+    "noPartnersHint": "Партнёры появятся здесь после вступления в коалицию",
+    "poweredBy": "Коалиция на базе TON Blockchain",
+    "thesis": "Дипломный проект AITU 2026 — Система лояльности на смарт-контрактах"
   }
 }

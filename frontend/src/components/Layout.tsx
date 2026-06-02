@@ -8,10 +8,10 @@ import {
   UserPlusIcon,
   QrCodeIcon,
   SparklesIcon,
-  FireIcon,
   PresentationChartBarIcon,
   SunIcon,
   MoonIcon,
+  BuildingStorefrontIcon,
 } from '@heroicons/react/24/outline';
 import {
   HomeIcon as HomeIconSolid,
@@ -20,8 +20,8 @@ import {
   UserPlusIcon as UserPlusIconSolid,
   QrCodeIcon as QrCodeIconSolid,
   SparklesIcon as SparklesIconSolid,
-  FireIcon as FireIconSolid,
   PresentationChartBarIcon as PresentationChartBarIconSolid,
+  BuildingStorefrontIcon as BuildingStorefrontIconSolid,
 } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
 import { changeLanguage, languages } from '../i18n';
@@ -46,11 +46,11 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
   ];
 
   const customerNavItems = [
-    { path: '/customer/dashboard', label: t('nav.wallet'),  icon: HomeIcon,     activeIcon: HomeIconSolid },
-    { path: '/customer/rewards',   label: t('nav.rewards'), icon: GiftIcon,     activeIcon: GiftIconSolid },
-    { path: '/customer/spin',     label: t('nav.spin') || 'Spin',  icon: SparklesIcon, activeIcon: SparklesIconSolid },
-    { path: '/customer/gift',     label: t('nav.gift') || 'Gift',  icon: FireIcon,     activeIcon: FireIconSolid },
-    { path: '/customer/profile',   label: t('nav.profile'), icon: UserCircleIcon, activeIcon: UserCircleIconSolid },
+    { path: '/customer/dashboard',  label: t('nav.wallet'),         icon: HomeIcon,                  activeIcon: HomeIconSolid },
+    { path: '/customer/rewards',    label: t('nav.rewards'),        icon: GiftIcon,                  activeIcon: GiftIconSolid },
+    { path: '/customer/ecosystem',  label: t('nav.ecosystem'),      icon: BuildingStorefrontIcon,    activeIcon: BuildingStorefrontIconSolid },
+    { path: '/customer/spin',       label: t('nav.spin') || 'Spin', icon: SparklesIcon,              activeIcon: SparklesIconSolid },
+    { path: '/customer/profile',    label: t('nav.profile'),        icon: UserCircleIcon,            activeIcon: UserCircleIconSolid },
   ];
 
   const navItems = variant === 'customer' ? customerNavItems : businessNavItems;
