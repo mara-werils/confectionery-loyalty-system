@@ -235,6 +235,93 @@ router.get('/', authenticate, async (req: Request, res: Response, next: NextFunc
  *       200:
  *         description: Transaction details
  */
+/**
+ * @swagger
+ * /transactions/on-chain:
+ *   get:
+ *     summary: Get on-chain verified transactions (blockchain explorer feed)
+ *     tags: [Transactions]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: On-chain transaction list
+ */
+const onChainQuerySchema = z.object({
+  page: z.coerce.number().min(1).default(1),
+  limit: z.coerce.number().min(1).max(50).default(20),
+});
+
+router.get('/on-chain', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const query = onChainQuerySchema.parse(req.query);
+    const skip = (query.page - 1) * query.limit;
+
+    const where = {
+      txHash: { not: null },
+    };
+
+    const [transactions, total] = await Promise.all([
+      prisma.transaction.findMany({
+        where,
+        skip,
+        take: query.limit,
+        include: {
+          partner: {
+            select: {
+              companyName: true,
+              walletAddress: true,
+            },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.transaction.count({ where }),
+    ]);
+
+    const formatted = transactions.map((t) => ({
+      id: t.id,
+      amount: t.amount.toString(),
+      pointsEarned: t.pointsEarned.toString(),
+      type: t.type,
+      description: t.description,
+      txHash: t.txHash,
+      blockNumber: t.blockNumber?.toString() ?? null,
+      partnerName: t.partner?.companyName ?? null,
+      createdAt: t.createdAt,
+    }));
+
+    // Summary stats: aggregate total minted SWEET for on-chain txns
+    const totalMinted = await prisma.transaction.aggregate({
+      where: { txHash: { not: null } },
+      _sum: { pointsEarned: true },
+    });
+
+    // Inject summary into response via successResponse with custom shape
+    const totalPages = Math.ceil(total / query.limit);
+    return res.status(200).json({
+      success: true,
+      data: formatted,
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        total,
+        totalPages,
+        totalMinted: totalMinted._sum.pointsEarned?.toString() ?? '0',
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.get('/:id', authenticate, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
