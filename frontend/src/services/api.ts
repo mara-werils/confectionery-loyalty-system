@@ -93,6 +93,13 @@ export const api = {
 
     redeem: (rewardId: string) =>
       axiosInstance.post('/loyalty/redeem', { rewardId }),
+
+    simulatePurchase: (data: {
+      partnerId: string;
+      customerWallet: string;
+      amount: number;
+      items?: string[];
+    }) => axiosInstance.post('/loyalty/simulate-purchase', data),
   },
 
   // Transactions

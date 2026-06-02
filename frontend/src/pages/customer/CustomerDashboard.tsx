@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTonWallet } from '@tonconnect/ui-react';
 import { QRCodeSVG } from 'qrcode.react';
@@ -14,6 +14,7 @@ import {
   ArrowTopRightOnSquareIcon,
   DocumentDuplicateIcon,
   ChevronDownIcon,
+  SparklesIcon,
 } from '@heroicons/react/24/outline';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -25,6 +26,7 @@ import { TIER_CONFIG } from '../../config/tiers';
 import AnimatedNumber from '../../components/AnimatedNumber';
 import LiveFeed from '../../components/LiveFeed';
 import { useMutation } from '@tanstack/react-query';
+import { io as socketIO } from 'socket.io-client';
 
 const TIERS = TIER_CONFIG;
 
@@ -42,6 +44,15 @@ interface Transaction {
   sender: string;
   comment: string;
   timestamp: number;
+}
+
+interface PurchaseAwardedPayload {
+  partnerName: string;
+  pointsEarned: number;
+  amount: number;
+  items: string[];
+  txHash: string;
+  timestamp: string;
 }
 
 function safeFromJettonRaw(rawBalance: string, decimals: number): number {
@@ -62,8 +73,10 @@ export default function CustomerDashboard() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [qrVisible, setQrVisible] = useState(false);
+  const [purchaseAlert, setPurchaseAlert] = useState<PurchaseAwardedPayload | null>(null);
 
   const walletAddress = wallet?.account.address || '';
+  const socketRef = useRef<ReturnType<typeof socketIO> | null>(null);
 
   const { data: achievementsData } = useQuery({
     queryKey: ['achievements'],
@@ -80,7 +93,44 @@ export default function CustomerDashboard() {
     : [];
   const unlockedAchievements = allAchievements.filter((a) => !!a.unlockedAt).slice(0, 2);
 
-  // NOTE: realtime socket updates are intentionally disabled here for maximum webview stability.
+  // Real-time Socket.IO: listen for purchase:awarded events
+  useEffect(() => {
+    if (!walletAddress) return;
+
+    const socketUrl =
+      import.meta.env.VITE_WS_URL ||
+      import.meta.env.VITE_API_URL?.replace(/\/(api\/v1|v1|api)\/?$/, '') ||
+      (import.meta.env.DEV ? 'http://localhost:3001' : window.location.origin);
+
+    const socket = socketIO(socketUrl, { transports: ['websocket', 'polling'] });
+    socketRef.current = socket;
+
+    socket.emit('subscribe:wallet', walletAddress);
+
+    socket.on('purchase:awarded', (payload: PurchaseAwardedPayload) => {
+      setSweetBalance(sweetBalance + payload.pointsEarned);
+      setPurchaseAlert(payload);
+      toast.success(
+        `+${payload.pointsEarned} SWEET from ${payload.partnerName}!`,
+        {
+          icon: '\u2726',
+          duration: 4000,
+          style: {
+            background: '#1c1917',
+            color: '#fbbf24',
+            border: '1px solid rgba(245,158,11,0.3)',
+          },
+        }
+      );
+    });
+
+    return () => {
+      socket.emit('unsubscribe:wallet', walletAddress);
+      socket.disconnect();
+      socketRef.current = null;
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletAddress]);
 
   const fetchData = async () => {
     if (!walletAddress) return;
@@ -131,7 +181,7 @@ export default function CustomerDashboard() {
 
   const formatAddress = (addr: string) => {
     if (!addr || addr.length < 12) return addr;
-    return addr.slice(0, 6) + '…' + addr.slice(-4);
+    return addr.slice(0, 6) + '\u2026' + addr.slice(-4);
   };
 
   const timeAgo = (ts: number) => {
@@ -149,6 +199,68 @@ export default function CustomerDashboard() {
 
   return (
     <div className="pb-28 text-white">
+      {/* Real-time Purchase Award Notification */}
+      <AnimatePresence>
+        {purchaseAlert && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+            className="mb-4 relative overflow-hidden rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-950/60 to-stone-900"
+          >
+            <div className="relative z-10 px-4 py-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <motion.div
+                    initial={{ scale: 0.5, rotate: -10 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
+                    className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center flex-shrink-0"
+                  >
+                    <SparklesIcon className="w-5 h-5 text-amber-400" />
+                  </motion.div>
+                  <div>
+                    <p className="text-sm font-bold text-white">
+                      +{purchaseAlert.pointsEarned.toLocaleString()} SWEET received!
+                    </p>
+                    <p className="text-xs text-stone-400 mt-0.5">
+                      From {purchaseAlert.partnerName} &middot; &#8378;{purchaseAlert.amount.toLocaleString()}
+                    </p>
+                    {purchaseAlert.items.length > 0 && (
+                      <p className="text-[10px] text-stone-600 mt-0.5 truncate max-w-[180px]">
+                        {purchaseAlert.items.join(', ')}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <button
+                  onClick={() => setPurchaseAlert(null)}
+                  className="flex-shrink-0 w-6 h-6 rounded-full bg-stone-800 flex items-center justify-center text-stone-500 hover:text-white transition-colors text-xs"
+                >
+                  x
+                </button>
+              </div>
+
+              <div className="mt-3 pt-3 border-t border-amber-500/10 flex items-center gap-2">
+                <div className="flex-1 h-1.5 bg-stone-800 rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: '100%' }}
+                    transition={{ duration: 4, ease: 'linear' }}
+                    className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500"
+                    onAnimationComplete={() => setPurchaseAlert(null)}
+                  />
+                </div>
+                <span className="text-[10px] text-stone-600 font-mono shrink-0">
+                  {purchaseAlert.txHash.slice(0, 8)}...
+                </span>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Hero Balance Card */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}
@@ -203,7 +315,7 @@ export default function CustomerDashboard() {
               </div>
               {!loading && currentBalance > 0 && (
                 <p className="text-xs text-amber-400/60 mt-0.5 font-mono">
-                  ≈ {(currentBalance * 0.15).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} ₸
+                  ~{(currentBalance * 0.15).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} KZT
                 </p>
               )}
             </div>
@@ -425,7 +537,7 @@ export default function CustomerDashboard() {
                     </div>
                     <div className="flex items-center gap-1.5 mt-0.5">
                       <p className="text-[10px] text-stone-600">
-                        {formatAddress(tx.sender)} · {timeAgo(tx.timestamp)}
+                        {formatAddress(tx.sender)} &middot; {timeAgo(tx.timestamp)}
                       </p>
                       {tx.hash && (
                         <a
@@ -436,7 +548,7 @@ export default function CustomerDashboard() {
                           title={t('customerDashboard.viewTx')}
                         >
                           <ArrowTopRightOnSquareIcon className="w-2.5 h-2.5" />
-                          {tx.hash.length > 12 ? tx.hash.slice(0, 6) + '…' + tx.hash.slice(-4) : tx.hash}
+                          {tx.hash.length > 12 ? tx.hash.slice(0, 6) + '...' + tx.hash.slice(-4) : tx.hash}
                         </a>
                       )}
                     </div>
@@ -454,50 +566,46 @@ export default function CustomerDashboard() {
   );
 }
 
+function SectionHeader({ icon, label }: { icon: React.ReactNode; label: string }) {
+  return (
+    <div className="flex items-center gap-2 mb-3 text-stone-500">
+      {icon}
+      <span className="text-xs font-semibold tracking-wide">{label}</span>
+    </div>
+  );
+}
+
 function BlockchainInfoCard({ walletAddress }: { walletAddress: string }) {
   const { t } = useTranslation();
-  const [open, setOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
-  const shortAddr = (addr: string) =>
-    addr && addr.length > 12 ? addr.slice(0, 8) + '…' + addr.slice(-6) : addr;
+  if (!walletAddress) return null;
 
-  const copyToClipboard = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    } catch {
-      // fallback
-    }
-  };
+  const truncated = walletAddress.length > 16
+    ? walletAddress.slice(0, 8) + '...' + walletAddress.slice(-6)
+    : walletAddress;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.3 }}
-      className="mb-4 rounded-2xl border border-stone-800 bg-stone-900/60 overflow-hidden"
+      transition={{ delay: 0.35 }}
+      className="mb-4 rounded-2xl border border-stone-800 bg-stone-900/50 overflow-hidden"
     >
       <button
-        onClick={() => setOpen(v => !v)}
-        className="w-full flex items-center justify-between px-4 py-3 hover:bg-stone-800/40 transition-colors"
+        className="w-full flex items-center justify-between px-4 py-3 text-left"
+        onClick={() => setExpanded(v => !v)}
       >
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-            <ShieldCheckIcon className="w-3 h-3 text-emerald-400" />
-          </div>
-          <span className="text-xs font-semibold text-stone-300">{t('customerDashboard.blockchainInfo')}</span>
-          <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-            <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-[8px] font-bold text-emerald-400 tracking-wide">LIVE</span>
-          </span>
+          <ShieldCheckIcon className="w-3.5 h-3.5 text-emerald-400" />
+          <span className="text-xs font-semibold text-stone-300">{t('customerDashboard.blockchainDetails') || 'Blockchain Details'}</span>
         </div>
-        <ChevronDownIcon className={clsx('w-3.5 h-3.5 text-stone-500 transition-transform', open && 'rotate-180')} />
+        <ChevronDownIcon
+          className={`w-3.5 h-3.5 text-stone-600 transition-transform ${expanded ? 'rotate-180' : ''}`}
+        />
       </button>
-
       <AnimatePresence>
-        {open && (
+        {expanded && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
@@ -505,47 +613,32 @@ function BlockchainInfoCard({ walletAddress }: { walletAddress: string }) {
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="px-4 pb-4 space-y-3 border-t border-stone-800/60 pt-3">
-              {/* Network */}
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] text-stone-500 uppercase tracking-wider">{t('customerDashboard.network')}</span>
+            <div className="px-4 pb-4 space-y-2.5 border-t border-stone-800">
+              <div className="pt-3 flex items-center justify-between gap-2">
+                <span className="text-[10px] text-stone-600">Wallet</span>
                 <div className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                  <span className="text-xs font-medium text-stone-300">TON Testnet</span>
+                  <span className="text-[10px] font-mono text-stone-400">{truncated}</span>
+                  <button
+                    onClick={() => { navigator.clipboard.writeText(walletAddress); }}
+                    className="text-stone-600 hover:text-stone-300 transition-colors"
+                  >
+                    <DocumentDuplicateIcon className="w-3 h-3" />
+                  </button>
                 </div>
               </div>
-
-              {/* Wallet */}
-              {walletAddress && (
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-[10px] text-stone-500 uppercase tracking-wider">{t('customerDashboard.yourWallet')}</span>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[10px] font-mono text-stone-400">{shortAddr(walletAddress)}</span>
-                    <button
-                      onClick={() => copyToClipboard(walletAddress)}
-                      className="p-0.5 rounded hover:text-stone-300 text-stone-600 transition-colors"
-                      title={t('customerDashboard.copyAddress')}
-                    >
-                      {copied
-                        ? <ShieldCheckIcon className="w-3 h-3 text-emerald-400" />
-                        : <DocumentDuplicateIcon className="w-3 h-3" />
-                      }
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Smart Contract */}
               <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px] text-stone-500 uppercase tracking-wider">{t('customerDashboard.smartContract')}</span>
+                <span className="text-[10px] text-stone-600">Network</span>
+                <span className="text-[10px] text-stone-400">TON Testnet</span>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[10px] text-stone-600">Token</span>
                 <a
                   href={JETTON_EXPLORER_URL}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-1 text-[10px] font-mono text-stone-400 hover:text-stone-200 transition-colors"
+                  className="flex items-center gap-0.5 text-[10px] text-amber-400/70 hover:text-amber-400 transition-colors font-mono"
                 >
-                  {shortAddr(JETTON_ADDRESS)}
-                  <ArrowTopRightOnSquareIcon className="w-2.5 h-2.5" />
+                  SWEET Jetton <ArrowTopRightOnSquareIcon className="w-2.5 h-2.5" />
                 </a>
               </div>
             </div>
@@ -553,15 +646,6 @@ function BlockchainInfoCard({ walletAddress }: { walletAddress: string }) {
         )}
       </AnimatePresence>
     </motion.div>
-  );
-}
-
-function SectionHeader({ icon, label }: { icon: React.ReactNode; label: string }) {
-  return (
-    <div className="flex items-center gap-2 mb-3 text-stone-500">
-      {icon}
-      <span className="text-xs font-semibold tracking-wide">{label}</span>
-    </div>
   );
 }
 
@@ -587,7 +671,6 @@ function DailyCheckinCard() {
       refetch();
     },
     onError: () => {
-      // Fallback: client-side checkin when backend unavailable
       const bonus = 10;
       setSweetBalance(sweetBalance + bonus);
       toast.success(`+${bonus} SWEET daily bonus!`);
@@ -596,7 +679,6 @@ function DailyCheckinCard() {
     },
   });
 
-  // Local fallback state when API unavailable
   const localCheckedToday = (() => {
     const last = localStorage.getItem('lastCheckin');
     if (!last) return false;
@@ -623,7 +705,7 @@ function DailyCheckinCard() {
           <div>
             <p className="text-xs font-bold text-white">{t('checkin.dailyBonus') || 'Daily Bonus'}</p>
             <p className="text-[10px] text-stone-500">
-              {streak > 0 ? `${streak} day streak · x${multiplier}` : t('checkin.startStreak') || 'Start your streak!'}
+              {streak > 0 ? `${streak} day streak x${multiplier}` : t('checkin.startStreak') || 'Start your streak!'}
             </p>
           </div>
         </div>
@@ -660,7 +742,7 @@ function DailyCheckinCard() {
                     ? 'border-amber-400/50 text-amber-400 bg-amber-400/10'
                     : 'border-stone-700 text-stone-600 bg-stone-800'
               }`}>
-                {checked ? '✓' : isToday ? '·' : ''}
+                {checked ? '\u2713' : isToday ? '\u00b7' : ''}
               </div>
             </div>
           );
