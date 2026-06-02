@@ -91,7 +91,19 @@
     "justNow": "только что",
     "minsAgo": "{{n}} мин назад",
     "hoursAgo": "{{n}} ч назад",
-    "daysAgo": "{{n}} д назад"
+    "daysAgo": "{{n}} д назад",
+    "verifiedTon": "TON",
+    "verifiedOnTon": "Подтверждено в TON Testnet",
+    "viewOnChain": "Смотреть в блокчейне",
+    "viewTx": "Смотреть транзакцию",
+    "blockchainInfo": "Блокчейн",
+    "network": "Сеть",
+    "yourWallet": "Ваш кошелёк",
+    "copyAddress": "Скопировать адрес",
+    "smartContract": "Смарт-контракт",
+    "myCoupons": "Активные купоны",
+    "nextReward": "Следующая награда",
+    "moreToUnlock": "Ещё {{amount}} SWEET до первой награды"
   },
   "rewards": {
     "title": "Каталог наград",
@@ -289,7 +301,20 @@
     "allTimeRewards": "Всего распределено баллов",
     "period24h": "За 24 часа",
     "period7d": "За 7 дней",
-    "period30d": "За 30 дней"
+    "period30d": "За 30 дней",
+    "simulatePurchase": "Симуляция покупки",
+    "simulatePurchaseSubtitle": "Начислить SWEET токены покупателю",
+    "purchaseAmountLabel": "Сумма покупки (KZT)",
+    "customerWalletLabel": "Кошелёк покупателя",
+    "selectItems": "Товары (необязательно)",
+    "issueSweet": "Начислить SWEET",
+    "issuingSweet": "Начисление...",
+    "simulateSuccess": "SWEET токены начислены!",
+    "simulateError": "Ошибка при симуляции покупки",
+    "pointsIssued": "Начислено баллов",
+    "tierMultiplier": "Мультипликатор уровня",
+    "txHashLabel": "Хэш транзакции",
+    "customerNotified": "Покупатель уведомлён в реальном времени"
   },
   "nav": {
     "pos": "Касса",
@@ -534,11 +559,31 @@
     },
     "pastProposalsTitle": "Завершённые предложения",
     "pastProposals": {
-      "1": { "title": "Запуск реферальной программы", "result": "94% за", "date": "12 мар 2026" },
-      "2": { "title": "Увеличить срок действия купонов до 60 дней", "result": "78% за", "date": "28 фев 2026" },
-      "3": { "title": "Добавить оплату в USDT", "result": "38% за", "date": "15 фев 2026" },
-      "4": { "title": "Снизить комиссию на свопы до 0.5%", "result": "85% за", "date": "3 фев 2026" },
-      "5": { "title": "Ребрендинг NFT-коллекции", "result": "42% за", "date": "20 янв 2026" }
+      "1": {
+        "title": "Запуск реферальной программы",
+        "result": "94% за",
+        "date": "12 мар 2026"
+      },
+      "2": {
+        "title": "Увеличить срок действия купонов до 60 дней",
+        "result": "78% за",
+        "date": "28 фев 2026"
+      },
+      "3": {
+        "title": "Добавить оплату в USDT",
+        "result": "38% за",
+        "date": "15 фев 2026"
+      },
+      "4": {
+        "title": "Снизить комиссию на свопы до 0.5%",
+        "result": "85% за",
+        "date": "3 фев 2026"
+      },
+      "5": {
+        "title": "Ребрендинг NFT-коллекции",
+        "result": "42% за",
+        "date": "20 янв 2026"
+      }
     },
     "form": {
       "title": "Заголовок",

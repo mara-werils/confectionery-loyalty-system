@@ -10,6 +10,10 @@ import {
   TrophyIcon,
   ArrowDownIcon,
   ChevronRightIcon,
+  ShieldCheckIcon,
+  ArrowTopRightOnSquareIcon,
+  DocumentDuplicateIcon,
+  ChevronDownIcon,
 } from '@heroicons/react/24/outline';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -23,6 +27,9 @@ import LiveFeed from '../../components/LiveFeed';
 import { useMutation } from '@tanstack/react-query';
 
 const TIERS = TIER_CONFIG;
+
+const JETTON_ADDRESS = 'kQBNOiJ4aToE-Ea12DpY5nBmu1bKT0axt81JmS9BFPh8nCio';
+const JETTON_EXPLORER_URL = `https://testnet.tonviewer.com/${JETTON_ADDRESS}`;
 
 interface JettonBalance {
   balance: string;
@@ -160,9 +167,21 @@ export default function CustomerDashboard() {
         <div className="relative z-10 p-5">
           <div className="flex items-start justify-between mb-4">
             <div>
-              <p className="text-[11px] text-amber-400/70 font-semibold tracking-widest uppercase mb-1">
-                {t('customerDashboard.sweetBalance')}
-              </p>
+              <div className="flex items-center gap-2 mb-1">
+                <p className="text-[11px] text-amber-400/70 font-semibold tracking-widest uppercase">
+                  {t('customerDashboard.sweetBalance')}
+                </p>
+                <a
+                  href={JETTON_EXPLORER_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/25 hover:bg-emerald-500/20 transition-colors"
+                  title={t('customerDashboard.verifiedOnTon')}
+                >
+                  <ShieldCheckIcon className="w-2.5 h-2.5 text-emerald-400" />
+                  <span className="text-[9px] font-bold text-emerald-400 tracking-wide">{t('customerDashboard.verifiedTon')}</span>
+                </a>
+              </div>
               {loading ? (
                 <div className="w-28 h-9 rounded-lg bg-white/5 animate-pulse" />
               ) : (
@@ -170,7 +189,18 @@ export default function CustomerDashboard() {
                   <AnimatedNumber value={currentBalance} />
                 </p>
               )}
-              <p className="text-xs text-stone-600 mt-1 font-mono">{t('customerDashboard.sweetTokens')}</p>
+              <div className="flex items-center gap-2 mt-1">
+                <p className="text-xs text-stone-600 font-mono">{t('customerDashboard.sweetTokens')}</p>
+                <a
+                  href={JETTON_EXPLORER_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-0.5 text-[10px] text-stone-600 hover:text-stone-400 transition-colors"
+                >
+                  <ArrowTopRightOnSquareIcon className="w-2.5 h-2.5" />
+                  {t('customerDashboard.viewOnChain')}
+                </a>
+              </div>
               {!loading && currentBalance > 0 && (
                 <p className="text-xs text-amber-400/60 mt-0.5 font-mono">
                   ≈ {(currentBalance * 0.15).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} ₸
@@ -301,6 +331,9 @@ export default function CustomerDashboard() {
         </button>
       </div>
 
+      {/* Blockchain Info Card */}
+      <BlockchainInfoCard walletAddress={walletAddress} />
+
       {/* Active Coupons */}
       {activeCoupons && activeCoupons.length > 0 && (
         <div className="mb-4">
@@ -383,10 +416,30 @@ export default function CustomerDashboard() {
                     <ArrowDownIcon className="w-3.5 h-3.5 text-green-400" />
                   </div>
                   <div>
-                    <p className="text-xs font-medium text-white">{tx.comment || t('customerDashboard.cashback')}</p>
-                    <p className="text-[10px] text-stone-600">
-                      {formatAddress(tx.sender)} · {timeAgo(tx.timestamp)}
-                    </p>
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-xs font-medium text-white">{tx.comment || t('customerDashboard.cashback')}</p>
+                      <span className="flex items-center gap-0.5 px-1 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">
+                        <ShieldCheckIcon className="w-2 h-2 text-emerald-400" />
+                        <span className="text-[8px] font-bold text-emerald-400">on-chain</span>
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <p className="text-[10px] text-stone-600">
+                        {formatAddress(tx.sender)} · {timeAgo(tx.timestamp)}
+                      </p>
+                      {tx.hash && (
+                        <a
+                          href={`https://testnet.tonviewer.com/transaction/${tx.hash}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center gap-0.5 text-[10px] text-stone-600 hover:text-stone-400 transition-colors font-mono"
+                          title={t('customerDashboard.viewTx')}
+                        >
+                          <ArrowTopRightOnSquareIcon className="w-2.5 h-2.5" />
+                          {tx.hash.length > 12 ? tx.hash.slice(0, 6) + '…' + tx.hash.slice(-4) : tx.hash}
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <p className="text-sm font-bold text-green-400 shrink-0">
@@ -398,6 +451,108 @@ export default function CustomerDashboard() {
         )}
       </div>
     </div>
+  );
+}
+
+function BlockchainInfoCard({ walletAddress }: { walletAddress: string }) {
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const shortAddr = (addr: string) =>
+    addr && addr.length > 12 ? addr.slice(0, 8) + '…' + addr.slice(-6) : addr;
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // fallback
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.3 }}
+      className="mb-4 rounded-2xl border border-stone-800 bg-stone-900/60 overflow-hidden"
+    >
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="w-full flex items-center justify-between px-4 py-3 hover:bg-stone-800/40 transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+            <ShieldCheckIcon className="w-3 h-3 text-emerald-400" />
+          </div>
+          <span className="text-xs font-semibold text-stone-300">{t('customerDashboard.blockchainInfo')}</span>
+          <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+            <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[8px] font-bold text-emerald-400 tracking-wide">LIVE</span>
+          </span>
+        </div>
+        <ChevronDownIcon className={clsx('w-3.5 h-3.5 text-stone-500 transition-transform', open && 'rotate-180')} />
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="px-4 pb-4 space-y-3 border-t border-stone-800/60 pt-3">
+              {/* Network */}
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] text-stone-500 uppercase tracking-wider">{t('customerDashboard.network')}</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  <span className="text-xs font-medium text-stone-300">TON Testnet</span>
+                </div>
+              </div>
+
+              {/* Wallet */}
+              {walletAddress && (
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[10px] text-stone-500 uppercase tracking-wider">{t('customerDashboard.yourWallet')}</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] font-mono text-stone-400">{shortAddr(walletAddress)}</span>
+                    <button
+                      onClick={() => copyToClipboard(walletAddress)}
+                      className="p-0.5 rounded hover:text-stone-300 text-stone-600 transition-colors"
+                      title={t('customerDashboard.copyAddress')}
+                    >
+                      {copied
+                        ? <ShieldCheckIcon className="w-3 h-3 text-emerald-400" />
+                        : <DocumentDuplicateIcon className="w-3 h-3" />
+                      }
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Smart Contract */}
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[10px] text-stone-500 uppercase tracking-wider">{t('customerDashboard.smartContract')}</span>
+                <a
+                  href={JETTON_EXPLORER_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-1 text-[10px] font-mono text-stone-400 hover:text-stone-200 transition-colors"
+                >
+                  {shortAddr(JETTON_ADDRESS)}
+                  <ArrowTopRightOnSquareIcon className="w-2.5 h-2.5" />
+                </a>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }
 

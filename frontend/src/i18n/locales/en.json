@@ -91,7 +91,19 @@
     "justNow": "just now",
     "minsAgo": "{{n}} min ago",
     "hoursAgo": "{{n}} h ago",
-    "daysAgo": "{{n}} d ago"
+    "daysAgo": "{{n}} d ago",
+    "verifiedTon": "TON",
+    "verifiedOnTon": "Verified on TON Testnet",
+    "viewOnChain": "View on blockchain",
+    "viewTx": "View transaction",
+    "blockchainInfo": "Blockchain Info",
+    "network": "Network",
+    "yourWallet": "Your Wallet",
+    "copyAddress": "Copy address",
+    "smartContract": "Smart Contract",
+    "myCoupons": "Active Coupons",
+    "nextReward": "Next Reward",
+    "moreToUnlock": "{{amount}} more SWEET to unlock your first reward"
   },
   "rewards": {
     "title": "Rewards Catalog",
@@ -289,7 +301,20 @@
     "allTimeRewards": "All-time distributed rewards",
     "period24h": "Last 24 hours",
     "period7d": "Last 7 days",
-    "period30d": "Last 30 days"
+    "period30d": "Last 30 days",
+    "simulatePurchase": "Simulate Purchase",
+    "simulatePurchaseSubtitle": "Issue SWEET tokens to a customer",
+    "purchaseAmountLabel": "Purchase Amount (KZT)",
+    "customerWalletLabel": "Customer Wallet Address",
+    "selectItems": "Items purchased (optional)",
+    "issueSweet": "Issue SWEET Tokens",
+    "issuingSweet": "Issuing...",
+    "simulateSuccess": "SWEET issued successfully!",
+    "simulateError": "Failed to simulate purchase",
+    "pointsIssued": "Points Issued",
+    "tierMultiplier": "Tier Multiplier",
+    "txHashLabel": "Tx Hash",
+    "customerNotified": "Customer notified in real-time"
   },
   "nav": {
     "pos": "POS",
@@ -534,11 +559,31 @@
     },
     "pastProposalsTitle": "Past Proposals",
     "pastProposals": {
-      "1": { "title": "Launch referral program", "result": "94% for", "date": "Mar 12, 2026" },
-      "2": { "title": "Extend coupon validity to 60 days", "result": "78% for", "date": "Feb 28, 2026" },
-      "3": { "title": "Add USDT payment", "result": "38% for", "date": "Feb 15, 2026" },
-      "4": { "title": "Reduce swap fee to 0.5%", "result": "85% for", "date": "Feb 3, 2026" },
-      "5": { "title": "NFT collection rebranding", "result": "42% for", "date": "Jan 20, 2026" }
+      "1": {
+        "title": "Launch referral program",
+        "result": "94% for",
+        "date": "Mar 12, 2026"
+      },
+      "2": {
+        "title": "Extend coupon validity to 60 days",
+        "result": "78% for",
+        "date": "Feb 28, 2026"
+      },
+      "3": {
+        "title": "Add USDT payment",
+        "result": "38% for",
+        "date": "Feb 15, 2026"
+      },
+      "4": {
+        "title": "Reduce swap fee to 0.5%",
+        "result": "85% for",
+        "date": "Feb 3, 2026"
+      },
+      "5": {
+        "title": "NFT collection rebranding",
+        "result": "42% for",
+        "date": "Jan 20, 2026"
+      }
     },
     "form": {
       "title": "Title",

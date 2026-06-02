@@ -74,6 +74,7 @@ export default function History() {
     description?: string;
     partnerName?: string;
     createdAt: string;
+    txHash?: string;
   }[] = transactionsData?.data || [];
 
   const claims: {
@@ -229,7 +230,7 @@ export default function History() {
               ) : filteredTransactions.length > 0 ? (
                 <div>
                   {filteredTransactions.map((tx, index) => (
-                    <TransactionItem key={tx.id} {...tx} partnerName={tx.partnerName} index={index} />
+                    <TransactionItem key={tx.id} {...tx} partnerName={tx.partnerName} index={index} txHash={tx.txHash} />
                   ))}
                 </div>
               ) : (
