@@ -163,10 +163,14 @@ export default function Profile() {
   const recentTxs: { id: string; type: string; pointsEarned: string; description?: string; createdAt: string }[] =
     historyData?.data || [];
 
-  // Tier progress
-  const tier = user?.tier || 'BRONZE';
+  // Tier progress — use the higher of DB tier and balance-derived tier
+  const dbTier = user?.tier || 'BRONZE';
+  const balanceTier = balance >= 20000 ? 'GOLD' : balance >= 5000 ? 'SILVER' : 'BRONZE';
+  const tierOrder = ['BRONZE', 'SILVER', 'GOLD'];
+  const tier = tierOrder.indexOf(balanceTier) > tierOrder.indexOf(dbTier) ? balanceTier : dbTier;
   const tierInfo = TIER_NEXT[tier];
-  const progress = tier === 'GOLD' ? 100 : Math.min(100, Math.round((lifetimeEarned / tierInfo.required) * 100));
+  const remaining = Math.max(0, tierInfo.required - balance);
+  const progress = tier === 'GOLD' ? 100 : Math.min(100, Math.round((balance / tierInfo.required) * 100));
 
   // Wallet address copy
   const [copied, setCopied] = useState(false);
@@ -405,7 +409,7 @@ export default function Profile() {
               className={clsx('h-full rounded-full', tier === 'BRONZE' ? 'bg-orange-400' : 'bg-stone-300')}
             />
           </div>
-          <p className="text-[10px] mt-1.5" style={{ color: 'var(--sweet-text-faint)' }}>{progress}% — {(tierInfo.required - lifetimeEarned).toLocaleString()} SWEET to reach {tierInfo.next}</p>
+          <p className="text-[10px] mt-1.5" style={{ color: 'var(--sweet-text-faint)' }}>{progress}% — {remaining > 0 ? `${remaining.toLocaleString()} SWEET to reach ${tierInfo.next}` : `Ready for ${tierInfo.next}!`}</p>
         </div>
       )}
 
