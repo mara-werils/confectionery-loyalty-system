@@ -191,27 +191,44 @@ export default function CustomerDashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletAddress]);
 
-  // ── Blockchain data fetch ────────────────────────────────────────────────────
+  // ── Data fetch: DB balance (primary) + chain transactions ─────────────────
   const fetchData = async () => {
     if (!walletAddress) return;
     setLoading(true);
     try {
-      const res = await fetch(`https://testnet.tonapi.io/v2/accounts/${walletAddress}/jettons`);
-      const data = await res.json();
-
-      if (Array.isArray(data?.balances) && data.balances.length > 0) {
-        const sweet = data.balances.find(
+      // 1. Get balance from backend DB (source of truth for off-chain operations)
+      if (token) {
+        try {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (b: any) =>
-            b.jetton?.address?.toLowerCase() ===
-            '0:4d3a2278693a04f846b5d83a58e67066bb56ca4f46b1b7cd49992f4114f87c9c'
-        );
-        if (sweet) {
-          setBalance({ balance: sweet.balance, decimals: sweet.jetton?.decimals || 9 });
-          setSweetBalance(safeFromJettonRaw(sweet.balance, sweet.jetton?.decimals || 9));
+          const dbRes = await api.loyalty.getBalance() as any;
+          const dbBalance = Number(dbRes?.data?.balance || 0);
+          if (dbBalance > 0) {
+            setSweetBalance(dbBalance);
+          }
+        } catch {
+          // Fall through to chain balance
         }
       }
 
+      // 2. If no DB balance, try chain balance as fallback
+      if (sweetBalance <= 0) {
+        const res = await fetch(`https://testnet.tonapi.io/v2/accounts/${walletAddress}/jettons`);
+        const data = await res.json();
+        if (Array.isArray(data?.balances) && data.balances.length > 0) {
+          const sweet = data.balances.find(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (b: any) =>
+              b.jetton?.address?.toLowerCase() ===
+              '0:4d3a2278693a04f846b5d83a58e67066bb56ca4f46b1b7cd49992f4114f87c9c'
+          );
+          if (sweet) {
+            setBalance({ balance: sweet.balance, decimals: sweet.jetton?.decimals || 9 });
+            setSweetBalance(safeFromJettonRaw(sweet.balance, sweet.jetton?.decimals || 9));
+          }
+        }
+      }
+
+      // 3. Fetch chain transactions for history display
       const txRes = await fetch(
         `https://testnet.tonapi.io/v2/accounts/${walletAddress}/events?limit=10`
       );
