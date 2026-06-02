@@ -15,23 +15,66 @@ import {
   DocumentDuplicateIcon,
   ChevronDownIcon,
   SparklesIcon,
+  FireIcon,
+  ArrowUpRightIcon,
+  BoltIcon,
+  QrCodeIcon,
+  TagIcon,
 } from '@heroicons/react/24/outline';
+import { FireIcon as FireIconSolid } from '@heroicons/react/24/solid';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
 import clsx from 'clsx';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { api } from '../../services/api';
 import { TIER_CONFIG } from '../../config/tiers';
 import AnimatedNumber from '../../components/AnimatedNumber';
 import LiveFeed from '../../components/LiveFeed';
-import { useMutation } from '@tanstack/react-query';
+import Skeleton from '../../components/Skeleton';
 import { io as socketIO } from 'socket.io-client';
 
 const TIERS = TIER_CONFIG;
 
 const JETTON_ADDRESS = 'kQBNOiJ4aToE-Ea12DpY5nBmu1bKT0axt81JmS9BFPh8nCio';
 const JETTON_EXPLORER_URL = `https://testnet.tonviewer.com/${JETTON_ADDRESS}`;
+
+// Per-tier hero card styling
+const TIER_HERO = {
+  BRONZE: {
+    gradient: 'linear-gradient(135deg, #1c1007 0%, #2a1800 40%, #1a0e00 100%)',
+    glowColor: 'rgba(194,120,50,0.18)',
+    glowColor2: 'rgba(180,80,10,0.10)',
+    badgeBg: 'rgba(194,120,50,0.15)',
+    badgeBorder: 'rgba(194,120,50,0.35)',
+    badgeText: '#d97706',
+    accent: '#f59e0b',
+    shimmer: 'rgba(245,158,11,0.05)',
+    borderColor: 'rgba(245,158,11,0.12)',
+  },
+  SILVER: {
+    gradient: 'linear-gradient(135deg, #141414 0%, #1e1e1e 40%, #111111 100%)',
+    glowColor: 'rgba(148,163,184,0.15)',
+    glowColor2: 'rgba(100,116,139,0.10)',
+    badgeBg: 'rgba(148,163,184,0.15)',
+    badgeBorder: 'rgba(148,163,184,0.35)',
+    badgeText: '#94a3b8',
+    accent: '#cbd5e1',
+    shimmer: 'rgba(203,213,225,0.04)',
+    borderColor: 'rgba(148,163,184,0.15)',
+  },
+  GOLD: {
+    gradient: 'linear-gradient(135deg, #1a1000 0%, #2d1f00 40%, #1a1000 100%)',
+    glowColor: 'rgba(251,191,36,0.22)',
+    glowColor2: 'rgba(245,158,11,0.12)',
+    badgeBg: 'rgba(251,191,36,0.18)',
+    badgeBorder: 'rgba(251,191,36,0.45)',
+    badgeText: '#fbbf24',
+    accent: '#fbbf24',
+    shimmer: 'rgba(251,191,36,0.07)',
+    borderColor: 'rgba(251,191,36,0.20)',
+  },
+};
 
 interface JettonBalance {
   balance: string;
@@ -78,6 +121,7 @@ export default function CustomerDashboard() {
   const walletAddress = wallet?.account.address || '';
   const socketRef = useRef<ReturnType<typeof socketIO> | null>(null);
 
+  // ── Achievements ────────────────────────────────────────────────────────────
   const { data: achievementsData } = useQuery({
     queryKey: ['achievements'],
     queryFn: () => api.achievements.getAll(),
@@ -85,15 +129,41 @@ export default function CustomerDashboard() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const rawAchievements =
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (achievementsData as any)?.data;
-  const allAchievements: { id: string; name: string; icon: string; unlockedAt?: string }[] = Array.isArray(rawAchievements)
-    ? rawAchievements
-    : [];
+  // ── Rewards preview ─────────────────────────────────────────────────────────
+  const { data: rewardsRaw } = useQuery({
+    queryKey: ['rewards-preview'],
+    queryFn: () => api.rewards.list({ available: true }),
+    enabled: !!token,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // ── Spin status ─────────────────────────────────────────────────────────────
+  const { data: spinStatusRaw } = useQuery({
+    queryKey: ['spin-status'],
+    queryFn: () => api.spin.status(),
+    enabled: !!token,
+    staleTime: 2 * 60 * 1000,
+  });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const spinStatus = (spinStatusRaw as any)?.data;
+  const canSpin = spinStatus?.canSpin ?? true;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const rawAchievements = (achievementsData as any)?.data;
+  const allAchievements: { id: string; name: string; icon: string; unlockedAt?: string }[] =
+    Array.isArray(rawAchievements) ? rawAchievements : [];
   const unlockedAchievements = allAchievements.filter((a) => !!a.unlockedAt).slice(0, 2);
 
-  // Real-time Socket.IO: listen for purchase:awarded events
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const rawRewards = (rewardsRaw as any)?.data;
+  const previewRewards: Array<{
+    id: string;
+    title: string;
+    pointsRequired: number;
+    category: string;
+  }> = Array.isArray(rawRewards) ? rawRewards.slice(0, 4) : [];
+
+  // ── Real-time Socket.IO: listen for purchase:awarded events ─────────────────
   useEffect(() => {
     if (!walletAddress) return;
 
@@ -110,18 +180,15 @@ export default function CustomerDashboard() {
     socket.on('purchase:awarded', (payload: PurchaseAwardedPayload) => {
       setSweetBalance(sweetBalance + payload.pointsEarned);
       setPurchaseAlert(payload);
-      toast.success(
-        `+${payload.pointsEarned} SWEET from ${payload.partnerName}!`,
-        {
-          icon: '\u2726',
-          duration: 4000,
-          style: {
-            background: '#1c1917',
-            color: '#fbbf24',
-            border: '1px solid rgba(245,158,11,0.3)',
-          },
-        }
-      );
+      toast.success(`+${payload.pointsEarned} SWEET from ${payload.partnerName}!`, {
+        icon: '◆',
+        duration: 4000,
+        style: {
+          background: '#1c1917',
+          color: '#fbbf24',
+          border: '1px solid rgba(245,158,11,0.3)',
+        },
+      });
     });
 
     return () => {
@@ -129,9 +196,10 @@ export default function CustomerDashboard() {
       socket.disconnect();
       socketRef.current = null;
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletAddress]);
 
+  // ── Blockchain data fetch ────────────────────────────────────────────────────
   const fetchData = async () => {
     if (!walletAddress) return;
     setLoading(true);
@@ -142,7 +210,9 @@ export default function CustomerDashboard() {
       if (Array.isArray(data?.balances) && data.balances.length > 0) {
         const sweet = data.balances.find(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (b: any) => b.jetton?.address?.toLowerCase() === '0:4d3a2278693a04f846b5d83a58e67066bb56ca4f46b1b7cd49992f4114f87c9c'
+          (b: any) =>
+            b.jetton?.address?.toLowerCase() ===
+            '0:4d3a2278693a04f846b5d83a58e67066bb56ca4f46b1b7cd49992f4114f87c9c'
         );
         if (sweet) {
           setBalance({ balance: sweet.balance, decimals: sweet.jetton?.decimals || 9 });
@@ -150,7 +220,9 @@ export default function CustomerDashboard() {
         }
       }
 
-      const txRes = await fetch(`https://testnet.tonapi.io/v2/accounts/${walletAddress}/events?limit=10`);
+      const txRes = await fetch(
+        `https://testnet.tonapi.io/v2/accounts/${walletAddress}/events?limit=10`
+      );
       const txData = await txRes.json();
 
       if (Array.isArray(txData?.events)) {
@@ -177,11 +249,14 @@ export default function CustomerDashboard() {
     setLoading(false);
   };
 
-  useEffect(() => { fetchData(); }, [walletAddress, location.pathname]);
+  useEffect(() => {
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletAddress, location.pathname]);
 
   const formatAddress = (addr: string) => {
     if (!addr || addr.length < 12) return addr;
-    return addr.slice(0, 6) + '\u2026' + addr.slice(-4);
+    return addr.slice(0, 6) + '…' + addr.slice(-4);
   };
 
   const timeAgo = (ts: number) => {
@@ -192,22 +267,73 @@ export default function CustomerDashboard() {
     return t('customerDashboard.daysAgo', { n: Math.floor(diff / 86400) });
   };
 
-  const currentBalance = sweetBalance > 0 ? sweetBalance : safeFromJettonRaw(balance?.balance || '0', balance?.decimals || 9);
+  const currentBalance =
+    sweetBalance > 0
+      ? sweetBalance
+      : safeFromJettonRaw(balance?.balance || '0', balance?.decimals || 9);
+
   const tier = currentBalance >= 20000 ? 'GOLD' : currentBalance >= 5000 ? 'SILVER' : 'BRONZE';
   const tierData = TIERS[tier];
-  const progress = tier === 'GOLD' ? 100 : Math.min(100, Math.round((currentBalance / tierData.threshold) * 100));
+  const heroStyle = TIER_HERO[tier];
+  const progress =
+    tier === 'GOLD' ? 100 : Math.min(100, Math.round((currentBalance / tierData.threshold) * 100));
+
+  const quickActions = [
+    {
+      label: t('nav.rewards'),
+      icon: <GiftIcon className="w-5 h-5" />,
+      route: '/customer/rewards',
+      color: '#f59e0b',
+      bgColor: 'rgba(245,158,11,0.10)',
+      borderColor: 'rgba(245,158,11,0.20)',
+      hasBadge: false,
+    },
+    {
+      label: t('nav.spin'),
+      icon: <SparklesIcon className="w-5 h-5" />,
+      route: '/customer/spin',
+      color: '#a78bfa',
+      bgColor: 'rgba(167,139,250,0.10)',
+      borderColor: 'rgba(167,139,250,0.20)',
+      hasBadge: canSpin,
+    },
+    {
+      label: t('nav.gift'),
+      icon: <FireIcon className="w-5 h-5" />,
+      route: '/customer/gift',
+      color: '#f87171',
+      bgColor: 'rgba(248,113,113,0.10)',
+      borderColor: 'rgba(248,113,113,0.20)',
+      hasBadge: false,
+    },
+    {
+      label: t('customerDashboard.achievementsTitle'),
+      icon: <TrophyIcon className="w-5 h-5" />,
+      route: '/achievements',
+      color: '#34d399',
+      bgColor: 'rgba(52,211,153,0.10)',
+      borderColor: 'rgba(52,211,153,0.20)',
+      hasBadge: false,
+    },
+  ];
 
   return (
-    <div className="pb-28 text-white">
-      {/* Real-time Purchase Award Notification */}
+    <div className="pb-28" style={{ color: 'var(--sweet-text)' }}>
+
+      {/* ── Real-time Purchase Award Notification ─────────────────────────────── */}
       <AnimatePresence>
         {purchaseAlert && (
           <motion.div
-            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            initial={{ opacity: 0, y: -16, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-            className="mb-4 relative overflow-hidden rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-950/60 to-stone-900"
+            exit={{ opacity: 0, y: -16, scale: 0.96 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+            className="mb-4 relative overflow-hidden rounded-2xl"
+            style={{
+              background: 'linear-gradient(135deg, #1c1007, #1a0e00)',
+              border: '1px solid rgba(245,158,11,0.28)',
+              boxShadow: '0 8px 30px rgba(245,158,11,0.12)',
+            }}
           >
             <div className="relative z-10 px-4 py-4">
               <div className="flex items-start justify-between gap-3">
@@ -216,19 +342,26 @@ export default function CustomerDashboard() {
                     initial={{ scale: 0.5, rotate: -10 }}
                     animate={{ scale: 1, rotate: 0 }}
                     transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
-                    className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center flex-shrink-0"
+                    className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                    style={{
+                      background: 'rgba(245,158,11,0.15)',
+                      border: '1px solid rgba(245,158,11,0.3)',
+                    }}
                   >
-                    <SparklesIcon className="w-5 h-5 text-amber-400" />
+                    <SparklesIcon className="w-5 h-5" style={{ color: '#fbbf24' }} />
                   </motion.div>
                   <div>
                     <p className="text-sm font-bold text-white">
                       +{purchaseAlert.pointsEarned.toLocaleString()} SWEET received!
                     </p>
-                    <p className="text-xs text-stone-400 mt-0.5">
-                      From {purchaseAlert.partnerName} &middot; &#8378;{purchaseAlert.amount.toLocaleString()}
+                    <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                      From {purchaseAlert.partnerName} · ₸{purchaseAlert.amount.toLocaleString()}
                     </p>
                     {purchaseAlert.items.length > 0 && (
-                      <p className="text-[10px] text-stone-600 mt-0.5 truncate max-w-[180px]">
+                      <p
+                        className="text-[10px] mt-0.5 truncate max-w-[180px]"
+                        style={{ color: 'rgba(255,255,255,0.25)' }}
+                      >
                         {purchaseAlert.items.join(', ')}
                       </p>
                     )}
@@ -236,23 +369,36 @@ export default function CustomerDashboard() {
                 </div>
                 <button
                   onClick={() => setPurchaseAlert(null)}
-                  className="flex-shrink-0 w-6 h-6 rounded-full bg-stone-800 flex items-center justify-center text-stone-500 hover:text-white transition-colors text-xs"
+                  className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs transition-colors"
+                  style={{
+                    background: 'rgba(255,255,255,0.06)',
+                    color: 'rgba(255,255,255,0.3)',
+                  }}
                 >
-                  x
+                  ×
                 </button>
               </div>
-
-              <div className="mt-3 pt-3 border-t border-amber-500/10 flex items-center gap-2">
-                <div className="flex-1 h-1.5 bg-stone-800 rounded-full overflow-hidden">
+              <div
+                className="mt-3 pt-3 flex items-center gap-2"
+                style={{ borderTop: '1px solid rgba(245,158,11,0.10)' }}
+              >
+                <div
+                  className="flex-1 h-1 rounded-full overflow-hidden"
+                  style={{ background: 'rgba(255,255,255,0.06)' }}
+                >
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: '100%' }}
                     transition={{ duration: 4, ease: 'linear' }}
-                    className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500"
+                    className="h-full rounded-full"
+                    style={{ background: 'linear-gradient(90deg, #f59e0b, #f97316)' }}
                     onAnimationComplete={() => setPurchaseAlert(null)}
                   />
                 </div>
-                <span className="text-[10px] text-stone-600 font-mono shrink-0">
+                <span
+                  className="text-[10px] font-mono shrink-0"
+                  style={{ color: 'rgba(255,255,255,0.2)' }}
+                >
                   {purchaseAlert.txHash.slice(0, 8)}...
                 </span>
               </div>
@@ -261,114 +407,209 @@ export default function CustomerDashboard() {
         )}
       </AnimatePresence>
 
-      {/* Hero Balance Card */}
+      {/* ── Hero Balance Card ─────────────────────────────────────────────────── */}
       <motion.div
-        initial={{ opacity: 0, y: -8 }}
+        initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className="relative overflow-hidden rounded-3xl mb-4"
         style={{
-          background: 'linear-gradient(135deg, #1a0e00 0%, #0f0800 50%, #0d0b0a 100%)',
-          border: '1px solid rgba(245,158,11,0.15)',
+          background: heroStyle.gradient,
+          border: `1px solid ${heroStyle.borderColor}`,
+          boxShadow: `0 8px 40px ${heroStyle.glowColor}`,
         }}
       >
-        {/* Glow */}
-        <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-amber-400/10 blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full bg-orange-500/8 blur-2xl pointer-events-none" />
+        {/* Ambient glow blobs */}
+        <div
+          className="absolute -top-12 -right-12 w-48 h-48 rounded-full blur-3xl pointer-events-none"
+          style={{ background: heroStyle.glowColor }}
+        />
+        <div
+          className="absolute -bottom-10 -left-10 w-36 h-36 rounded-full blur-2xl pointer-events-none"
+          style={{ background: heroStyle.glowColor2 }}
+        />
+        {/* Shimmer sweep */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: `linear-gradient(105deg, transparent 40%, ${heroStyle.shimmer} 50%, transparent 60%)`,
+            animation: 'shimmer 3.5s infinite',
+          }}
+        />
 
         <div className="relative z-10 p-5">
-          <div className="flex items-start justify-between mb-4">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <p className="text-[11px] text-amber-400/70 font-semibold tracking-widest uppercase">
+          {/* Top row */}
+          <div className="flex items-start justify-between mb-5">
+            <div className="flex-1 min-w-0">
+              {/* Label + verified badge */}
+              <div className="flex items-center gap-2 mb-2">
+                <p
+                  className="text-[10px] font-bold tracking-widest uppercase"
+                  style={{ color: heroStyle.accent, opacity: 0.75 }}
+                >
                   {t('customerDashboard.sweetBalance')}
                 </p>
                 <a
                   href={JETTON_EXPLORER_URL}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/25 hover:bg-emerald-500/20 transition-colors"
+                  className="flex items-center gap-1 px-1.5 py-0.5 rounded-md transition-colors"
+                  style={{
+                    background: 'rgba(52,211,153,0.10)',
+                    border: '1px solid rgba(52,211,153,0.25)',
+                  }}
                   title={t('customerDashboard.verifiedOnTon')}
                 >
-                  <ShieldCheckIcon className="w-2.5 h-2.5 text-emerald-400" />
-                  <span className="text-[9px] font-bold text-emerald-400 tracking-wide">{t('customerDashboard.verifiedTon')}</span>
+                  <ShieldCheckIcon className="w-2.5 h-2.5" style={{ color: '#34d399' }} />
+                  <span className="text-[9px] font-bold" style={{ color: '#34d399' }}>
+                    TON
+                  </span>
                 </a>
               </div>
+
+              {/* Balance */}
               {loading ? (
-                <div className="w-28 h-9 rounded-lg bg-white/5 animate-pulse" />
+                <div className="flex flex-col gap-2">
+                  <Skeleton className="w-36 h-10" />
+                  <Skeleton className="w-24 h-4" />
+                </div>
               ) : (
-                <p className="text-4xl font-black tracking-tight text-white">
-                  <AnimatedNumber value={currentBalance} />
-                </p>
-              )}
-              <div className="flex items-center gap-2 mt-1">
-                <p className="text-xs text-stone-600 font-mono">{t('customerDashboard.sweetTokens')}</p>
-                <a
-                  href={JETTON_EXPLORER_URL}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-0.5 text-[10px] text-stone-600 hover:text-stone-400 transition-colors"
-                >
-                  <ArrowTopRightOnSquareIcon className="w-2.5 h-2.5" />
-                  {t('customerDashboard.viewOnChain')}
-                </a>
-              </div>
-              {!loading && currentBalance > 0 && (
-                <p className="text-xs text-amber-400/60 mt-0.5 font-mono">
-                  ~{(currentBalance * 0.15).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} KZT
-                </p>
+                <>
+                  <p className="text-5xl font-black tracking-tight text-white leading-none mb-1">
+                    <AnimatedNumber value={currentBalance} duration={1.4} />
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <p
+                      className="text-[11px] font-medium"
+                      style={{ color: 'rgba(255,255,255,0.4)' }}
+                    >
+                      SWEET tokens
+                    </p>
+                    <a
+                      href={JETTON_EXPLORER_URL}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-0.5 text-[10px] transition-colors"
+                      style={{ color: 'rgba(255,255,255,0.25)' }}
+                    >
+                      <ArrowTopRightOnSquareIcon className="w-2.5 h-2.5" />
+                      {t('customerDashboard.viewOnChain')}
+                    </a>
+                  </div>
+                  {currentBalance > 0 && (
+                    <p
+                      className="text-xs font-mono mt-1"
+                      style={{ color: heroStyle.accent, opacity: 0.65 }}
+                    >
+                      ≈{' '}
+                      {currentBalance.toLocaleString('en-US', {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                      })}{' '}
+                      ₸
+                    </p>
+                  )}
+                </>
               )}
             </div>
 
-            <button
-              onClick={() => setQrVisible(v => !v)}
-              className="flex flex-col items-center gap-1 px-3 py-2 rounded-xl bg-stone-800 border border-stone-700 hover:bg-stone-700 transition-colors"
-            >
-              <span className="text-[9px] font-bold text-stone-400 tracking-wider">QR</span>
-            </button>
+            <div className="flex flex-col items-end gap-2 ml-4 flex-shrink-0">
+              {/* Tier badge */}
+              <div
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold"
+                style={{
+                  background: heroStyle.badgeBg,
+                  border: `1px solid ${heroStyle.badgeBorder}`,
+                  color: heroStyle.badgeText,
+                }}
+              >
+                <TrophyIcon className="w-3.5 h-3.5" />
+                {t(tierData.labelKey)}
+              </div>
+              {/* QR toggle */}
+              <button
+                onClick={() => setQrVisible((v) => !v)}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl transition-all"
+                style={{
+                  background: 'rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.10)',
+                  color: 'rgba(255,255,255,0.5)',
+                }}
+              >
+                <QrCodeIcon className="w-4 h-4" />
+                <span className="text-[10px] font-semibold">QR</span>
+              </button>
+            </div>
           </div>
 
-          {/* Tier row */}
+          {/* Tier progress */}
           <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <TrophyIcon className="w-3.5 h-3.5 text-stone-600" />
-              <span className={clsx('text-xs font-bold', tierData.color)}>{t(tierData.labelKey)}</span>
-            </div>
+            <span
+              className="text-[10px] font-semibold"
+              style={{ color: heroStyle.accent, opacity: 0.65 }}
+            >
+              {tier !== 'GOLD'
+                ? `${progress}% to ${tierData.next}`
+                : t('customerDashboard.tierGold')}
+            </span>
             {tier !== 'GOLD' && (
-              <span className="text-[10px] text-stone-600">
-                {(tierData.threshold - currentBalance).toLocaleString()} {t('customerDashboard.toNext', { next: tierData.next })}
+              <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.22)' }}>
+                {(tierData.threshold - currentBalance).toLocaleString()}{' '}
+                {t('customerDashboard.toNext', { next: tierData.next })}
               </span>
             )}
           </div>
-          <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+          <div
+            className="h-1.5 rounded-full overflow-hidden"
+            style={{ background: 'rgba(255,255,255,0.07)' }}
+          >
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
-              transition={{ duration: 1.2, delay: 0.3, ease: 'easeOut' }}
-              className={clsx('h-full rounded-full', tierData.bar)}
+              transition={{ duration: 1.4, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className="h-full rounded-full"
+              style={{
+                background: `linear-gradient(90deg, ${heroStyle.accent}90, ${heroStyle.accent})`,
+                boxShadow: `0 0 10px ${heroStyle.accent}55`,
+              }}
             />
           </div>
         </div>
 
-        {/* Expandable QR */}
+        {/* Expandable QR panel */}
         <AnimatePresence>
           {qrVisible && (
             <motion.div
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25 }}
+              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
               className="overflow-hidden"
             >
               <div className="px-5 pb-5 flex flex-col items-center">
-                <div className="w-full h-px bg-white/5 mb-4" />
-                <p className="text-[11px] text-stone-500 mb-3 text-center">
+                <div
+                  className="w-full h-px mb-4"
+                  style={{ background: 'rgba(255,255,255,0.06)' }}
+                />
+                <p
+                  className="text-[11px] mb-3 text-center"
+                  style={{ color: 'rgba(255,255,255,0.38)' }}
+                >
                   {t('customerDashboard.showQr')}
                 </p>
-                <div className="bg-white p-3 rounded-2xl">
-                  <QRCodeSVG value={walletAddress} size={160} level="M" bgColor="#ffffff" fgColor="#000000" />
+                <div className="bg-white p-3 rounded-2xl shadow-xl">
+                  <QRCodeSVG
+                    value={walletAddress}
+                    size={160}
+                    level="M"
+                    bgColor="#ffffff"
+                    fgColor="#000000"
+                  />
                 </div>
-                <p className="text-[9px] text-stone-700 mt-2 font-mono break-all text-center px-4">
+                <p
+                  className="text-[9px] mt-2 font-mono break-all text-center px-4"
+                  style={{ color: 'rgba(255,255,255,0.18)' }}
+                >
                   {walletAddress}
                 </p>
               </div>
@@ -377,203 +618,534 @@ export default function CustomerDashboard() {
         </AnimatePresence>
       </motion.div>
 
-      {/* Live Activity Feed */}
+      {/* ── Live Activity Feed ────────────────────────────────────────────────── */}
       <LiveFeed />
 
-      {/* Daily Check-in */}
+      {/* ── Quick Actions Row ─────────────────────────────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.12, duration: 0.4 }}
+        className="grid grid-cols-4 gap-2 mb-4"
+      >
+        {quickActions.map((action, i) => (
+          <motion.button
+            key={action.route}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.08 + i * 0.05, duration: 0.35 }}
+            onClick={() => navigate(action.route)}
+            whileTap={{ scale: 0.94 }}
+            className="flex flex-col items-center gap-2 py-3 px-1 rounded-2xl transition-all relative"
+            style={{
+              background: action.bgColor,
+              border: `1px solid ${action.borderColor}`,
+            }}
+          >
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center"
+              style={{ color: action.color }}
+            >
+              {action.icon}
+            </div>
+            {action.hasBadge && (
+              <span
+                className="absolute top-2 right-2 w-2 h-2 rounded-full"
+                style={{
+                  background: '#22c55e',
+                  boxShadow: '0 0 6px rgba(34,197,94,0.7)',
+                }}
+              />
+            )}
+            <span
+              className="text-[10px] font-semibold text-center leading-tight"
+              style={{ color: 'var(--sweet-text-secondary)' }}
+            >
+              {action.label}
+            </span>
+          </motion.button>
+        ))}
+      </motion.div>
+
+      {/* ── Daily Check-in Card ───────────────────────────────────────────────── */}
       <DailyCheckinCard />
 
-      {/* Next Reward Progress */}
+      {/* ── Next Reward Progress (early journey) ─────────────────────────────── */}
       {!loading && currentBalance > 0 && currentBalance < 500 && (
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="mb-4 p-4 rounded-2xl border border-amber-400/10 bg-amber-400/[0.03]"
+          transition={{ delay: 0.35 }}
+          className="mb-4 p-4 rounded-2xl"
+          style={{
+            background: 'var(--sweet-card)',
+            border: '1px solid var(--sweet-border)',
+          }}
         >
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between mb-2.5">
             <div className="flex items-center gap-2">
-              <GiftIcon className="w-4 h-4 text-amber-400" />
-              <span className="text-xs font-semibold text-stone-300">{t('customerDashboard.nextReward') || 'Next Reward'}</span>
+              <div
+                className="w-7 h-7 rounded-lg flex items-center justify-center"
+                style={{ background: 'var(--sweet-accent-dim)' }}
+              >
+                <BoltIcon className="w-3.5 h-3.5" style={{ color: 'var(--sweet-accent)' }} />
+              </div>
+              <span className="text-xs font-bold" style={{ color: 'var(--sweet-text)' }}>
+                {t('customerDashboard.nextReward') || 'First Reward Unlocks At'}
+              </span>
             </div>
-            <span className="text-[10px] text-amber-400 font-mono">
+            <span
+              className="text-[10px] font-mono font-semibold"
+              style={{ color: 'var(--sweet-accent)' }}
+            >
               {currentBalance}/500 SWEET
             </span>
           </div>
-          <div className="h-2 bg-stone-800 rounded-full overflow-hidden">
+          <div
+            className="h-2 rounded-full overflow-hidden mb-2"
+            style={{ background: 'var(--sweet-border)' }}
+          >
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${Math.min(100, (currentBalance / 500) * 100)}%` }}
-              transition={{ duration: 1.5, delay: 0.5, ease: 'easeOut' }}
-              className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500"
+              transition={{ duration: 1.5, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              className="h-full rounded-full"
+              style={{
+                background: 'linear-gradient(90deg, #f59e0b, #f97316)',
+                boxShadow: '0 0 8px rgba(245,158,11,0.45)',
+              }}
             />
           </div>
-          <p className="text-[10px] text-stone-600 mt-1.5">
-            {t('customerDashboard.moreToUnlock', { amount: (500 - currentBalance).toLocaleString() }) || `${(500 - currentBalance).toLocaleString()} more SWEET to unlock your first reward`}
+          <p className="text-[10px]" style={{ color: 'var(--sweet-text-muted)' }}>
+            {t('customerDashboard.moreToUnlock', {
+              amount: (500 - currentBalance).toLocaleString(),
+            }) ||
+              `${(500 - currentBalance).toLocaleString()} more SWEET to unlock your first reward`}
           </p>
         </motion.div>
       )}
 
-      {/* Quick actions row */}
-      <div className="grid grid-cols-2 gap-3 mb-4">
-        <button
-          onClick={() => navigate('/customer/rewards')}
-          className="flex items-center gap-3 p-3.5 rounded-2xl border border-stone-800 bg-stone-900 hover:bg-stone-800 hover:border-stone-700 transition-colors text-left"
-        >
-          <div className="w-8 h-8 rounded-xl bg-amber-400/10 border border-amber-400/20 flex items-center justify-center flex-shrink-0">
-            <GiftIcon className="w-4 h-4 text-amber-400" />
-          </div>
-          <div>
-            <p className="text-xs font-semibold text-white">{t('customerDashboard.rewardsLink')}</p>
-            <p className="text-[10px] text-stone-600">{t('customerDashboard.exchange')}</p>
-          </div>
-        </button>
+      {/* ── Available Rewards Preview ─────────────────────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.25 }}
+        className="mb-4"
+      >
+        <SectionHeader
+          icon={<GiftIcon className="w-3.5 h-3.5" />}
+          label="Available Rewards"
+          action={
+            <Link
+              to="/customer/rewards"
+              className="flex items-center gap-0.5 text-[10px] font-semibold"
+              style={{ color: 'var(--sweet-accent)' }}
+            >
+              See All <ChevronRightIcon className="w-3 h-3" />
+            </Link>
+          }
+        />
+        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+          {previewRewards.length === 0
+            ? [1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="flex-shrink-0 w-32 rounded-2xl overflow-hidden"
+                  style={{
+                    background: 'var(--sweet-card)',
+                    border: '1px solid var(--sweet-border)',
+                  }}
+                >
+                  <Skeleton className="w-full h-16" rounded="md" />
+                  <div className="p-2.5 space-y-1.5">
+                    <Skeleton className="w-20 h-3" rounded="md" />
+                    <Skeleton className="w-14 h-3" rounded="md" />
+                  </div>
+                </div>
+              ))
+            : previewRewards.map((reward, i) => (
+                <RewardPreviewCard
+                  key={reward.id}
+                  reward={reward}
+                  currentBalance={currentBalance}
+                  index={i}
+                  onNavigate={() => navigate('/customer/rewards')}
+                />
+              ))}
+        </div>
+      </motion.div>
 
-        <button
-          onClick={() => navigate('/achievements')}
-          className="flex items-center gap-3 p-3.5 rounded-2xl border border-stone-800 bg-stone-900 hover:bg-stone-800 hover:border-stone-700 transition-colors text-left"
-        >
-          <div className="w-8 h-8 rounded-xl bg-yellow-400/10 border border-yellow-400/20 flex items-center justify-center flex-shrink-0">
-            <TrophyIcon className="w-4 h-4 text-yellow-400" />
-          </div>
-          <div>
-            <p className="text-xs font-semibold text-white">{t('customerDashboard.achievementsTitle')}</p>
-            <p className="text-[10px] text-stone-600">{t('customerDashboard.nftBadges')}</p>
-          </div>
-        </button>
-      </div>
-
-      {/* Blockchain Info Card */}
+      {/* ── Blockchain Info (collapsible) ─────────────────────────────────────── */}
       <BlockchainInfoCard walletAddress={walletAddress} />
 
-      {/* Active Coupons */}
+      {/* ── Active Coupons ────────────────────────────────────────────────────── */}
       {activeCoupons && activeCoupons.length > 0 && (
-        <div className="mb-4">
-          <SectionHeader icon={<TicketIcon className="w-3.5 h-3.5" />} label={t('customerDashboard.myCoupons') || 'Active Coupons'} />
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mb-4"
+        >
+          <SectionHeader
+            icon={<TicketIcon className="w-3.5 h-3.5" />}
+            label={t('customerDashboard.myCoupons') || 'Active Coupons'}
+          />
           <div className="space-y-2">
             {activeCoupons.map((coupon, i) => (
-              <div
+              <motion.div
                 key={i}
-                className="relative flex items-center justify-between gap-3 rounded-xl border border-dashed border-amber-400/20 bg-amber-400/[0.03] px-4 py-3 overflow-hidden"
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.05 * i }}
+                className="relative flex items-center justify-between gap-3 rounded-2xl px-4 py-3 overflow-hidden"
+                style={{
+                  background: 'var(--sweet-card)',
+                  border: '1px dashed var(--sweet-border-light)',
+                }}
               >
-                <div className="absolute top-1/2 -left-2 w-4 h-4 rounded-full bg-[#0d0b0a] -translate-y-1/2" />
-                <div className="absolute top-1/2 -right-2 w-4 h-4 rounded-full bg-[#0d0b0a] -translate-y-1/2" />
-                <div>
-                  <p className="text-xs font-semibold text-white">{t(coupon.rewardTitleKey)}</p>
-                  <p className="text-[10px] text-stone-500 mt-0.5">{coupon.partnerName}</p>
+                <div
+                  className="absolute top-1/2 -left-2 w-4 h-4 rounded-full -translate-y-1/2"
+                  style={{ background: 'var(--sweet-bg)' }}
+                />
+                <div
+                  className="absolute top-1/2 -right-2 w-4 h-4 rounded-full -translate-y-1/2"
+                  style={{ background: 'var(--sweet-bg)' }}
+                />
+                <div className="flex items-center gap-2.5">
+                  <div
+                    className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+                    style={{ background: 'var(--sweet-accent-dim)' }}
+                  >
+                    <TicketIcon className="w-4 h-4" style={{ color: 'var(--sweet-accent)' }} />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold" style={{ color: 'var(--sweet-text)' }}>
+                      {t(coupon.rewardTitleKey)}
+                    </p>
+                    <p className="text-[10px]" style={{ color: 'var(--sweet-text-muted)' }}>
+                      {coupon.partnerName}
+                    </p>
+                  </div>
                 </div>
-                <span className="text-xs font-mono font-bold text-amber-400 tracking-wider shrink-0">
+                <span
+                  className="text-xs font-mono font-bold tracking-wider shrink-0"
+                  style={{ color: 'var(--sweet-accent)' }}
+                >
                   {coupon.code}
                 </span>
-              </div>
+              </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
       )}
 
-      {/* Achievements Preview */}
+      {/* ── Achievements Preview ──────────────────────────────────────────────── */}
       {unlockedAchievements.length > 0 && (
-        <div className="mb-4">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2 text-stone-500">
-              <TrophyIcon className="w-3.5 h-3.5" />
-              <span className="text-xs font-semibold tracking-wide">{t('customerDashboard.myAchievements')}</span>
-            </div>
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="mb-4"
+        >
+          <SectionHeader
+            icon={<TrophyIcon className="w-3.5 h-3.5" />}
+            label={t('customerDashboard.myAchievements')}
+            action={
+              <Link
+                to="/achievements"
+                className="flex items-center gap-0.5 text-[10px] font-semibold"
+                style={{ color: 'var(--sweet-accent)' }}
+              >
+                {t('customerDashboard.viewAll')} <ChevronRightIcon className="w-3 h-3" />
+              </Link>
+            }
+          />
+          <div className="grid grid-cols-2 gap-2">
+            {unlockedAchievements.map((ach, i) => (
+              <motion.div
+                key={ach.id}
+                initial={{ opacity: 0, scale: 0.92 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.05 * i }}
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl"
+                style={{
+                  background: 'var(--sweet-card)',
+                  border: '1px solid var(--sweet-border)',
+                }}
+              >
+                <TrophyIcon className="w-4 h-4 flex-shrink-0" style={{ color: '#fbbf24' }} />
+                <p
+                  className="text-xs font-semibold leading-tight truncate"
+                  style={{ color: 'var(--sweet-text)' }}
+                >
+                  {ach.name}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
+      {/* ── Recent Transactions ───────────────────────────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+      >
+        <SectionHeader
+          icon={<ClockIcon className="w-3.5 h-3.5" />}
+          label={t('customerDashboard.recentCashback')}
+          action={
             <Link
-              to="/achievements"
-              className="flex items-center gap-0.5 text-[10px] text-amber-400/70 hover:text-amber-400 transition-colors font-medium"
+              to="/history"
+              className="flex items-center gap-0.5 text-[10px] font-semibold"
+              style={{ color: 'var(--sweet-accent)' }}
             >
               {t('customerDashboard.viewAll')} <ChevronRightIcon className="w-3 h-3" />
             </Link>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            {unlockedAchievements.map((ach) => (
-              <div
-                key={ach.id}
-                className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl border border-amber-400/10 bg-amber-400/[0.03]"
-              >
-                <TrophyIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" />
-                <p className="text-xs font-semibold text-white leading-tight truncate">{ach.name}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Recent Transactions */}
-      <div>
-        <SectionHeader icon={<ClockIcon className="w-3.5 h-3.5" />} label={t('customerDashboard.recentCashback')} />
+          }
+        />
 
         {loading ? (
           <div className="space-y-2">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="h-14 rounded-xl bg-stone-900 border border-stone-800 animate-pulse" />
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="flex items-center gap-3 p-3 rounded-xl"
+                style={{
+                  background: 'var(--sweet-card)',
+                  border: '1px solid var(--sweet-border)',
+                }}
+              >
+                <Skeleton className="w-9 h-9 flex-shrink-0" rounded="full" />
+                <div className="flex-1 space-y-1.5">
+                  <Skeleton className="w-3/4 h-3" rounded="md" />
+                  <Skeleton className="w-1/2 h-2.5" rounded="md" />
+                </div>
+                <Skeleton className="w-14 h-4 flex-shrink-0" rounded="md" />
+              </div>
             ))}
           </div>
         ) : transactions.length === 0 ? (
-          <div className="py-10 text-center">
-            <ArrowDownIcon className="w-8 h-8 text-stone-800 mx-auto mb-3" />
-            <p className="text-sm text-stone-600">{t('customerDashboard.noTransactions')}</p>
-            <p className="text-xs text-stone-700 mt-1">{t('customerDashboard.noTransactionsHint')}</p>
+          <div
+            className="py-10 text-center rounded-2xl"
+            style={{
+              background: 'var(--sweet-card)',
+              border: '1px solid var(--sweet-border)',
+            }}
+          >
+            <div
+              className="w-12 h-12 rounded-2xl mx-auto mb-3 flex items-center justify-center"
+              style={{ background: 'var(--sweet-border)' }}
+            >
+              <ArrowDownIcon className="w-6 h-6" style={{ color: 'var(--sweet-text-faint)' }} />
+            </div>
+            <p
+              className="text-sm font-semibold mb-1"
+              style={{ color: 'var(--sweet-text-secondary)' }}
+            >
+              {t('customerDashboard.noTransactions')}
+            </p>
+            <p className="text-xs" style={{ color: 'var(--sweet-text-muted)' }}>
+              {t('customerDashboard.noTransactionsHint')}
+            </p>
           </div>
         ) : (
           <div className="space-y-2">
-            {transactions.map(tx => (
-              <div
+            {transactions.slice(0, 5).map((tx, i) => (
+              <motion.div
                 key={tx.hash}
-                className="flex items-center justify-between gap-3 rounded-xl border border-stone-800 bg-stone-900/50 px-4 py-3"
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.05 * i }}
+                className="flex items-center justify-between gap-3 rounded-xl px-4 py-3"
+                style={{
+                  background: 'var(--sweet-card)',
+                  border: '1px solid var(--sweet-border)',
+                }}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center flex-shrink-0">
-                    <ArrowDownIcon className="w-3.5 h-3.5 text-green-400" />
+                  <div
+                    className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+                    style={{
+                      background: 'rgba(52,211,153,0.10)',
+                      border: '1px solid rgba(52,211,153,0.20)',
+                    }}
+                  >
+                    <ArrowDownIcon className="w-4 h-4" style={{ color: '#34d399' }} />
                   </div>
                   <div>
                     <div className="flex items-center gap-1.5">
-                      <p className="text-xs font-medium text-white">{tx.comment || t('customerDashboard.cashback')}</p>
-                      <span className="flex items-center gap-0.5 px-1 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">
-                        <ShieldCheckIcon className="w-2 h-2 text-emerald-400" />
-                        <span className="text-[8px] font-bold text-emerald-400">on-chain</span>
+                      <p className="text-xs font-medium" style={{ color: 'var(--sweet-text)' }}>
+                        {tx.comment || t('customerDashboard.cashback')}
+                      </p>
+                      <span
+                        className="flex items-center gap-0.5 px-1 py-0.5 rounded"
+                        style={{
+                          background: 'rgba(52,211,153,0.10)',
+                          border: '1px solid rgba(52,211,153,0.20)',
+                        }}
+                      >
+                        <ShieldCheckIcon className="w-2 h-2" style={{ color: '#34d399' }} />
+                        <span className="text-[8px] font-bold" style={{ color: '#34d399' }}>
+                          on-chain
+                        </span>
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5 mt-0.5">
-                      <p className="text-[10px] text-stone-600">
-                        {formatAddress(tx.sender)} &middot; {timeAgo(tx.timestamp)}
+                      <p className="text-[10px]" style={{ color: 'var(--sweet-text-muted)' }}>
+                        {formatAddress(tx.sender)} · {timeAgo(tx.timestamp)}
                       </p>
                       {tx.hash && (
                         <a
                           href={`https://testnet.tonviewer.com/transaction/${tx.hash}`}
                           target="_blank"
                           rel="noreferrer"
-                          className="flex items-center gap-0.5 text-[10px] text-stone-600 hover:text-stone-400 transition-colors font-mono"
+                          className="flex items-center gap-0.5 text-[10px] font-mono transition-colors"
+                          style={{ color: 'var(--sweet-text-faint)' }}
                           title={t('customerDashboard.viewTx')}
                         >
                           <ArrowTopRightOnSquareIcon className="w-2.5 h-2.5" />
-                          {tx.hash.length > 12 ? tx.hash.slice(0, 6) + '...' + tx.hash.slice(-4) : tx.hash}
+                          {tx.hash.length > 12
+                            ? tx.hash.slice(0, 6) + '...' + tx.hash.slice(-4)
+                            : tx.hash}
                         </a>
                       )}
                     </div>
                   </div>
                 </div>
-                <p className="text-sm font-bold text-green-400 shrink-0">
-                  +{(Number(tx.amount) / 1e9).toLocaleString()}
-                </p>
-              </div>
+                <div className="flex items-center gap-0.5 shrink-0">
+                  <ArrowUpRightIcon className="w-3 h-3" style={{ color: '#34d399' }} />
+                  <p className="text-sm font-bold" style={{ color: '#34d399' }}>
+                    +{(Number(tx.amount) / 1e9).toLocaleString()}
+                  </p>
+                </div>
+              </motion.div>
             ))}
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 }
 
-function SectionHeader({ icon, label }: { icon: React.ReactNode; label: string }) {
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function SectionHeader({
+  icon,
+  label,
+  action,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  action?: React.ReactNode;
+}) {
   return (
-    <div className="flex items-center gap-2 mb-3 text-stone-500">
-      {icon}
-      <span className="text-xs font-semibold tracking-wide">{label}</span>
+    <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center gap-2" style={{ color: 'var(--sweet-text-muted)' }}>
+        {icon}
+        <span className="text-xs font-semibold tracking-wide">{label}</span>
+      </div>
+      {action}
     </div>
   );
 }
+
+// ─── Reward Preview Card ──────────────────────────────────────────────────────
+
+const CATEGORY_META: Record<string, { icon: React.ReactNode; color: string; bg: string }> = {
+  DISCOUNT: {
+    icon: <TagIcon className="w-4 h-4" />,
+    color: '#60a5fa',
+    bg: 'rgba(96,165,250,0.12)',
+  },
+  PRODUCT: {
+    icon: <GiftIcon className="w-4 h-4" />,
+    color: '#f59e0b',
+    bg: 'rgba(245,158,11,0.12)',
+  },
+  CASHBACK: {
+    icon: <SparklesIcon className="w-4 h-4" />,
+    color: '#34d399',
+    bg: 'rgba(52,211,153,0.12)',
+  },
+  SPECIAL: {
+    icon: <FireIconSolid className="w-4 h-4" />,
+    color: '#f87171',
+    bg: 'rgba(248,113,113,0.12)',
+  },
+};
+
+function RewardPreviewCard({
+  reward,
+  currentBalance,
+  index,
+  onNavigate,
+}: {
+  reward: { id: string; title: string; pointsRequired: number; category: string };
+  currentBalance: number;
+  index: number;
+  onNavigate: () => void;
+}) {
+  const canAfford = currentBalance >= reward.pointsRequired;
+  const meta = CATEGORY_META[reward.category] || CATEGORY_META.PRODUCT;
+
+  return (
+    <motion.button
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay: 0.06 * index, duration: 0.3 }}
+      whileTap={{ scale: 0.96 }}
+      onClick={onNavigate}
+      className="flex-shrink-0 w-32 text-left rounded-2xl overflow-hidden"
+      style={{
+        background: 'var(--sweet-card)',
+        border: '1px solid var(--sweet-border)',
+      }}
+    >
+      <div className="flex items-center justify-center h-16" style={{ background: meta.bg }}>
+        <div
+          className="w-10 h-10 rounded-2xl flex items-center justify-center"
+          style={{
+            background: `${meta.color}20`,
+            color: meta.color,
+            border: `1px solid ${meta.color}30`,
+          }}
+        >
+          {meta.icon}
+        </div>
+      </div>
+      <div className="p-2.5">
+        <p
+          className="text-[11px] font-semibold leading-tight mb-1.5 line-clamp-2"
+          style={{ color: 'var(--sweet-text)' }}
+        >
+          {reward.title}
+        </p>
+        <div className="flex items-center justify-between">
+          <span
+            className="text-[10px] font-mono font-bold"
+            style={{ color: canAfford ? '#34d399' : 'var(--sweet-text-muted)' }}
+          >
+            {reward.pointsRequired.toLocaleString()}
+          </span>
+          <span
+            className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full"
+            style={
+              canAfford
+                ? { background: 'rgba(52,211,153,0.15)', color: '#34d399' }
+                : { background: 'var(--sweet-border)', color: 'var(--sweet-text-faint)' }
+            }
+          >
+            {canAfford ? 'Claim' : 'pts'}
+          </span>
+        </div>
+      </div>
+    </motion.button>
+  );
+}
+
+// ─── Blockchain Info Card ─────────────────────────────────────────────────────
 
 function BlockchainInfoCard({ walletAddress }: { walletAddress: string }) {
   const { t } = useTranslation();
@@ -581,27 +1153,38 @@ function BlockchainInfoCard({ walletAddress }: { walletAddress: string }) {
 
   if (!walletAddress) return null;
 
-  const truncated = walletAddress.length > 16
-    ? walletAddress.slice(0, 8) + '...' + walletAddress.slice(-6)
-    : walletAddress;
+  const truncated =
+    walletAddress.length > 16
+      ? walletAddress.slice(0, 8) + '...' + walletAddress.slice(-6)
+      : walletAddress;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.35 }}
-      className="mb-4 rounded-2xl border border-stone-800 bg-stone-900/50 overflow-hidden"
+      className="mb-4 rounded-2xl overflow-hidden"
+      style={{
+        background: 'var(--sweet-card)',
+        border: '1px solid var(--sweet-border)',
+      }}
     >
       <button
         className="w-full flex items-center justify-between px-4 py-3 text-left"
-        onClick={() => setExpanded(v => !v)}
+        onClick={() => setExpanded((v) => !v)}
       >
         <div className="flex items-center gap-2">
-          <ShieldCheckIcon className="w-3.5 h-3.5 text-emerald-400" />
-          <span className="text-xs font-semibold text-stone-300">{t('customerDashboard.blockchainDetails') || 'Blockchain Details'}</span>
+          <ShieldCheckIcon className="w-3.5 h-3.5" style={{ color: '#34d399' }} />
+          <span className="text-xs font-semibold" style={{ color: 'var(--sweet-text-secondary)' }}>
+            {t('customerDashboard.blockchainDetails') || 'Blockchain Details'}
+          </span>
         </div>
         <ChevronDownIcon
-          className={`w-3.5 h-3.5 text-stone-600 transition-transform ${expanded ? 'rotate-180' : ''}`}
+          className={clsx(
+            'w-3.5 h-3.5 transition-transform',
+            expanded && 'rotate-180'
+          )}
+          style={{ color: 'var(--sweet-text-faint)' }}
         />
       </button>
       <AnimatePresence>
@@ -610,33 +1193,56 @@ function BlockchainInfoCard({ walletAddress }: { walletAddress: string }) {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.22 }}
             className="overflow-hidden"
           >
-            <div className="px-4 pb-4 space-y-2.5 border-t border-stone-800">
+            <div
+              className="px-4 pb-4 space-y-2.5"
+              style={{ borderTop: '1px solid var(--sweet-border)' }}
+            >
               <div className="pt-3 flex items-center justify-between gap-2">
-                <span className="text-[10px] text-stone-600">Wallet</span>
+                <span className="text-[10px]" style={{ color: 'var(--sweet-text-muted)' }}>
+                  Wallet
+                </span>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] font-mono text-stone-400">{truncated}</span>
+                  <span
+                    className="text-[10px] font-mono"
+                    style={{ color: 'var(--sweet-text-secondary)' }}
+                  >
+                    {truncated}
+                  </span>
                   <button
-                    onClick={() => { navigator.clipboard.writeText(walletAddress); }}
-                    className="text-stone-600 hover:text-stone-300 transition-colors"
+                    onClick={() => {
+                      navigator.clipboard.writeText(walletAddress);
+                    }}
+                    className="transition-colors"
+                    style={{ color: 'var(--sweet-text-muted)' }}
                   >
                     <DocumentDuplicateIcon className="w-3 h-3" />
                   </button>
                 </div>
               </div>
               <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px] text-stone-600">Network</span>
-                <span className="text-[10px] text-stone-400">TON Testnet</span>
+                <span className="text-[10px]" style={{ color: 'var(--sweet-text-muted)' }}>
+                  Network
+                </span>
+                <span
+                  className="text-[10px]"
+                  style={{ color: 'var(--sweet-text-secondary)' }}
+                >
+                  TON Testnet
+                </span>
               </div>
               <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px] text-stone-600">Token</span>
+                <span className="text-[10px]" style={{ color: 'var(--sweet-text-muted)' }}>
+                  Token
+                </span>
                 <a
                   href={JETTON_EXPLORER_URL}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-0.5 text-[10px] text-amber-400/70 hover:text-amber-400 transition-colors font-mono"
+                  className="flex items-center gap-0.5 text-[10px] font-mono transition-colors"
+                  style={{ color: 'var(--sweet-accent)' }}
                 >
                   SWEET Jetton <ArrowTopRightOnSquareIcon className="w-2.5 h-2.5" />
                 </a>
@@ -648,6 +1254,8 @@ function BlockchainInfoCard({ walletAddress }: { walletAddress: string }) {
     </motion.div>
   );
 }
+
+// ─── Daily Check-in Card ──────────────────────────────────────────────────────
 
 function DailyCheckinCard() {
   const { t } = useTranslation();
@@ -694,32 +1302,67 @@ function DailyCheckinCard() {
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.2 }}
-      className="mb-4 sweet-card rounded-2xl p-4"
+      transition={{ delay: 0.18 }}
+      className="mb-4 rounded-2xl p-4"
+      style={{
+        background: 'var(--sweet-card)',
+        border: '1px solid var(--sweet-border)',
+      }}
     >
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-amber-500/15 flex items-center justify-center">
-            <ClockIcon className="w-3.5 h-3.5 text-amber-400" />
+      <div className="flex items-center justify-between mb-3.5">
+        <div className="flex items-center gap-2.5">
+          <div
+            className="w-9 h-9 rounded-xl flex items-center justify-center"
+            style={{ background: 'rgba(251,191,36,0.12)' }}
+          >
+            {streak >= 3 ? (
+              <FireIconSolid className="w-4 h-4" style={{ color: '#fbbf24' }} />
+            ) : (
+              <ClockIcon className="w-4 h-4" style={{ color: '#f59e0b' }} />
+            )}
           </div>
           <div>
-            <p className="text-xs font-bold text-white">{t('checkin.dailyBonus') || 'Daily Bonus'}</p>
-            <p className="text-[10px] text-stone-500">
-              {streak > 0 ? `${streak} day streak x${multiplier}` : t('checkin.startStreak') || 'Start your streak!'}
+            <p className="text-xs font-bold" style={{ color: 'var(--sweet-text)' }}>
+              {streak >= 3 ? (
+                <span>
+                  {streak} <span style={{ color: '#fbbf24' }}>day streak</span>
+                </span>
+              ) : (
+                t('checkin.dailyBonus') || 'Daily Bonus'
+              )}
+            </p>
+            <p className="text-[10px]" style={{ color: 'var(--sweet-text-muted)' }}>
+              {streak > 0
+                ? `x${multiplier} multiplier active`
+                : t('checkin.startStreak') || 'Start your streak!'}
             </p>
           </div>
         </div>
-        <button
+
+        <motion.button
           onClick={() => canClaim && claimMutation.mutate()}
           disabled={!canClaim || claimMutation.isPending}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+          whileTap={canClaim ? { scale: 0.95 } : {}}
+          className={clsx('px-4 py-2 rounded-xl text-xs font-bold transition-all', !canClaim && 'cursor-not-allowed')}
+          style={
             canClaim
-              ? 'bg-amber-500 text-black hover:bg-amber-400'
-              : 'bg-stone-800 text-stone-500 cursor-not-allowed'
-          }`}
+              ? {
+                  background: 'linear-gradient(135deg, #f59e0b, #f97316)',
+                  boxShadow: '0 4px 14px rgba(245,158,11,0.28)',
+                  color: '#000',
+                }
+              : {
+                  background: 'var(--sweet-border)',
+                  color: 'var(--sweet-text-muted)',
+                }
+          }
         >
-          {claimMutation.isPending ? '...' : canClaim ? `+${status?.nextBonus || 10} SWEET` : 'Claimed'}
-        </button>
+          {claimMutation.isPending
+            ? '...'
+            : canClaim
+            ? `+${status?.nextBonus || 10} SWEET`
+            : t('checkin.claimed') || 'Claimed'}
+        </motion.button>
       </div>
 
       {/* Week dots */}
@@ -733,16 +1376,33 @@ function DailyCheckinCard() {
           const isToday = dateStr === today.toISOString().split('T')[0];
 
           return (
-            <div key={i} className="flex flex-col items-center gap-1">
-              <span className="text-[9px] text-stone-600">{day}</span>
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border transition-all ${
-                checked
-                  ? 'bg-amber-400 border-amber-400 text-black'
-                  : isToday
-                    ? 'border-amber-400/50 text-amber-400 bg-amber-400/10'
-                    : 'border-stone-700 text-stone-600 bg-stone-800'
-              }`}>
-                {checked ? '\u2713' : isToday ? '\u00b7' : ''}
+            <div key={i} className="flex flex-col items-center gap-1 flex-1">
+              <span className="text-[9px]" style={{ color: 'var(--sweet-text-faint)' }}>
+                {day}
+              </span>
+              <div
+                className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold transition-all"
+                style={
+                  checked
+                    ? {
+                        background: 'linear-gradient(135deg, #f59e0b, #f97316)',
+                        color: '#000',
+                        boxShadow: '0 2px 8px rgba(245,158,11,0.35)',
+                      }
+                    : isToday
+                    ? {
+                        border: '1.5px solid var(--sweet-accent)',
+                        color: 'var(--sweet-accent)',
+                        background: 'var(--sweet-accent-dim)',
+                      }
+                    : {
+                        border: '1px solid var(--sweet-border)',
+                        color: 'var(--sweet-text-faint)',
+                        background: 'transparent',
+                      }
+                }
+              >
+                {checked ? '✓' : isToday ? '·' : ''}
               </div>
             </div>
           );
