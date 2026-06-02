@@ -224,25 +224,13 @@ export default function History() {
       {/* Tabs */}
       <Tab.Group selectedIndex={selectedTab} onChange={setSelectedTab}>
         <Tab.List className="flex gap-2 mb-6">
-          {tabs.map((tab) => (
+          {tabs.map((tab, tabIdx) => (
             <Tab
               key={tab.key}
-              className={({ selected }) =>
-                clsx(
-                  'flex items-center justify-center gap-2 flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors focus:outline-none',
-                  selected
-                    ? 'bg-white text-black'
-                    : 'border'
-                )
-              }
-              style={({ selected }: { selected: boolean }) =>
-                selected
-                  ? {}
-                  : {
-                      background: 'var(--sweet-card)',
-                      borderColor: 'var(--sweet-border)',
-                      color: 'var(--sweet-text-secondary)',
-                    }
+              className="flex items-center justify-center gap-2 flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors focus:outline-none border"
+              style={selectedTab === tabIdx
+                ? { background: 'var(--sweet-accent)', borderColor: 'var(--sweet-accent)', color: 'var(--sweet-bg)' }
+                : { background: 'var(--sweet-card)', borderColor: 'var(--sweet-border)', color: 'var(--sweet-text-secondary)' }
               }
             >
               <tab.icon className="w-5 h-5" />
