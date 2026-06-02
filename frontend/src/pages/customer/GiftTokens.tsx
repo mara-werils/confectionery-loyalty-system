@@ -572,11 +572,11 @@ export default function GiftTokens() {
             style={{ color: 'var(--sweet-text-faint)' }}
           >
             {!address || address.length <= 10
-              ? 'Enter a recipient wallet address'
+              ? t('gift.recepientMissing')
               : Number(amount) <= 0
-              ? 'Enter an amount to send'
+              ? t('gift.amountMissing')
               : Number(amount) > sweetBalance
-              ? 'Amount exceeds your balance'
+              ? t('gift.amountExceeds')
               : ''}
           </p>
         )}
