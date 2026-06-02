@@ -158,7 +158,8 @@ export default function Profile() {
   const { data: balanceData } = useBalance();
   const { data: historyData } = useLoyaltyHistory(1, 3);
 
-  const balance = Number(balanceData?.data?.balance || sweetBalance || 0);
+  const apiBalance = Number(balanceData?.data?.balance || 0);
+  const balance = sweetBalance > 0 ? sweetBalance : apiBalance;
   const lifetimeEarned = Number(balanceData?.data?.lifetimeEarned || 0);
   const recentTxs: { id: string; type: string; pointsEarned: string; description?: string; createdAt: string }[] =
     historyData?.data || [];
