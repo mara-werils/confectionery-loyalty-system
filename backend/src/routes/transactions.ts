@@ -265,7 +265,7 @@ router.get('/on-chain', async (req: Request, res: Response, next: NextFunction) 
     const skip = (query.page - 1) * query.limit;
 
     const where = {
-      txHash: { not: null },
+      txHash: { not: null as unknown as undefined },
     };
 
     const [transactions, total] = await Promise.all([
