@@ -112,7 +112,7 @@ export default function CustomerDashboard() {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
-  const { activeCoupons, sweetBalance, setSweetBalance, token } = useAuthStore();
+  const { activeCoupons, sweetBalance, setSweetBalance, token, user } = useAuthStore();
   const [balance, setBalance] = useState<JettonBalance | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -264,7 +264,7 @@ export default function CustomerDashboard() {
       ? sweetBalance
       : safeFromJettonRaw(balance?.balance || '0', balance?.decimals || 9);
 
-  const tier = currentBalance >= 20000 ? 'GOLD' : currentBalance >= 5000 ? 'SILVER' : 'BRONZE';
+  const tier = user?.tier || (currentBalance >= 20000 ? 'GOLD' : currentBalance >= 5000 ? 'SILVER' : 'BRONZE');
   const tierData = TIERS[tier];
   const heroStyle = TIER_HERO[tier];
   const progress =
