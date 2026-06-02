@@ -109,9 +109,14 @@ export default function Home() {
             onClick={() => changeLanguage(lang.code)}
             className={`w-9 h-9 rounded-full text-sm font-bold transition-all flex items-center justify-center ${
               i18n.language === lang.code
-                ? 'bg-amber-400/20 text-amber-400 ring-1 ring-amber-400/40'
-                : 'text-stone-500 hover:text-stone-300'
+                ? 'bg-amber-400/20 ring-1 ring-amber-400/40'
+                : ''
             }`}
+            style={
+              i18n.language === lang.code
+                ? { color: 'var(--sweet-accent)' }
+                : { color: 'var(--sweet-text-muted)' }
+            }
           >
             {lang.flag}
           </button>
@@ -129,16 +134,16 @@ export default function Home() {
         >
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-6 relative">
             <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-amber-400/20 to-orange-600/10 border border-amber-400/20" />
-            <svg className="w-8 h-8 text-amber-400 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <svg className="w-8 h-8 relative z-10" style={{ color: 'var(--sweet-accent)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
             </svg>
           </div>
 
           <h1 className="text-5xl font-black tracking-tight mb-2">
-            <span className="text-white">sweet</span>
-            <span className="text-amber-400">.</span>
+            <span style={{ color: 'var(--sweet-text)' }}>sweet</span>
+            <span style={{ color: 'var(--sweet-accent)' }}>.</span>
           </h1>
-          <p className="text-stone-500 text-sm font-medium tracking-wide uppercase">
+          <p className="text-sm font-medium tracking-wide uppercase" style={{ color: 'var(--sweet-text-muted)' }}>
             Loyalty · Web3 · TON
           </p>
         </motion.div>
@@ -151,8 +156,8 @@ export default function Home() {
             transition={{ delay: 0.15, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="w-full max-w-sm"
           >
-            <div className="rounded-2xl border border-stone-800 bg-stone-900/40 p-6 text-center">
-              <p className="text-stone-400 text-sm mb-5 leading-relaxed">
+            <div className="rounded-2xl p-6 text-center" style={{ border: '1px solid var(--sweet-border)', background: 'var(--sweet-card)' }}>
+              <p className="text-sm mb-5 leading-relaxed" style={{ color: 'var(--sweet-text-secondary)' }}>
                 {t('home.connectWallet')}
               </p>
               <div className="flex justify-center">
@@ -161,9 +166,9 @@ export default function Home() {
             </div>
 
             <div className="mt-8 flex items-center gap-4">
-              <div className="flex-1 h-px bg-white/5" />
-              <span className="text-[11px] text-stone-600 tracking-widest uppercase">{t('home.poweredByTon')}</span>
-              <div className="flex-1 h-px bg-white/5" />
+              <div className="flex-1 h-px" style={{ background: 'var(--sweet-border)' }} />
+              <span className="text-[11px] tracking-widest uppercase" style={{ color: 'var(--sweet-text-faint)' }}>{t('home.poweredByTon')}</span>
+              <div className="flex-1 h-px" style={{ background: 'var(--sweet-border)' }} />
             </div>
           </motion.div>
         )}
@@ -176,7 +181,7 @@ export default function Home() {
             transition={{ duration: 0.5 }}
             className="w-full max-w-sm space-y-3"
           >
-            <p className="text-center text-stone-500 text-xs tracking-wider uppercase mb-5">
+            <p className="text-center text-xs tracking-wider uppercase mb-5" style={{ color: 'var(--sweet-text-muted)' }}>
               {t('home.chooseRole')}
             </p>
 
@@ -201,7 +206,7 @@ export default function Home() {
         {/* How it works */}
         {!wallet && (
           <div className="w-full max-w-sm mt-10">
-            <p className="text-center text-[11px] text-stone-600 tracking-widest uppercase mb-5">
+            <p className="text-center text-[11px] tracking-widest uppercase mb-5" style={{ color: 'var(--sweet-text-faint)' }}>
               {t('home.howItWorks')}
             </p>
             <div className="space-y-3">
@@ -212,14 +217,15 @@ export default function Home() {
               ].map(({ step, title, desc }) => (
                 <div
                   key={step}
-                  className="flex items-start gap-4 p-4 rounded-2xl border border-stone-800 bg-stone-900/50"
+                  className="flex items-start gap-4 p-4 rounded-2xl"
+                  style={{ border: '1px solid var(--sweet-border)', background: 'var(--sweet-card)' }}
                 >
-                  <div className="w-8 h-8 rounded-lg bg-amber-400/10 border border-amber-400/20 flex items-center justify-center text-xs font-bold text-amber-400 flex-shrink-0">
+                  <div className="w-8 h-8 rounded-lg border border-amber-400/20 flex items-center justify-center text-xs font-bold flex-shrink-0" style={{ background: 'var(--sweet-accent-dim)', color: 'var(--sweet-accent)' }}>
                     {step}
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-white leading-tight">{title}</p>
-                    <p className="text-xs text-stone-600 mt-0.5 leading-relaxed">{desc}</p>
+                    <p className="text-sm font-semibold leading-tight" style={{ color: 'var(--sweet-text)' }}>{title}</p>
+                    <p className="text-xs mt-0.5 leading-relaxed" style={{ color: 'var(--sweet-text-faint)' }}>{desc}</p>
                   </div>
                 </div>
               ))}
@@ -230,7 +236,7 @@ export default function Home() {
 
       {/* Bottom hint */}
       <div className="relative z-10 pb-8 flex justify-center">
-        <p className="text-[11px] text-stone-700">
+        <p className="text-[11px]" style={{ color: 'var(--sweet-text-faint)' }}>
           {t('home.footer')}
         </p>
       </div>
@@ -260,16 +266,17 @@ function RoleButton({
     <motion.button
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className="group w-full flex items-center gap-4 p-4 rounded-2xl border border-stone-800 bg-stone-900 hover:bg-stone-800 hover:border-stone-700 transition-colors text-left"
+      className="group w-full flex items-center gap-4 p-4 rounded-2xl transition-colors text-left"
+      style={{ border: '1px solid var(--sweet-border)', background: 'var(--sweet-card)' }}
     >
-      <div className={`w-10 h-10 rounded-xl border border-stone-700 bg-stone-800 flex items-center justify-center text-stone-400 transition-colors flex-shrink-0 ${accentClasses[accent]}`}>
+      <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors flex-shrink-0 ${accentClasses[accent]}`} style={{ border: '1px solid var(--sweet-border)', background: 'var(--sweet-card-hover)', color: 'var(--sweet-text-secondary)' }}>
         {icon}
       </div>
       <div>
-        <p className="font-semibold text-white text-sm">{label}</p>
-        <p className="text-xs text-stone-500 mt-0.5">{desc}</p>
+        <p className="font-semibold text-sm" style={{ color: 'var(--sweet-text)' }}>{label}</p>
+        <p className="text-xs mt-0.5" style={{ color: 'var(--sweet-text-muted)' }}>{desc}</p>
       </div>
-      <div className="ml-auto text-stone-700 group-hover:text-stone-500 transition-colors">
+      <div className="ml-auto transition-colors" style={{ color: 'var(--sweet-text-faint)' }}>
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
         </svg>

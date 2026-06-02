@@ -71,7 +71,7 @@ export default function GiftTokens() {
   };
 
   return (
-    <div className="pb-28 text-white">
+    <div className="pb-28" style={{ color: 'var(--sweet-text)' }}>
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
         <div className="flex items-center gap-2 mb-1">
@@ -80,15 +80,15 @@ export default function GiftTokens() {
           </div>
           <h1 className="text-2xl font-bold tracking-tight">{t('gift.title') || 'Gift SWEET'}</h1>
         </div>
-        <p className="text-xs text-stone-500">
+        <p className="text-xs" style={{ color: 'var(--sweet-text-muted)' }}>
           {t('gift.subtitle') || 'Send SWEET tokens to a friend. Only possible with blockchain!'}
         </p>
       </motion.div>
 
       {/* Balance */}
       <div className="flex items-center justify-between mb-5 sweet-card rounded-2xl p-4">
-        <span className="text-sm text-stone-400">{t('gift.yourBalance') || 'Your Balance'}</span>
-        <span className="text-lg font-black text-amber-400">{sweetBalance.toLocaleString()} SWEET</span>
+        <span className="text-sm" style={{ color: 'var(--sweet-text-secondary)' }}>{t('gift.yourBalance') || 'Your Balance'}</span>
+        <span className="text-lg font-black" style={{ color: 'var(--sweet-accent)' }}>{sweetBalance.toLocaleString()} SWEET</span>
       </div>
 
       {/* Send Form */}
@@ -100,7 +100,7 @@ export default function GiftTokens() {
       >
         {/* Recipient */}
         <div>
-          <label className="text-xs font-semibold text-stone-400 mb-1.5 block">
+          <label className="text-xs font-semibold mb-1.5 block" style={{ color: 'var(--sweet-text-secondary)' }}>
             {t('gift.recipient') || 'Recipient Wallet'}
           </label>
           <input
@@ -114,7 +114,7 @@ export default function GiftTokens() {
 
         {/* Amount */}
         <div>
-          <label className="text-xs font-semibold text-stone-400 mb-1.5 block">
+          <label className="text-xs font-semibold mb-1.5 block" style={{ color: 'var(--sweet-text-secondary)' }}>
             {t('gift.amount') || 'Amount'}
           </label>
           <div className="relative">
@@ -129,7 +129,8 @@ export default function GiftTokens() {
             />
             <button
               onClick={() => setAmount(String(sweetBalance))}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-full"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold px-2 py-0.5 rounded-full"
+              style={{ color: 'var(--sweet-accent)', background: 'var(--sweet-accent-dim)' }}
             >
               MAX
             </button>
@@ -138,7 +139,7 @@ export default function GiftTokens() {
 
         {/* Message */}
         <div>
-          <label className="text-xs font-semibold text-stone-400 mb-1.5 block">
+          <label className="text-xs font-semibold mb-1.5 block" style={{ color: 'var(--sweet-text-secondary)' }}>
             {t('gift.message') || 'Message (optional)'}
           </label>
           <input
@@ -159,12 +160,12 @@ export default function GiftTokens() {
             className="bg-amber-400/5 border border-amber-400/15 rounded-xl p-3"
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs text-stone-500">{t('gift.sending') || 'Sending'}</span>
-              <span className="text-sm font-bold text-amber-400">{Number(amount).toLocaleString()} SWEET</span>
+              <span className="text-xs" style={{ color: 'var(--sweet-text-muted)' }}>{t('gift.sending') || 'Sending'}</span>
+              <span className="text-sm font-bold" style={{ color: 'var(--sweet-accent)' }}>{Number(amount).toLocaleString()} SWEET</span>
             </div>
             <div className="flex items-center justify-between mt-1">
-              <span className="text-xs text-stone-500">{t('gift.to') || 'To'}</span>
-              <span className="text-xs font-mono text-stone-300">{formatAddr(address)}</span>
+              <span className="text-xs" style={{ color: 'var(--sweet-text-muted)' }}>{t('gift.to') || 'To'}</span>
+              <span className="text-xs font-mono" style={{ color: 'var(--sweet-text-secondary)' }}>{formatAddr(address)}</span>
             </div>
           </motion.div>
         )}
@@ -191,8 +192,8 @@ export default function GiftTokens() {
 
       {/* Why blockchain banner */}
       <div className="sweet-card rounded-2xl p-4 mb-5">
-        <p className="text-xs font-semibold text-amber-400 mb-1">{t('gift.whyBlockchain') || 'Why blockchain matters'}</p>
-        <p className="text-[11px] text-stone-500 leading-relaxed">
+        <p className="text-xs font-semibold mb-1" style={{ color: 'var(--sweet-accent)' }}>{t('gift.whyBlockchain') || 'Why blockchain matters'}</p>
+        <p className="text-[11px] leading-relaxed" style={{ color: 'var(--sweet-text-muted)' }}>
           {t('gift.whyBlockchainDesc') || 'Traditional loyalty points (Starbucks Stars, airline miles) cannot be gifted or transferred. With SWEET tokens on TON blockchain, you truly own your rewards and can share them freely.'}
         </p>
       </div>
@@ -200,7 +201,7 @@ export default function GiftTokens() {
       {/* History */}
       {history.length > 0 && (
         <div>
-          <p className="text-xs font-semibold text-stone-400 mb-3">{t('gift.history') || 'Gift History'}</p>
+          <p className="text-xs font-semibold mb-3" style={{ color: 'var(--sweet-text-secondary)' }}>{t('gift.history') || 'Gift History'}</p>
           <div className="space-y-2">
             {history.map((g: { id: string; direction: string; amount: number; senderWallet: string; receiverWallet: string; createdAt: string }) => (
               <div key={g.id} className="flex items-center justify-between sweet-card rounded-xl px-4 py-3">
@@ -214,10 +215,10 @@ export default function GiftTokens() {
                     }
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-white">
+                    <p className="text-xs font-semibold" style={{ color: 'var(--sweet-text)' }}>
                       {g.direction === 'sent' ? t('gift.sentTo') || 'Sent to' : t('gift.receivedFrom') || 'Received from'}
                     </p>
-                    <p className="text-[10px] font-mono text-stone-600">
+                    <p className="text-[10px] font-mono" style={{ color: 'var(--sweet-text-faint)' }}>
                       {formatAddr(g.direction === 'sent' ? g.receiverWallet : g.senderWallet)}
                     </p>
                   </div>
@@ -226,7 +227,7 @@ export default function GiftTokens() {
                   <p className={`text-sm font-bold ${g.direction === 'sent' ? 'text-pink-400' : 'text-green-400'}`}>
                     {g.direction === 'sent' ? '-' : '+'}{g.amount}
                   </p>
-                  <p className="text-[10px] text-stone-600">{timeAgo(g.createdAt)}</p>
+                  <p className="text-[10px]" style={{ color: 'var(--sweet-text-faint)' }}>{timeAgo(g.createdAt)}</p>
                 </div>
               </div>
             ))}
