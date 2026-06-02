@@ -69,23 +69,62 @@ export default function LiveFeed() {
   if (!current) return null;
 
   return (
-    <div className="mb-4 overflow-hidden rounded-xl border border-amber-900/20 bg-[#1a1412]/60">
-      <div className="flex items-center gap-1.5 px-3 py-1 bg-amber-900/10">
-        <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-        <span className="text-[9px] font-semibold text-stone-500 uppercase tracking-wider">Live Activity</span>
+    <div
+      className="mb-4 overflow-hidden rounded-xl sweet-shimmer"
+      style={{
+        border: '1px solid var(--sweet-border)',
+        background: 'var(--sweet-card)',
+      }}
+    >
+      {/* Header strip */}
+      <div
+        className="flex items-center gap-1.5 px-3 py-1"
+        style={{ background: 'var(--sweet-accent-dim)' }}
+      >
+        <span
+          className="w-1.5 h-1.5 rounded-full"
+          style={{
+            background: '#4ade80',
+            boxShadow: '0 0 6px rgba(74, 222, 128, 0.6)',
+            animation: 'pulse-soft 2s ease-in-out infinite',
+          }}
+        />
+        <span
+          className="text-[9px] font-semibold uppercase tracking-wider"
+          style={{ color: 'var(--sweet-text-muted)' }}
+        >
+          Live Activity
+        </span>
       </div>
+
+      {/* Feed row */}
       <AnimatePresence mode="wait">
         <motion.div
           key={current.id + currentIdx}
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.3 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
           className="flex items-center gap-2.5 px-3 py-2.5"
         >
-          <span className="text-base flex-shrink-0">{ICONS[current.type] || '💫'}</span>
-          <p className="text-[11px] text-stone-400 flex-1 truncate">{current.message}</p>
-          <span className="text-[10px] text-stone-600 flex-shrink-0">{timeAgo(current.timestamp)}</span>
+          <span
+            className="text-base flex-shrink-0"
+            style={{ color: 'var(--sweet-accent)' }}
+          >
+            {ICONS[current.type] || '◈'}
+          </span>
+          <p
+            className="text-[11px] flex-1 truncate"
+            style={{ color: 'var(--sweet-text-secondary)' }}
+          >
+            {current.message}
+          </p>
+          <span
+            className="text-[10px] flex-shrink-0 tabular-nums"
+            style={{ color: 'var(--sweet-text-faint)' }}
+          >
+            {timeAgo(current.timestamp)}
+          </span>
         </motion.div>
       </AnimatePresence>
     </div>
