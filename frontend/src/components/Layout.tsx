@@ -12,7 +12,7 @@ import {
   SunIcon,
   MoonIcon,
   BuildingStorefrontIcon,
-  CubeTransparentIcon,
+  PaperAirplaneIcon,
 } from '@heroicons/react/24/outline';
 import {
   HomeIcon as HomeIconSolid,
@@ -23,7 +23,7 @@ import {
   SparklesIcon as SparklesIconSolid,
   PresentationChartBarIcon as PresentationChartBarIconSolid,
   BuildingStorefrontIcon as BuildingStorefrontIconSolid,
-  CubeTransparentIcon as CubeTransparentIconSolid,
+  PaperAirplaneIcon as PaperAirplaneIconSolid,
 } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
 import { changeLanguage, languages } from '../i18n';
@@ -50,8 +50,8 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
   const customerNavItems = [
     { path: '/customer/dashboard',  label: t('nav.wallet'),         icon: HomeIcon,               activeIcon: HomeIconSolid },
     { path: '/customer/rewards',    label: t('nav.rewards'),        icon: GiftIcon,               activeIcon: GiftIconSolid },
+    { path: '/customer/gift',       label: t('nav.gift') || 'Transfer', icon: PaperAirplaneIcon,    activeIcon: PaperAirplaneIconSolid },
     { path: '/customer/ecosystem',  label: t('nav.ecosystem'),      icon: BuildingStorefrontIcon, activeIcon: BuildingStorefrontIconSolid },
-    { path: '/customer/explorer',   label: t('nav.explorer') || 'Explorer', icon: CubeTransparentIcon, activeIcon: CubeTransparentIconSolid },
     { path: '/customer/profile',    label: t('nav.profile'),        icon: UserCircleIcon,         activeIcon: UserCircleIconSolid },
   ];
 
