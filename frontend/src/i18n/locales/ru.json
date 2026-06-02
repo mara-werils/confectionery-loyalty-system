@@ -1,4 +1,10 @@
 {
+  "purchaseNotification": {
+    "from": "от {{name}}",
+    "tokensAwarded": "Токены зачислены",
+    "confirming": "Подтверждение в блокчейне TON...",
+    "confirmedOnTon": "Подтверждено в TON"
+  },
   "common": {
     "loading": "Загрузка...",
     "error": "Ошибка",

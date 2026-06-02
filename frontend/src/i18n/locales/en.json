@@ -1,4 +1,10 @@
 {
+  "purchaseNotification": {
+    "from": "from {{name}}",
+    "tokensAwarded": "Tokens awarded",
+    "confirming": "Confirming on TON blockchain...",
+    "confirmedOnTon": "Confirmed on TON"
+  },
   "common": {
     "loading": "Loading...",
     "error": "Error",

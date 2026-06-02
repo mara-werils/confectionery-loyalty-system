@@ -32,6 +32,7 @@ import { TIER_CONFIG } from '../../config/tiers';
 import AnimatedNumber from '../../components/AnimatedNumber';
 import LiveFeed from '../../components/LiveFeed';
 import Skeleton from '../../components/Skeleton';
+import PurchaseNotification from '../../components/PurchaseNotification';
 import { io as socketIO } from 'socket.io-client';
 
 const TIERS = TIER_CONFIG;
@@ -180,15 +181,6 @@ export default function CustomerDashboard() {
     socket.on('purchase:awarded', (payload: PurchaseAwardedPayload) => {
       setSweetBalance(sweetBalance + payload.pointsEarned);
       setPurchaseAlert(payload);
-      toast.success(`+${payload.pointsEarned} SWEET from ${payload.partnerName}!`, {
-        icon: '◆',
-        duration: 4000,
-        style: {
-          background: '#1c1917',
-          color: '#fbbf24',
-          border: '1px solid rgba(245,158,11,0.3)',
-        },
-      });
     });
 
     return () => {
@@ -320,92 +312,11 @@ export default function CustomerDashboard() {
   return (
     <div className="pb-28" style={{ color: 'var(--sweet-text)' }}>
 
-      {/* ── Real-time Purchase Award Notification ─────────────────────────────── */}
-      <AnimatePresence>
-        {purchaseAlert && (
-          <motion.div
-            initial={{ opacity: 0, y: -16, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -16, scale: 0.96 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 28 }}
-            className="mb-4 relative overflow-hidden rounded-2xl"
-            style={{
-              background: 'linear-gradient(135deg, #1c1007, #1a0e00)',
-              border: '1px solid rgba(245,158,11,0.28)',
-              boxShadow: '0 8px 30px rgba(245,158,11,0.12)',
-            }}
-          >
-            <div className="relative z-10 px-4 py-4">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <motion.div
-                    initial={{ scale: 0.5, rotate: -10 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
-                    className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={{
-                      background: 'rgba(245,158,11,0.15)',
-                      border: '1px solid rgba(245,158,11,0.3)',
-                    }}
-                  >
-                    <SparklesIcon className="w-5 h-5" style={{ color: '#fbbf24' }} />
-                  </motion.div>
-                  <div>
-                    <p className="text-sm font-bold text-white">
-                      +{purchaseAlert.pointsEarned.toLocaleString()} SWEET received!
-                    </p>
-                    <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.45)' }}>
-                      From {purchaseAlert.partnerName} · ₸{purchaseAlert.amount.toLocaleString()}
-                    </p>
-                    {purchaseAlert.items.length > 0 && (
-                      <p
-                        className="text-[10px] mt-0.5 truncate max-w-[180px]"
-                        style={{ color: 'rgba(255,255,255,0.25)' }}
-                      >
-                        {purchaseAlert.items.join(', ')}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <button
-                  onClick={() => setPurchaseAlert(null)}
-                  className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs transition-colors"
-                  style={{
-                    background: 'rgba(255,255,255,0.06)',
-                    color: 'rgba(255,255,255,0.3)',
-                  }}
-                >
-                  ×
-                </button>
-              </div>
-              <div
-                className="mt-3 pt-3 flex items-center gap-2"
-                style={{ borderTop: '1px solid rgba(245,158,11,0.10)' }}
-              >
-                <div
-                  className="flex-1 h-1 rounded-full overflow-hidden"
-                  style={{ background: 'rgba(255,255,255,0.06)' }}
-                >
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: '100%' }}
-                    transition={{ duration: 4, ease: 'linear' }}
-                    className="h-full rounded-full"
-                    style={{ background: 'linear-gradient(90deg, #f59e0b, #f97316)' }}
-                    onAnimationComplete={() => setPurchaseAlert(null)}
-                  />
-                </div>
-                <span
-                  className="text-[10px] font-mono shrink-0"
-                  style={{ color: 'rgba(255,255,255,0.2)' }}
-                >
-                  {purchaseAlert.txHash.slice(0, 8)}...
-                </span>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* ── Real-time Purchase Award Notification (full-screen overlay) ──────── */}
+      <PurchaseNotification
+        payload={purchaseAlert}
+        onDismiss={() => setPurchaseAlert(null)}
+      />
 
       {/* ── Hero Balance Card ─────────────────────────────────────────────────── */}
       <motion.div

@@ -1,4 +1,10 @@
 {
+  "purchaseNotification": {
+    "from": "{{name}} дүкенінен",
+    "tokensAwarded": "Токендер есептелді",
+    "confirming": "TON блокчейнінде расталуда...",
+    "confirmedOnTon": "TON-да расталды"
+  },
   "common": {
     "loading": "Жүктелуде...",
     "error": "Қате",
