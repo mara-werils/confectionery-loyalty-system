@@ -11,11 +11,8 @@ import Referrals from './pages/Referrals';
 import Stats from './pages/Stats';
 
 // Pages — lazy loaded (heavy / secondary)
-const Blockchain = lazy(() => import('./pages/Blockchain'));
-const Swap = lazy(() => import('./pages/Swap'));
 const AIPredictions = lazy(() => import('./pages/AIPredictions'));
 const Achievements = lazy(() => import('./pages/Achievements'));
-const Governance = lazy(() => import('./pages/Governance'));
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -31,14 +28,12 @@ import CouponVerify from './pages/business/CouponVerify';
 const Analytics = lazy(() => import('./pages/business/Analytics'));
 import CustomerDashboard from './pages/customer/CustomerDashboard';
 import CustomerRewards from './pages/customer/CustomerRewards';
-import Staking from './pages/customer/Staking';
 const SpinWheel = lazy(() => import('./pages/customer/SpinWheel'));
 const GiftTokens = lazy(() => import('./pages/customer/GiftTokens'));
 
 // Components
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
-import { FEATURES } from './config/features';
 
 // Hooks
 import { useTelegram } from './hooks/useTelegram';
@@ -120,12 +115,13 @@ function App() {
           <Route path="/business/dashboard" element={<Dashboard />} />
           <Route path="/business/verify-coupon" element={<CouponVerify />} />
           <Route path="/ai" element={<AIPredictions />} />
-          <Route path="/blockchain" element={<Blockchain />} />
-          <Route path="/swap" element={FEATURES.SWAP ? <Swap /> : <Navigate to="/business/dashboard" replace />} />
           <Route path="/referrals" element={<Referrals />} />
-          <Route path="/governance" element={FEATURES.GOVERNANCE ? <Governance /> : <Navigate to="/business/dashboard" replace />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/business/profile" element={<Profile />} />
+          {/* Disabled features: redirect to dashboard */}
+          <Route path="/blockchain" element={<Navigate to="/business/dashboard" replace />} />
+          <Route path="/swap" element={<Navigate to="/business/dashboard" replace />} />
+          <Route path="/governance" element={<Navigate to="/business/dashboard" replace />} />
         </Route>
       </Route>
 
@@ -139,9 +135,10 @@ function App() {
           <Route path="/achievements" element={<Achievements />} />
           <Route path="/history" element={<History />} />
           <Route path="/stats" element={<Stats />} />
-          <Route path="/staking" element={FEATURES.STAKING ? <Staking /> : <Navigate to="/customer/dashboard" replace />} />
-          <Route path="/customer/governance" element={FEATURES.GOVERNANCE ? <Governance /> : <Navigate to="/customer/dashboard" replace />} />
           <Route path="/customer/profile" element={<Profile />} />
+          {/* Disabled features: redirect to dashboard */}
+          <Route path="/staking" element={<Navigate to="/customer/dashboard" replace />} />
+          <Route path="/customer/governance" element={<Navigate to="/customer/dashboard" replace />} />
         </Route>
       </Route>
 

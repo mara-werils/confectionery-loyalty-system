@@ -5,11 +5,9 @@ import {
   HomeIcon,
   GiftIcon,
   UserCircleIcon,
-  CubeTransparentIcon,
   UserPlusIcon,
   QrCodeIcon,
   SparklesIcon,
-  ShieldCheckIcon,
   FireIcon,
   PresentationChartBarIcon,
   SunIcon,
@@ -19,17 +17,14 @@ import {
   HomeIcon as HomeIconSolid,
   GiftIcon as GiftIconSolid,
   UserCircleIcon as UserCircleIconSolid,
-  CubeTransparentIcon as CubeTransparentIconSolid,
   UserPlusIcon as UserPlusIconSolid,
   QrCodeIcon as QrCodeIconSolid,
   SparklesIcon as SparklesIconSolid,
-  ShieldCheckIcon as ShieldCheckIconSolid,
   FireIcon as FireIconSolid,
   PresentationChartBarIcon as PresentationChartBarIconSolid,
 } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
 import { changeLanguage, languages } from '../i18n';
-import { FEATURES } from '../config/features';
 import { useTheme } from '../hooks/useTheme';
 
 interface LayoutProps {
@@ -45,9 +40,7 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
     { path: '/business/dashboard', label: t('nav.pos'),       icon: HomeIcon,            activeIcon: HomeIconSolid },
     { path: '/business/verify-coupon', label: t('nav.verify'),     icon: QrCodeIcon,          activeIcon: QrCodeIconSolid },
     { path: '/ai',                 label: t('nav.ai'),          icon: SparklesIcon,        activeIcon: SparklesIconSolid },
-    { path: '/blockchain',         label: t('nav.blockchain'),  icon: CubeTransparentIcon, activeIcon: CubeTransparentIconSolid },
     { path: '/referrals',          label: t('nav.referrals'),   icon: UserPlusIcon,        activeIcon: UserPlusIconSolid },
-    ...(FEATURES.GOVERNANCE ? [{ path: '/governance', label: t('nav.governance'), icon: ShieldCheckIcon, activeIcon: ShieldCheckIconSolid }] : []),
     { path: '/analytics',          label: t('nav.analytics'),   icon: PresentationChartBarIcon, activeIcon: PresentationChartBarIconSolid },
     { path: '/business/profile',   label: t('nav.profile'),   icon: UserCircleIcon,      activeIcon: UserCircleIconSolid },
   ];
