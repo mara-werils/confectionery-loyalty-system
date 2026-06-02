@@ -121,17 +121,20 @@ const TYPE_CONFIG: Record<TxType, {
 // ─── Skeleton card ────────────────────────────────────────────────────────────
 function SkeletonCard() {
   return (
-    <div className="rounded-2xl border border-l-4 border-stone-800/60 border-l-stone-700 bg-stone-900/50 p-4 animate-pulse">
+    <div
+      className="rounded-2xl border border-l-4 p-4 animate-pulse"
+      style={{ borderColor: 'var(--sweet-border)', background: 'var(--sweet-card)' }}
+    >
       <div className="flex items-start gap-3">
-        <div className="w-10 h-10 rounded-xl bg-stone-800" />
+        <div className="w-10 h-10 rounded-xl" style={{ background: 'var(--sweet-border)' }} />
         <div className="flex-1 space-y-2">
-          <div className="h-3 w-1/3 bg-stone-800 rounded" />
-          <div className="h-3 w-1/2 bg-stone-800 rounded" />
-          <div className="h-2 w-2/3 bg-stone-800 rounded mt-2" />
+          <div className="h-3 w-1/3 rounded" style={{ background: 'var(--sweet-border)' }} />
+          <div className="h-3 w-1/2 rounded" style={{ background: 'var(--sweet-border)' }} />
+          <div className="h-2 w-2/3 rounded mt-2" style={{ background: 'var(--sweet-border)' }} />
         </div>
         <div className="text-right space-y-2">
-          <div className="h-3 w-16 bg-stone-800 rounded" />
-          <div className="h-2 w-12 bg-stone-800 rounded" />
+          <div className="h-3 w-16 rounded" style={{ background: 'var(--sweet-border)' }} />
+          <div className="h-2 w-12 rounded" style={{ background: 'var(--sweet-border)' }} />
         </div>
       </div>
     </div>
@@ -141,10 +144,27 @@ function SkeletonCard() {
 // ─── Stats card ───────────────────────────────────────────────────────────────
 function StatCard({ label, value, sub }: { label: string; value: string; sub?: ReactNode }) {
   return (
-    <div className="flex-1 min-w-0 rounded-2xl border border-stone-800 bg-stone-900/60 px-3 py-3">
-      <p className="text-[9px] font-semibold uppercase tracking-widest text-stone-500 truncate">{label}</p>
-      <p className="text-sm font-bold text-white mt-0.5 truncate">{value}</p>
-      {sub && <p className="text-[9px] text-stone-600 truncate mt-0.5">{sub}</p>}
+    <div
+      className="flex-1 min-w-0 rounded-2xl border px-3 py-3"
+      style={{ borderColor: 'var(--sweet-border)', background: 'var(--sweet-card)' }}
+    >
+      <p
+        className="text-[9px] font-semibold uppercase tracking-widest truncate"
+        style={{ color: 'var(--sweet-text-muted)' }}
+      >
+        {label}
+      </p>
+      <p
+        className="text-sm font-bold mt-0.5 truncate"
+        style={{ color: 'var(--sweet-text)' }}
+      >
+        {value}
+      </p>
+      {sub && (
+        <p className="text-[9px] truncate mt-0.5" style={{ color: 'var(--sweet-text-faint)' }}>
+          {sub}
+        </p>
+      )}
     </div>
   );
 }
@@ -188,11 +208,11 @@ function TxCard({ tx, index, isNew }: { tx: OnChainTx; index: number; isNew?: bo
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       className={clsx(
-        'relative rounded-2xl border border-l-4 bg-stone-900/60 transition-colors duration-200',
+        'relative rounded-2xl border border-l-4 transition-colors duration-200',
         cfg.borderColor,
-        'border-stone-800 hover:border-stone-700',
         isNew && 'ring-1 ring-amber-400/30'
       )}
+      style={{ background: 'var(--sweet-card)', borderColor: 'var(--sweet-border)' }}
     >
       <div className="p-4">
         <div className="flex items-start gap-3">
@@ -204,7 +224,12 @@ function TxCard({ tx, index, isNew }: { tx: OnChainTx; index: number; isNew?: bo
           {/* Center */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-sm font-semibold text-white">{cfg.label}</span>
+              <span
+                className="text-sm font-semibold"
+                style={{ color: 'var(--sweet-text)' }}
+              >
+                {cfg.label}
+              </span>
               <span className={clsx(
                 'inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-semibold border',
                 cfg.badgeBg, cfg.badgeText
@@ -213,7 +238,12 @@ function TxCard({ tx, index, isNew }: { tx: OnChainTx; index: number; isNew?: bo
               </span>
             </div>
             {tx.partnerName && (
-              <p className="text-xs text-stone-400 mt-0.5 truncate">{tx.partnerName}</p>
+              <p
+                className="text-xs mt-0.5 truncate"
+                style={{ color: 'var(--sweet-text-secondary)' }}
+              >
+                {tx.partnerName}
+              </p>
             )}
           </div>
 
@@ -223,11 +253,13 @@ function TxCard({ tx, index, isNew }: { tx: OnChainTx; index: number; isNew?: bo
               +{Number(tx.pointsEarned).toLocaleString()} SWEET
             </p>
             {Number(tx.amount) > 0 && (
-              <p className="text-[10px] text-stone-500 mt-0.5">
+              <p className="text-[10px] mt-0.5" style={{ color: 'var(--sweet-text-muted)' }}>
                 {(Number(tx.amount) / 100).toLocaleString()} KZT
               </p>
             )}
-            <p className="text-[10px] text-stone-500 mt-1">{timeAgo(tx.createdAt)}</p>
+            <p className="text-[10px] mt-1" style={{ color: 'var(--sweet-text-muted)' }}>
+              {timeAgo(tx.createdAt)}
+            </p>
             <span className="inline-flex items-center gap-0.5 mt-1 px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-[9px] font-bold text-emerald-400">
               <ShieldCheckIcon className="w-2.5 h-2.5" />
               {t('explorer.confirmed')}
@@ -236,15 +268,24 @@ function TxCard({ tx, index, isNew }: { tx: OnChainTx; index: number; isNew?: bo
         </div>
 
         {/* Bottom row: hash + block */}
-        <div className="mt-3 pt-3 border-t border-stone-800/70 flex items-center gap-3 flex-wrap">
+        <div
+          className="mt-3 pt-3 border-t flex items-center gap-3 flex-wrap"
+          style={{ borderColor: 'var(--sweet-border)' }}
+        >
           <div className="flex items-center gap-1.5 flex-1 min-w-0">
-            <span className="text-[9px] text-stone-600 uppercase tracking-wider shrink-0">TX</span>
+            <span
+              className="text-[9px] uppercase tracking-wider shrink-0"
+              style={{ color: 'var(--sweet-text-faint)' }}
+            >
+              TX
+            </span>
             <a
               href={`https://testnet.tonviewer.com/transaction/${tx.txHash}`}
               target="_blank"
               rel="noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="font-mono text-[10px] text-stone-400 hover:text-amber-400 transition-colors flex items-center gap-0.5 truncate"
+              className="font-mono text-[10px] hover:text-amber-400 transition-colors flex items-center gap-0.5 truncate"
+              style={{ color: 'var(--sweet-text-secondary)' }}
               title={tx.txHash}
             >
               <ArrowTopRightOnSquareIcon className="w-2.5 h-2.5 shrink-0" />
@@ -252,7 +293,8 @@ function TxCard({ tx, index, isNew }: { tx: OnChainTx; index: number; isNew?: bo
             </a>
             <button
               onClick={copyHash}
-              className="p-0.5 rounded text-stone-600 hover:text-stone-300 transition-colors shrink-0"
+              className="p-0.5 rounded transition-colors shrink-0"
+              style={{ color: 'var(--sweet-text-faint)' }}
               title={t('explorer.copyHash')}
             >
               {copied
@@ -263,8 +305,18 @@ function TxCard({ tx, index, isNew }: { tx: OnChainTx; index: number; isNew?: bo
 
           {tx.blockNumber && (
             <div className="flex items-center gap-1 shrink-0">
-              <span className="text-[9px] text-stone-600 uppercase tracking-wider">Block</span>
-              <span className="font-mono text-[10px] text-stone-400">#{tx.blockNumber}</span>
+              <span
+                className="text-[9px] uppercase tracking-wider"
+                style={{ color: 'var(--sweet-text-faint)' }}
+              >
+                Block
+              </span>
+              <span
+                className="font-mono text-[10px]"
+                style={{ color: 'var(--sweet-text-secondary)' }}
+              >
+                #{tx.blockNumber}
+              </span>
             </div>
           )}
 
@@ -280,7 +332,12 @@ function TxCard({ tx, index, isNew }: { tx: OnChainTx; index: number; isNew?: bo
                 target="_blank"
                 rel="noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="ml-auto flex items-center gap-1 px-2 py-1 rounded-lg bg-stone-800 border border-stone-700 hover:bg-stone-700 text-[10px] font-medium text-stone-300 hover:text-white transition-colors shrink-0"
+                className="ml-auto flex items-center gap-1 px-2 py-1 rounded-lg border transition-colors shrink-0 text-[10px] font-medium"
+                style={{
+                  background: 'var(--sweet-card-hover)',
+                  borderColor: 'var(--sweet-border)',
+                  color: 'var(--sweet-text-secondary)',
+                }}
               >
                 <ArrowTopRightOnSquareIcon className="w-3 h-3" />
                 {t('explorer.viewOnExplorer')}
@@ -397,12 +454,17 @@ export default function Explorer() {
       {/* ── Header ── */}
       <div className="mb-6 pl-1">
         <div className="flex items-center gap-2 mb-1">
-          <CubeTransparentIcon className="w-5 h-5 text-amber-400" />
-          <h1 className="text-2xl font-bold text-white tracking-tight">
+          <CubeTransparentIcon className="w-5 h-5" style={{ color: 'var(--sweet-accent)' }} />
+          <h1
+            className="text-2xl font-bold tracking-tight"
+            style={{ color: 'var(--sweet-text)' }}
+          >
             {t('explorer.title')}
           </h1>
         </div>
-        <p className="text-stone-400 text-sm ml-7">{t('explorer.subtitle')}</p>
+        <p className="text-sm ml-7" style={{ color: 'var(--sweet-text-secondary)' }}>
+          {t('explorer.subtitle')}
+        </p>
 
         {/* Live indicator */}
         <div className="flex items-center gap-2 mt-3 ml-7">
@@ -412,7 +474,7 @@ export default function Explorer() {
               {t('explorer.connected')}
             </span>
           </span>
-          <span className="text-[9px] text-stone-600">
+          <span className="text-[9px]" style={{ color: 'var(--sweet-text-faint)' }}>
             {t('explorer.lastUpdated')}: {lastUpdated.toLocaleTimeString()}
           </span>
         </div>
@@ -443,7 +505,8 @@ export default function Explorer() {
               href={`https://testnet.tonviewer.com/${CONTRACT_ADDRESSES.loyaltyToken}`}
               target="_blank"
               rel="noreferrer"
-              className="text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-0.5"
+              className="hover:text-amber-300 transition-colors flex items-center gap-0.5"
+              style={{ color: 'var(--sweet-accent)' }}
               onClick={(e) => e.stopPropagation()}
             >
               <ArrowTopRightOnSquareIcon className="w-2.5 h-2.5" />
@@ -454,13 +517,22 @@ export default function Explorer() {
       </div>
 
       {/* ── Contract address bar ── */}
-      <div className="mb-6 rounded-2xl border border-stone-800 bg-stone-900/40 px-4 py-3 flex items-center gap-3">
-        <SignalIcon className="w-4 h-4 text-amber-400 shrink-0" />
+      <div
+        className="mb-6 rounded-2xl border px-4 py-3 flex items-center gap-3"
+        style={{ borderColor: 'var(--sweet-border)', background: 'var(--sweet-card)' }}
+      >
+        <SignalIcon className="w-4 h-4 shrink-0" style={{ color: 'var(--sweet-accent)' }} />
         <div className="flex-1 min-w-0">
-          <p className="text-[9px] text-stone-500 uppercase tracking-wider">
+          <p
+            className="text-[9px] uppercase tracking-wider"
+            style={{ color: 'var(--sweet-text-muted)' }}
+          >
             {t('explorer.jettonContract')}
           </p>
-          <p className="text-[11px] font-mono text-stone-300 truncate mt-0.5">
+          <p
+            className="text-[11px] font-mono truncate mt-0.5"
+            style={{ color: 'var(--sweet-text-secondary)' }}
+          >
             {CONTRACT_ADDRESSES.loyaltyToken}
           </p>
         </div>
@@ -468,7 +540,12 @@ export default function Explorer() {
           href={`https://testnet.tonviewer.com/${CONTRACT_ADDRESSES.loyaltyToken}`}
           target="_blank"
           rel="noreferrer"
-          className="shrink-0 flex items-center gap-1 px-2 py-1 rounded-lg bg-stone-800 border border-stone-700 hover:bg-stone-700 transition-colors text-[10px] font-medium text-stone-300"
+          className="shrink-0 flex items-center gap-1 px-2 py-1 rounded-lg border transition-colors text-[10px] font-medium"
+          style={{
+            background: 'var(--sweet-card-hover)',
+            borderColor: 'var(--sweet-border)',
+            color: 'var(--sweet-text-secondary)',
+          }}
         >
           <ArrowTopRightOnSquareIcon className="w-3 h-3" />
           {t('explorer.viewContract')}
@@ -483,11 +560,20 @@ export default function Explorer() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="rounded-2xl border border-stone-800 bg-stone-900/40 text-center py-16"
+            className="rounded-2xl border text-center py-16"
+            style={{ borderColor: 'var(--sweet-border)', background: 'var(--sweet-card)' }}
           >
-            <CubeTransparentIcon className="w-14 h-14 mx-auto mb-4 text-stone-700" />
-            <p className="text-lg font-semibold text-white">{t('explorer.empty.title')}</p>
-            <p className="text-sm text-stone-500 mt-1 max-w-xs mx-auto">
+            <CubeTransparentIcon
+              className="w-14 h-14 mx-auto mb-4"
+              style={{ color: 'var(--sweet-text-faint)' }}
+            />
+            <p className="text-lg font-semibold" style={{ color: 'var(--sweet-text)' }}>
+              {t('explorer.empty.title')}
+            </p>
+            <p
+              className="text-sm mt-1 max-w-xs mx-auto"
+              style={{ color: 'var(--sweet-text-muted)' }}
+            >
               {t('explorer.empty.subtitle')}
             </p>
           </motion.div>
@@ -509,10 +595,21 @@ export default function Explorer() {
                 <button
                   onClick={handleLoadMore}
                   disabled={loadingMore}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-stone-900 border border-stone-800 hover:border-stone-700 text-sm font-medium text-stone-400 hover:text-white transition-colors disabled:opacity-50"
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-2xl border text-sm font-medium transition-colors disabled:opacity-50"
+                  style={{
+                    background: 'var(--sweet-card)',
+                    borderColor: 'var(--sweet-border)',
+                    color: 'var(--sweet-text-secondary)',
+                  }}
                 >
                   {loadingMore ? (
-                    <span className="w-4 h-4 border-2 border-stone-600 border-t-stone-300 rounded-full animate-spin" />
+                    <span
+                      className="w-4 h-4 border-2 rounded-full animate-spin"
+                      style={{
+                        borderColor: 'var(--sweet-border)',
+                        borderTopColor: 'var(--sweet-text-secondary)',
+                      }}
+                    />
                   ) : (
                     <ChevronDownIcon className="w-4 h-4" />
                   )}
@@ -526,7 +623,10 @@ export default function Explorer() {
 
       {/* ── Footer note ── */}
       {!loading && transactions.length > 0 && (
-        <p className="text-center text-[10px] text-stone-600 mt-6">
+        <p
+          className="text-center text-[10px] mt-6"
+          style={{ color: 'var(--sweet-text-faint)' }}
+        >
           {t('explorer.footerNote')}
         </p>
       )}

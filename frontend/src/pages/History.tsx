@@ -148,13 +148,25 @@ export default function History() {
       {/* Header */}
       <div className="mb-8 pl-1 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">{t('history.title')}</h1>
-          <p className="text-stone-400 mt-1">{t('history.subtitle')}</p>
+          <h1
+            className="text-3xl font-bold tracking-tight"
+            style={{ color: 'var(--sweet-text)' }}
+          >
+            {t('history.title')}
+          </h1>
+          <p className="mt-1" style={{ color: 'var(--sweet-text-secondary)' }}>
+            {t('history.subtitle')}
+          </p>
         </div>
         {token && (
           <button
             onClick={handleExport}
-            className="flex items-center gap-1.5 px-3 py-2 bg-stone-900 border border-stone-800 rounded-xl text-xs font-medium text-stone-400 hover:text-white hover:border-stone-600 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-medium transition-colors"
+            style={{
+              background: 'var(--sweet-card)',
+              borderColor: 'var(--sweet-border)',
+              color: 'var(--sweet-text-secondary)',
+            }}
             title="Export CSV"
           >
             <ArrowDownTrayIcon className="w-4 h-4" />
@@ -167,13 +179,21 @@ export default function History() {
       <div className="mb-5 space-y-3">
         {/* Search */}
         <div className="relative">
-          <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-500 pointer-events-none" />
+          <MagnifyingGlassIcon
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
+            style={{ color: 'var(--sweet-text-muted)' }}
+          />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t('history.searchPlaceholder')}
-            className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-stone-900 border border-stone-800 text-sm text-white placeholder-stone-600 focus:outline-none focus:border-stone-600 transition-colors"
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm focus:outline-none transition-colors"
+            style={{
+              background: 'var(--sweet-input)',
+              borderColor: 'var(--sweet-border)',
+              color: 'var(--sweet-text)',
+            }}
           />
         </div>
 
@@ -187,8 +207,13 @@ export default function History() {
                 'flex-1 py-1.5 rounded-lg text-xs font-semibold transition-colors',
                 dateRange === range
                   ? 'bg-white text-black'
-                  : 'bg-stone-900 text-stone-500 hover:text-stone-300 border border-stone-800 hover:border-stone-700'
+                  : 'border'
               )}
+              style={dateRange === range ? {} : {
+                background: 'var(--sweet-card)',
+                borderColor: 'var(--sweet-border)',
+                color: 'var(--sweet-text-muted)',
+              }}
             >
               {t(`history.dateRange.${range}`)}
             </button>
@@ -207,8 +232,17 @@ export default function History() {
                   'flex items-center justify-center gap-2 flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors focus:outline-none',
                   selected
                     ? 'bg-white text-black'
-                    : 'bg-stone-900 text-stone-400 hover:text-stone-200 border border-stone-800 hover:border-stone-700'
+                    : 'border'
                 )
+              }
+              style={({ selected }: { selected: boolean }) =>
+                selected
+                  ? {}
+                  : {
+                      background: 'var(--sweet-card)',
+                      borderColor: 'var(--sweet-border)',
+                      color: 'var(--sweet-text-secondary)',
+                    }
               }
             >
               <tab.icon className="w-5 h-5" />
@@ -234,9 +268,17 @@ export default function History() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-12 text-stone-500">
-                  <ClockIcon className="w-16 h-16 mx-auto mb-4 text-stone-700" />
-                  <p className="text-lg font-medium text-white">{t('history.noTransactions')}</p>
+                <div className="text-center py-12" style={{ color: 'var(--sweet-text-muted)' }}>
+                  <ClockIcon
+                    className="w-16 h-16 mx-auto mb-4"
+                    style={{ color: 'var(--sweet-text-faint)' }}
+                  />
+                  <p
+                    className="text-lg font-medium"
+                    style={{ color: 'var(--sweet-text)' }}
+                  >
+                    {t('history.noTransactions')}
+                  </p>
                   <p className="text-sm mt-1">{t('history.noTransactionsHint')}</p>
                 </div>
               )}
@@ -256,17 +298,27 @@ export default function History() {
                 filteredClaims.map((claim) => (
                   <div
                     key={claim.id}
-                    className="bg-stone-900 border border-stone-800 rounded-2xl p-4"
+                    className="rounded-2xl border p-4"
+                    style={{
+                      background: 'var(--sweet-card)',
+                      borderColor: 'var(--sweet-border)',
+                    }}
                   >
                     <div className="flex items-center gap-4">
                       <div className="p-3 bg-orange-500/10 rounded-xl border border-orange-500/20 shrink-0">
                         <GiftIcon className="w-5 h-5 text-orange-400" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-white truncate">
+                        <h3
+                          className="font-semibold truncate"
+                          style={{ color: 'var(--sweet-text)' }}
+                        >
                           {claim.reward?.title || 'Reward'}
                         </h3>
-                        <p className="text-sm text-stone-500 mt-0.5">
+                        <p
+                          className="text-sm mt-0.5"
+                          style={{ color: 'var(--sweet-text-muted)' }}
+                        >
                           {new Date(claim.createdAt).toLocaleDateString('ru-RU', {
                             month: 'short',
                             day: 'numeric',
@@ -287,7 +339,10 @@ export default function History() {
                         >
                           {claim.status}
                         </span>
-                        <p className="text-sm text-stone-400 font-mono mt-1">
+                        <p
+                          className="text-sm font-mono mt-1"
+                          style={{ color: 'var(--sweet-text-secondary)' }}
+                        >
                           -{Number(claim.pointsSpent).toLocaleString()} pts
                         </p>
                       </div>
@@ -295,10 +350,29 @@ export default function History() {
                   </div>
                 ))
               ) : (
-                <div className="bg-stone-900 border border-stone-800 rounded-2xl text-center py-12">
-                  <GiftIcon className="w-16 h-16 mx-auto mb-4 text-stone-700" />
-                  <p className="text-lg font-medium text-white">{t('history.noClaims')}</p>
-                  <p className="text-sm mt-1 text-stone-500">{t('history.noClaimsHint')}</p>
+                <div
+                  className="rounded-2xl border text-center py-12"
+                  style={{
+                    background: 'var(--sweet-card)',
+                    borderColor: 'var(--sweet-border)',
+                  }}
+                >
+                  <GiftIcon
+                    className="w-16 h-16 mx-auto mb-4"
+                    style={{ color: 'var(--sweet-text-faint)' }}
+                  />
+                  <p
+                    className="text-lg font-medium"
+                    style={{ color: 'var(--sweet-text)' }}
+                  >
+                    {t('history.noClaims')}
+                  </p>
+                  <p
+                    className="text-sm mt-1"
+                    style={{ color: 'var(--sweet-text-muted)' }}
+                  >
+                    {t('history.noClaimsHint')}
+                  </p>
                 </div>
               )}
             </div>

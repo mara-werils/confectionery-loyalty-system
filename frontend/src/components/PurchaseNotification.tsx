@@ -355,7 +355,7 @@ export default function PurchaseNotification({ payload, onDismiss }: Props) {
               width: 'min(92vw, 380px)',
               zIndex: 9999,
               borderRadius: 28,
-              background: 'linear-gradient(160deg, #1e1408 0%, #140e04 40%, #1a1105 100%)',
+              background: 'var(--sweet-card)',
               border: '1px solid rgba(245,158,11,0.30)',
               boxShadow:
                 '0 24px 80px rgba(245,158,11,0.18), 0 0 0 1px rgba(245,158,11,0.08) inset',
@@ -407,9 +407,9 @@ export default function PurchaseNotification({ payload, onDismiss }: Props) {
                 width: 28,
                 height: 28,
                 borderRadius: '50%',
-                background: 'rgba(255,255,255,0.07)',
-                border: '1px solid rgba(255,255,255,0.10)',
-                color: 'rgba(255,255,255,0.35)',
+                background: 'var(--sweet-card-hover)',
+                border: '1px solid var(--sweet-border)',
+                color: 'var(--sweet-text-muted)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -490,7 +490,7 @@ export default function PurchaseNotification({ payload, onDismiss }: Props) {
                   fontWeight: 600,
                   letterSpacing: '0.08em',
                   textTransform: 'uppercase',
-                  color: 'rgba(255,255,255,0.38)',
+                  color: 'var(--sweet-text-muted)',
                   marginBottom: 6,
                 }}
               >
@@ -577,7 +577,7 @@ export default function PurchaseNotification({ payload, onDismiss }: Props) {
                       textAlign: 'center',
                     }}
                   >
-                    <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.38)', lineHeight: 1.5 }}>
+                    <p style={{ fontSize: 11, color: 'var(--sweet-text-muted)', lineHeight: 1.5 }}>
                       {payload.items.slice(0, 3).join(' · ')}
                       {payload.items.length > 3 ? ` +${payload.items.length - 3}` : ''}
                     </p>
@@ -626,7 +626,7 @@ export default function PurchaseNotification({ payload, onDismiss }: Props) {
                     exit={{ opacity: 0, y: -6 }}
                     style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}
                   >
-                    <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', fontWeight: 500 }}>
+                    <p style={{ fontSize: 12, color: 'var(--sweet-text-secondary)', fontWeight: 500 }}>
                       {t('purchaseNotification.confirming')}
                     </p>
                     <ProgressDots active />
@@ -674,12 +674,12 @@ export default function PurchaseNotification({ payload, onDismiss }: Props) {
                           gap: 4,
                           fontSize: 10,
                           fontFamily: 'monospace',
-                          color: 'rgba(255,255,255,0.28)',
+                          color: 'var(--sweet-text-faint)',
                           textDecoration: 'none',
                           padding: '4px 10px',
                           borderRadius: 8,
-                          background: 'rgba(255,255,255,0.04)',
-                          border: '1px solid rgba(255,255,255,0.08)',
+                          background: 'var(--sweet-input)',
+                          border: '1px solid var(--sweet-border)',
                         }}
                       >
                         <span>{txShort}</span>
@@ -697,7 +697,7 @@ export default function PurchaseNotification({ payload, onDismiss }: Props) {
                   width: '100%',
                   height: 2,
                   borderRadius: 2,
-                  background: 'rgba(255,255,255,0.06)',
+                  background: 'var(--sweet-border)',
                   overflow: 'hidden',
                 }}
               >

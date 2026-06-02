@@ -9,9 +9,11 @@ import confetti from 'canvas-confetti';
 import toast from 'react-hot-toast';
 
 const SEGMENTS = [5, 10, 15, 20, 25, 50, 100, 500];
+// Segment colors: alternate between two tones that work in both themes
+// These are rendered inside an SVG so CSS vars aren't available — use semi-neutral values
 const COLORS = [
-  '#2a2018', '#1a1412', '#2a2018', '#1a1412',
-  '#2a2018', '#1a1412', '#2a2018', '#1a1412',
+  '#c4a96a', '#a8895a', '#c4a96a', '#a8895a',
+  '#c4a96a', '#a8895a', '#c4a96a', '#a8895a',
 ];
 const SEGMENT_ANGLE = 360 / SEGMENTS.length;
 
@@ -97,7 +99,7 @@ export default function SpinWheel() {
   };
 
   return (
-    <div className="pb-28 text-white flex flex-col items-center">
+    <div className="pb-28 flex flex-col items-center" style={{ color: 'var(--sweet-text)' }}>
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -110,7 +112,7 @@ export default function SpinWheel() {
           </div>
           <h1 className="text-2xl font-bold tracking-tight">{t('spinWheel.title') || 'Spin & Win'}</h1>
         </div>
-        <p className="text-xs text-stone-500">{t('spinWheel.subtitle') || 'Spin the wheel once a day to win bonus SWEET tokens!'}</p>
+        <p className="text-xs" style={{ color: 'var(--sweet-text-muted)' }}>{t('spinWheel.subtitle') || 'Spin the wheel once a day to win bonus SWEET tokens!'}</p>
       </motion.div>
 
       {/* Wheel Container */}
@@ -160,7 +162,7 @@ export default function SpinWheel() {
                   <text
                     x={tx}
                     y={ty}
-                    fill={value >= 100 ? '#fbbf24' : '#a8a29e'}
+                    fill={value >= 100 ? '#fbbf24' : '#1c1917'}
                     fontSize={value >= 100 ? '11' : '10'}
                     fontWeight="bold"
                     textAnchor="middle"
@@ -195,7 +197,7 @@ export default function SpinWheel() {
           className="mb-6 text-center"
         >
           <p className="text-3xl font-black text-amber-400">+{result} SWEET</p>
-          <p className="text-sm text-stone-500 mt-1">{t('spinWheel.won') || 'Added to your balance!'}</p>
+          <p className="text-sm mt-1" style={{ color: 'var(--sweet-text-muted)' }}>{t('spinWheel.won') || 'Added to your balance!'}</p>
         </motion.div>
       )}
 
@@ -209,6 +211,7 @@ export default function SpinWheel() {
             ? 'bg-amber-500 text-black hover:bg-amber-400 shadow-lg shadow-amber-500/25'
             : 'cursor-not-allowed'
         }`}
+        style={!canSpin ? { background: 'var(--sweet-border)', color: 'var(--sweet-text-muted)' } : {}}
       >
         {spinning ? (
           <span className="flex items-center justify-center gap-2">
@@ -231,9 +234,13 @@ export default function SpinWheel() {
           <p className="text-xs font-semibold mb-3" style={{ color: 'var(--sweet-text-secondary)' }}>{t('spinWheel.prizes') || 'Prize Pool'}</p>
           <div className="grid grid-cols-4 gap-2">
             {SEGMENTS.map(v => (
-              <div key={v} className={`text-center py-1.5 rounded-lg text-xs font-bold ${
-                v >= 100 ? 'bg-amber-400/15 text-amber-400 border border-amber-400/20' : 'text-stone-400'
-              }`}>
+              <div
+                key={v}
+                className={`text-center py-1.5 rounded-lg text-xs font-bold ${
+                  v >= 100 ? 'bg-amber-400/15 text-amber-400 border border-amber-400/20' : ''
+                }`}
+                style={v < 100 ? { color: 'var(--sweet-text-secondary)' } : {}}
+              >
                 {v}
               </div>
             ))}
