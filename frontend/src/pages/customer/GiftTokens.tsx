@@ -120,59 +120,23 @@ export default function GiftTokens() {
   return (
     <div className="pb-32" style={{ color: 'var(--sweet-text)' }}>
 
-      {/* ══════════ HERO BALANCE ══════════ */}
+      {/* ══════════ HEADER + BALANCE ══════════ */}
       <motion.div
-        initial={{ opacity: 0, y: -18 }}
+        initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45, ease: 'easeOut' }}
-        className="text-center pt-2 pb-8"
+        transition={{ duration: 0.4 }}
+        className="mb-5"
       >
-        <div
-          className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-semibold mb-5"
-          style={{
-            background: 'var(--sweet-accent-dim)',
-            color: 'var(--sweet-accent)',
-            border: '1px solid var(--sweet-border)',
-          }}
-        >
-          <SparklesIcon className="w-3 h-3" />
-          {t('gift.title') || 'Transfer SWEET'}
-        </div>
-
-        {/* Available balance display */}
-        <div
-          className="inline-flex flex-col items-center rounded-3xl px-8 py-6 mb-2"
-          style={{
-            background: 'var(--sweet-card)',
-            border: '1px solid var(--sweet-border)',
-          }}
-        >
-          <div className="flex items-center gap-2 mb-1">
-            <SweetIcon size={22} />
-            <span
-              className="text-[11px] font-semibold tracking-widest uppercase"
-              style={{ color: 'var(--sweet-text-muted)' }}
-            >
-              {t('gift.yourBalance') || 'Available balance'}
-            </span>
-          </div>
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-xl font-black" style={{ color: 'var(--sweet-text)' }}>
+            {t('gift.title') || 'Transfer SWEET'}
+          </h1>
           <div
-            className="text-5xl font-black tracking-tight leading-none"
-            style={{ color: 'var(--sweet-accent)', letterSpacing: '-0.03em' }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold"
+            style={{ background: 'var(--sweet-accent-dim)', color: 'var(--sweet-accent)' }}
           >
+            <SweetIcon size={14} />
             {sweetBalance.toLocaleString()}
-          </div>
-          <div
-            className="text-sm font-semibold mt-1"
-            style={{ color: 'var(--sweet-text-muted)' }}
-          >
-            SWEET
-          </div>
-          <div
-            className="text-xs mt-2 font-medium"
-            style={{ color: 'var(--sweet-text-faint)' }}
-          >
-            ≈ {Math.round(sweetBalance * SWEET_TO_KZT).toLocaleString()} KZT
           </div>
         </div>
       </motion.div>
@@ -199,19 +163,20 @@ export default function GiftTokens() {
         {/* Big number input */}
         <div className="relative flex items-center justify-center mb-2">
           <input
-            type="number"
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
             value={amount}
-            onChange={e => setAmount(e.target.value)}
+            onChange={e => {
+              const v = e.target.value.replace(/\D/g, '');
+              setAmount(v);
+            }}
             placeholder="0"
-            min="1"
-            max={sweetBalance}
-            className="w-full text-center text-6xl font-black tracking-tight bg-transparent border-none outline-none focus:outline-none appearance-none"
+            className="w-full text-center text-5xl font-black tracking-tight bg-transparent border-none outline-none focus:outline-none"
             style={{
               color: amount ? 'var(--sweet-text)' : 'var(--sweet-text-faint)',
               letterSpacing: '-0.04em',
-              /* Hide number spinners */
-              MozAppearance: 'textfield',
-            } as React.CSSProperties}
+            }}
           />
         </div>
 
