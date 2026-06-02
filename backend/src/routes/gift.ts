@@ -1,5 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
+import { Address } from '@ton/core';
 import { prisma } from '../utils/prisma';
 import { successResponse } from '../utils/response';
 import { authenticate } from '../middleware/auth';
@@ -7,6 +8,18 @@ import { AppError } from '../middleware/errorHandler';
 import { io } from '../index';
 
 const router = Router();
+
+/**
+ * Normalize any TON address format (UQ..., EQ..., 0:hex) to raw "0:hex" form.
+ * Falls back to the original string if parsing fails.
+ */
+function normalizeAddress(addr: string): string {
+  try {
+    return Address.parse(addr).toRawString();
+  } catch {
+    return addr;
+  }
+}
 
 const giftSchema = z.object({
   receiverWallet: z.string().min(1),
@@ -19,6 +32,7 @@ router.post('/send', authenticate, async (req: Request, res: Response, next: Nex
   try {
     const data = giftSchema.parse(req.body);
     const partnerId = req.user!.id;
+    const receiverRaw = normalizeAddress(data.receiverWallet);
 
     const sender = await prisma.partner.findUnique({
       where: { id: partnerId },
@@ -29,7 +43,9 @@ router.post('/send', authenticate, async (req: Request, res: Response, next: Nex
     if (!sender.loyaltyPoints || sender.loyaltyPoints.balance < BigInt(data.amount)) {
       throw new AppError('Insufficient balance', 400, 'INSUFFICIENT_BALANCE');
     }
-    if (sender.walletAddress === data.receiverWallet) {
+
+    const senderRaw = normalizeAddress(sender.walletAddress);
+    if (senderRaw === receiverRaw) {
       throw new AppError('Cannot send to yourself', 400, 'SELF_TRANSFER');
     }
 
@@ -39,10 +55,23 @@ router.post('/send', authenticate, async (req: Request, res: Response, next: Nex
       data: { balance: { decrement: BigInt(data.amount) } },
     });
 
-    // Credit receiver if they exist
-    const receiver = await prisma.partner.findUnique({
+    // Find receiver by normalized address — try exact match first, then normalize all
+    let receiver = await prisma.partner.findUnique({
       where: { walletAddress: data.receiverWallet },
     });
+    if (!receiver) {
+      receiver = await prisma.partner.findUnique({
+        where: { walletAddress: receiverRaw },
+      });
+    }
+    if (!receiver) {
+      // Brute-force: find by normalizing all addresses (small DB, acceptable for MVP)
+      const allPartners = await prisma.partner.findMany({ select: { id: true, walletAddress: true } });
+      const match = allPartners.find(p => normalizeAddress(p.walletAddress) === receiverRaw);
+      if (match) {
+        receiver = await prisma.partner.findUnique({ where: { id: match.id } });
+      }
+    }
     if (receiver) {
       await prisma.loyaltyPoints.upsert({
         where: { partnerId: receiver.id },
@@ -99,11 +128,15 @@ router.get('/history', authenticate, async (req: Request, res: Response, next: N
     const partner = await prisma.partner.findUnique({ where: { id: req.user!.id } });
     if (!partner) throw new AppError('Not found', 404, 'NOT_FOUND');
 
+    const rawAddr = normalizeAddress(partner.walletAddress);
+
     const gifts = await prisma.tokenGift.findMany({
       where: {
         OR: [
           { senderWallet: partner.walletAddress },
+          { senderWallet: rawAddr },
           { receiverWallet: partner.walletAddress },
+          { receiverWallet: rawAddr },
         ],
       },
       orderBy: { createdAt: 'desc' },
@@ -112,7 +145,7 @@ router.get('/history', authenticate, async (req: Request, res: Response, next: N
 
     return successResponse(res, gifts.map((g: { id: string; senderWallet: string; receiverWallet: string; amount: number; message: string | null; createdAt: Date }) => ({
       ...g,
-      direction: g.senderWallet === partner.walletAddress ? 'sent' : 'received',
+      direction: (g.senderWallet === partner.walletAddress || normalizeAddress(g.senderWallet) === rawAddr) ? 'sent' : 'received',
     })));
   } catch (error) {
     return next(error);
