@@ -264,11 +264,14 @@ export default function CustomerDashboard() {
       ? sweetBalance
       : safeFromJettonRaw(balance?.balance || '0', balance?.decimals || 9);
 
-  const tier = user?.tier || (currentBalance >= 20000 ? 'GOLD' : currentBalance >= 5000 ? 'SILVER' : 'BRONZE');
-  const tierData = TIERS[tier];
-  const heroStyle = TIER_HERO[tier];
+  const balanceTier = currentBalance >= 20000 ? 'GOLD' : currentBalance >= 5000 ? 'SILVER' : 'BRONZE';
+  const tier = user?.tier || balanceTier;
+  const effectiveTier = (['BRONZE', 'SILVER', 'GOLD'].indexOf(balanceTier) > ['BRONZE', 'SILVER', 'GOLD'].indexOf(tier)) ? balanceTier : tier;
+  const tierData = TIERS[effectiveTier];
+  const heroStyle = TIER_HERO[effectiveTier];
+  const remaining = Math.max(0, tierData.threshold - currentBalance);
   const progress =
-    tier === 'GOLD' ? 100 : Math.min(100, Math.round((currentBalance / tierData.threshold) * 100));
+    effectiveTier === 'GOLD' ? 100 : Math.min(100, Math.round((currentBalance / tierData.threshold) * 100));
 
   const quickActions = [
     {
@@ -459,13 +462,13 @@ export default function CustomerDashboard() {
               className="text-[10px] font-semibold"
               style={{ color: heroStyle.accent, opacity: 0.65 }}
             >
-              {tier !== 'GOLD'
-                ? `${progress}% to ${tierData.next}`
+              {effectiveTier !== 'GOLD'
+                ? remaining > 0 ? `${progress}% to ${tierData.next}` : `Ready for ${tierData.next}!`
                 : t('customerDashboard.tierGold')}
             </span>
-            {tier !== 'GOLD' && (
+            {effectiveTier !== 'GOLD' && remaining > 0 && (
               <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.22)' }}>
-                {(tierData.threshold - currentBalance).toLocaleString()}{' '}
+                {remaining.toLocaleString()}{' '}
                 {t('customerDashboard.toNext', { next: tierData.next })}
               </span>
             )}
