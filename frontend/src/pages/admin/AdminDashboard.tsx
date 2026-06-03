@@ -59,7 +59,7 @@ export default function AdminDashboard() {
 
   const { data: partnersData } = useQuery({
     queryKey: ['admin', 'partners'],
-    queryFn: () => api.partners.list({ page: 1, limit: 1 }),
+    queryFn: () => api.partners.list({ page: 1, limit: 100 }),
     staleTime: 60000,
   });
 
@@ -75,6 +75,12 @@ export default function AdminDashboard() {
     staleTime: 30000,
   });
 
+  const { data: ecosystemData } = useQuery({
+    queryKey: ['admin', 'ecosystem'],
+    queryFn: () => api.partners.ecosystem(),
+    staleTime: 60000,
+  });
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const partners = (partnersData as any)?.data || [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -83,6 +89,8 @@ export default function AdminDashboard() {
   const rewards = (rewardsData as any)?.data || (rewardsData as any) || [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const auditLogs: any[] = (auditData as any)?.data || [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const ecoStats = (ecosystemData as any)?.data?.stats || {};
 
   const activeRewards = Array.isArray(rewards)
     ? rewards.filter((r: { isActive?: boolean }) => r.isActive !== false).length
@@ -90,8 +98,8 @@ export default function AdminDashboard() {
 
   const stats = [
     { label: t('adminDash.totalPartners'), value: totalPartners, icon: BuildingStorefrontIcon, color: 'text-stone-300 bg-stone-400/10 border-stone-400/20' },
-    { label: t('adminDash.transactions'), value: '---', icon: ArrowsRightLeftIcon, color: 'text-stone-300 bg-stone-400/10 border-stone-400/20' },
-    { label: t('adminDash.sweetIssued'), value: '---', icon: CurrencyDollarIcon, color: 'text-amber-400 bg-amber-400/10 border-amber-400/20' },
+    { label: t('adminDash.transactions'), value: ecoStats.totalTransactions ?? '---', icon: ArrowsRightLeftIcon, color: 'text-stone-300 bg-stone-400/10 border-stone-400/20' },
+    { label: t('adminDash.sweetIssued'), value: ecoStats.totalSweetIssued ? ecoStats.totalSweetIssued.toLocaleString() : '---', icon: CurrencyDollarIcon, color: 'text-amber-400 bg-amber-400/10 border-amber-400/20' },
     { label: t('adminDash.activeRewards'), value: activeRewards, icon: GiftIcon, color: 'text-amber-400 bg-amber-400/10 border-amber-400/20' },
   ];
 
