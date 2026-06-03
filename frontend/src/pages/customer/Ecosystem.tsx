@@ -156,9 +156,8 @@ function NetworkViz({ partners }: { partners: EcosystemPartner[] }) {
         style={{
           width: 64,
           height: 64,
-          left: '50%',
-          top: '50%',
-          transform: 'translate(-50%, -50%)',
+          left: 130 - 32,
+          top: 130 - 32,
           background: 'linear-gradient(135deg, #f59e0b, #f97316)',
           boxShadow: '0 0 28px rgba(245,158,11,0.55), 0 0 60px rgba(245,158,11,0.18)',
         }}
