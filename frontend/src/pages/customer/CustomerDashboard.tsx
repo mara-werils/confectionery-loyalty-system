@@ -18,7 +18,6 @@ import {
   LinkIcon,
   FireIcon,
   ArrowUpRightIcon,
-  BoltIcon,
   QrCodeIcon,
   TagIcon,
 } from '@heroicons/react/24/outline';
@@ -31,7 +30,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { api } from '../../services/api';
 import { TIER_CONFIG } from '../../config/tiers';
 import AnimatedNumber from '../../components/AnimatedNumber';
-import LiveFeed from '../../components/LiveFeed';
+
 import Skeleton from '../../components/Skeleton';
 import PurchaseNotification from '../../components/PurchaseNotification';
 import { io as socketIO } from 'socket.io-client';
@@ -1013,9 +1012,8 @@ function RewardPreviewCard({
   );
 }
 
-// ─── Blockchain Info Card ─────────────────────────────────────────────────────
-
-function BlockchainInfoCard({ walletAddress }: { walletAddress: string }) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function _BlockchainInfoCard({ walletAddress }: { walletAddress: string }) {
   const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
 
