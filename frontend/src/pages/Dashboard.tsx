@@ -276,8 +276,24 @@ export default function Dashboard() {
       setPosAmount('');
       setClientWalletAddress('');
       if (wallet?.account.address) loadData(wallet.account.address);
-    } catch {
-      toast.error(t('dashboard.transferFailed') || 'Transfer failed', { id: 'transfer' });
+    } catch (err: unknown) {
+      let message = t('dashboard.transferFailed') || 'Transfer failed';
+      if (err && typeof err === 'object') {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const axiosErr = err as any;
+        const serverMsg = axiosErr?.response?.data?.message || axiosErr?.response?.data?.error;
+        const status = axiosErr?.response?.status;
+        if (status === 429) {
+          message = 'TON API rate limited — please wait 30s and retry';
+        } else if (serverMsg) {
+          message = serverMsg;
+        } else if (axiosErr?.message === 'Network Error') {
+          message = 'Cannot reach server — check your connection';
+        } else if (axiosErr?.message) {
+          message = axiosErr.message;
+        }
+      }
+      toast.error(message, { id: 'transfer' });
     }
     setLoading(false);
   };
@@ -329,8 +345,25 @@ export default function Dashboard() {
         setSimItems([]);
       }, 900);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err);
-      toast.error(msg || t('dashboard.simulateError') || 'Failed to simulate purchase');
+      let msg = t('dashboard.simulateError') || 'Failed to issue SWEET tokens';
+      if (err && typeof err === 'object') {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const axiosErr = err as any;
+        const serverMsg = axiosErr?.response?.data?.message || axiosErr?.response?.data?.error;
+        const status = axiosErr?.response?.status;
+        if (status === 429) {
+          msg = 'TON API rate limited — please wait 30s and retry';
+        } else if (status === 401 || status === 403) {
+          msg = 'Session expired — please log in again';
+        } else if (serverMsg) {
+          msg = serverMsg;
+        } else if (axiosErr?.message === 'Network Error') {
+          msg = 'Cannot reach server — check your connection';
+        } else if (axiosErr?.message) {
+          msg = axiosErr.message;
+        }
+      }
+      toast.error(msg);
       setSimSuccess(false);
     }
     setSimLoading(false);

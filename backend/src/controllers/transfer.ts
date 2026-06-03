@@ -26,10 +26,14 @@ const retryFn = async <T,>(fn: () => Promise<T>, retries = 5, delay = 3000): Pro
   } catch (err) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const error = err as any;
-    if (retries > 0 && error?.response?.status === 429) {
+    const status = error?.response?.status ?? error?.status;
+    if (retries > 0 && status === 429) {
       logger.warn(`Rate limited (429), waiting ${delay / 1000}s before retry ${6 - retries}/5...`);
       await new Promise((resolve) => setTimeout(resolve, delay));
       return retryFn(fn, retries - 1, delay * 1.5); // Exponential backoff
+    }
+    if (status === 429) {
+      throw new Error('TON API rate limit exceeded after 5 retries — please wait 1-2 minutes and try again');
     }
     throw error;
   }
@@ -204,6 +208,24 @@ export const transferLoyaltyTokens = async (req: Request, res: Response) => {
     }
 
     logger.error('Error during token transfer:', error);
-    return errorResponse(res, 'Failed to broadcast transfer transaction', 'BLOCKCHAIN_ERROR', 500, error.message);
+
+    // Provide clear, actionable error messages
+    const errMsg = error?.message || String(error);
+    const isRateLimit = errMsg.includes('rate limit') || errMsg.includes('429');
+    const isNetworkError = errMsg.includes('ECONNREFUSED') || errMsg.includes('ETIMEDOUT') || errMsg.includes('fetch failed');
+    const isMnemonicError = errMsg.includes('mnemonic') || errMsg.includes('Invalid secret key');
+
+    let message = 'Failed to broadcast transfer transaction';
+    let statusCode = 500;
+    if (isRateLimit) {
+      message = 'TON API rate limited — please wait 1-2 minutes and retry';
+      statusCode = 429;
+    } else if (isNetworkError) {
+      message = 'Cannot reach TON blockchain node — check network connectivity';
+    } else if (isMnemonicError) {
+      message = 'Server wallet configuration error — contact administrator';
+    }
+
+    return errorResponse(res, message, 'BLOCKCHAIN_ERROR', statusCode, errMsg);
   }
 };
