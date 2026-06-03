@@ -32,6 +32,7 @@ import AnimatedNumber from '../../components/AnimatedNumber';
 import Skeleton from '../../components/Skeleton';
 import PurchaseNotification from '../../components/PurchaseNotification';
 import { io as socketIO } from 'socket.io-client';
+import { Gift, SpinnerGap, PaperPlaneTilt, Trophy } from '@phosphor-icons/react';
 
 const TIERS = TIER_CONFIG;
 
@@ -305,25 +306,25 @@ export default function CustomerDashboard() {
   const quickActions = [
     {
       label: t('nav.rewards'),
-      icon: <GiftIcon className="w-5 h-5" />,
+      icon: <Gift size={22} weight="duotone" />,
       route: '/customer/rewards',
       hasBadge: false,
     },
     {
       label: t('nav.spin'),
-      icon: <SparklesIcon className="w-5 h-5" />,
+      icon: <SpinnerGap size={22} weight="duotone" />,
       route: '/customer/spin',
       hasBadge: canSpin,
     },
     {
       label: t('nav.gift'),
-      icon: <FireIcon className="w-5 h-5" />,
+      icon: <PaperPlaneTilt size={22} weight="duotone" />,
       route: '/customer/gift',
       hasBadge: false,
     },
     {
       label: t('customerDashboard.achievementsTitle'),
-      icon: <TrophyIcon className="w-5 h-5" />,
+      icon: <Trophy size={22} weight="duotone" />,
       route: '/achievements',
       hasBadge: false,
     },
@@ -343,7 +344,7 @@ export default function CustomerDashboard() {
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="relative overflow-hidden rounded-3xl mb-6"
+        className="relative overflow-hidden rounded-3xl mb-8"
         style={{
           background: heroStyle.gradient,
           border: `1px solid ${heroStyle.borderColor}`,
@@ -554,7 +555,7 @@ export default function CustomerDashboard() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.12, duration: 0.4 }}
-        className="flex items-center justify-between mb-6 px-1"
+        className="flex items-center justify-between mb-8 px-1"
       >
         {quickActions.map((action, i) => (
           <motion.button
@@ -601,7 +602,7 @@ export default function CustomerDashboard() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.25 }}
-        className="mb-6"
+        className="mb-8"
       >
         <SectionHeader
           icon={<GiftIcon className="w-3.5 h-3.5" />}
