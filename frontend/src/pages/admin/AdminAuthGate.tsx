@@ -5,6 +5,10 @@ import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import { GlassCard } from '../../components/GlassCard';
 import AdminLayout from './AdminLayout';
+import { useAuthStore } from '../../store/authStore';
+import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
 
 export default function AdminAuthGate() {
   const { t } = useTranslation();
@@ -14,19 +18,23 @@ export default function AdminAuthGate() {
   const [isAuthenticated, setIsAuthenticated] = useState(
     () => sessionStorage.getItem('admin_auth') === 'true'
   );
+  const setToken = useAuthStore((s) => s.setToken);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setVerifying(true);
-    const adminEmail = import.meta.env.VITE_ADMIN_EMAIL;
-    const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD;
-    if (!adminEmail || !adminPassword) {
-      toast.error(t('adminAuth.notConfigured'));
-    } else if (email === adminEmail && password === adminPassword) {
-      toast.success(t('adminAuth.success'));
-      sessionStorage.setItem('admin_auth', 'true');
-      setIsAuthenticated(true);
-    } else {
+    try {
+      const res = await axios.post(`${API_URL}/admin/email-login`, { email, password });
+      const token = res.data?.data?.token;
+      if (token) {
+        setToken(token);
+        sessionStorage.setItem('admin_auth', 'true');
+        toast.success(t('adminAuth.success'));
+        setIsAuthenticated(true);
+      } else {
+        toast.error(t('adminAuth.denied'));
+      }
+    } catch {
       toast.error(t('adminAuth.denied'));
     }
     setVerifying(false);
