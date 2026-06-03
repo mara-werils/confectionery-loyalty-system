@@ -652,7 +652,7 @@ export default function CustomerDashboard() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="mb-4"
+          className="mb-8"
         >
           <SectionHeader
             icon={<TicketIcon className="w-3.5 h-3.5" />}
@@ -713,7 +713,7 @@ export default function CustomerDashboard() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35 }}
-          className="mb-4"
+          className="mb-8"
         >
           <SectionHeader
             icon={<TrophyIcon className="w-3.5 h-3.5" />}
@@ -1058,7 +1058,7 @@ function DailyCheckinCard() {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.18 }}
-      className="mb-4 rounded-2xl p-4"
+      className="mb-8 rounded-2xl p-4"
       style={{
         background: 'var(--sweet-card)',
         border: '1px solid var(--sweet-border)',
