@@ -6,6 +6,7 @@ import { successResponse } from '../utils/response';
 import { authenticate } from '../middleware/auth';
 import { AppError } from '../middleware/errorHandler';
 import { io } from '../index';
+import { logger } from '../utils/logger';
 
 const router = Router();
 
@@ -40,7 +41,9 @@ router.post('/send', authenticate, async (req: Request, res: Response, next: Nex
     });
 
     if (!sender) throw new AppError('Sender not found', 404, 'NOT_FOUND');
-    if (!sender.loyaltyPoints || sender.loyaltyPoints.balance < BigInt(data.amount)) {
+    const senderBalance = sender.loyaltyPoints?.balance ?? 0n;
+    logger.debug(`[Gift] sender=${sender.companyName} id=${partnerId} balance=${senderBalance} amount=${data.amount} hasLP=${!!sender.loyaltyPoints}`);
+    if (!sender.loyaltyPoints || senderBalance < BigInt(data.amount)) {
       throw new AppError('Insufficient balance', 400, 'INSUFFICIENT_BALANCE');
     }
 

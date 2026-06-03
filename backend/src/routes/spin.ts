@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { prisma } from '../utils/prisma';
 import { successResponse } from '../utils/response';
 import { authenticate } from '../middleware/auth';
+import { AppError } from '../middleware/errorHandler';
 import { io } from '../index';
 
 const router = Router();
@@ -64,7 +65,7 @@ router.post('/play', authenticate, async (req: Request, res: Response, next: Nex
       where: { partnerId, createdAt: { gte: today } },
     });
     if (existing) {
-      return res.status(429).json({ success: false, error: 'Already spun today', code: 'SPIN_COOLDOWN' });
+      throw new AppError('Already spun today', 429, 'SPIN_COOLDOWN');
     }
 
     const prize = pickPrize();

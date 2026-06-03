@@ -20,10 +20,10 @@ async function retryFn<T>(fn: () => Promise<T>, retries: number = 5, delayMs: nu
     for (let i = 0; i < retries; i++) {
         try {
             return await fn();
-        } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const e = err as any;
-            if (e?.response?.status === 429 || e?.message?.includes('429')) {
+        } catch (err: unknown) {
+            const e = err instanceof Error ? err : new Error(String(err));
+            const status = (err as { response?: { status?: number } })?.response?.status;
+            if (status === 429 || e.message?.includes('429')) {
                 logger.warn(`Rate limited (429), waiting ${delayMs / 1000}s before retry ${i + 1}/${retries}...`);
                 await sleep(delayMs);
                 delayMs *= 2; // exponential backoff

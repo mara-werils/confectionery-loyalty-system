@@ -71,8 +71,11 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
 router.post('/email-login', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email, password } = req.body;
-        const adminEmail = process.env.ADMIN_EMAIL || 'admin@sweetloyalty.kz';
-        const adminPassword = process.env.ADMIN_PASSWORD || 'MasterKey2026!';
+        const adminEmail = process.env.ADMIN_EMAIL;
+        const adminPassword = process.env.ADMIN_PASSWORD;
+        if (!adminEmail || !adminPassword) {
+            throw new AppError('Admin credentials not configured', 500, 'CONFIG_ERROR');
+        }
 
         if (email !== adminEmail || password !== adminPassword) {
             throw new AppError('Invalid credentials', 401, 'INVALID_CREDENTIALS');

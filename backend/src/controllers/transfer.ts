@@ -7,6 +7,7 @@ import { config } from '../config';
 import { successResponse, errorResponse } from '../utils/response';
 import { logger } from '../utils/logger';
 import { prisma } from '../utils/prisma';
+import { io } from '../index';
 
 // Standard TEP-74 transfer opcode
 const Opcodes = {
@@ -22,13 +23,16 @@ const transferSchema = z.object({
 const retryFn = async <T,>(fn: () => Promise<T>, retries = 5, delay = 3000): Promise<T> => {
   try {
     return await fn();
-  } catch (err) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const error = err as any;
-    if (retries > 0 && error?.response?.status === 429) {
+  } catch (err: unknown) {
+    const error = err instanceof Error ? err : new Error(String(err));
+    const status = (err as { response?: { status?: number } })?.response?.status;
+    if (retries > 0 && status === 429) {
       logger.warn(`Rate limited (429), waiting ${delay / 1000}s before retry ${6 - retries}/5...`);
       await new Promise((resolve) => setTimeout(resolve, delay));
       return retryFn(fn, retries - 1, delay * 1.5); // Exponential backoff
+    }
+    if (status === 429 && retries <= 0) {
+      throw new Error('TON API rate limit exceeded after 5 retries — please wait 1-2 minutes and try again');
     }
     throw error;
   }
@@ -79,9 +83,8 @@ export const transferLoyaltyTokens = async (req: Request, res: Response) => {
        
        partnerJettonWalletAddress = stack.readAddress();
        logger.info(`Resolved Partner's Jetton Wallet Address: ${partnerJettonWalletAddress.toString()}`);
-    } catch (e) {
-       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-       const err = e as any;
+    } catch (e: unknown) {
+       const err = e instanceof Error ? e : new Error(String(e));
        logger.error('Failed to resolve Partner Jetton Wallet Address from Master', err);
        return errorResponse(res, 'Failed to resolve sender Jetton Wallet', 'BLOCKCHAIN_ERROR', 500, err.message);
     }
@@ -151,6 +154,49 @@ export const transferLoyaltyTokens = async (req: Request, res: Response) => {
       logger.warn('Failed to update loyalty points in DB after transfer (non-critical):', dbErr);
     }
 
+    // ── Real-time Socket.IO events for transfer ────────────────────────────
+    const clientWalletRaw = toAddress.toRawString();
+    const clientWalletFriendly = toAddress.toString();
+
+    // Notify the customer's wallet room so their dashboard updates live
+    // clientWallet is the original address from the request (could be any format)
+    io.to(`wallet:${clientWallet}`).emit('balance:updated', {
+      amount,
+      newBalance: amount, // best-effort; customer will refetch exact balance
+    });
+    // Also emit to raw and friendly address variants (wallet may subscribe with either format)
+    io.to(`wallet:${clientWalletRaw}`).emit('balance:updated', {
+      amount,
+      newBalance: amount,
+    });
+    io.to(`wallet:${clientWalletFriendly}`).emit('balance:updated', {
+      amount,
+      newBalance: amount,
+    });
+
+    // Trigger the PurchaseNotification animation on the customer's screen
+    const awardPayload = {
+      partnerName: 'Sweet Loyalty',
+      pointsEarned: amount,
+      amount,
+      items: ['Cashback reward'],
+      txHash: `seqno:${seqno}`,
+      timestamp: new Date().toISOString(),
+    };
+    io.to(`wallet:${clientWallet}`).emit('purchase:awarded', awardPayload);
+    io.to(`wallet:${clientWalletRaw}`).emit('purchase:awarded', awardPayload);
+    io.to(`wallet:${clientWalletFriendly}`).emit('purchase:awarded', awardPayload);
+
+    // Broadcast to the public live-feed
+    io.emit('activity:new', {
+      type: 'purchase',
+      message: `+${amount} SWEET transferred to customer`,
+      amount,
+      timestamp: new Date().toISOString(),
+    });
+
+    logger.info(`Socket events emitted for transfer of ${amount} SWEET to ${clientWalletFriendly}`);
+
     return successResponse(res, {
       status: 'Transaction Broadcasted',
       details: {
@@ -161,13 +207,12 @@ export const transferLoyaltyTokens = async (req: Request, res: Response) => {
         seqno: seqno
       }
     });
-  } catch (err) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const error = err as any;
-    if (error instanceof z.ZodError) {
-      return errorResponse(res, 'Invalid request data', 'VALIDATION_ERROR', 400, error.errors);
+  } catch (err: unknown) {
+    if (err instanceof z.ZodError) {
+      return errorResponse(res, 'Invalid request data', 'VALIDATION_ERROR', 400, err.errors);
     }
 
+    const error = err instanceof Error ? err : new Error(String(err));
     logger.error('Error during token transfer:', error);
     return errorResponse(res, 'Failed to broadcast transfer transaction', 'BLOCKCHAIN_ERROR', 500, error.message);
   }

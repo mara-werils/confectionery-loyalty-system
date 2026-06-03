@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { prisma } from '../utils/prisma';
 import { successResponse } from '../utils/response';
 import { authenticate } from '../middleware/auth';
+import { AppError } from '../middleware/errorHandler';
 import { io } from '../index';
 
 const router = Router();
@@ -80,7 +81,7 @@ router.post('/claim', authenticate, async (req: Request, res: Response, next: Ne
       where: { partnerId, createdAt: { gte: today } },
     });
     if (existing) {
-      return res.status(429).json({ success: false, error: 'Already claimed today', code: 'ALREADY_CLAIMED' });
+      throw new AppError('Already claimed today', 429, 'ALREADY_CLAIMED');
     }
 
     // Calculate streak
