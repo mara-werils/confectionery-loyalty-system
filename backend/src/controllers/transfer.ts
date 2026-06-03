@@ -23,15 +23,16 @@ const transferSchema = z.object({
 const retryFn = async <T,>(fn: () => Promise<T>, retries = 5, delay = 3000): Promise<T> => {
   try {
     return await fn();
-  } catch (err: unknown) {
-    const error = err instanceof Error ? err : new Error(String(err));
-    const status = (err as { response?: { status?: number } })?.response?.status;
+  } catch (err) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const error = err as any;
+    const status = error?.response?.status ?? error?.status;
     if (retries > 0 && status === 429) {
       logger.warn(`Rate limited (429), waiting ${delay / 1000}s before retry ${6 - retries}/5...`);
       await new Promise((resolve) => setTimeout(resolve, delay));
       return retryFn(fn, retries - 1, delay * 1.5); // Exponential backoff
     }
-    if (status === 429 && retries <= 0) {
+    if (status === 429) {
       throw new Error('TON API rate limit exceeded after 5 retries — please wait 1-2 minutes and try again');
     }
     throw error;
@@ -83,8 +84,9 @@ export const transferLoyaltyTokens = async (req: Request, res: Response) => {
        
        partnerJettonWalletAddress = stack.readAddress();
        logger.info(`Resolved Partner's Jetton Wallet Address: ${partnerJettonWalletAddress.toString()}`);
-    } catch (e: unknown) {
-       const err = e instanceof Error ? e : new Error(String(e));
+    } catch (e) {
+       // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       const err = e as any;
        logger.error('Failed to resolve Partner Jetton Wallet Address from Master', err);
        return errorResponse(res, 'Failed to resolve sender Jetton Wallet', 'BLOCKCHAIN_ERROR', 500, err.message);
     }
@@ -159,20 +161,11 @@ export const transferLoyaltyTokens = async (req: Request, res: Response) => {
     const clientWalletFriendly = toAddress.toString();
 
     // Notify the customer's wallet room so their dashboard updates live
-    // clientWallet is the original address from the request (could be any format)
-    io.to(`wallet:${clientWallet}`).emit('balance:updated', {
-      amount,
-      newBalance: amount, // best-effort; customer will refetch exact balance
-    });
-    // Also emit to raw and friendly address variants (wallet may subscribe with either format)
-    io.to(`wallet:${clientWalletRaw}`).emit('balance:updated', {
-      amount,
-      newBalance: amount,
-    });
-    io.to(`wallet:${clientWalletFriendly}`).emit('balance:updated', {
-      amount,
-      newBalance: amount,
-    });
+    // Emit to all address variants since wallet may subscribe with any format
+    const balancePayload = { amount, newBalance: amount };
+    io.to(`wallet:${clientWallet}`).emit('balance:updated', balancePayload);
+    io.to(`wallet:${clientWalletRaw}`).emit('balance:updated', balancePayload);
+    io.to(`wallet:${clientWalletFriendly}`).emit('balance:updated', balancePayload);
 
     // Trigger the PurchaseNotification animation on the customer's screen
     const awardPayload = {
@@ -207,13 +200,32 @@ export const transferLoyaltyTokens = async (req: Request, res: Response) => {
         seqno: seqno
       }
     });
-  } catch (err: unknown) {
-    if (err instanceof z.ZodError) {
-      return errorResponse(res, 'Invalid request data', 'VALIDATION_ERROR', 400, err.errors);
+  } catch (err) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const error = err as any;
+    if (error instanceof z.ZodError) {
+      return errorResponse(res, 'Invalid request data', 'VALIDATION_ERROR', 400, error.errors);
     }
 
-    const error = err instanceof Error ? err : new Error(String(err));
     logger.error('Error during token transfer:', error);
-    return errorResponse(res, 'Failed to broadcast transfer transaction', 'BLOCKCHAIN_ERROR', 500, error.message);
+
+    // Provide clear, actionable error messages
+    const errMsg = error?.message || String(error);
+    const isRateLimit = errMsg.includes('rate limit') || errMsg.includes('429');
+    const isNetworkError = errMsg.includes('ECONNREFUSED') || errMsg.includes('ETIMEDOUT') || errMsg.includes('fetch failed');
+    const isMnemonicError = errMsg.includes('mnemonic') || errMsg.includes('Invalid secret key');
+
+    let message = 'Failed to broadcast transfer transaction';
+    let statusCode = 500;
+    if (isRateLimit) {
+      message = 'TON API rate limited — please wait 1-2 minutes and retry';
+      statusCode = 429;
+    } else if (isNetworkError) {
+      message = 'Cannot reach TON blockchain node — check network connectivity';
+    } else if (isMnemonicError) {
+      message = 'Server wallet configuration error — contact administrator';
+    }
+
+    return errorResponse(res, message, 'BLOCKCHAIN_ERROR', statusCode, errMsg);
   }
 };

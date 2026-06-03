@@ -12,6 +12,7 @@ import {
   ChevronDownIcon,
 } from '@heroicons/react/24/outline';
 import { CheckCircleIcon as CheckCircleSolid } from '@heroicons/react/24/solid';
+import { QRCodeSVG } from 'qrcode.react';
 import { useAuthStore } from '../../store/authStore';
 import { useTonWallet } from '@tonconnect/ui-react';
 import toast from 'react-hot-toast';
@@ -206,7 +207,23 @@ export default function CustomerRewards() {
       setSheet({ code, reward, partner, expiresAt, daysLeft });
       confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
     } catch (err: unknown) {
-      toast.error((err as { message?: string })?.message ?? 'Error issuing coupon');
+      let message = t('rewards.claimError') || 'Error issuing coupon';
+      if (err && typeof err === 'object') {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const axiosErr = err as any;
+        const serverMsg = axiosErr?.response?.data?.message || axiosErr?.response?.data?.error;
+        const status = axiosErr?.response?.status;
+        if (status === 400 && serverMsg?.toLowerCase().includes('balance')) {
+          message = t('rewards.notEnoughSweet') || 'Insufficient SWEET balance';
+        } else if (status === 401 || status === 403) {
+          message = 'Session expired — please log in again';
+        } else if (serverMsg) {
+          message = serverMsg;
+        } else if (axiosErr?.message === 'Network Error') {
+          message = 'Cannot reach server — check your connection';
+        }
+      }
+      toast.error(message);
     } finally {
       setRedeeming(null);
     }
@@ -605,6 +622,22 @@ function CouponSheet({ coupon, getText, onClose }: { coupon: IssuedCoupon | null
                       {copied ? t('rewards.copied') : t('rewards.copy')}
                     </span>
                   </button>
+                </div>
+              </div>
+
+              {/* QR Code for presenting at POS */}
+              <div className="flex flex-col items-center mb-4 py-4 rounded-2xl" style={{ background: 'var(--sweet-bg)', border: '1px solid var(--sweet-border)' }}>
+                <p className="text-[10px] uppercase tracking-widest mb-3" style={{ color: 'var(--sweet-text-muted)' }}>
+                  {t('rewards.scanAtPartner') || 'Show this QR at the counter'}
+                </p>
+                <div className="bg-white p-3 rounded-2xl shadow-lg">
+                  <QRCodeSVG
+                    value={`sweet-coupon:${coupon.code}`}
+                    size={140}
+                    level="M"
+                    bgColor="#ffffff"
+                    fgColor="#000000"
+                  />
                 </div>
               </div>
 
