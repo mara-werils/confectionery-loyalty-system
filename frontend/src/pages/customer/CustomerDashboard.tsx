@@ -14,7 +14,6 @@ import {
   ArrowTopRightOnSquareIcon,
   SparklesIcon,
   LinkIcon,
-  FireIcon,
   ArrowUpRightIcon,
   QrCodeIcon,
   TagIcon,
