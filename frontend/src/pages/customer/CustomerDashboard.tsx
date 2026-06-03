@@ -346,7 +346,7 @@ export default function CustomerDashboard() {
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="relative overflow-hidden rounded-3xl mb-4"
+        className="relative overflow-hidden rounded-3xl mb-6"
         style={{
           background: heroStyle.gradient,
           border: `1px solid ${heroStyle.borderColor}`,
@@ -552,15 +552,12 @@ export default function CustomerDashboard() {
         </AnimatePresence>
       </motion.div>
 
-      {/* ── Live Activity Feed ────────────────────────────────────────────────── */}
-      <LiveFeed />
-
       {/* ── Quick Actions Row ─────────────────────────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.12, duration: 0.4 }}
-        className="flex items-center justify-between mb-4 px-1"
+        className="flex items-center justify-between mb-6 px-1"
       >
         {quickActions.map((action, i) => (
           <motion.button
@@ -602,67 +599,12 @@ export default function CustomerDashboard() {
       {/* ── Daily Check-in Card ───────────────────────────────────────────────── */}
       <DailyCheckinCard />
 
-      {/* ── Next Reward Progress (early journey) ─────────────────────────────── */}
-      {!loading && currentBalance > 0 && currentBalance < 500 && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35 }}
-          className="mb-4 p-4 rounded-2xl"
-          style={{
-            background: 'var(--sweet-card)',
-            border: '1px solid var(--sweet-border)',
-          }}
-        >
-          <div className="flex items-center justify-between mb-2.5">
-            <div className="flex items-center gap-2">
-              <div
-                className="w-7 h-7 rounded-lg flex items-center justify-center"
-                style={{ background: 'var(--sweet-accent-dim)' }}
-              >
-                <BoltIcon className="w-3.5 h-3.5" style={{ color: 'var(--sweet-accent)' }} />
-              </div>
-              <span className="text-xs font-bold" style={{ color: 'var(--sweet-text)' }}>
-                {t('customerDashboard.nextReward') || 'First Reward Unlocks At'}
-              </span>
-            </div>
-            <span
-              className="text-[10px] font-mono font-semibold"
-              style={{ color: 'var(--sweet-accent)' }}
-            >
-              {currentBalance}/500 SWEET
-            </span>
-          </div>
-          <div
-            className="h-2 rounded-full overflow-hidden mb-2"
-            style={{ background: 'var(--sweet-border)' }}
-          >
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${Math.min(100, (currentBalance / 500) * 100)}%` }}
-              transition={{ duration: 1.5, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              className="h-full rounded-full"
-              style={{
-                background: 'linear-gradient(90deg, #f59e0b, #f97316)',
-                boxShadow: '0 0 8px rgba(245,158,11,0.45)',
-              }}
-            />
-          </div>
-          <p className="text-[10px]" style={{ color: 'var(--sweet-text-muted)' }}>
-            {t('customerDashboard.moreToUnlock', {
-              amount: (500 - currentBalance).toLocaleString(),
-            }) ||
-              `${(500 - currentBalance).toLocaleString()} more SWEET to unlock your first reward`}
-          </p>
-        </motion.div>
-      )}
-
       {/* ── Available Rewards Preview ─────────────────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.25 }}
-        className="mb-4"
+        className="mb-6"
       >
         <SectionHeader
           icon={<GiftIcon className="w-3.5 h-3.5" />}
@@ -706,9 +648,6 @@ export default function CustomerDashboard() {
               ))}
         </div>
       </motion.div>
-
-      {/* ── Blockchain Info (collapsible) ─────────────────────────────────────── */}
-      <BlockchainInfoCard walletAddress={walletAddress} />
 
       {/* ── Active Coupons ────────────────────────────────────────────────────── */}
       {activeCoupons && activeCoupons.length > 0 && (
