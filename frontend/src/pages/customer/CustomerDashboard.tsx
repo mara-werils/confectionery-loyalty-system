@@ -295,36 +295,24 @@ export default function CustomerDashboard() {
       label: t('nav.rewards'),
       icon: <GiftIcon className="w-5 h-5" />,
       route: '/customer/rewards',
-      color: '#f59e0b',
-      bgColor: 'rgba(245,158,11,0.10)',
-      borderColor: 'rgba(245,158,11,0.20)',
       hasBadge: false,
     },
     {
       label: t('nav.spin'),
       icon: <SparklesIcon className="w-5 h-5" />,
       route: '/customer/spin',
-      color: '#a78bfa',
-      bgColor: 'rgba(167,139,250,0.10)',
-      borderColor: 'rgba(167,139,250,0.20)',
       hasBadge: canSpin,
     },
     {
       label: t('nav.gift'),
       icon: <FireIcon className="w-5 h-5" />,
       route: '/customer/gift',
-      color: '#f87171',
-      bgColor: 'rgba(248,113,113,0.10)',
-      borderColor: 'rgba(248,113,113,0.20)',
       hasBadge: false,
     },
     {
       label: t('customerDashboard.achievementsTitle'),
       icon: <TrophyIcon className="w-5 h-5" />,
       route: '/achievements',
-      color: '#34d399',
-      bgColor: 'rgba(52,211,153,0.10)',
-      borderColor: 'rgba(52,211,153,0.20)',
       hasBadge: false,
     },
   ];
@@ -557,40 +545,38 @@ export default function CustomerDashboard() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.12, duration: 0.4 }}
-        className="grid grid-cols-4 gap-2 mb-4"
+        className="flex items-center justify-between mb-4 px-1"
       >
         {quickActions.map((action, i) => (
           <motion.button
             key={action.route}
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.08 + i * 0.05, duration: 0.35 }}
+            transition={{ delay: 0.08 + i * 0.04, duration: 0.3 }}
             onClick={() => navigate(action.route)}
-            whileTap={{ scale: 0.94 }}
-            className="flex flex-col items-center gap-2 py-3 px-1 rounded-2xl transition-all relative"
-            style={{
-              background: action.bgColor,
-              border: `1px solid ${action.borderColor}`,
-            }}
+            whileTap={{ scale: 0.92 }}
+            className="flex flex-col items-center gap-1.5 relative"
           >
             <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ color: action.color }}
+              className="w-11 h-11 rounded-full flex items-center justify-center"
+              style={{
+                background: 'rgba(255,255,255,0.07)',
+              }}
             >
-              {action.icon}
+              <span style={{ color: 'var(--sweet-text-secondary)' }}>{action.icon}</span>
             </div>
             {action.hasBadge && (
               <span
-                className="absolute top-2 right-2 w-2 h-2 rounded-full"
+                className="absolute top-0 right-0 w-2 h-2 rounded-full"
                 style={{
                   background: '#22c55e',
-                  boxShadow: '0 0 6px rgba(34,197,94,0.7)',
+                  boxShadow: '0 0 6px rgba(34,197,94,0.5)',
                 }}
               />
             )}
             <span
-              className="text-[10px] font-semibold text-center leading-tight"
-              style={{ color: 'var(--sweet-text-secondary)' }}
+              className="text-[10px] font-medium text-center leading-tight"
+              style={{ color: 'var(--sweet-text-secondary)', opacity: 0.8 }}
             >
               {action.label}
             </span>
