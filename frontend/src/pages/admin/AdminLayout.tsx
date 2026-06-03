@@ -60,8 +60,8 @@ export default function AdminLayout() {
       <aside className="hidden md:flex w-64 flex-col border-r border-stone-800 bg-stone-950/50">
         {/* Logo */}
         <div className="flex items-center gap-3 px-6 py-6 border-b border-stone-800">
-          <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/25 flex items-center justify-center">
-            <ShieldCheckIcon className="w-5 h-5 text-amber-400" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
+            <span className="text-base font-black text-black tracking-tight">SL</span>
           </div>
           <div>
             <h1 className="text-sm font-bold text-white tracking-tight">Sweet Loyalty</h1>

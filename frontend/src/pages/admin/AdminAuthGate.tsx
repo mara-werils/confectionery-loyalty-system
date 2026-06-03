@@ -42,8 +42,8 @@ export default function AdminAuthGate() {
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-amber-900/10 rounded-full blur-[120px] pointer-events-none" />
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-sm z-10">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 mb-6">
-            <ShieldCheckIcon className="w-8 h-8 text-amber-500" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 shadow-lg shadow-amber-500/25 mb-6">
+            <span className="text-2xl font-black text-black tracking-tight">SL</span>
           </div>
           <h1 className="text-2xl font-bold tracking-tight">{t('adminAuth.title')}</h1>
           <p className="text-stone-400 text-sm mt-2">{t('adminAuth.subtitle')}</p>
