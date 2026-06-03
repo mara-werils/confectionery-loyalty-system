@@ -11,13 +11,29 @@ import {
   CubeTransparentIcon,
   SignalIcon,
   ChevronDownIcon,
+  WalletIcon,
+  CircleStackIcon,
+  BoltIcon,
+  ClockIcon,
 } from '@heroicons/react/24/outline';
 import { ShieldCheckIcon } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
 import { io as socketIO } from 'socket.io-client';
 import { api } from '../../services/api';
 import { CONTRACT_ADDRESSES } from '../../services/ton';
+
+// ─── Constants ───────────────────────────────────────────────────────────────
+const TONAPI_BASE = 'https://testnet.tonapi.io/v2';
+const ADMIN_WALLET = 'kQAOFMfMOeu7WTVfROzwMfNSKNesma8dQ37nQOb2dkqohECz';
+
+const CONTRACTS = [
+  { key: 'loyaltyToken', name: 'LoyaltyToken', address: CONTRACT_ADDRESSES.loyaltyToken },
+  { key: 'partnerRegistry', name: 'PartnerRegistry', address: CONTRACT_ADDRESSES.partnerRegistry },
+  { key: 'redemptionManager', name: 'RedemptionManager', address: CONTRACT_ADDRESSES.redemptionManager },
+  { key: 'revenueDistribution', name: 'RevenueDistribution', address: CONTRACT_ADDRESSES.revenueDistribution },
+] as const;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type TxType = 'PURCHASE' | 'BONUS' | 'REFERRAL' | 'PROMOTION' | 'REDEMPTION';
@@ -42,9 +58,56 @@ interface ExplorerMeta {
   totalMinted: string;
 }
 
+interface TonApiAccount {
+  address: string;
+  balance: number;
+  status: string;
+  last_activity: number;
+  name?: string;
+}
+
+interface JettonInfo {
+  metadata?: {
+    name?: string;
+    symbol?: string;
+    decimals?: string;
+  };
+  total_supply?: string;
+  holders_count?: number;
+  mintable?: boolean;
+}
+
+// ─── Fetcher helpers ─────────────────────────────────────────────────────────
+async function fetchTonApi<T>(path: string): Promise<T> {
+  const res = await fetch(`${TONAPI_BASE}${path}`, {
+    headers: { Accept: 'application/json' },
+  });
+  if (!res.ok) throw new Error(`TonAPI ${res.status}`);
+  return res.json() as Promise<T>;
+}
+
+function nanoToTon(nano: number | string): string {
+  return (Number(nano) / 1e9).toFixed(4);
+}
+
+function formatSupply(raw: string | undefined, decimals: number): string {
+  if (!raw) return '0';
+  const val = Number(raw) / Math.pow(10, decimals);
+  return val.toLocaleString(undefined, { maximumFractionDigits: 0 });
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function timeAgo(dateStr: string): string {
   const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
+  if (diff < 60) return `${diff}s ago`;
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  return `${Math.floor(diff / 86400)}d ago`;
+}
+
+function timestampAgo(ts: number): string {
+  if (!ts) return 'N/A';
+  const diff = Math.floor(Date.now() / 1000 - ts);
   if (diff < 60) return `${diff}s ago`;
   if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
   if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
@@ -141,6 +204,20 @@ function SkeletonCard() {
   );
 }
 
+// ─── Skeleton block ───────────────────────────────────────────────────────────
+function SkeletonBlock({ lines = 3 }: { lines?: number }) {
+  return (
+    <div
+      className="rounded-2xl border p-4 animate-pulse space-y-3"
+      style={{ borderColor: 'var(--sweet-border)', background: 'var(--sweet-card)' }}
+    >
+      {Array.from({ length: lines }).map((_, i) => (
+        <div key={i} className="h-3 rounded" style={{ background: 'var(--sweet-border)', width: `${70 - i * 15}%` }} />
+      ))}
+    </div>
+  );
+}
+
 // ─── Stats card ───────────────────────────────────────────────────────────────
 function StatCard({ label, value, sub }: { label: string; value: string; sub?: ReactNode }) {
   return (
@@ -166,6 +243,284 @@ function StatCard({ label, value, sub }: { label: string; value: string; sub?: R
         </p>
       )}
     </div>
+  );
+}
+
+// ─── Token Stats Card (Live from TON) ─────────────────────────────────────────
+function TokenStatsCard() {
+  const { data: jetton, isLoading, isError } = useQuery({
+    queryKey: ['jetton-info'],
+    queryFn: () => fetchTonApi<JettonInfo>(`/jettons/${CONTRACT_ADDRESSES.loyaltyToken}`),
+    staleTime: 60_000,
+    retry: 2,
+  });
+
+  const decimals = Number(jetton?.metadata?.decimals ?? 9);
+  const name = jetton?.metadata?.name ?? 'Sweet Loyalty Points';
+  const symbol = jetton?.metadata?.symbol ?? 'SWEET';
+  const supply = formatSupply(jetton?.total_supply, decimals);
+  const holders = jetton?.holders_count ?? '—';
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.05 }}
+      className="rounded-2xl border p-4"
+      style={{ borderColor: 'var(--sweet-border)', background: 'var(--sweet-card)' }}
+    >
+      <div className="flex items-center gap-2 mb-3">
+        <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20">
+          <CircleStackIcon className="w-4 h-4 text-amber-400" />
+        </div>
+        <div>
+          <h3 className="text-sm font-bold" style={{ color: 'var(--sweet-text)' }}>
+            Jetton Token Stats
+          </h3>
+          <p className="text-[10px]" style={{ color: 'var(--sweet-text-muted)' }}>
+            Live from TON blockchain
+          </p>
+        </div>
+        {isLoading && (
+          <span className="ml-auto w-4 h-4 border-2 rounded-full animate-spin" style={{ borderColor: 'var(--sweet-border)', borderTopColor: 'var(--sweet-accent)' }} />
+        )}
+        {isError && (
+          <span className="ml-auto text-[9px] px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/20 text-red-400">
+            API unavailable
+          </span>
+        )}
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div className="rounded-xl border px-3 py-2" style={{ borderColor: 'var(--sweet-border)', background: 'var(--sweet-bg)' }}>
+          <p className="text-[9px] uppercase tracking-wider font-semibold" style={{ color: 'var(--sweet-text-faint)' }}>Name</p>
+          <p className="text-xs font-bold mt-0.5" style={{ color: 'var(--sweet-text)' }}>{name}</p>
+        </div>
+        <div className="rounded-xl border px-3 py-2" style={{ borderColor: 'var(--sweet-border)', background: 'var(--sweet-bg)' }}>
+          <p className="text-[9px] uppercase tracking-wider font-semibold" style={{ color: 'var(--sweet-text-faint)' }}>Symbol</p>
+          <p className="text-xs font-bold mt-0.5 text-amber-400">{symbol}</p>
+        </div>
+        <div className="rounded-xl border px-3 py-2" style={{ borderColor: 'var(--sweet-border)', background: 'var(--sweet-bg)' }}>
+          <p className="text-[9px] uppercase tracking-wider font-semibold" style={{ color: 'var(--sweet-text-faint)' }}>Total Supply</p>
+          <p className="text-xs font-bold mt-0.5 text-emerald-400">{supply} {symbol}</p>
+        </div>
+        <div className="rounded-xl border px-3 py-2" style={{ borderColor: 'var(--sweet-border)', background: 'var(--sweet-bg)' }}>
+          <p className="text-[9px] uppercase tracking-wider font-semibold" style={{ color: 'var(--sweet-text-faint)' }}>Holders</p>
+          <p className="text-xs font-bold mt-0.5" style={{ color: 'var(--sweet-text)' }}>{String(holders)}</p>
+        </div>
+      </div>
+
+      <a
+        href={`https://testnet.tonviewer.com/${CONTRACT_ADDRESSES.loyaltyToken}`}
+        target="_blank"
+        rel="noreferrer"
+        className="mt-3 flex items-center justify-center gap-1.5 w-full py-1.5 rounded-xl border text-[10px] font-semibold transition-colors hover:border-amber-500/40"
+        style={{ borderColor: 'var(--sweet-border)', color: 'var(--sweet-accent)' }}
+      >
+        <ArrowTopRightOnSquareIcon className="w-3 h-3" />
+        View Token on TON Explorer
+      </a>
+    </motion.div>
+  );
+}
+
+// ─── Contract Status Grid ─────────────────────────────────────────────────────
+function ContractStatusGrid() {
+  const { data: accounts, isLoading, isError } = useQuery({
+    queryKey: ['contract-accounts'],
+    queryFn: async () => {
+      const results: Record<string, TonApiAccount> = {};
+      // Fetch all in parallel
+      const promises = CONTRACTS.map(async (c) => {
+        try {
+          const acc = await fetchTonApi<TonApiAccount>(`/accounts/${c.address}`);
+          results[c.key] = acc;
+        } catch {
+          results[c.key] = {
+            address: c.address,
+            balance: 0,
+            status: 'unknown',
+            last_activity: 0,
+          };
+        }
+      });
+      await Promise.all(promises);
+      return results;
+    },
+    staleTime: 60_000,
+    retry: 2,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {CONTRACTS.map((c) => <SkeletonBlock key={c.key} lines={4} />)}
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="flex items-center gap-2 mb-3 pl-1">
+        <BoltIcon className="w-4 h-4" style={{ color: 'var(--sweet-accent)' }} />
+        <h3 className="text-sm font-bold" style={{ color: 'var(--sweet-text)' }}>
+          Smart Contract Status
+        </h3>
+        {isError && (
+          <span className="ml-2 text-[9px] px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/20 text-red-400">
+            Partial data
+          </span>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {CONTRACTS.map((c, idx) => {
+          const acc = accounts?.[c.key];
+          const isActive = acc?.status === 'active';
+          const balance = acc ? nanoToTon(acc.balance) : '—';
+          const lastAct = acc?.last_activity ? timestampAgo(acc.last_activity) : 'N/A';
+
+          return (
+            <motion.div
+              key={c.key}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 + idx * 0.05 }}
+              className="rounded-2xl border p-4"
+              style={{ borderColor: 'var(--sweet-border)', background: 'var(--sweet-card)' }}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold" style={{ color: 'var(--sweet-text)' }}>
+                  {c.name}
+                </span>
+                <span className={clsx(
+                  'flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-semibold border',
+                  isActive
+                    ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                    : 'bg-red-500/10 border-red-500/20 text-red-400'
+                )}>
+                  <span className={clsx('w-1.5 h-1.5 rounded-full', isActive ? 'bg-emerald-400' : 'bg-red-400')} />
+                  {isActive ? 'Active' : (acc?.status ?? 'Unknown')}
+                </span>
+              </div>
+
+              <p className="text-[10px] font-mono truncate mb-2" style={{ color: 'var(--sweet-text-muted)' }}>
+                {c.address}
+              </p>
+
+              <div className="flex items-center justify-between text-[10px]">
+                <div>
+                  <span style={{ color: 'var(--sweet-text-faint)' }}>Balance: </span>
+                  <span className="font-bold text-amber-400">{balance} TON</span>
+                </div>
+                <div className="flex items-center gap-1" style={{ color: 'var(--sweet-text-faint)' }}>
+                  <ClockIcon className="w-3 h-3" />
+                  <span>{lastAct}</span>
+                </div>
+              </div>
+
+              <a
+                href={`https://testnet.tonviewer.com/${c.address}`}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-2 flex items-center gap-1 text-[9px] font-medium transition-colors hover:text-amber-300"
+                style={{ color: 'var(--sweet-accent)' }}
+              >
+                <ArrowTopRightOnSquareIcon className="w-2.5 h-2.5" />
+                View on tonviewer
+              </a>
+            </motion.div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─── Admin Wallet Card ────────────────────────────────────────────────────────
+function AdminWalletCard() {
+  const { data: adminAcc, isLoading: loadingAcc } = useQuery({
+    queryKey: ['admin-account'],
+    queryFn: () => fetchTonApi<TonApiAccount>(`/accounts/${ADMIN_WALLET}`),
+    staleTime: 60_000,
+    retry: 2,
+  });
+
+  const { data: jettonBalances, isLoading: loadingJetton } = useQuery({
+    queryKey: ['admin-jettons'],
+    queryFn: async () => {
+      try {
+        const res = await fetchTonApi<{ balances?: Array<{ balance: string; jetton: { address: string; symbol?: string; decimals?: number; name?: string } }> }>(
+          `/accounts/${ADMIN_WALLET}/jettons`
+        );
+        return res.balances ?? [];
+      } catch {
+        return [];
+      }
+    },
+    staleTime: 60_000,
+    retry: 2,
+  });
+
+  const isLoading = loadingAcc || loadingJetton;
+  const tonBalance = adminAcc ? nanoToTon(adminAcc.balance) : '—';
+
+  // Find SWEET jetton balance
+  const sweetBalance = jettonBalances?.find((b) => {
+    const addr = b.jetton.address?.toLowerCase() ?? '';
+    return addr.includes(CONTRACT_ADDRESSES.loyaltyToken.toLowerCase().replace(/[^a-z0-9]/g, ''));
+  });
+  const sweetAmount = sweetBalance
+    ? (Number(sweetBalance.balance) / Math.pow(10, sweetBalance.jetton.decimals ?? 9)).toLocaleString(undefined, { maximumFractionDigits: 0 })
+    : '0';
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.15 }}
+      className="rounded-2xl border p-4"
+      style={{ borderColor: 'var(--sweet-border)', background: 'var(--sweet-card)' }}
+    >
+      <div className="flex items-center gap-2 mb-3">
+        <div className="p-2 rounded-xl bg-purple-500/10 border border-purple-500/20">
+          <WalletIcon className="w-4 h-4 text-purple-400" />
+        </div>
+        <div>
+          <h3 className="text-sm font-bold" style={{ color: 'var(--sweet-text)' }}>
+            Admin Wallet
+          </h3>
+          <p className="text-[10px] font-mono" style={{ color: 'var(--sweet-text-muted)' }}>
+            {shortenAddress(ADMIN_WALLET)}
+          </p>
+        </div>
+        {isLoading && (
+          <span className="ml-auto w-4 h-4 border-2 rounded-full animate-spin" style={{ borderColor: 'var(--sweet-border)', borderTopColor: 'var(--sweet-accent)' }} />
+        )}
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div className="rounded-xl border px-3 py-2" style={{ borderColor: 'var(--sweet-border)', background: 'var(--sweet-bg)' }}>
+          <p className="text-[9px] uppercase tracking-wider font-semibold" style={{ color: 'var(--sweet-text-faint)' }}>TON Balance</p>
+          <p className="text-xs font-bold mt-0.5 text-amber-400">{tonBalance} TON</p>
+        </div>
+        <div className="rounded-xl border px-3 py-2" style={{ borderColor: 'var(--sweet-border)', background: 'var(--sweet-bg)' }}>
+          <p className="text-[9px] uppercase tracking-wider font-semibold" style={{ color: 'var(--sweet-text-faint)' }}>SWEET Balance</p>
+          <p className="text-xs font-bold mt-0.5 text-emerald-400">{sweetAmount} SWEET</p>
+        </div>
+      </div>
+
+      <a
+        href={`https://testnet.tonviewer.com/${ADMIN_WALLET}`}
+        target="_blank"
+        rel="noreferrer"
+        className="mt-3 flex items-center justify-center gap-1.5 w-full py-1.5 rounded-xl border text-[10px] font-semibold transition-colors hover:border-purple-500/40"
+        style={{ borderColor: 'var(--sweet-border)', color: 'var(--sweet-text-secondary)' }}
+      >
+        <ArrowTopRightOnSquareIcon className="w-3 h-3" />
+        View Admin Wallet on TON Explorer
+      </a>
+    </motion.div>
   );
 }
 
@@ -514,6 +869,17 @@ export default function Explorer() {
             </a>
           }
         />
+      </div>
+
+      {/* ── Live Blockchain Data Section ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <TokenStatsCard />
+        <AdminWalletCard />
+      </div>
+
+      {/* ── Contract Status Grid ── */}
+      <div className="mb-6">
+        <ContractStatusGrid />
       </div>
 
       {/* ── Contract address bar ── */}
