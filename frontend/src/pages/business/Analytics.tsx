@@ -456,17 +456,21 @@ export default function Analytics() {
       </motion.div>
 
       {/* Export Button */}
-      <motion.button
+      <motion.div
         custom={9}
         variants={fadeUp}
         initial="hidden"
         animate="visible"
-        onClick={() => toast(t('analyticsPage.generatingReport'), { icon: '📄', style: { background: '#1c1917', color: '#fff', border: '1px solid #44403c' } })}
-        className="w-full flex items-center justify-center gap-2 bg-stone-900 border border-stone-800 rounded-2xl py-3.5 text-sm font-semibold text-stone-300 hover:text-white hover:border-stone-700 transition-all active:scale-[0.98]"
+        className="flex justify-end"
       >
-        <ArrowDownTrayIcon className="w-4.5 h-4.5" />
-        {t('analyticsPage.exportPdf')}
-      </motion.button>
+        <button
+          onClick={() => toast(t('analyticsPage.generatingReport'), { icon: '📄', style: { background: '#1c1917', color: '#fff', border: '1px solid #44403c' } })}
+          className="flex items-center gap-1.5 bg-stone-900 border border-stone-800 rounded-xl px-4 py-2 text-xs font-medium text-stone-400 hover:text-white hover:border-stone-700 transition-all active:scale-[0.97]"
+        >
+          <ArrowDownTrayIcon className="w-3.5 h-3.5" />
+          {t('analyticsPage.exportPdf')}
+        </button>
+      </motion.div>
     </div>
   );
 }
