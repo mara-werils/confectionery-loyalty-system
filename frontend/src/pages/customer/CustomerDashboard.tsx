@@ -15,6 +15,7 @@ import {
   DocumentDuplicateIcon,
   ChevronDownIcon,
   SparklesIcon,
+  LinkIcon,
   FireIcon,
   ArrowUpRightIcon,
   BoltIcon,
@@ -917,15 +918,12 @@ export default function CustomerDashboard() {
                         <a
                           href={`https://testnet.tonviewer.com/transaction/${tx.hash}`}
                           target="_blank"
-                          rel="noreferrer"
-                          className="flex items-center gap-0.5 text-[10px] font-mono transition-colors"
-                          style={{ color: 'var(--sweet-text-faint)' }}
-                          title={t('customerDashboard.viewTx')}
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-0.5 text-amber-500/60 hover:text-amber-400 transition-colors duration-150"
+                          title="Verify on TON blockchain"
                         >
-                          <ArrowTopRightOnSquareIcon className="w-2.5 h-2.5" />
-                          {tx.hash.length > 12
-                            ? tx.hash.slice(0, 6) + '...' + tx.hash.slice(-4)
-                            : tx.hash}
+                          <LinkIcon className="w-2.5 h-2.5" />
+                          <span className="text-[9px] font-semibold">TON</span>
                         </a>
                       )}
                     </div>
