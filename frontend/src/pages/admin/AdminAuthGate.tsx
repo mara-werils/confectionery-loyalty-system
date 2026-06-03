@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ShieldCheckIcon } from '@heroicons/react/24/outline';
+
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import { GlassCard } from '../../components/GlassCard';
