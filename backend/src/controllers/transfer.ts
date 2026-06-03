@@ -7,6 +7,7 @@ import { config } from '../config';
 import { successResponse, errorResponse } from '../utils/response';
 import { logger } from '../utils/logger';
 import { prisma } from '../utils/prisma';
+import { io } from '../index';
 
 // Standard TEP-74 transfer opcode
 const Opcodes = {
@@ -150,6 +151,40 @@ export const transferLoyaltyTokens = async (req: Request, res: Response) => {
     } catch (dbErr) {
       logger.warn('Failed to update loyalty points in DB after transfer (non-critical):', dbErr);
     }
+
+    // ── Real-time Socket.IO events for transfer ────────────────────────────
+    const clientWalletRaw = toAddress.toRawString();
+    const clientWalletFriendly = toAddress.toString();
+
+    // Notify the customer's wallet room so their dashboard updates live
+    // Emit to all address variants since wallet may subscribe with any format
+    const balancePayload = { amount, newBalance: amount };
+    io.to(`wallet:${clientWallet}`).emit('balance:updated', balancePayload);
+    io.to(`wallet:${clientWalletRaw}`).emit('balance:updated', balancePayload);
+    io.to(`wallet:${clientWalletFriendly}`).emit('balance:updated', balancePayload);
+
+    // Trigger the PurchaseNotification animation on the customer's screen
+    const awardPayload = {
+      partnerName: 'Sweet Loyalty',
+      pointsEarned: amount,
+      amount,
+      items: ['Cashback reward'],
+      txHash: `seqno:${seqno}`,
+      timestamp: new Date().toISOString(),
+    };
+    io.to(`wallet:${clientWallet}`).emit('purchase:awarded', awardPayload);
+    io.to(`wallet:${clientWalletRaw}`).emit('purchase:awarded', awardPayload);
+    io.to(`wallet:${clientWalletFriendly}`).emit('purchase:awarded', awardPayload);
+
+    // Broadcast to the public live-feed
+    io.emit('activity:new', {
+      type: 'purchase',
+      message: `+${amount} SWEET transferred to customer`,
+      amount,
+      timestamp: new Date().toISOString(),
+    });
+
+    logger.info(`Socket events emitted for transfer of ${amount} SWEET to ${clientWalletFriendly}`);
 
     return successResponse(res, {
       status: 'Transaction Broadcasted',

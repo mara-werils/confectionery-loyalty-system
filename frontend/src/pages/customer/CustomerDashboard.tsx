@@ -179,8 +179,22 @@ export default function CustomerDashboard() {
     socket.emit('subscribe:wallet', walletAddress);
 
     socket.on('purchase:awarded', (payload: PurchaseAwardedPayload) => {
-      setSweetBalance(sweetBalance + payload.pointsEarned);
+      const store = useAuthStore.getState();
+      useAuthStore.setState({ sweetBalance: store.sweetBalance + payload.pointsEarned });
       setPurchaseAlert(payload);
+      // Re-fetch from DB to get the authoritative balance
+      fetchData();
+    });
+
+    // Listen for balance:updated from direct transfers (business -> customer)
+    socket.on('balance:updated', (data: { amount?: number; newBalance?: number; balance?: string }) => {
+      const increment = data.amount || Number(data.balance || 0) || Number(data.newBalance || 0);
+      if (increment > 0) {
+        const store = useAuthStore.getState();
+        useAuthStore.setState({ sweetBalance: store.sweetBalance + increment });
+      }
+      // Re-fetch from DB to get the authoritative balance
+      fetchData();
     });
 
     return () => {
