@@ -56,6 +56,9 @@ export default function AdminDashboard() {
   };
   const [walletAddress, setWalletAddress] = useState('');
   const [isMinting, setIsMinting] = useState(false);
+  const [mintWallet, setMintWallet] = useState('');
+  const [mintAmount, setMintAmount] = useState('');
+  const [isMintingSweet, setIsMintingSweet] = useState(false);
 
   const { data: partnersData } = useQuery({
     queryKey: ['admin', 'partners'],
@@ -109,6 +112,26 @@ export default function AdminDashboard() {
     { label: t('adminDash.auditLog'), path: '/admin/audit', icon: ClockIcon },
     { label: t('adminDash.settings'), path: '/admin/settings', icon: ServerIcon },
   ];
+
+  const handleMintSweet = async () => {
+    if (!mintWallet || !mintAmount) {
+      toast.error('Enter wallet and amount');
+      return;
+    }
+    setIsMintingSweet(true);
+    toast.loading(`Minting ${mintAmount} SWEET...`, { id: 'sweetMint' });
+    try {
+      await api.admin.mintTokens({ targetWallet: mintWallet, amount: Number(mintAmount) });
+      toast.success(`${mintAmount} SWEET minted!`, { id: 'sweetMint' });
+      setMintWallet('');
+      setMintAmount('');
+    } catch (err: unknown) {
+      const error = err as { message?: string };
+      toast.error(error?.message || 'Mint failed', { id: 'sweetMint' });
+    } finally {
+      setIsMintingSweet(false);
+    }
+  };
 
   const handleIssueSbt = async () => {
     if (!walletAddress) {
@@ -221,6 +244,40 @@ export default function AdminDashboard() {
           </div>
         </GlassCard>
 
+        {/* Mint SWEET Tokens */}
+        <GlassCard delay={0.22} className="p-5">
+          <h3 className="text-sm font-semibold text-stone-400 mb-4 uppercase tracking-wider flex items-center gap-2">
+            <CurrencyDollarIcon className="w-4 h-4" />
+            Mint SWEET Tokens
+          </h3>
+          <div className="space-y-3">
+            <input
+              type="text"
+              value={mintWallet}
+              onChange={(e) => setMintWallet(e.target.value)}
+              className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500/50 transition-colors font-mono"
+              placeholder="UQ... wallet address"
+            />
+            <input
+              type="number"
+              value={mintAmount}
+              onChange={(e) => setMintAmount(e.target.value)}
+              className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500/50 transition-colors"
+              placeholder="Amount (SWEET)"
+            />
+            <button
+              onClick={handleMintSweet}
+              disabled={isMintingSweet || !mintWallet || !mintAmount}
+              className="w-full bg-amber-500 hover:bg-amber-400 disabled:opacity-40 text-black font-bold py-2.5 rounded-xl transition-all text-sm flex items-center justify-center gap-2"
+            >
+              <CurrencyDollarIcon className="w-4 h-4" />
+              {isMintingSweet ? 'Minting...' : 'Mint SWEET'}
+            </button>
+          </div>
+        </GlassCard>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* System Health */}
         <GlassCard delay={0.25} className="p-5">
           <h3 className="text-sm font-semibold text-stone-400 mb-4 uppercase tracking-wider flex items-center gap-2">
