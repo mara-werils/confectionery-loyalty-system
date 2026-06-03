@@ -12,8 +12,6 @@ import {
   ChevronRightIcon,
   ShieldCheckIcon,
   ArrowTopRightOnSquareIcon,
-  DocumentDuplicateIcon,
-  ChevronDownIcon,
   SparklesIcon,
   LinkIcon,
   FireIcon,
