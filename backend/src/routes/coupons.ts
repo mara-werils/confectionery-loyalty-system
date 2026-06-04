@@ -61,7 +61,10 @@ const createSchema = z.object({
  */
 router.post('/', authenticate, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const partnerId = req.partner!.id;
+    if (!req.partner) {
+      throw new AppError('Partner authentication required', 401, 'UNAUTHORIZED');
+    }
+    const partnerId = req.partner.id;
     const { rewardId, rewardTitle: inlineTitle, pointsRequired: inlinePoints, rewardCategory: inlineCat } = createSchema.parse(req.body);
 
     // Resolve reward — check DB first, auto-seed if it's a static frontend reward
@@ -244,7 +247,10 @@ router.get('/verify/:code', authenticate, async (req: Request, res: Response, ne
  */
 router.get('/', authenticate, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const partnerId = req.partner!.id;
+    if (!req.partner) {
+      throw new AppError('Partner authentication required', 401, 'UNAUTHORIZED');
+    }
+    const partnerId = req.partner.id;
 
     // Auto-expire old coupons
     await prisma.coupon.updateMany({
