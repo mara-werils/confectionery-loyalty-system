@@ -303,7 +303,7 @@ export default function Profile() {
   };
 
   const menuItems = [
-    { icon: PencilIcon, label: 'Edit Profile', description: 'Update name and email', action: () => { setEditName(user?.companyName || ''); setEditEmail(user?.email || ''); setActiveModal('edit'); } },
+    { icon: PencilIcon, label: t('profile.editProfile'), description: 'Update name and email', action: () => { setEditName(user?.companyName || ''); setEditEmail(user?.email || ''); setActiveModal('edit'); } },
     { icon: ShieldCheckIcon, label: t('profile.securityTitle') || 'Security', description: t('profile.securityDesc') || 'Wallet & SBT certificate', action: () => setActiveModal('security') },
     { icon: BellIcon, label: t('profile.notificationsTitle') || 'Notifications', description: t('profile.notificationsDesc') || 'Notification preferences', action: () => setActiveModal('notifications') },
     { icon: QuestionMarkCircleIcon, label: t('profile.helpTitle') || 'Help & Support', description: t('profile.helpDesc') || 'FAQ and contacts', action: () => setActiveModal('help') },
