@@ -1,10 +1,14 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ShieldCheckIcon } from '@heroicons/react/24/outline';
+
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import { GlassCard } from '../../components/GlassCard';
 import AdminLayout from './AdminLayout';
+import { useAuthStore } from '../../store/authStore';
+import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
 
 export default function AdminAuthGate() {
   const { t } = useTranslation();
@@ -14,19 +18,23 @@ export default function AdminAuthGate() {
   const [isAuthenticated, setIsAuthenticated] = useState(
     () => sessionStorage.getItem('admin_auth') === 'true'
   );
+  const setToken = useAuthStore((s) => s.setToken);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setVerifying(true);
-    const adminEmail = import.meta.env.VITE_ADMIN_EMAIL;
-    const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD;
-    if (!adminEmail || !adminPassword) {
-      toast.error(t('adminAuth.notConfigured'));
-    } else if (email === adminEmail && password === adminPassword) {
-      toast.success(t('adminAuth.success'));
-      sessionStorage.setItem('admin_auth', 'true');
-      setIsAuthenticated(true);
-    } else {
+    try {
+      const res = await axios.post(`${API_URL}/admin/email-login`, { email, password });
+      const token = res.data?.data?.token;
+      if (token) {
+        setToken(token);
+        sessionStorage.setItem('admin_auth', 'true');
+        toast.success(t('adminAuth.success'));
+        setIsAuthenticated(true);
+      } else {
+        toast.error(t('adminAuth.denied'));
+      }
+    } catch {
       toast.error(t('adminAuth.denied'));
     }
     setVerifying(false);
@@ -42,8 +50,8 @@ export default function AdminAuthGate() {
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-amber-900/10 rounded-full blur-[120px] pointer-events-none" />
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-sm z-10">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 mb-6">
-            <ShieldCheckIcon className="w-8 h-8 text-amber-500" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 shadow-lg shadow-amber-500/25 mb-6">
+            <span className="text-2xl font-black text-black tracking-tight">SL</span>
           </div>
           <h1 className="text-2xl font-bold tracking-tight">{t('adminAuth.title')}</h1>
           <p className="text-stone-400 text-sm mt-2">{t('adminAuth.subtitle')}</p>

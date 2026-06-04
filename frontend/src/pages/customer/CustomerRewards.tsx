@@ -12,6 +12,7 @@ import {
   ChevronDownIcon,
 } from '@heroicons/react/24/outline';
 import { CheckCircleIcon as CheckCircleSolid } from '@heroicons/react/24/solid';
+import { QRCodeSVG } from 'qrcode.react';
 import { useAuthStore } from '../../store/authStore';
 import { useTonWallet } from '@tonconnect/ui-react';
 import toast from 'react-hot-toast';
@@ -53,52 +54,53 @@ interface IssuedCoupon {
 // ─── Data ───────────────────────────────────────────────────────────────────
 
 const PARTNERS: Partner[] = [
-  { id: 'homemacaron', name: 'Home Macaron', shortName: 'Macaron', logo: '/confectionary_logos/home_macaron.jpg', initial: 'HM', city: 'Алматы' },
-  { id: 'qulpynai', name: 'Qulpynai', shortName: 'Qulpynai', logo: null, initial: 'Q', city: 'Алматы' },
-  { id: 'panaderia', name: 'Panaderia', shortName: 'Panaderia', logo: null, initial: 'P', city: 'Алматы' },
-  { id: 'marrone_rosso', name: 'Marrone Rosso', shortName: 'Marrone', logo: null, initial: 'MR', city: 'Алматы · Астана' },
-  { id: 'taptatti', name: 'TapTatti', shortName: 'TapTatti', logo: null, initial: 'TT', city: 'Астана' },
+  { id: 'rakhat', name: 'Rakhat Sweets', shortName: 'Rakhat', logo: null, initial: 'RS', city: 'Алматы' },
+  { id: 'astana', name: 'Astana Patisserie', shortName: 'Astana P.', logo: null, initial: 'AP', city: 'Астана' },
+  { id: 'almaty', name: 'Almaty Cakes', shortName: 'Almaty C.', logo: null, initial: 'AC', city: 'Алматы' },
+  { id: 'sultan', name: 'Sultan Baursak', shortName: 'Sultan', logo: null, initial: 'SB', city: 'Астана' },
+  { id: 'nomad', name: 'Nomad Confectionery', shortName: 'Nomad', logo: null, initial: 'NC', city: 'Алматы' },
+  { id: 'cakelab', name: 'CakeLab Astana', shortName: 'CakeLab', logo: null, initial: 'CL', city: 'Астана' },
   { id: 'platform', name: 'Sweet Platform', shortName: 'Platform', logo: null, initial: 'SW', city: 'Все партнёры' },
 ];
 
 const PARTNER_MAP = Object.fromEntries(PARTNERS.map(p => [p.id, p]));
 
 const REWARDS: Reward[] = [
-  { id: 'hm-1', partnerId: 'homemacaron', titleKey: 'hm-1-title', descKey: 'hm-1-desc', pointsRequired: 100, category: 'DISCOUNT', available: 999 },
-  { id: 'hm-2', partnerId: 'homemacaron', titleKey: 'hm-2-title', descKey: 'hm-2-desc', pointsRequired: 350, category: 'PRODUCT', available: 50 },
-  { id: 'ql-1', partnerId: 'qulpynai', titleKey: 'ql-1-title', descKey: 'ql-1-desc', pointsRequired: 150, category: 'DISCOUNT', available: 500 },
-  { id: 'ql-2', partnerId: 'qulpynai', titleKey: 'ql-2-title', descKey: 'ql-2-desc', pointsRequired: 200, category: 'PRODUCT', available: 100 },
-  { id: 'pn-1', partnerId: 'panaderia', titleKey: 'pn-1-title', descKey: 'pn-1-desc', pointsRequired: 180, category: 'PRODUCT', available: 200 },
-  { id: 'pn-2', partnerId: 'panaderia', titleKey: 'pn-2-title', descKey: 'pn-2-desc', pointsRequired: 300, category: 'DISCOUNT', available: 80 },
-  { id: 'mr-1', partnerId: 'marrone_rosso', titleKey: 'mr-1-title', descKey: 'mr-1-desc', pointsRequired: 80, category: 'PRODUCT', available: 300 },
-  { id: 'mr-2', partnerId: 'marrone_rosso', titleKey: 'mr-2-title', descKey: 'mr-2-desc', pointsRequired: 400, category: 'SPECIAL', available: 50 },
-  { id: 'tt-1', partnerId: 'taptatti', titleKey: 'tt-1-title', descKey: 'tt-1-desc', pointsRequired: 500, category: 'DISCOUNT', available: 100 },
-  { id: 'tt-2', partnerId: 'taptatti', titleKey: 'tt-2-title', descKey: 'tt-2-desc', pointsRequired: 250, category: 'SPECIAL', available: 300 },
+  { id: 'napoleon_disc', partnerId: 'rakhat', titleKey: 'rs-1-title', descKey: 'rs-1-desc', pointsRequired: 500, category: 'DISCOUNT', available: 200 },
+  { id: 'vip_tasting', partnerId: 'rakhat', titleKey: 'rs-2-title', descKey: 'rs-2-desc', pointsRequired: 5000, category: 'SPECIAL', available: 10 },
+  { id: 'eclair_free', partnerId: 'astana', titleKey: 'ap-1-title', descKey: 'ap-1-desc', pointsRequired: 1000, category: 'PRODUCT', available: 80 },
+  { id: 'bday_upgrade', partnerId: 'astana', titleKey: 'ap-2-title', descKey: 'ap-2-desc', pointsRequired: 2000, category: 'SPECIAL', available: 30 },
+  { id: 'coffee_pastry', partnerId: 'almaty', titleKey: 'ac-1-title', descKey: 'ac-1-desc', pointsRequired: 200, category: 'PRODUCT', available: 500 },
+  { id: 'macaron_10', partnerId: 'almaty', titleKey: 'ac-2-title', descKey: 'ac-2-desc', pointsRequired: 100, category: 'DISCOUNT', available: 999 },
+  { id: 'free_samsa', partnerId: 'sultan', titleKey: 'sb-1-title', descKey: 'sb-1-desc', pointsRequired: 250, category: 'PRODUCT', available: 150 },
+  { id: 'baursak_box', partnerId: 'sultan', titleKey: 'sb-2-title', descKey: 'sb-2-desc', pointsRequired: 750, category: 'PRODUCT', available: 60 },
+  { id: 'cashback_5k', partnerId: 'nomad', titleKey: 'nc-1-title', descKey: 'nc-1-desc', pointsRequired: 300, category: 'CASHBACK', available: 999 },
+  { id: 'cashback_boost', partnerId: 'cakelab', titleKey: 'cl-1-title', descKey: 'cl-1-desc', pointsRequired: 500, category: 'CASHBACK', available: 999 },
   { id: 'pw-1', partnerId: 'platform', titleKey: 'pw-1-title', descKey: 'pw-1-desc', pointsRequired: 500, category: 'CASHBACK', available: 999 },
 ];
 
 type Translations = Record<string, { en: string; ru: string; kz: string }>;
 const TEXTS: Translations = {
-  'hm-1-title': { en: '10% Discount on Macarons', ru: 'Скидка 10% на макаруны', kz: 'Макарундарға 10% жеңілдік' },
-  'hm-1-desc': { en: 'Get 10% off any macaron set', ru: 'Скидка 10% на любой набор макарунов', kz: 'Кез келген макарун жинағына 10%' },
-  'hm-2-title': { en: 'Free Box of 6 Macarons', ru: 'Бесплатная коробка из 6 макарунов', kz: '6 макарун тегін қорабы' },
-  'hm-2-desc': { en: 'Free box of 6 assorted macarons', ru: 'Коробка из 6 ассорти макарунов', kz: '6 ассорти макарун қорабы' },
-  'ql-1-title': { en: '15% Discount on Pastries', ru: 'Скидка 15% на выпечку', kz: 'Пісірілгенге 15% жеңілдік' },
-  'ql-1-desc': { en: '15% off any pastry at Qulpynai', ru: 'Скидка 15% в любом Qulpynai', kz: 'Кез келген Qulpynai-да 15%' },
-  'ql-2-title': { en: 'Free Samsa', ru: 'Бесплатная самса', kz: 'Тегін самса' },
-  'ql-2-desc': { en: 'Free samsa with any drink', ru: 'Бесплатная самса при покупке напитка', kz: 'Сусын алғанда тегін самса' },
-  'pn-1-title': { en: 'Free Croissant', ru: 'Бесплатный круассан', kz: 'Тегін круассан' },
-  'pn-1-desc': { en: 'Fresh Spanish-style croissant', ru: 'Свежий круассан в испанском стиле', kz: 'Испандық стильдегі жаңа круассан' },
-  'pn-2-title': { en: '20% off Artisan Bread', ru: 'Скидка 20% на ремесленный хлеб', kz: 'Нанға 20% жеңілдік' },
-  'pn-2-desc': { en: '20% off sourdough bread', ru: 'Скидка 20% на любой хлеб на закваске', kz: 'Ашытқы нанға 20%' },
-  'mr-1-title': { en: 'Free Espresso', ru: 'Бесплатный эспрессо', kz: 'Тегін эспрессо' },
-  'mr-1-desc': { en: 'Free espresso or americano', ru: 'Эспрессо или американо в подарок', kz: 'Тегін эспрессо немесе американо' },
-  'mr-2-title': { en: '2-for-1 Cakes', ru: '2 торта по цене 1', kz: '1 бағасына 2 торт' },
-  'mr-2-desc': { en: 'Buy one slice, get one free', ru: 'Один кусок — второй бесплатно', kz: 'Бір кесім — екіншісі тегін' },
-  'tt-1-title': { en: '25% off Custom Cakes', ru: 'Скидка 25% на торты на заказ', kz: 'Тапсырыс тортына 25%' },
-  'tt-1-desc': { en: '25% off custom cake with delivery', ru: 'Торт на заказ со скидкой 25%', kz: 'Жеткізумен тапсырыс тортына 25%' },
-  'tt-2-title': { en: 'Free Delivery', ru: 'Бесплатная доставка', kz: 'Тегін жеткізу' },
-  'tt-2-desc': { en: 'Free delivery across Kazakhstan', ru: 'Бесплатная доставка по Казахстану', kz: 'Қазақстан бойынша тегін жеткізу' },
+  'rs-1-title': { en: '10% off Napoleon Cake', ru: 'Скидка 10% на торт Наполеон', kz: 'Наполеон тортына 10% жеңілдік' },
+  'rs-1-desc': { en: 'Get 10% off our classic Napoleon layered cake. Valid on any size.', ru: 'Скидка 10% на классический торт Наполеон любого размера.', kz: 'Кез келген өлшемдегі классикалық Наполеон тортына 10%.' },
+  'rs-2-title': { en: 'VIP Tasting Session', ru: 'VIP дегустация', kz: 'VIP дегустация' },
+  'rs-2-desc': { en: 'Exclusive 1-hour tasting event at Rakhat Sweets HQ. 5 premium chocolate varieties.', ru: 'Эксклюзивная дегустация в штаб-квартире Rakhat Sweets. 5 видов премиум шоколада.', kz: 'Rakhat Sweets штаб-пәтерінде 1 сағаттық дегустация. 5 премиум шоколад түрі.' },
+  'ap-1-title': { en: 'Free Eclair Set (Box of 4)', ru: 'Набор эклеров бесплатно (4 шт)', kz: 'Тегін эклер жинағы (4 дана)' },
+  'ap-1-desc': { en: 'Complimentary set of 4 assorted eclairs — chocolate, vanilla, caramel, pistachio.', ru: 'Набор из 4 ассорти эклеров — шоколад, ваниль, карамель, фисташка.', kz: '4 ассорти эклер — шоколад, ваниль, карамель, фісташка.' },
+  'ap-2-title': { en: 'Birthday Cake Upgrade', ru: 'Апгрейд торта на день рождения', kz: 'Туған күн тортын жаңарту' },
+  'ap-2-desc': { en: 'Upgrade any standard birthday cake to a premium 3-tier design at no extra cost.', ru: 'Бесплатный апгрейд стандартного торта до трёхъярусного премиум-дизайна.', kz: 'Стандартты тортты 3 қабатты премиум дизайнға тегін жаңарту.' },
+  'ac-1-title': { en: 'Free Coffee with Any Pastry', ru: 'Бесплатный кофе к выпечке', kz: 'Пісірілгенге тегін кофе' },
+  'ac-1-desc': { en: 'Enjoy a complimentary Americano or Latte when you purchase any pastry item.', ru: 'Бесплатный американо или латте при покупке любой выпечки.', kz: 'Кез келген пісірілген алғанда тегін американо немесе латте.' },
+  'ac-2-title': { en: '10% Discount on Macarons', ru: 'Скидка 10% на макаруны', kz: 'Макарундарға 10% жеңілдік' },
+  'ac-2-desc': { en: 'Save 10% on any macaron set. Mix and match your favourite flavours.', ru: 'Скидка 10% на любой набор макарунов. Выбирайте любимые вкусы.', kz: 'Кез келген макарун жинағына 10%. Сүйікті дәмдеріңізді таңдаңыз.' },
+  'sb-1-title': { en: 'Free Samsa with Drink', ru: 'Бесплатная самса с напитком', kz: 'Сусынмен тегін самса' },
+  'sb-1-desc': { en: 'Get a free traditional samsa with any hot drink purchase.', ru: 'Бесплатная традиционная самса при покупке любого горячего напитка.', kz: 'Кез келген ыстық сусын алғанда тегін дәстүрлі самса.' },
+  'sb-2-title': { en: 'Free Baursak Gift Box', ru: 'Подарочный набор баурсаков', kz: 'Тегін бауырсақ жинағы' },
+  'sb-2-desc': { en: 'Traditional Kazakh baursak assortment — plain, honey-glazed, and savoury — in a festive gift box.', ru: 'Ассорти баурсаков — классические, медовые и солёные — в подарочной коробке.', kz: 'Бауырсақ ассортісі — классикалық, балды және тұзды — сыйлық қорабында.' },
+  'nc-1-title': { en: '5% Cashback on orders over 5,000 KZT', ru: 'Кэшбэк 5% на заказы от 5,000 ₸', kz: '5,000 ₸ асатын тапсырыстарға 5% кэшбэк' },
+  'nc-1-desc': { en: 'Receive 5% cashback in loyalty points on any single order exceeding 5,000 KZT.', ru: '5% кэшбэк баллами за любой заказ свыше 5,000 ₸.', kz: '5,000 ₸ асатын кез келген тапсырысқа 5% кэшбэк балдар.' },
+  'cl-1-title': { en: '+5% Cashback Boost (Next Purchase)', ru: 'Буст кэшбэка +5% (след. покупка)', kz: '+5% кэшбэк бусты (келесі сатып алу)' },
+  'cl-1-desc': { en: 'Activate a one-time 5% extra cashback multiplier on your very next transaction.', ru: 'Активируйте одноразовый буст +5% кэшбэка на следующую покупку.', kz: 'Келесі сатып алуда бір реттік +5% қосымша кэшбэк.' },
   'pw-1-title': { en: '+5% Cashback Boost', ru: 'Буст кэшбэка +5%', kz: '+5% кэшбэк бусты' },
   'pw-1-desc': { en: 'Extra cashback on next purchase', ru: 'Дополнительные 5% кэшбэка', kz: 'Келесі сатып алуда қосымша 5%' },
 };
@@ -206,7 +208,23 @@ export default function CustomerRewards() {
       setSheet({ code, reward, partner, expiresAt, daysLeft });
       confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
     } catch (err: unknown) {
-      toast.error((err as { message?: string })?.message ?? 'Error issuing coupon');
+      let message = t('rewards.claimError') || 'Error issuing coupon';
+      if (err && typeof err === 'object') {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const axiosErr = err as any;
+        const serverMsg = axiosErr?.response?.data?.message || axiosErr?.response?.data?.error;
+        const status = axiosErr?.response?.status;
+        if (status === 400 && serverMsg?.toLowerCase().includes('balance')) {
+          message = t('rewards.notEnoughSweet') || 'Insufficient SWEET balance';
+        } else if (status === 401 || status === 403) {
+          message = 'Session expired — please log in again';
+        } else if (serverMsg) {
+          message = serverMsg;
+        } else if (axiosErr?.message === 'Network Error') {
+          message = 'Cannot reach server — check your connection';
+        }
+      }
+      toast.error(message);
     } finally {
       setRedeeming(null);
     }
@@ -605,6 +623,22 @@ function CouponSheet({ coupon, getText, onClose }: { coupon: IssuedCoupon | null
                       {copied ? t('rewards.copied') : t('rewards.copy')}
                     </span>
                   </button>
+                </div>
+              </div>
+
+              {/* QR Code for presenting at POS */}
+              <div className="flex flex-col items-center mb-4 py-4 rounded-2xl" style={{ background: 'var(--sweet-bg)', border: '1px solid var(--sweet-border)' }}>
+                <p className="text-[10px] uppercase tracking-widest mb-3" style={{ color: 'var(--sweet-text-muted)' }}>
+                  {t('rewards.scanAtPartner') || 'Show this QR at the counter'}
+                </p>
+                <div className="bg-white p-3 rounded-2xl shadow-lg">
+                  <QRCodeSVG
+                    value={`sweet-coupon:${coupon.code}`}
+                    size={140}
+                    level="M"
+                    bgColor="#ffffff"
+                    fgColor="#000000"
+                  />
                 </div>
               </div>
 

@@ -53,7 +53,13 @@ services:
       JWT_EXPIRES_IN: 7d
       CORS_ORIGIN: "*"
       TON_NETWORK: testnet
+      TON_ENDPOINT: https://testnet.toncenter.com/api/v2/jsonRPC
       TON_API_KEY: ""
+      LOYALTY_TOKEN_ADDRESS: kQBNOiJ4aToE-Ea12DpY5nBmu1bKT0axt81JmS9BFPh8nCio
+      ADMIN_MNEMONIC: "urban pen piano despair daring stick outside satoshi doll offer gas gesture regular kid vault miss pig scrap angry nerve phrase shadow soon mango"
+      JETTON_DECIMALS: "9"
+      ADMIN_EMAIL: admin@sweetloyalty.kz
+      ADMIN_PASSWORD: "MasterKey2026!"
       TELEGRAM_BOT_TOKEN: ""
       LOG_LEVEL: info
     ports:

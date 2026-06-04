@@ -10,6 +10,7 @@ import {
   ArrowTopRightOnSquareIcon,
   DocumentDuplicateIcon,
   ChevronDownIcon,
+  LinkIcon,
 } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import { useState } from 'react';
@@ -160,16 +161,29 @@ export default function TransactionItem({
               </span>
             )}
             {txHash ? (
-              <span
-                className="flex items-center gap-0.5 px-1 py-0.5 rounded"
-                style={{
-                  background: 'rgba(52, 211, 153, 0.08)',
-                  border: '1px solid rgba(52, 211, 153, 0.2)',
-                }}
-              >
-                <ShieldCheckIcon className="w-2 h-2" style={{ color: '#34d399' }} />
-                <span className="text-[8px] font-bold" style={{ color: '#34d399' }}>on-chain</span>
-              </span>
+              <>
+                <span
+                  className="flex items-center gap-0.5 px-1 py-0.5 rounded"
+                  style={{
+                    background: 'rgba(52, 211, 153, 0.08)',
+                    border: '1px solid rgba(52, 211, 153, 0.2)',
+                  }}
+                >
+                  <ShieldCheckIcon className="w-2 h-2" style={{ color: '#34d399' }} />
+                  <span className="text-[8px] font-bold" style={{ color: '#34d399' }}>on-chain</span>
+                </span>
+                <a
+                  href={`https://testnet.tonviewer.com/transaction/${txHash}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={e => e.stopPropagation()}
+                  className="flex items-center gap-0.5 text-amber-500/60 hover:text-amber-400 transition-colors duration-150"
+                  title="Verify on TON blockchain"
+                >
+                  <LinkIcon className="w-3 h-3" />
+                  <span className="text-[9px] font-semibold">TON</span>
+                </a>
+              </>
             ) : (
               <span
                 className="flex items-center gap-0.5 px-1 py-0.5 rounded"

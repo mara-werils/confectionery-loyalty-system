@@ -65,6 +65,37 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
     }
 });
 
+/**
+ * Admin email/password login (for web admin panel)
+ */
+router.post('/email-login', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { email, password } = req.body;
+        const adminEmail = process.env.ADMIN_EMAIL;
+        const adminPassword = process.env.ADMIN_PASSWORD;
+        if (!adminEmail || !adminPassword) {
+            throw new AppError('Admin credentials not configured', 500, 'CONFIG_ERROR');
+        }
+
+        if (email !== adminEmail || password !== adminPassword) {
+            throw new AppError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
+        }
+
+        // Find or use first superadmin
+        const admin = await prisma.admin.findFirst({ where: { role: 'superadmin', isActive: true } });
+        if (!admin) {
+            throw new AppError('No admin account configured', 500, 'NO_ADMIN');
+        }
+
+        await prisma.admin.update({ where: { id: admin.id }, data: { lastLoginAt: new Date() } });
+        const token = generateAdminToken(admin);
+
+        return successResponse(res, { admin, token }, 'Login successful');
+    } catch (error) {
+        return next(error);
+    }
+});
+
 // ============================================================================
 // DASHBOARD STATS
 // ============================================================================

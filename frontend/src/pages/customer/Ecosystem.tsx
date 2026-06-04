@@ -72,21 +72,19 @@ const TIER_STYLE = {
 // ─── Fallback seed data (shown when API is unavailable) ───────────────────────
 
 const SEED_PARTNERS: EcosystemPartner[] = [
-  { id: '1', companyName: 'Sweet Dreams', tier: 'GOLD', walletAddress: 'EQAa...7fBx', joinedAt: '2024-01-15T00:00:00Z', totalTransactions: 842 },
-  { id: '2', companyName: 'Shokoladnitsa', tier: 'GOLD', walletAddress: 'EQBb...3kPq', joinedAt: '2024-02-01T00:00:00Z', totalTransactions: 631 },
-  { id: '3', companyName: 'Macaron House', tier: 'SILVER', walletAddress: 'EQCc...9nRt', joinedAt: '2024-03-10T00:00:00Z', totalTransactions: 407 },
-  { id: '4', companyName: 'Cake & Co', tier: 'SILVER', walletAddress: 'EQDd...2mWs', joinedAt: '2024-03-22T00:00:00Z', totalTransactions: 318 },
-  { id: '5', companyName: 'Coffee Mania', tier: 'SILVER', walletAddress: 'EQEe...6jLv', joinedAt: '2024-04-05T00:00:00Z', totalTransactions: 274 },
-  { id: '6', companyName: 'Bonapart', tier: 'BRONZE', walletAddress: 'EQFf...4hGu', joinedAt: '2024-04-18T00:00:00Z', totalTransactions: 189 },
-  { id: '7', companyName: 'La Patisserie', tier: 'BRONZE', walletAddress: 'EQGg...8cKy', joinedAt: '2024-05-02T00:00:00Z', totalTransactions: 142 },
-  { id: '8', companyName: 'Almaty Sweets', tier: 'BRONZE', walletAddress: 'EQHh...1dXz', joinedAt: '2024-05-15T00:00:00Z', totalTransactions: 96 },
+  { id: '1', companyName: 'Rakhat Sweets', tier: 'GOLD', walletAddress: 'EQRa...2024', joinedAt: '2026-03-06T00:00:00Z', totalTransactions: 28 },
+  { id: '2', companyName: 'Astana Patisserie', tier: 'GOLD', walletAddress: 'EQAs...2024', joinedAt: '2026-03-21T00:00:00Z', totalTransactions: 22 },
+  { id: '3', companyName: 'Almaty Cakes', tier: 'SILVER', walletAddress: 'UQAl...2024', joinedAt: '2026-04-05T00:00:00Z', totalTransactions: 16 },
+  { id: '4', companyName: 'Sultan Baursak', tier: 'SILVER', walletAddress: 'UQSu...2024', joinedAt: '2026-04-20T00:00:00Z', totalTransactions: 12 },
+  { id: '5', companyName: 'Nomad Confectionery', tier: 'BRONZE', walletAddress: 'UQNo...2024', joinedAt: '2026-05-05T00:00:00Z', totalTransactions: 7 },
+  { id: '6', companyName: 'CakeLab Astana', tier: 'BRONZE', walletAddress: 'UQCa...2024', joinedAt: '2026-05-15T00:00:00Z', totalTransactions: 5 },
 ];
 
 const SEED_STATS: EcosystemStats = {
-  totalPartners: 8,
-  totalSweetIssued: 284750,
-  totalTransactions: 2899,
-  avgRewardValue: 98,
+  totalPartners: 6,
+  totalSweetIssued: 118700,
+  totalTransactions: 90,
+  avgRewardValue: 1319,
 };
 
 // ─── Animated Counter ─────────────────────────────────────────────────────────
@@ -158,9 +156,8 @@ function NetworkViz({ partners }: { partners: EcosystemPartner[] }) {
         style={{
           width: 64,
           height: 64,
-          left: '50%',
-          top: '50%',
-          transform: 'translate(-50%, -50%)',
+          left: 130 - 32,
+          top: 130 - 32,
           background: 'linear-gradient(135deg, #f59e0b, #f97316)',
           boxShadow: '0 0 28px rgba(245,158,11,0.55), 0 0 60px rgba(245,158,11,0.18)',
         }}

@@ -12,12 +12,9 @@ import {
   ChevronRightIcon,
   ShieldCheckIcon,
   ArrowTopRightOnSquareIcon,
-  DocumentDuplicateIcon,
-  ChevronDownIcon,
   SparklesIcon,
-  FireIcon,
+  LinkIcon,
   ArrowUpRightIcon,
-  BoltIcon,
   QrCodeIcon,
   TagIcon,
 } from '@heroicons/react/24/outline';
@@ -30,10 +27,11 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { api } from '../../services/api';
 import { TIER_CONFIG } from '../../config/tiers';
 import AnimatedNumber from '../../components/AnimatedNumber';
-import LiveFeed from '../../components/LiveFeed';
+
 import Skeleton from '../../components/Skeleton';
 import PurchaseNotification from '../../components/PurchaseNotification';
 import { io as socketIO } from 'socket.io-client';
+import { Gift, SpinnerGap, PaperPlaneTilt, Trophy } from '@phosphor-icons/react';
 
 const TIERS = TIER_CONFIG;
 
@@ -179,8 +177,22 @@ export default function CustomerDashboard() {
     socket.emit('subscribe:wallet', walletAddress);
 
     socket.on('purchase:awarded', (payload: PurchaseAwardedPayload) => {
-      setSweetBalance(sweetBalance + payload.pointsEarned);
+      const store = useAuthStore.getState();
+      useAuthStore.setState({ sweetBalance: store.sweetBalance + payload.pointsEarned });
       setPurchaseAlert(payload);
+      // Re-fetch from DB to get the authoritative balance
+      fetchData();
+    });
+
+    // Listen for balance:updated from direct transfers (business -> customer)
+    socket.on('balance:updated', (data: { amount?: number; newBalance?: number; balance?: string }) => {
+      const increment = data.amount || Number(data.balance || 0) || Number(data.newBalance || 0);
+      if (increment > 0) {
+        const store = useAuthStore.getState();
+        useAuthStore.setState({ sweetBalance: store.sweetBalance + increment });
+      }
+      // Re-fetch from DB to get the authoritative balance
+      fetchData();
     });
 
     return () => {
@@ -293,25 +305,25 @@ export default function CustomerDashboard() {
   const quickActions = [
     {
       label: t('nav.rewards'),
-      icon: <GiftIcon className="w-5 h-5" />,
+      icon: <Gift size={22} weight="duotone" />,
       route: '/customer/rewards',
       hasBadge: false,
     },
     {
       label: t('nav.spin'),
-      icon: <SparklesIcon className="w-5 h-5" />,
+      icon: <SpinnerGap size={22} weight="duotone" />,
       route: '/customer/spin',
       hasBadge: canSpin,
     },
     {
       label: t('nav.gift'),
-      icon: <FireIcon className="w-5 h-5" />,
+      icon: <PaperPlaneTilt size={22} weight="duotone" />,
       route: '/customer/gift',
       hasBadge: false,
     },
     {
       label: t('customerDashboard.achievementsTitle'),
-      icon: <TrophyIcon className="w-5 h-5" />,
+      icon: <Trophy size={22} weight="duotone" />,
       route: '/achievements',
       hasBadge: false,
     },
@@ -331,7 +343,7 @@ export default function CustomerDashboard() {
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="relative overflow-hidden rounded-3xl mb-4"
+        className="relative overflow-hidden rounded-3xl mb-8"
         style={{
           background: heroStyle.gradient,
           border: `1px solid ${heroStyle.borderColor}`,
@@ -537,15 +549,12 @@ export default function CustomerDashboard() {
         </AnimatePresence>
       </motion.div>
 
-      {/* ── Live Activity Feed ────────────────────────────────────────────────── */}
-      <LiveFeed />
-
       {/* ── Quick Actions Row ─────────────────────────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.12, duration: 0.4 }}
-        className="flex items-center justify-between mb-4 px-1"
+        className="flex items-center justify-between mb-8 px-1"
       >
         {quickActions.map((action, i) => (
           <motion.button
@@ -587,67 +596,12 @@ export default function CustomerDashboard() {
       {/* ── Daily Check-in Card ───────────────────────────────────────────────── */}
       <DailyCheckinCard />
 
-      {/* ── Next Reward Progress (early journey) ─────────────────────────────── */}
-      {!loading && currentBalance > 0 && currentBalance < 500 && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35 }}
-          className="mb-4 p-4 rounded-2xl"
-          style={{
-            background: 'var(--sweet-card)',
-            border: '1px solid var(--sweet-border)',
-          }}
-        >
-          <div className="flex items-center justify-between mb-2.5">
-            <div className="flex items-center gap-2">
-              <div
-                className="w-7 h-7 rounded-lg flex items-center justify-center"
-                style={{ background: 'var(--sweet-accent-dim)' }}
-              >
-                <BoltIcon className="w-3.5 h-3.5" style={{ color: 'var(--sweet-accent)' }} />
-              </div>
-              <span className="text-xs font-bold" style={{ color: 'var(--sweet-text)' }}>
-                {t('customerDashboard.nextReward') || 'First Reward Unlocks At'}
-              </span>
-            </div>
-            <span
-              className="text-[10px] font-mono font-semibold"
-              style={{ color: 'var(--sweet-accent)' }}
-            >
-              {currentBalance}/500 SWEET
-            </span>
-          </div>
-          <div
-            className="h-2 rounded-full overflow-hidden mb-2"
-            style={{ background: 'var(--sweet-border)' }}
-          >
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${Math.min(100, (currentBalance / 500) * 100)}%` }}
-              transition={{ duration: 1.5, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              className="h-full rounded-full"
-              style={{
-                background: 'linear-gradient(90deg, #f59e0b, #f97316)',
-                boxShadow: '0 0 8px rgba(245,158,11,0.45)',
-              }}
-            />
-          </div>
-          <p className="text-[10px]" style={{ color: 'var(--sweet-text-muted)' }}>
-            {t('customerDashboard.moreToUnlock', {
-              amount: (500 - currentBalance).toLocaleString(),
-            }) ||
-              `${(500 - currentBalance).toLocaleString()} more SWEET to unlock your first reward`}
-          </p>
-        </motion.div>
-      )}
-
       {/* ── Available Rewards Preview ─────────────────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.25 }}
-        className="mb-4"
+        className="mb-8"
       >
         <SectionHeader
           icon={<GiftIcon className="w-3.5 h-3.5" />}
@@ -692,16 +646,13 @@ export default function CustomerDashboard() {
         </div>
       </motion.div>
 
-      {/* ── Blockchain Info (collapsible) ─────────────────────────────────────── */}
-      <BlockchainInfoCard walletAddress={walletAddress} />
-
       {/* ── Active Coupons ────────────────────────────────────────────────────── */}
       {activeCoupons && activeCoupons.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="mb-4"
+          className="mb-8"
         >
           <SectionHeader
             icon={<TicketIcon className="w-3.5 h-3.5" />}
@@ -762,7 +713,7 @@ export default function CustomerDashboard() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35 }}
-          className="mb-4"
+          className="mb-8"
         >
           <SectionHeader
             icon={<TrophyIcon className="w-3.5 h-3.5" />}
@@ -917,15 +868,12 @@ export default function CustomerDashboard() {
                         <a
                           href={`https://testnet.tonviewer.com/transaction/${tx.hash}`}
                           target="_blank"
-                          rel="noreferrer"
-                          className="flex items-center gap-0.5 text-[10px] font-mono transition-colors"
-                          style={{ color: 'var(--sweet-text-faint)' }}
-                          title={t('customerDashboard.viewTx')}
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-0.5 text-amber-500/60 hover:text-amber-400 transition-colors duration-150"
+                          title="Verify on TON blockchain"
                         >
-                          <ArrowTopRightOnSquareIcon className="w-2.5 h-2.5" />
-                          {tx.hash.length > 12
-                            ? tx.hash.slice(0, 6) + '...' + tx.hash.slice(-4)
-                            : tx.hash}
+                          <LinkIcon className="w-2.5 h-2.5" />
+                          <span className="text-[9px] font-semibold">TON</span>
                         </a>
                       )}
                     </div>
@@ -1062,116 +1010,6 @@ function RewardPreviewCard({
   );
 }
 
-// ─── Blockchain Info Card ─────────────────────────────────────────────────────
-
-function BlockchainInfoCard({ walletAddress }: { walletAddress: string }) {
-  const { t } = useTranslation();
-  const [expanded, setExpanded] = useState(false);
-
-  if (!walletAddress) return null;
-
-  const truncated =
-    walletAddress.length > 16
-      ? walletAddress.slice(0, 8) + '...' + walletAddress.slice(-6)
-      : walletAddress;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.35 }}
-      className="mb-4 rounded-2xl overflow-hidden"
-      style={{
-        background: 'var(--sweet-card)',
-        border: '1px solid var(--sweet-border)',
-      }}
-    >
-      <button
-        className="w-full flex items-center justify-between px-4 py-3 text-left"
-        onClick={() => setExpanded((v) => !v)}
-      >
-        <div className="flex items-center gap-2">
-          <ShieldCheckIcon className="w-3.5 h-3.5" style={{ color: '#34d399' }} />
-          <span className="text-xs font-semibold" style={{ color: 'var(--sweet-text-secondary)' }}>
-            {t('customerDashboard.blockchainDetails') || 'Blockchain Details'}
-          </span>
-        </div>
-        <ChevronDownIcon
-          className={clsx(
-            'w-3.5 h-3.5 transition-transform',
-            expanded && 'rotate-180'
-          )}
-          style={{ color: 'var(--sweet-text-faint)' }}
-        />
-      </button>
-      <AnimatePresence>
-        {expanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.22 }}
-            className="overflow-hidden"
-          >
-            <div
-              className="px-4 pb-4 space-y-2.5"
-              style={{ borderTop: '1px solid var(--sweet-border)' }}
-            >
-              <div className="pt-3 flex items-center justify-between gap-2">
-                <span className="text-[10px]" style={{ color: 'var(--sweet-text-muted)' }}>
-                  Wallet
-                </span>
-                <div className="flex items-center gap-1.5">
-                  <span
-                    className="text-[10px] font-mono"
-                    style={{ color: 'var(--sweet-text-secondary)' }}
-                  >
-                    {truncated}
-                  </span>
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(walletAddress);
-                    }}
-                    className="transition-colors"
-                    style={{ color: 'var(--sweet-text-muted)' }}
-                  >
-                    <DocumentDuplicateIcon className="w-3 h-3" />
-                  </button>
-                </div>
-              </div>
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px]" style={{ color: 'var(--sweet-text-muted)' }}>
-                  Network
-                </span>
-                <span
-                  className="text-[10px]"
-                  style={{ color: 'var(--sweet-text-secondary)' }}
-                >
-                  TON Testnet
-                </span>
-              </div>
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px]" style={{ color: 'var(--sweet-text-muted)' }}>
-                  Token
-                </span>
-                <a
-                  href={JETTON_EXPLORER_URL}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-0.5 text-[10px] font-mono transition-colors"
-                  style={{ color: 'var(--sweet-accent)' }}
-                >
-                  SWEET Jetton <ArrowTopRightOnSquareIcon className="w-2.5 h-2.5" />
-                </a>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
-  );
-}
-
 // ─── Daily Check-in Card ──────────────────────────────────────────────────────
 
 function DailyCheckinCard() {
@@ -1220,7 +1058,7 @@ function DailyCheckinCard() {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.18 }}
-      className="mb-4 rounded-2xl p-4"
+      className="mb-8 rounded-2xl p-4"
       style={{
         background: 'var(--sweet-card)',
         border: '1px solid var(--sweet-border)',

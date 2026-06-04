@@ -160,6 +160,9 @@ export const api = {
     getStats: () =>
       axiosInstance.get('/admin/stats'),
 
+    mintTokens: (data: { targetWallet: string; amount: number }) =>
+      axiosInstance.post('/loyalty/mint', data),
+
     getSettings: () =>
       axiosInstance.get('/admin/settings'),
 
