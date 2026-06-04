@@ -158,11 +158,12 @@
     "close": "Закрыть",
     "allPartners": "Все партнёры",
     "partners": {
-      "homemacaron": "Home Macaron",
-      "shokoladnitsa": "Шоколадница",
-      "pieceofcake": "Piece of Cake",
-      "coffeemania": "Coffee Mania",
-      "bonapart": "Бонапарт"
+      "rakhat": "Rakhat Sweets",
+      "astana": "Astana Patisserie",
+      "almaty": "Almaty Cakes",
+      "sultan": "Sultan Baursak",
+      "nomad": "Nomad Confectionery",
+      "cakelab": "CakeLab Astana"
     }
   },
   "profile": {
