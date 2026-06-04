@@ -156,6 +156,7 @@
     "platformWide": "Platform-wide",
     "couponTitle": "Your Coupon",
     "couponReady": "Show this code to the cashier at",
+    "claimError": "Failed to claim reward. Please try logging in again.",
     "close": "Close",
     "allPartners": "All Partners",
     "partners": {
