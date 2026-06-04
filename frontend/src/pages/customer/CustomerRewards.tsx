@@ -54,10 +54,10 @@ interface IssuedCoupon {
 // ─── Data ───────────────────────────────────────────────────────────────────
 
 const PARTNERS: Partner[] = [
-  { id: 'rakhat', name: 'Rakhat Sweets', shortName: 'Rakhat', logo: null, initial: 'RS', city: 'Алматы' },
-  { id: 'astana', name: 'Astana Patisserie', shortName: 'Astana P.', logo: null, initial: 'AP', city: 'Астана' },
-  { id: 'almaty', name: 'Almaty Cakes', shortName: 'Almaty C.', logo: null, initial: 'AC', city: 'Алматы' },
-  { id: 'sultan', name: 'Sultan Baursak', shortName: 'Sultan', logo: null, initial: 'SB', city: 'Астана' },
+  { id: 'rakhat', name: 'Rakhat Sweets', shortName: 'Rakhat Sweets', logo: null, initial: 'RS', city: 'Алматы' },
+  { id: 'astana', name: 'Astana Patisserie', shortName: 'Astana Patisserie', logo: null, initial: 'AP', city: 'Астана' },
+  { id: 'almaty', name: 'Almaty Cakes', shortName: 'Almaty Cakes', logo: null, initial: 'AC', city: 'Алматы' },
+  { id: 'sultan', name: 'Sultan Baursak', shortName: 'Sultan Baursak', logo: null, initial: 'SB', city: 'Астана' },
   { id: 'nomad', name: 'Nomad Confectionery', shortName: 'Nomad', logo: null, initial: 'NC', city: 'Алматы' },
   { id: 'cakelab', name: 'CakeLab Astana', shortName: 'CakeLab', logo: null, initial: 'CL', city: 'Астана' },
   { id: 'platform', name: 'Sweet Platform', shortName: 'Platform', logo: null, initial: 'SW', city: 'Все партнёры' },
