@@ -159,12 +159,14 @@
     "close": "Закрыть",
     "allPartners": "Все партнёры",
     "partners": {
-      "rakhat": "Rakhat Sweets",
-      "astana": "Astana Patisserie",
-      "almaty": "Almaty Cakes",
-      "sultan": "Sultan Baursak",
-      "nomad": "Nomad Confectionery",
-      "cakelab": "CakeLab Astana"
+      "homemacaron": "Home Macaron",
+      "sweets_art": "Sweets. The Art of Cake",
+      "musmus": "Дом десертов MUS-MUS",
+      "ocake": "O-Cake",
+      "cakelab": "CakeLab Astana",
+      "patisserie": "Patisserie de Luxe",
+      "hmgreen": "Home Macaron GreenLine",
+      "marlen": "Марлен"
     }
   },
   "profile": {

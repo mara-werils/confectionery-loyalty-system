@@ -20,11 +20,11 @@ const ICONS: Record<string, string> = {
 
 // Seed data for demo (shown before real events arrive)
 const SEED_FEED: FeedItem[] = [
-  { id: 's1', type: 'purchase', message: '+120 SWEET earned at Rakhat Sweets', amount: 120, timestamp: new Date(Date.now() - 120000).toISOString() },
+  { id: 's1', type: 'purchase', message: '+120 SWEET earned at Home Macaron', amount: 120, timestamp: new Date(Date.now() - 120000).toISOString() },
   { id: 's2', type: 'spin', message: '+50 SWEET won on Spin Wheel', amount: 50, timestamp: new Date(Date.now() - 300000).toISOString() },
   { id: 's3', type: 'gift', message: '25 SWEET gifted to a friend', amount: 25, timestamp: new Date(Date.now() - 600000).toISOString() },
   { id: 's4', type: 'checkin', message: '+20 SWEET daily bonus (5 day streak)', amount: 20, timestamp: new Date(Date.now() - 900000).toISOString() },
-  { id: 's5', type: 'purchase', message: '+80 SWEET earned at Astana Patisserie', amount: 80, timestamp: new Date(Date.now() - 1500000).toISOString() },
+  { id: 's5', type: 'purchase', message: '+80 SWEET earned at MUS-MUS', amount: 80, timestamp: new Date(Date.now() - 1500000).toISOString() },
 ];
 
 function timeAgo(ts: string): string {
