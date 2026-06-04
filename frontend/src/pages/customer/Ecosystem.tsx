@@ -72,18 +72,20 @@ const TIER_STYLE = {
 // ─── Fallback seed data (shown when API is unavailable) ───────────────────────
 
 const SEED_PARTNERS: EcosystemPartner[] = [
-  { id: '1', companyName: 'Rakhat Sweets', tier: 'GOLD', walletAddress: 'EQRa...2024', joinedAt: '2026-03-06T00:00:00Z', totalTransactions: 28 },
-  { id: '2', companyName: 'Astana Patisserie', tier: 'GOLD', walletAddress: 'EQAs...2024', joinedAt: '2026-03-21T00:00:00Z', totalTransactions: 22 },
-  { id: '3', companyName: 'Almaty Cakes', tier: 'SILVER', walletAddress: 'UQAl...2024', joinedAt: '2026-04-05T00:00:00Z', totalTransactions: 16 },
-  { id: '4', companyName: 'Sultan Baursak', tier: 'SILVER', walletAddress: 'UQSu...2024', joinedAt: '2026-04-20T00:00:00Z', totalTransactions: 12 },
-  { id: '5', companyName: 'Nomad Confectionery', tier: 'BRONZE', walletAddress: 'UQNo...2024', joinedAt: '2026-05-05T00:00:00Z', totalTransactions: 7 },
-  { id: '6', companyName: 'CakeLab Astana', tier: 'BRONZE', walletAddress: 'UQCa...2024', joinedAt: '2026-05-15T00:00:00Z', totalTransactions: 5 },
+  { id: '1', companyName: 'Home Macaron', tier: 'GOLD', walletAddress: 'UQD6...zTRA', joinedAt: '2026-04-04T00:00:00Z', totalTransactions: 22 },
+  { id: '2', companyName: 'Sweets. The Art of Cake', tier: 'SILVER', walletAddress: 'UQBs...e_01', joinedAt: '2026-04-19T00:00:00Z', totalTransactions: 28 },
+  { id: '3', companyName: 'Дом десертов MUS-MUS', tier: 'SILVER', walletAddress: 'UQBm...a_02', joinedAt: '2026-05-04T00:00:00Z', totalTransactions: 16 },
+  { id: '4', companyName: 'Patisserie de Luxe', tier: 'SILVER', walletAddress: 'UQBp...x_03', joinedAt: '2026-05-10T00:00:00Z', totalTransactions: 5 },
+  { id: '5', companyName: 'O-Cake', tier: 'BRONZE', walletAddress: 'UQBo...a_04', joinedAt: '2026-05-14T00:00:00Z', totalTransactions: 12 },
+  { id: '6', companyName: 'CakeLab Astana', tier: 'BRONZE', walletAddress: 'UQBc...a_05', joinedAt: '2026-05-20T00:00:00Z', totalTransactions: 7 },
+  { id: '7', companyName: 'Home Macaron GreenLine', tier: 'SILVER', walletAddress: 'UQBh...g_06', joinedAt: '2026-05-22T00:00:00Z', totalTransactions: 8 },
+  { id: '8', companyName: 'Марлен', tier: 'BRONZE', walletAddress: 'UQBm...r_07', joinedAt: '2026-05-25T00:00:00Z', totalTransactions: 3 },
 ];
 
 const SEED_STATS: EcosystemStats = {
-  totalPartners: 6,
+  totalPartners: 8,
   totalSweetIssued: 118700,
-  totalTransactions: 90,
+  totalTransactions: 121,
   avgRewardValue: 1319,
 };
 
