@@ -34,7 +34,7 @@ axiosInstance.interceptors.response.use(
     const code = error.response?.data?.error?.code;
 
     // Handle stale/invalid tokens — clear state and redirect to home
-    const STALE_TOKEN_CODES = ['TOKEN_EXPIRED', 'ACCOUNT_INVALID', 'UNAUTHORIZED'];
+    const STALE_TOKEN_CODES = ['TOKEN_EXPIRED', 'ACCOUNT_INVALID', 'UNAUTHORIZED', 'INVALID_TOKEN'];
     if (
       error.response?.status === 401 &&
       (!code || STALE_TOKEN_CODES.includes(code)) &&
