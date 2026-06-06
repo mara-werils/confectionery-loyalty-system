@@ -25,79 +25,6 @@ const PHASE_CONFIRMING_END = 4400;
 const PHASE_CONFIRMED_END  = 6600;
 const AUTO_DISMISS_AFTER   = 7800;
 
-// ─── Confetti particle config ─────────────────────────────────────────────────
-const COLORS = [
-  '#f59e0b', '#fbbf24', '#f97316', '#fb923c',
-  '#fcd34d', '#fde68a', '#34d399', '#a78bfa',
-  '#f472b6', '#38bdf8',
-];
-
-interface Particle {
-  id: number;
-  x: number;
-  y: number;
-  size: number;
-  color: string;
-  angle: number;
-  speed: number;
-  spin: number;
-  shape: 'circle' | 'square' | 'rect';
-}
-
-function generateParticles(count: number): Particle[] {
-  return Array.from({ length: count }, (_, i) => ({
-    id: i,
-    x: 30 + Math.random() * 40,          // % of container width
-    y: 20 + Math.random() * 30,           // % of container height
-    size: 5 + Math.random() * 7,
-    color: COLORS[Math.floor(Math.random() * COLORS.length)],
-    angle: -60 + Math.random() * 120,     // spray angle
-    speed: 80 + Math.random() * 160,      // px to travel
-    spin: (Math.random() - 0.5) * 720,
-    shape: (['circle', 'square', 'rect'] as const)[Math.floor(Math.random() * 3)],
-  }));
-}
-
-// ─── Confetti overlay ─────────────────────────────────────────────────────────
-
-function ConfettiOverlay({ active }: { active: boolean }) {
-  const [particles] = useState<Particle[]>(() => generateParticles(30));
-
-  return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-3xl">
-      {particles.map((p) => (
-        <motion.div
-          key={p.id}
-          initial={{ opacity: 0, x: `${p.x}%`, y: `${p.y}%`, scale: 0, rotate: 0 }}
-          animate={
-            active
-              ? {
-                  opacity: [0, 1, 1, 0],
-                  x: `calc(${p.x}% + ${Math.cos((p.angle * Math.PI) / 180) * p.speed}px)`,
-                  y: `calc(${p.y}% + ${Math.sin((p.angle * Math.PI) / 180) * p.speed + 40}px)`,
-                  scale: [0, 1, 1, 0.6],
-                  rotate: p.spin,
-                }
-              : { opacity: 0 }
-          }
-          transition={{
-            duration: 1.8,
-            delay: 0.05 + Math.random() * 0.4,
-            ease: 'easeOut',
-          }}
-          style={{
-            position: 'absolute',
-            width: p.shape === 'rect' ? p.size * 2 : p.size,
-            height: p.size,
-            background: p.color,
-            borderRadius: p.shape === 'circle' ? '50%' : p.shape === 'square' ? '2px' : '1px',
-            opacity: 0,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
 
 // ─── SVG checkmark that draws itself ─────────────────────────────────────────
 
@@ -357,45 +284,12 @@ export default function PurchaseNotification({ payload, onDismiss }: Props) {
               borderRadius: 28,
               background: 'var(--sweet-card)',
               border: '1px solid rgba(245,158,11,0.30)',
-              boxShadow:
-                '0 24px 80px rgba(245,158,11,0.18), 0 0 0 1px rgba(245,158,11,0.08) inset',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
               overflow: 'hidden',
               padding: '28px 24px 22px',
             }}
           >
-            {/* Ambient glow top */}
-            <div
-              style={{
-                position: 'absolute',
-                top: -40,
-                left: '50%',
-                transform: 'translateX(-50%)',
-                width: 240,
-                height: 120,
-                borderRadius: '50%',
-                background: 'radial-gradient(ellipse, rgba(245,158,11,0.22) 0%, transparent 70%)',
-                pointerEvents: 'none',
-              }}
-            />
-
-            {/* Shimmer sweep */}
-            <motion.div
-              animate={{ x: ['-100%', '200%'] }}
-              transition={{ duration: 2.4, repeat: Infinity, repeatDelay: 1.8, ease: 'easeInOut' }}
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '50%',
-                height: '100%',
-                background:
-                  'linear-gradient(105deg, transparent 40%, rgba(245,158,11,0.07) 50%, transparent 60%)',
-                pointerEvents: 'none',
-              }}
-            />
-
-            {/* Confetti (phase: awarded) */}
-            <ConfettiOverlay active={phase === 'awarded'} />
+            {/* Clean card — no decorative overlays */}
 
             {/* Close button */}
             <button

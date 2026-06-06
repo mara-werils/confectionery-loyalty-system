@@ -84,9 +84,9 @@ const TIER_BADGE: Record<string, string> = {
 };
 
 const CATEGORY_ICON: Record<string, string> = {
-  DISCOUNT: '💸',
-  PRODUCT: '🎁',
-  CASHBACK: '🪙',
+  DISCOUNT: '%',
+  PRODUCT: '·',
+  CASHBACK: '↩',
   SPECIAL: '★',
 };
 

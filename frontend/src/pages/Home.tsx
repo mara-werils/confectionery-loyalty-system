@@ -26,68 +26,21 @@ const itemVariants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } },
 };
 
-// ─── Floating blob shape ──────────────────────────────────────────────────────
-function Blob({ style }: { style: React.CSSProperties }) {
-  return (
-    <div
-      className="absolute rounded-full pointer-events-none"
-      style={{
-        filter: 'blur(72px)',
-        opacity: 0.18,
-        ...style,
-      }}
-    />
-  );
-}
-
-// ─── Animated gradient background ────────────────────────────────────────────
+// ─── Subtle background ───────────────────────────────────────────────────────
 function AnimatedBackground() {
   return (
-    <div className="absolute inset-0 overflow-hidden" aria-hidden>
-      {/* Primary warm glow – top-centre */}
-      <Blob
+    <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden>
+      {/* Single subtle top glow */}
+      <div
+        className="absolute rounded-full"
         style={{
-          width: 520,
-          height: 520,
-          top: '-160px',
+          width: 400,
+          height: 400,
+          top: '-200px',
           left: '50%',
           transform: 'translateX(-50%)',
-          background: 'radial-gradient(circle, #f59e0b 0%, #ea580c 100%)',
-          animation: 'blobFloat 8s ease-in-out infinite',
-        }}
-      />
-      {/* Secondary cool glow – bottom-right */}
-      <Blob
-        style={{
-          width: 340,
-          height: 340,
-          bottom: '-80px',
-          right: '-60px',
-          background: 'radial-gradient(circle, #b45309 0%, #92400e 100%)',
-          animation: 'blobFloat 11s ease-in-out infinite reverse',
-        }}
-      />
-      {/* Tertiary faint glow – left */}
-      <Blob
-        style={{
-          width: 220,
-          height: 220,
-          top: '40%',
-          left: '-60px',
-          background: 'radial-gradient(circle, #d97706 0%, transparent 70%)',
-          animation: 'blobFloat 14s ease-in-out infinite',
-        }}
-      />
-      {/* Grid overlay */}
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage:
-            'linear-gradient(var(--sweet-border) 1px, transparent 1px), linear-gradient(90deg, var(--sweet-border) 1px, transparent 1px)',
-          backgroundSize: '48px 48px',
-          opacity: 0.25,
-          maskImage: 'radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent)',
-          WebkitMaskImage: 'radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent)',
+          background: 'radial-gradient(circle, rgba(245,158,11,0.08) 0%, transparent 70%)',
+          filter: 'blur(60px)',
         }}
       />
     </div>
@@ -306,15 +259,6 @@ export default function Home() {
 
   return (
     <>
-      {/* Inline keyframes injected once */}
-      <style>{`
-        @keyframes blobFloat {
-          0%, 100% { transform: translateX(-50%) translateY(0px) scale(1); }
-          33% { transform: translateX(-50%) translateY(-18px) scale(1.04); }
-          66% { transform: translateX(-50%) translateY(10px) scale(0.97); }
-        }
-      `}</style>
-
       <div
         className="min-h-screen relative overflow-hidden flex flex-col"
         style={{ background: 'var(--sweet-bg)', color: 'var(--sweet-text)' }}

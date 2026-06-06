@@ -16,7 +16,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { useAuthStore } from '../../store/authStore';
 import { useTonWallet } from '@tonconnect/ui-react';
 import toast from 'react-hot-toast';
-import confetti from 'canvas-confetti';
+
 import { api } from '../../services/api';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -211,7 +211,6 @@ export default function CustomerRewards() {
       setSweetBalance(Math.max(0, sweetBalance - reward.pointsRequired));
       addCoupon({ code, rewardTitleKey: reward.titleKey, partnerName: partner.name });
       setSheet({ code, reward, partner, expiresAt, daysLeft });
-      confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
     } catch (err: unknown) {
       let message = t('rewards.claimError') || 'Error issuing coupon';
       if (err && typeof err === 'object') {

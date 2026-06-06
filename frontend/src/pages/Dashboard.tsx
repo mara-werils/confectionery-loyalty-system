@@ -11,7 +11,6 @@ import {
   QrCodeIcon,
   XMarkIcon,
   ArrowUpRightIcon,
-  CheckCircleIcon,
   ClipboardDocumentIcon,
   ExclamationCircleIcon,
   ShoppingBagIcon,
@@ -62,28 +61,28 @@ interface SimulateReceipt {
 }
 
 const DEMO_CUSTOMERS = [
-  { label: 'Alice (Bronze)', wallet: 'UQBvI0aFLnw2QbZgjMPryQSb4XYiQa3zzDLNTqFKiG8G_WAc' },
-  { label: 'Bob (Silver)', wallet: 'UQDtFpEwcFAEcRe5mLVh2N6C7oMVjE2BrJMRoV3YCRx0xBGl' },
-  { label: 'Carol (Gold)', wallet: 'UQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixG_7Wy2oqqwnT' },
+  { label: 'Айгерим (Bronze)', wallet: 'UQBvI0aFLnw2QbZgjMPryQSb4XYiQa3zzDLNTqFKiG8G_WAc' },
+  { label: 'Нурсултан (Silver)', wallet: 'UQDtFpEwcFAEcRe5mLVh2N6C7oMVjE2BrJMRoV3YCRx0xBGl' },
+  { label: 'Дана (Gold)', wallet: 'UQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixG_7Wy2oqqwnT' },
 ];
 
 const DEMO_ITEMS = [
-  { name: 'Napoleon Cake', icon: '🎂' },
-  { name: 'Eclair Set', icon: '🍫' },
-  { name: 'Coffee & Croissant', icon: '☕' },
-  { name: 'Macaron Box (6 pcs)', icon: '🌸' },
-  { name: 'Honey Cake Slice', icon: '🍯' },
-  { name: 'Tiramisu', icon: '🍰' },
-  { name: 'Choco Fondant', icon: '🍮' },
-  { name: 'Baklava Assortment', icon: '🥐' },
+  'Napoleon Cake',
+  'Eclair Set',
+  'Coffee & Croissant',
+  'Macaron Box (6 pcs)',
+  'Honey Cake Slice',
+  'Tiramisu',
+  'Choco Fondant',
+  'Baklava Assortment',
 ];
 
 const MOCK_ACTIVITIES = [
-  { id: 1, type: 'earn', user: 'Alice', amount: 150, partner: 'Sweet Corner', ago: '2m ago' },
-  { id: 2, type: 'redeem', user: 'Bob', amount: 500, partner: 'Bakehouse', ago: '8m ago' },
-  { id: 3, type: 'join', user: 'Carol', amount: 0, partner: 'Partner Network', ago: '15m ago' },
-  { id: 4, type: 'earn', user: 'David', amount: 240, partner: 'Macaron Café', ago: '23m ago' },
-  { id: 5, type: 'earn', user: 'Eva', amount: 80, partner: 'Sweet Corner', ago: '41m ago' },
+  { id: 1, type: 'earn', user: 'Айгерим', amount: 150, partner: 'Home Macaron', ago: '2m ago' },
+  { id: 2, type: 'redeem', user: 'Нурсултан', amount: 500, partner: 'MUS-MUS', ago: '8m ago' },
+  { id: 3, type: 'join', user: 'Дана', amount: 0, partner: 'Partner Network', ago: '15m ago' },
+  { id: 4, type: 'earn', user: 'Арман', amount: 240, partner: 'O-Cake', ago: '23m ago' },
+  { id: 5, type: 'earn', user: 'Камила', amount: 80, partner: 'Quiynar', ago: '41m ago' },
 ];
 
 const activityMeta: Record<string, { icon: React.ReactNode; colorClass: string; label: string }> = {
@@ -120,16 +119,16 @@ function StatCard({ title, value, suffix, trend, trendUp = true, icon, accentCol
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-2xl p-5 relative overflow-hidden"
+      className="rounded-2xl p-5 relative overflow-hidden h-full flex flex-col"
       style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)' }}
     >
       <div
         className="absolute inset-0 opacity-30 pointer-events-none"
         style={{ background: 'radial-gradient(ellipse 120px 80px at 85% 15%, var(--sweet-accent-dim), transparent)' }}
       />
-      <div className="relative">
+      <div className="relative flex flex-col flex-1">
         <div className="flex items-start justify-between mb-4">
-          <p className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--sweet-text-muted)' }}>
+          <p className="text-xs font-medium uppercase tracking-wider leading-tight" style={{ color: 'var(--sweet-text-muted)' }}>
             {title}
           </p>
           <div
@@ -148,30 +147,32 @@ function StatCard({ title, value, suffix, trend, trendUp = true, icon, accentCol
           </div>
         </div>
 
-        {loading && value === null ? (
-          <Skeleton className="h-8 w-28 mb-3" rounded="md" />
-        ) : (
-          <div className="flex items-baseline gap-1.5 mb-3">
-            <span style={{ color: 'var(--sweet-text)' }}>
-              <AnimatedNumber
-                value={value ?? 0}
-                className="text-2xl font-bold tracking-tight"
-              />
-            </span>
-            {suffix && (
-              <span className="text-sm font-medium" style={{ color: 'var(--sweet-text-muted)' }}>
-                {suffix}
+        <div className="mt-auto">
+          {loading && value === null ? (
+            <Skeleton className="h-8 w-28 mb-3" rounded="md" />
+          ) : (
+            <div className="flex items-baseline gap-1.5 mb-3">
+              <span style={{ color: 'var(--sweet-text)' }}>
+                <AnimatedNumber
+                  value={value ?? 0}
+                  className="text-2xl font-bold tracking-tight"
+                />
               </span>
-            )}
-          </div>
-        )}
+              {suffix && (
+                <span className="text-sm font-medium" style={{ color: 'var(--sweet-text-muted)' }}>
+                  {suffix}
+                </span>
+              )}
+            </div>
+          )}
 
-        {trend && (
-          <p className={`text-xs flex items-center gap-1 font-medium ${trendUp ? 'text-emerald-400' : 'text-rose-400'}`}>
-            <ArrowUpRightIcon className={`w-3 h-3 ${trendUp ? '' : 'rotate-180'}`} />
-            {trend}
-          </p>
-        )}
+          {trend && (
+            <p className={`text-xs flex items-center gap-1 font-medium ${trendUp ? 'text-emerald-400' : 'text-rose-400'}`}>
+              <ArrowUpRightIcon className={`w-3 h-3 ${trendUp ? '' : 'rotate-180'}`} />
+              <span className="truncate">{trend}</span>
+            </p>
+          )}
+        </div>
       </div>
     </motion.div>
   );
@@ -403,7 +404,7 @@ export default function Dashboard() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 items-stretch">
           <StatCard
             title={t('dashboard.treasuryHoldings') || 'Treasury Holdings'}
             value={balance?.sweet ?? null}
@@ -559,12 +560,12 @@ export default function Dashboard() {
                 </label>
                 <div className="flex flex-wrap gap-1.5">
                   {DEMO_ITEMS.map((item) => {
-                    const selected = simItems.includes(item.name);
+                    const selected = simItems.includes(item);
                     return (
                       <button
-                        key={item.name}
+                        key={item}
                         type="button"
-                        onClick={() => toggleItem(item.name)}
+                        onClick={() => toggleItem(item)}
                         className="text-[11px] px-2.5 py-1.5 rounded-lg font-medium transition-all active:scale-95"
                         style={
                           selected
@@ -572,7 +573,7 @@ export default function Dashboard() {
                             : { background: 'var(--sweet-input)', border: '1px solid var(--sweet-border)', color: 'var(--sweet-text-muted)' }
                         }
                       >
-                        {item.icon} {item.name}
+                        {item}
                       </button>
                     );
                   })}
@@ -705,12 +706,9 @@ export default function Dashboard() {
                         value={clientWalletAddress}
                         onChange={(e) => handleAddressChange(e.target.value)}
                       />
-                      {clientWalletAddress && (
+                      {clientWalletAddress && addressError && (
                         <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                          {addressError
-                            ? <ExclamationCircleIcon className="w-4 h-4 text-red-400" />
-                            : <CheckCircleIcon className="w-4 h-4 text-emerald-400" />
-                          }
+                          <ExclamationCircleIcon className="w-4 h-4 text-red-400" />
                         </div>
                       )}
                     </div>

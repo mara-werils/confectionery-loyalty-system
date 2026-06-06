@@ -4,11 +4,11 @@ import { ArrowTrendingUpIcon } from '@heroicons/react/24/outline';
 
 // Representative example activities — clearly labeled as examples
 const activities = [
-  { user: 'Partner', action: 'earned', amount: '150', token: 'SWEET', partner: 'Sweet Corner' },
-  { user: 'Customer', action: 'claimed', amount: '', token: '10% Discount', partner: '' },
-  { user: 'New Partner', action: 'joined', amount: '', token: 'Partner Network', partner: '' },
-  { user: 'Customer', action: 'earned', amount: '500', token: 'SWEET', partner: 'Bakehouse' },
-  { user: 'Partner', action: 'minted', amount: '10,000', token: 'SWEET', partner: '' },
+  { user: 'Айгерим', action: 'earned', amount: '150', token: 'SWEET', partner: 'Home Macaron' },
+  { user: 'Нурсултан', action: 'claimed', amount: '', token: '10% Discount', partner: 'MUS-MUS' },
+  { user: 'O-Cake', action: 'joined', amount: '', token: 'Partner Network', partner: '' },
+  { user: 'Дана', action: 'earned', amount: '500', token: 'SWEET', partner: 'Quiynar' },
+  { user: 'Арман', action: 'earned', amount: '240', token: 'SWEET', partner: 'Panaderia' },
 ];
 
 export default function LiveActivity() {
@@ -34,12 +34,11 @@ export default function LiveActivity() {
     return 'text-stone-300';
   };
 
-  const getActionEmoji = (action: string) => {
-    if (action === 'earned') return '🪙';
-    if (action === 'claimed') return '🎁';
-    if (action === 'joined') return '◈';
-    if (action === 'minted') return '🏅';
-    return '📌';
+  const getActionSymbol = (action: string) => {
+    if (action === 'earned') return '+';
+    if (action === 'claimed') return '↓';
+    if (action === 'joined') return '→';
+    return '·';
   };
 
   return (
@@ -59,7 +58,7 @@ export default function LiveActivity() {
             transition={{ duration: 0.3 }}
             className="flex items-center gap-3"
           >
-            <span className="text-xl">{getActionEmoji(activity.action)}</span>
+            <span className={`text-sm font-mono font-bold ${getActionColor(activity.action)}`}>{getActionSymbol(activity.action)}</span>
             <div className="flex-1 min-w-0">
               <p className="text-sm text-white truncate">
                 <span className="font-semibold">{activity.user}</span>
