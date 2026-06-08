@@ -13,6 +13,8 @@ import Stats from './pages/Stats';
 // Pages — lazy loaded (heavy / secondary)
 const AIPredictions = lazy(() => import('./pages/AIPredictions'));
 const Achievements = lazy(() => import('./pages/Achievements'));
+const Governance = lazy(() => import('./pages/Governance'));
+const LiveDashboard = lazy(() => import('./pages/LiveDashboard'));
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -94,8 +96,9 @@ function App() {
   return (
     <Suspense fallback={LazyFallback}>
     <Routes>
-      {/* Public route */}
+      {/* Public routes — no auth required */}
       <Route path="/" element={<Home />} />
+      <Route path="/live" element={<LiveDashboard />} />
       
       {/* Admin Routes with Auth Gate + Admin Layout */}
       <Route path="/admin" element={<AdminAuthGate />}>
@@ -119,11 +122,11 @@ function App() {
           <Route path="/ai" element={<AIPredictions />} />
           <Route path="/referrals" element={<Referrals />} />
           <Route path="/analytics" element={<Analytics />} />
+          <Route path="/governance" element={<Governance />} />
           <Route path="/business/profile" element={<Profile />} />
           {/* Disabled features: redirect to dashboard */}
           <Route path="/blockchain" element={<Navigate to="/business/dashboard" replace />} />
           <Route path="/swap" element={<Navigate to="/business/dashboard" replace />} />
-          <Route path="/governance" element={<Navigate to="/business/dashboard" replace />} />
         </Route>
       </Route>
 
@@ -140,9 +143,9 @@ function App() {
           <Route path="/history" element={<History />} />
           <Route path="/stats" element={<Stats />} />
           <Route path="/customer/profile" element={<Profile />} />
+          <Route path="/customer/governance" element={<Governance />} />
           {/* Disabled features: redirect to dashboard */}
           <Route path="/staking" element={<Navigate to="/customer/dashboard" replace />} />
-          <Route path="/customer/governance" element={<Navigate to="/customer/dashboard" replace />} />
         </Route>
       </Route>
 

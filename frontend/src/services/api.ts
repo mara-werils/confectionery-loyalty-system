@@ -241,6 +241,27 @@ export const api = {
       axiosInstance.post('/gift/send', { receiverWallet, amount, message }),
     history: () => axiosInstance.get('/gift/history'),
   },
+
+  // DAO Governance
+  governance: {
+    getProposals: () => axiosInstance.get('/governance/proposals'),
+    createProposal: (data: { title: string; description: string; category: string; durationDays: number }) =>
+      axiosInstance.post('/governance/proposals', data),
+    vote: (proposalId: string, choice: 'FOR' | 'AGAINST' | 'ABSTAIN') =>
+      axiosInstance.post(`/governance/proposals/${proposalId}/vote`, { choice }),
+    getStats: () => axiosInstance.get('/governance/stats'),
+  },
+
+  // AI Churn Interventions
+  churn: {
+    getInterventions: (params?: { limit?: number }) =>
+      axiosInstance.get('/ai/interventions', { params }),
+  },
+
+  // Public / Live Dashboard (no auth)
+  public: {
+    getStats: () => axiosInstance.get('/public/stats'),
+  },
 };
 
 export default axiosInstance;

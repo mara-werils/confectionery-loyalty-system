@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { authenticate } from '../middleware/auth';
 import { successResponse } from '../utils/response';
+import { prisma } from '../utils/prisma';
 import {
   computeChurnRisks,
   computeRevenueForecast,
@@ -95,6 +96,53 @@ router.get(
       }
       const result = await computeRecommendations(req.user!.id);
       return successResponse(res, result);
+    } catch (error) {
+      return next(error);
+    }
+  }
+);
+
+/**
+ * GET /ai/interventions — today's auto-intervention stats
+ */
+router.get(
+  '/interventions',
+  authenticate,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const now = new Date();
+      const startOfToday = new Date(now);
+      startOfToday.setUTCHours(0, 0, 0, 0);
+
+      const [todayInterventions, totalInterventions, recentInterventions] = await Promise.all([
+        prisma.churnIntervention.count({ where: { createdAt: { gte: startOfToday } } }),
+        prisma.churnIntervention.count(),
+        prisma.churnIntervention.findMany({
+          take: 10,
+          orderBy: { createdAt: 'desc' },
+          include: { partner: { select: { companyName: true, tier: true } } },
+        }),
+      ]);
+
+      const totalBonusSentToday = await prisma.churnIntervention.aggregate({
+        where: { createdAt: { gte: startOfToday } },
+        _sum: { bonusSent: true },
+      });
+
+      return successResponse(res, {
+        todayCount: todayInterventions,
+        totalCount: totalInterventions,
+        totalBonusSentToday: totalBonusSentToday._sum.bonusSent ?? 0,
+        recent: recentInterventions.map(i => ({
+          id: i.id,
+          company: i.partner.companyName,
+          tier: i.partner.tier,
+          riskScore: i.riskScore,
+          riskLevel: i.riskLevel,
+          bonusSent: i.bonusSent,
+          createdAt: i.createdAt.toISOString(),
+        })),
+      });
     } catch (error) {
       return next(error);
     }
