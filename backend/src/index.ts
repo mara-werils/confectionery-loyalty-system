@@ -30,6 +30,7 @@ import checkinRoutes from './routes/checkin';
 import giftRoutes from './routes/gift';
 import governanceRoutes from './routes/governance';
 import publicRoutes from './routes/public';
+import settlementRoutes from './routes/settlement';
 import { startChurnCron } from './cron/churnCron';
 
 
@@ -162,6 +163,7 @@ app.use(`${apiPrefix}/checkin`, checkinRoutes);
 app.use(`${apiPrefix}/gift`, giftRoutes);
 app.use(`${apiPrefix}/governance`, governanceRoutes);
 app.use(`${apiPrefix}/public`, publicRoutes);
+app.use(`${apiPrefix}/settlement`, settlementRoutes);
 
 // ============================================================================
 // SOCKET.IO

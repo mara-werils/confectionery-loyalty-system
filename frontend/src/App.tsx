@@ -28,6 +28,7 @@ import AdminSettings from './pages/admin/AdminSettings';
 import BusinessRegister from './pages/business/BusinessRegister';
 import CouponVerify from './pages/business/CouponVerify';
 const Analytics = lazy(() => import('./pages/business/Analytics'));
+const Settlement = lazy(() => import('./pages/Settlement'));
 import CustomerDashboard from './pages/customer/CustomerDashboard';
 import CustomerRewards from './pages/customer/CustomerRewards';
 const SpinWheel = lazy(() => import('./pages/customer/SpinWheel'));
@@ -123,6 +124,7 @@ function App() {
           <Route path="/referrals" element={<Referrals />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/governance" element={<Governance />} />
+          <Route path="/business/settlement" element={<Settlement />} />
           <Route path="/business/profile" element={<Profile />} />
           {/* Disabled features: redirect to dashboard */}
           <Route path="/blockchain" element={<Navigate to="/business/dashboard" replace />} />
