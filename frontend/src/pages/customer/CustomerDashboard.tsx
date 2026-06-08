@@ -38,7 +38,7 @@ const TIERS = TIER_CONFIG;
 const JETTON_ADDRESS = 'kQBNOiJ4aToE-Ea12DpY5nBmu1bKT0axt81JmS9BFPh8nCio';
 const JETTON_EXPLORER_URL = `https://testnet.tonviewer.com/${JETTON_ADDRESS}`;
 
-// Per-tier hero card styling
+// Per-tier hero card styling — intentionally rich/dark for branding impact
 const TIER_HERO = {
   BRONZE: {
     gradient: 'linear-gradient(135deg, #1c1007 0%, #2a1800 40%, #1a0e00 100%)',
@@ -104,6 +104,21 @@ function safeFromJettonRaw(rawBalance: string, decimals: number): number {
   const divisor = Math.pow(10, safeDecimals);
   return Math.floor(parsed / divisor);
 }
+
+// Stagger container variants
+const containerVariants = {
+  hidden: {},
+  show: {
+    transition: {
+      staggerChildren: 0.07,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 14 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.22, 1, 0.36, 1] } },
+};
 
 export default function CustomerDashboard() {
   const wallet = useTonWallet();
@@ -330,33 +345,36 @@ export default function CustomerDashboard() {
   ];
 
   return (
-    <div className="pb-28" style={{ color: 'var(--sweet-text)' }}>
-
-      {/* ── Real-time Purchase Award Notification (full-screen overlay) ──────── */}
+    <motion.div
+      className="pb-28"
+      style={{ color: 'var(--sweet-text)' }}
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+    >
+      {/* ── Real-time Purchase Award Notification ──────────────────────────── */}
       <PurchaseNotification
         payload={purchaseAlert}
         onDismiss={() => setPurchaseAlert(null)}
       />
 
-      {/* ── Hero Balance Card ─────────────────────────────────────────────────── */}
+      {/* ── Hero Balance Card ─────────────────────────────────────────────── */}
       <motion.div
-        initial={{ opacity: 0, y: -12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="relative overflow-hidden rounded-3xl mb-8"
+        variants={itemVariants}
+        className="relative overflow-hidden rounded-3xl mb-6"
         style={{
           background: heroStyle.gradient,
           border: `1px solid ${heroStyle.borderColor}`,
-          boxShadow: `0 8px 40px ${heroStyle.glowColor}`,
+          boxShadow: `0 12px 48px ${heroStyle.glowColor}, 0 2px 8px rgba(0,0,0,0.4)`,
         }}
       >
         {/* Ambient glow blobs */}
         <div
-          className="absolute -top-12 -right-12 w-48 h-48 rounded-full blur-3xl pointer-events-none"
+          className="absolute -top-12 -right-12 w-56 h-56 rounded-full blur-3xl pointer-events-none"
           style={{ background: heroStyle.glowColor }}
         />
         <div
-          className="absolute -bottom-10 -left-10 w-36 h-36 rounded-full blur-2xl pointer-events-none"
+          className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full blur-2xl pointer-events-none"
           style={{ background: heroStyle.glowColor2 }}
         />
         {/* Shimmer sweep */}
@@ -462,9 +480,9 @@ export default function CustomerDashboard() {
                 onClick={() => setQrVisible((v) => !v)}
                 className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl transition-all"
                 style={{
-                  background: 'rgba(255,255,255,0.06)',
-                  border: '1px solid rgba(255,255,255,0.10)',
-                  color: 'rgba(255,255,255,0.5)',
+                  background: 'rgba(255,255,255,0.07)',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  color: 'rgba(255,255,255,0.55)',
                 }}
               >
                 <QrCodeIcon className="w-4 h-4" />
@@ -492,7 +510,7 @@ export default function CustomerDashboard() {
           </div>
           <div
             className="h-1.5 rounded-full overflow-hidden"
-            style={{ background: 'rgba(255,255,255,0.07)' }}
+            style={{ background: 'rgba(255,255,255,0.08)' }}
           >
             <motion.div
               initial={{ width: 0 }}
@@ -501,7 +519,7 @@ export default function CustomerDashboard() {
               className="h-full rounded-full"
               style={{
                 background: `linear-gradient(90deg, ${heroStyle.accent}90, ${heroStyle.accent})`,
-                boxShadow: `0 0 10px ${heroStyle.accent}55`,
+                boxShadow: `0 0 12px ${heroStyle.accent}60`,
               }}
             />
           </div>
@@ -520,7 +538,7 @@ export default function CustomerDashboard() {
               <div className="px-5 pb-5 flex flex-col items-center">
                 <div
                   className="w-full h-px mb-4"
-                  style={{ background: 'rgba(255,255,255,0.06)' }}
+                  style={{ background: 'rgba(255,255,255,0.07)' }}
                 />
                 <p
                   className="text-[11px] mb-3 text-center"
@@ -528,7 +546,7 @@ export default function CustomerDashboard() {
                 >
                   {t('customerDashboard.showQr')}
                 </p>
-                <div className="bg-white p-3 rounded-2xl shadow-xl">
+                <div className="bg-white p-3 rounded-2xl shadow-2xl ring-1 ring-white/10">
                   <QRCodeSVG
                     value={walletAddress}
                     size={160}
@@ -549,43 +567,43 @@ export default function CustomerDashboard() {
         </AnimatePresence>
       </motion.div>
 
-      {/* ── Quick Actions Row ─────────────────────────────────────────────────── */}
+      {/* ── Quick Actions Row ─────────────────────────────────────────────── */}
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.12, duration: 0.4 }}
-        className="flex items-center justify-between mb-8 px-1"
+        variants={itemVariants}
+        className="grid grid-cols-4 gap-2 mb-6"
       >
         {quickActions.map((action, i) => (
           <motion.button
             key={action.route}
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.08 + i * 0.04, duration: 0.3 }}
+            transition={{ delay: 0.1 + i * 0.05, duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
             onClick={() => navigate(action.route)}
-            whileTap={{ scale: 0.92 }}
-            className="flex flex-col items-center gap-1.5 relative"
+            whileTap={{ scale: 0.91 }}
+            className="flex flex-col items-center gap-2 relative py-3 rounded-2xl transition-colors"
+            style={{
+              background: 'var(--sweet-card)',
+              border: '1px solid var(--sweet-border)',
+            }}
           >
             <div
-              className="w-11 h-11 rounded-full flex items-center justify-center"
-              style={{
-                background: 'rgba(255,255,255,0.07)',
-              }}
+              className="w-10 h-10 rounded-xl flex items-center justify-center"
+              style={{ background: 'var(--sweet-accent-dim)' }}
             >
-              <span style={{ color: 'var(--sweet-text-secondary)' }}>{action.icon}</span>
+              <span style={{ color: 'var(--sweet-accent)' }}>{action.icon}</span>
             </div>
             {action.hasBadge && (
               <span
-                className="absolute top-0 right-0 w-2 h-2 rounded-full"
+                className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full"
                 style={{
                   background: '#22c55e',
-                  boxShadow: '0 0 6px rgba(34,197,94,0.5)',
+                  boxShadow: '0 0 6px rgba(34,197,94,0.6)',
                 }}
               />
             )}
             <span
-              className="text-[10px] font-medium text-center leading-tight"
-              style={{ color: 'var(--sweet-text-secondary)', opacity: 0.8 }}
+              className="text-[10px] font-semibold text-center leading-tight px-1"
+              style={{ color: 'var(--sweet-text-secondary)' }}
             >
               {action.label}
             </span>
@@ -593,16 +611,13 @@ export default function CustomerDashboard() {
         ))}
       </motion.div>
 
-      {/* ── Daily Check-in Card ───────────────────────────────────────────────── */}
-      <DailyCheckinCard />
+      {/* ── Daily Check-in Card ───────────────────────────────────────────── */}
+      <motion.div variants={itemVariants}>
+        <DailyCheckinCard />
+      </motion.div>
 
-      {/* ── Available Rewards Preview ─────────────────────────────────────────── */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.25 }}
-        className="mb-8"
-      >
+      {/* ── Available Rewards Preview ─────────────────────────────────────── */}
+      <motion.div variants={itemVariants} className="mb-8">
         <SectionHeader
           icon={<GiftIcon className="w-3.5 h-3.5" />}
           label="Available Rewards"
@@ -616,7 +631,7 @@ export default function CustomerDashboard() {
             </Link>
           }
         />
-        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+        <div className="flex gap-2.5 overflow-x-auto pb-1 -mx-1 px-1 no-scrollbar">
           {previewRewards.length === 0
             ? [1, 2, 3].map((i) => (
                 <div
@@ -646,14 +661,9 @@ export default function CustomerDashboard() {
         </div>
       </motion.div>
 
-      {/* ── Active Coupons ────────────────────────────────────────────────────── */}
+      {/* ── Active Coupons ──────────────────────────────────────────────────── */}
       {activeCoupons && activeCoupons.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mb-8"
-        >
+        <motion.div variants={itemVariants} className="mb-8">
           <SectionHeader
             icon={<TicketIcon className="w-3.5 h-3.5" />}
             label={t('customerDashboard.myCoupons') || 'Active Coupons'}
@@ -662,15 +672,16 @@ export default function CustomerDashboard() {
             {activeCoupons.map((coupon, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, x: -8 }}
+                initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.05 * i }}
-                className="relative flex items-center justify-between gap-3 rounded-2xl px-4 py-3 overflow-hidden"
+                transition={{ delay: 0.05 * i, duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                className="relative flex items-center justify-between gap-3 rounded-2xl px-4 py-3.5 overflow-hidden"
                 style={{
                   background: 'var(--sweet-card)',
                   border: '1px dashed var(--sweet-border-light)',
                 }}
               >
+                {/* Ticket notches */}
                 <div
                   className="absolute top-1/2 -left-2 w-4 h-4 rounded-full -translate-y-1/2"
                   style={{ background: 'var(--sweet-bg)' }}
@@ -707,14 +718,9 @@ export default function CustomerDashboard() {
         </motion.div>
       )}
 
-      {/* ── Achievements Preview ──────────────────────────────────────────────── */}
+      {/* ── Achievements Preview ──────────────────────────────────────────── */}
       {unlockedAchievements.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35 }}
-          className="mb-8"
-        >
+        <motion.div variants={itemVariants} className="mb-8">
           <SectionHeader
             icon={<TrophyIcon className="w-3.5 h-3.5" />}
             label={t('customerDashboard.myAchievements')}
@@ -732,16 +738,21 @@ export default function CustomerDashboard() {
             {unlockedAchievements.map((ach, i) => (
               <motion.div
                 key={ach.id}
-                initial={{ opacity: 0, scale: 0.92 }}
+                initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.05 * i }}
-                className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl"
+                transition={{ delay: 0.06 * i, duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                className="flex items-center gap-2.5 px-3 py-3 rounded-xl"
                 style={{
                   background: 'var(--sweet-card)',
                   border: '1px solid var(--sweet-border)',
                 }}
               >
-                <TrophyIcon className="w-4 h-4 flex-shrink-0" style={{ color: '#fbbf24' }} />
+                <div
+                  className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+                  style={{ background: 'rgba(251,191,36,0.12)' }}
+                >
+                  <TrophyIcon className="w-3.5 h-3.5" style={{ color: '#fbbf24' }} />
+                </div>
                 <p
                   className="text-xs font-semibold leading-tight truncate"
                   style={{ color: 'var(--sweet-text)' }}
@@ -754,12 +765,8 @@ export default function CustomerDashboard() {
         </motion.div>
       )}
 
-      {/* ── Recent Transactions ───────────────────────────────────────────────── */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-      >
+      {/* ── Recent Transactions ───────────────────────────────────────────── */}
+      <motion.div variants={itemVariants}>
         <SectionHeader
           icon={<ClockIcon className="w-3.5 h-3.5" />}
           label={t('customerDashboard.recentCashback')}
@@ -795,8 +802,11 @@ export default function CustomerDashboard() {
             ))}
           </div>
         ) : transactions.length === 0 ? (
-          <div
-            className="py-10 text-center rounded-2xl"
+          <motion.div
+            initial={{ opacity: 0, scale: 0.97 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.35 }}
+            className="py-12 text-center rounded-2xl"
             style={{
               background: 'var(--sweet-card)',
               border: '1px solid var(--sweet-border)',
@@ -804,9 +814,9 @@ export default function CustomerDashboard() {
           >
             <div
               className="w-12 h-12 rounded-2xl mx-auto mb-3 flex items-center justify-center"
-              style={{ background: 'var(--sweet-border)' }}
+              style={{ background: 'var(--sweet-accent-dim)' }}
             >
-              <ArrowDownIcon className="w-6 h-6" style={{ color: 'var(--sweet-text-faint)' }} />
+              <ArrowDownIcon className="w-5 h-5" style={{ color: 'var(--sweet-accent)' }} />
             </div>
             <p
               className="text-sm font-semibold mb-1"
@@ -817,16 +827,16 @@ export default function CustomerDashboard() {
             <p className="text-xs" style={{ color: 'var(--sweet-text-muted)' }}>
               {t('customerDashboard.noTransactionsHint')}
             </p>
-          </div>
+          </motion.div>
         ) : (
           <div className="space-y-2">
             {transactions.slice(0, 5).map((tx, i) => (
               <motion.div
                 key={tx.hash}
-                initial={{ opacity: 0, x: -8 }}
+                initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.05 * i }}
-                className="flex items-center justify-between gap-3 rounded-xl px-4 py-3"
+                transition={{ delay: 0.05 * i, duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                className="flex items-center justify-between gap-3 rounded-xl px-4 py-3.5"
                 style={{
                   background: 'var(--sweet-card)',
                   border: '1px solid var(--sweet-border)',
@@ -837,7 +847,7 @@ export default function CustomerDashboard() {
                     className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
                     style={{
                       background: 'rgba(52,211,153,0.10)',
-                      border: '1px solid rgba(52,211,153,0.20)',
+                      border: '1px solid rgba(52,211,153,0.22)',
                     }}
                   >
                     <ArrowDownIcon className="w-4 h-4" style={{ color: '#34d399' }} />
@@ -869,7 +879,8 @@ export default function CustomerDashboard() {
                           href={`https://testnet.tonviewer.com/transaction/${tx.hash}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-0.5 text-amber-500/60 hover:text-amber-400 transition-colors duration-150"
+                          className="flex items-center gap-0.5 transition-colors duration-150"
+                          style={{ color: 'var(--sweet-accent)', opacity: 0.5 }}
                           title="Verify on TON blockchain"
                         >
                           <LinkIcon className="w-2.5 h-2.5" />
@@ -890,7 +901,7 @@ export default function CustomerDashboard() {
           </div>
         )}
       </motion.div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -957,22 +968,26 @@ function RewardPreviewCard({
 
   return (
     <motion.button
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ delay: 0.06 * index, duration: 0.3 }}
-      whileTap={{ scale: 0.96 }}
+      initial={{ opacity: 0, scale: 0.88, y: 8 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ delay: 0.07 * index, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      whileTap={{ scale: 0.95 }}
       onClick={onNavigate}
       className="flex-shrink-0 w-32 text-left rounded-2xl overflow-hidden"
       style={{
         background: 'var(--sweet-card)',
-        border: '1px solid var(--sweet-border)',
+        border: canAfford
+          ? `1px solid ${meta.color}40`
+          : '1px solid var(--sweet-border)',
+        boxShadow: canAfford ? `0 2px 12px ${meta.color}18` : 'none',
+        transition: 'box-shadow 0.2s, border-color 0.2s',
       }}
     >
       <div className="flex items-center justify-center h-16" style={{ background: meta.bg }}>
         <div
           className="w-10 h-10 rounded-2xl flex items-center justify-center"
           style={{
-            background: `${meta.color}20`,
+            background: `${meta.color}22`,
             color: meta.color,
             border: `1px solid ${meta.color}30`,
           }}
@@ -1055,16 +1070,16 @@ function DailyCheckinCard() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.18 }}
-      className="mb-8 rounded-2xl p-4"
+      transition={{ delay: 0.18, duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+      className="mb-6 rounded-2xl p-4"
       style={{
         background: 'var(--sweet-card)',
         border: '1px solid var(--sweet-border)',
       }}
     >
-      <div className="flex items-center justify-between mb-3.5">
+      <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2.5">
           <div
             className="w-9 h-9 rounded-xl flex items-center justify-center"
@@ -1103,7 +1118,7 @@ function DailyCheckinCard() {
             canClaim
               ? {
                   background: 'linear-gradient(135deg, #f59e0b, #f97316)',
-                  boxShadow: '0 4px 14px rgba(245,158,11,0.28)',
+                  boxShadow: '0 4px 16px rgba(245,158,11,0.30)',
                   color: '#000',
                 }
               : {
