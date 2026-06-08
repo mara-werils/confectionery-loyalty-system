@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
@@ -34,6 +34,8 @@ export default function CouponVerify() {
   const [isRedeeming, setIsRedeeming] = useState(false);
   const [coupon, setCoupon] = useState<CouponInfo | null>(null);
   const [showScanner, setShowScanner] = useState(false);
+  // Guard: prevents the continuous scanner from firing verify multiple times
+  const scanLockRef = useRef(false);
 
   const handleVerify = async (overrideCode?: string) => {
     const trimmed = (overrideCode ?? code).trim().toUpperCase();
@@ -47,6 +49,7 @@ export default function CouponVerify() {
       toast.error((err as Error).message || t('verify.notFound'));
     } finally {
       setIsLoading(false);
+      scanLockRef.current = false; // unlock after request finishes
     }
   };
 
@@ -64,16 +67,20 @@ export default function CouponVerify() {
     }
   };
 
+  // useCallback with stable ref-based guard — safe from stale closure issues
   const handleScan = useCallback((results: Array<{ rawValue: string }>) => {
-    if (!results?.length) return;
+    if (!results?.length || scanLockRef.current) return;
     const raw = results[0].rawValue;
     // QR format: "sweet-coupon:SWT-XXXXXX"
     const extracted = raw.startsWith('sweet-coupon:') ? raw.slice(13) : raw;
     const parsed = extracted.trim().toUpperCase();
     if (!parsed) return;
+    scanLockRef.current = true; // lock immediately — released in handleVerify finally
     setShowScanner(false);
     setCode(parsed);
-    handleVerify(parsed);
+    // Defer to next tick so state updates above flush before verify kicks off
+    setTimeout(() => handleVerify(parsed), 0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -132,7 +139,7 @@ export default function CouponVerify() {
               exit={{ opacity: 0 }}
               className="fixed inset-0 z-50"
               style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)' }}
-              onClick={() => setShowScanner(false)}
+              onClick={() => { scanLockRef.current = false; setShowScanner(false); }}
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.92, y: 20 }}
@@ -151,7 +158,7 @@ export default function CouponVerify() {
                   </span>
                 </div>
                 <button
-                  onClick={() => setShowScanner(false)}
+                  onClick={() => { scanLockRef.current = false; setShowScanner(false); }}
                   className="p-2 rounded-xl transition-colors"
                   style={{ background: 'var(--sweet-input)', color: 'var(--sweet-text-muted)' }}
                 >
