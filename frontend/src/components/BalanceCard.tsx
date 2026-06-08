@@ -12,17 +12,17 @@ interface BalanceCardProps {
 
 const tierStyles = {
   BRONZE: {
-    gradient: 'from-zinc-900 to-zinc-950 border border-zinc-800',
+    gradient: 'from-stone-900 to-stone-950 border border-stone-800',
     glow: 'shadow-none',
-    badge: 'bg-zinc-800 text-zinc-400 border border-zinc-700',
+    badge: 'bg-stone-800 text-stone-400 border border-stone-700',
   },
   SILVER: {
-    gradient: 'from-zinc-800 to-zinc-900 border border-zinc-700',
-    glow: 'shadow-lg shadow-zinc-900/50',
-    badge: 'bg-zinc-700 text-zinc-300 border border-zinc-600',
+    gradient: 'from-stone-800 to-stone-900 border border-stone-700',
+    glow: 'shadow-lg shadow-stone-900/50',
+    badge: 'bg-stone-700 text-stone-300 border border-stone-600',
   },
   GOLD: {
-    gradient: 'from-zinc-900 via-zinc-800 to-zinc-900 border border-white/10',
+    gradient: 'from-stone-900 via-stone-800 to-stone-900 border border-white/10',
     glow: 'shadow-xl shadow-white/5',
     badge: 'bg-white/10 text-white border border-white/20',
   },
@@ -71,7 +71,7 @@ export default function BalanceCard({
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <SparklesIcon className="w-5 h-5 text-white/80" />
-            <span className="text-white/80 font-medium">Loyalty Points</span>
+            <span className="text-white/80 font-medium">Баллы лояльности</span>
           </div>
           <span
             className={clsx(
@@ -101,7 +101,7 @@ export default function BalanceCard({
           <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <ArrowTrendingUpIcon className="w-4 h-4 text-white/70" />
-              <span className="text-xs text-white/70">Earned</span>
+              <span className="text-xs text-white/70">Получено</span>
             </div>
             <span className="text-lg font-bold text-white">
               {Number(lifetimeEarned).toLocaleString()}
@@ -110,7 +110,7 @@ export default function BalanceCard({
           <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <SparklesIcon className="w-4 h-4 text-white/70" />
-              <span className="text-xs text-white/70">Redeemed</span>
+              <span className="text-xs text-white/70">Потрачено</span>
             </div>
             <span className="text-lg font-bold text-white">
               {Number(lifetimeRedeemed).toLocaleString()}

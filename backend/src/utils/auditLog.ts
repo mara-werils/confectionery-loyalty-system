@@ -1,4 +1,5 @@
 import { prisma } from './prisma';
+import { logger } from './logger';
 import type { Prisma } from '@prisma/client';
 
 /**
@@ -16,6 +17,6 @@ export async function logAction(params: {
   try {
     await prisma.auditLog.create({ data: params });
   } catch (err) {
-    console.error('[AuditLog] Failed to write:', err);
+    logger.error('[AuditLog] Failed to write:', err);
   }
 }

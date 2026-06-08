@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { GiftIcon, SparklesIcon, TagIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
+import { useTranslation } from 'react-i18next';
 
 interface RewardCardProps {
   id: string;
@@ -24,10 +25,10 @@ const categoryIcons = {
 };
 
 const categoryColors = {
-  DISCOUNT: 'bg-white/5 text-zinc-300 border border-white/10',
-  PRODUCT: 'bg-white/5 text-zinc-300 border border-white/10',
-  CASHBACK: 'bg-white/5 text-zinc-300 border border-white/10',
-  SPECIAL: 'bg-white/5 text-zinc-300 border border-white/10',
+  DISCOUNT: 'bg-white/5 text-stone-300 border border-white/10',
+  PRODUCT: 'bg-white/5 text-stone-300 border border-white/10',
+  CASHBACK: 'bg-white/5 text-stone-300 border border-white/10',
+  SPECIAL: 'bg-white/5 text-stone-300 border border-white/10',
 };
 
 export default function RewardCard({
@@ -43,6 +44,7 @@ export default function RewardCard({
   onClaim,
   isClaimPending,
 }: RewardCardProps) {
+  const { t } = useTranslation();
   const points = Number(pointsRequired);
   const canAfford = currentBalance >= points;
   const isAvailable = isActive && available > 0;
@@ -62,7 +64,7 @@ export default function RewardCard({
       )}
     >
       {/* Image or placeholder */}
-      <div className="relative h-36 -mx-4 -mt-4 mb-4 bg-zinc-800/50 overflow-hidden border-b border-white/5">
+      <div className="relative h-36 -mx-4 -mt-4 mb-4 bg-stone-800/50 overflow-hidden border-b border-white/5">
         {imageUrl ? (
           <img
             src={imageUrl}
@@ -71,7 +73,7 @@ export default function RewardCard({
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
-            <GiftIcon className="w-16 h-16 text-zinc-700" />
+            <GiftIcon className="w-16 h-16 text-stone-700" />
           </div>
         )}
         
@@ -83,13 +85,13 @@ export default function RewardCard({
           )}
         >
           <CategoryIcon className="w-3.5 h-3.5" />
-          {category}
+          {category === 'DISCOUNT' ? t('rewards.categoryDiscount') : category === 'PRODUCT' ? t('rewards.categoryProduct') : category === 'CASHBACK' ? t('rewards.categoryCashback') : t('rewards.categorySpecial')}
         </div>
 
         {/* Availability badge */}
         {available > 0 && available <= 10 && (
-          <div className="absolute top-3 right-3 bg-red-500 text-white px-2 py-0.5 rounded-full text-xs font-bold">
-            Only {available} left!
+          <div className="absolute top-3 right-3 bg-stone-800 text-stone-300 border border-white/10 px-2 py-0.5 rounded-full text-xs font-bold">
+            {t('rewards.remaining')} {available}
           </div>
         )}
       </div>
@@ -99,7 +101,7 @@ export default function RewardCard({
         <div>
           <h3 className="font-bold text-white text-lg tracking-tight">{title}</h3>
           {description && (
-            <p className="text-sm text-zinc-400 mt-1 line-clamp-2">{description}</p>
+            <p className="text-sm text-stone-400 mt-1 line-clamp-2">{description}</p>
           )}
         </div>
 
@@ -109,7 +111,7 @@ export default function RewardCard({
             <span className="text-2xl font-bold text-white">
               {points.toLocaleString()}
             </span>
-            <span className="text-sm text-zinc-500 ml-1 font-medium">pts</span>
+            <span className="text-sm text-stone-500 ml-1 font-medium">pts</span>
           </div>
 
           <button
@@ -119,16 +121,16 @@ export default function RewardCard({
               'px-4 py-2.5 rounded-xl font-semibold text-sm transition-all duration-300',
               canClaim
                 ? 'glass-button-primary'
-                : 'bg-zinc-800 text-zinc-500 cursor-not-allowed border border-white/5'
+                : 'bg-stone-800 text-stone-500 cursor-not-allowed border border-white/5'
             )}
           >
             {isClaimPending
-              ? 'Claiming...'
+              ? t('rewards.claiming')
               : !isAvailable
-              ? 'Unavailable'
+              ? t('rewards.unavailable')
               : !canAfford
-              ? `Need ${(points - currentBalance).toLocaleString()} more`
-              : 'Claim'}
+              ? t('rewards.needMore', { amount: (points - currentBalance).toLocaleString() })
+              : t('rewards.claim')}
           </button>
         </div>
       </div>

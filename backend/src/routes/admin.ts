@@ -65,6 +65,37 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
     }
 });
 
+/**
+ * Admin email/password login (for web admin panel)
+ */
+router.post('/email-login', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { email, password } = req.body;
+        const adminEmail = process.env.ADMIN_EMAIL;
+        const adminPassword = process.env.ADMIN_PASSWORD;
+        if (!adminEmail || !adminPassword) {
+            throw new AppError('Admin credentials not configured', 500, 'CONFIG_ERROR');
+        }
+
+        if (email !== adminEmail || password !== adminPassword) {
+            throw new AppError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
+        }
+
+        // Find or use first superadmin
+        const admin = await prisma.admin.findFirst({ where: { role: 'superadmin', isActive: true } });
+        if (!admin) {
+            throw new AppError('No admin account configured', 500, 'NO_ADMIN');
+        }
+
+        await prisma.admin.update({ where: { id: admin.id }, data: { lastLoginAt: new Date() } });
+        const token = generateAdminToken(admin);
+
+        return successResponse(res, { admin, token }, 'Login successful');
+    } catch (error) {
+        return next(error);
+    }
+});
+
 // ============================================================================
 // DASHBOARD STATS
 // ============================================================================
@@ -420,6 +451,46 @@ router.post('/sbt/issue', async (req: Request, res: Response, next: NextFunction
         });
 
         return successResponse(res, { success: true }, 'SBT issued');
+    } catch (error) {
+        return next(error);
+    }
+});
+
+router.post('/sbt/revoke', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { walletAddress } = req.body;
+        if (!walletAddress) throw new AppError('Wallet address required', 400, 'BAD_REQUEST');
+
+        let normalizedAddress: string;
+        try {
+            normalizedAddress = Address.parse(walletAddress).toRawString();
+        } catch {
+            throw new AppError('Invalid TON wallet address format', 400, 'INVALID_ADDRESS');
+        }
+
+        const setting = await prisma.systemSetting.findUnique({
+            where: { key: 'issued_sbt_wallets' },
+        });
+
+        if (setting) {
+            const wallets: string[] = JSON.parse(setting.value);
+            const updated = wallets.filter((w) => w !== normalizedAddress);
+            await prisma.systemSetting.update({
+                where: { key: 'issued_sbt_wallets' },
+                data: { value: JSON.stringify(updated) },
+            });
+        }
+
+        await logAction({
+            actorId: 'admin',
+            actorType: 'admin',
+            action: 'REVOKE_SBT',
+            entityType: 'wallet',
+            entityId: normalizedAddress,
+            metadata: { walletAddress: normalizedAddress },
+        });
+
+        return successResponse(res, { success: true }, 'SBT revoked');
     } catch (error) {
         return next(error);
     }
