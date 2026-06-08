@@ -423,7 +423,9 @@ export default function LiveDashboard() {
                     const diff = Date.now() - new Date(event.timestamp).getTime();
                     if (diff < 60000) return `${Math.round(diff / 1000)}s ago`;
                     if (diff < 3600000) return `${Math.round(diff / 60000)}m ago`;
-                    return new Date(event.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    if (diff < 86400000) return `${Math.round(diff / 3600000)}h ago`;
+                    if (diff < 604800000) return `${Math.round(diff / 86400000)}d ago`;
+                    return new Date(event.timestamp).toLocaleDateString([], { month: 'short', day: 'numeric' });
                   })();
 
                   return (
