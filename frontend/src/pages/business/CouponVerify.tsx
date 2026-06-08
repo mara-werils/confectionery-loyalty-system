@@ -36,6 +36,8 @@ export default function CouponVerify() {
   const [showScanner, setShowScanner] = useState(false);
   // Guard: prevents the continuous scanner from firing verify multiple times
   const scanLockRef = useRef(false);
+  // Guard: blocks double-tap on "Mark as Used" before React re-renders the disabled state
+  const redeemingRef = useRef(false);
 
   const handleVerify = async (overrideCode?: string) => {
     const trimmed = (overrideCode ?? code).trim().toUpperCase();
@@ -54,7 +56,8 @@ export default function CouponVerify() {
   };
 
   const handleRedeem = async () => {
-    if (!coupon) return;
+    if (!coupon || redeemingRef.current) return;
+    redeemingRef.current = true; // sync lock — blocks before React re-renders
     setIsRedeeming(true);
     try {
       await api.coupons.redeem(coupon.code);
@@ -63,6 +66,7 @@ export default function CouponVerify() {
     } catch (err: unknown) {
       toast.error((err as Error).message || t('verify.redeemFailed'));
     } finally {
+      redeemingRef.current = false;
       setIsRedeeming(false);
     }
   };
