@@ -13,6 +13,7 @@ import {
   MoonIcon,
   BuildingStorefrontIcon,
   PaperAirplaneIcon,
+  BanknotesIcon,
 } from '@heroicons/react/24/outline';
 import {
   HomeIcon as HomeIconSolid,
@@ -24,6 +25,7 @@ import {
   PresentationChartBarIcon as PresentationChartBarIconSolid,
   BuildingStorefrontIcon as BuildingStorefrontIconSolid,
   PaperAirplaneIcon as PaperAirplaneIconSolid,
+  BanknotesIcon as BanknotesIconSolid,
 } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
 import { changeLanguage, languages } from '../i18n';
@@ -39,12 +41,12 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
   const { isDark, toggle } = useTheme();
 
   const businessNavItems = [
-    { path: '/business/dashboard', label: t('nav.pos'),       icon: HomeIcon,            activeIcon: HomeIconSolid },
-    { path: '/business/verify-coupon', label: t('nav.verify'),     icon: QrCodeIcon,          activeIcon: QrCodeIconSolid },
-    { path: '/ai',                 label: t('nav.ai'),          icon: SparklesIcon,        activeIcon: SparklesIconSolid },
-    { path: '/referrals',          label: t('nav.referrals'),   icon: UserPlusIcon,        activeIcon: UserPlusIconSolid },
-    { path: '/analytics',          label: t('nav.analytics'),   icon: PresentationChartBarIcon, activeIcon: PresentationChartBarIconSolid },
-    { path: '/business/profile',   label: t('nav.profile'),   icon: UserCircleIcon,      activeIcon: UserCircleIconSolid },
+    { path: '/business/dashboard',    label: t('nav.pos'),       icon: HomeIcon,       activeIcon: HomeIconSolid },
+    { path: '/business/verify-coupon',label: t('nav.verify'),    icon: QrCodeIcon,     activeIcon: QrCodeIconSolid },
+    { path: '/ai',                    label: t('nav.ai'),        icon: SparklesIcon,   activeIcon: SparklesIconSolid },
+    { path: '/referrals',             label: t('nav.referrals'), icon: UserPlusIcon,   activeIcon: UserPlusIconSolid },
+    { path: '/business/settlement',   label: 'Earn',             icon: BanknotesIcon,  activeIcon: BanknotesIconSolid },
+    { path: '/business/profile',      label: t('nav.profile'),   icon: UserCircleIcon, activeIcon: UserCircleIconSolid },
   ];
 
   const customerNavItems = [

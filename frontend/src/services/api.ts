@@ -262,6 +262,14 @@ export const api = {
   public: {
     getStats: () => axiosInstance.get('/public/stats'),
   },
+
+  // On-Chain Revenue Settlement
+  settlement: {
+    getStatus: () => axiosInstance.get('/settlement/status'),
+    getHistory: () => axiosInstance.get('/settlement/history'),
+    distribute: () => axiosInstance.post('/settlement/distribute'),
+    globalStats: () => axiosInstance.get('/settlement/global-stats'),
+  },
 };
 
 export default axiosInstance;

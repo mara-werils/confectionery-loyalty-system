@@ -7,6 +7,8 @@ import { AppError } from '../middleware/errorHandler';
 import { io } from '../index';
 import { mintLoyaltyTokens } from '../controllers/mint';
 import { transferLoyaltyTokens } from '../controllers/transfer';
+import { recordTransactionOnChain } from '../services/revenue.service';
+import { logger } from '../utils/logger';
 
 const router = Router();
 
@@ -440,6 +442,11 @@ router.post(
         txHash: fakeTxHash,
         timestamp: new Date().toISOString(),
       });
+
+      // 4. Fire-and-forget: record commission in RevenueDistribution on-chain
+      recordTransactionOnChain(partner.walletAddress, data.amount, partner.tier).catch((err) =>
+        logger.warn('[Revenue] fire-and-forget recordTransaction failed:', err)
+      );
 
       return successResponse(
         res,
