@@ -191,12 +191,16 @@ router.get('/verify/:code', authenticate, async (req: Request, res: Response, ne
   try {
     const { code } = req.params;
 
-    // Check Redis first — avoids a DB round-trip for recently issued coupons
+    // Check Redis first — but skip cache for ACTIVE coupons (could be stale post-redemption)
     const cachedRaw = await cache.get(`coupon:${code}`);
     if (cachedRaw) {
       const cached = JSON.parse(cachedRaw);
-      const isValid = cached.status === 'ACTIVE' && new Date(cached.expiresAt) > new Date();
-      return successResponse(res, { ...cached, isValid });
+      // Serve from cache only when status is final (REDEEMED / EXPIRED) — safe to trust.
+      // For ACTIVE we always hit DB to ensure we don't return a stale status.
+      if (cached.status !== 'ACTIVE') {
+        const isValid = false; // REDEEMED / EXPIRED are never valid
+        return successResponse(res, { ...cached, isValid });
+      }
     }
 
     const coupon = await prisma.coupon.findUnique({
@@ -304,16 +308,14 @@ router.post('/:code/redeem', authenticate, async (req: Request, res: Response, n
       data: { status: 'REDEEMED', redeemedAt },
     });
 
-    // Update cache so verify endpoint immediately returns REDEEMED status
+    // Always overwrite cache — even on miss — so next verify never returns stale ACTIVE
     const existingCache = await cache.get(`coupon:${code}`);
-    if (existingCache) {
-      const parsed = JSON.parse(existingCache);
-      await cache.set(`coupon:${code}`, JSON.stringify({
-        ...parsed,
-        status: 'REDEEMED',
-        redeemedAt: redeemedAt.toISOString(),
-      }), COUPON_CACHE_TTL);
-    }
+    const base = existingCache ? JSON.parse(existingCache) : { code: updated.code, rewardTitle: updated.rewardTitle };
+    await cache.set(`coupon:${code}`, JSON.stringify({
+      ...base,
+      status: 'REDEEMED',
+      redeemedAt: redeemedAt.toISOString(),
+    }), COUPON_CACHE_TTL);
 
     return successResponse(res, {
       code: updated.code,
