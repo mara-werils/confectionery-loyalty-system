@@ -5,7 +5,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence, useSpring, useTransform, animate } from 'framer-motion';
+import { motion, AnimatePresence, animate } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { io as SocketIO, Socket } from 'socket.io-client';
 import {
@@ -131,6 +131,7 @@ export default function LiveDashboard() {
   /* ---- Polling public stats every 20s ---- */
   const { data: stats, isLoading } = useQuery<PublicStats>({
     queryKey: ['public', 'stats'],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     queryFn: () => (api.public.getStats() as any).then((r: any) => r.data ?? r),
     refetchInterval: 20000,
   });
@@ -143,6 +144,7 @@ export default function LiveDashboard() {
     socket.on('connect', () => setIsConnected(true));
     socket.on('disconnect', () => setIsConnected(false));
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleEvent = (data: any) => {
       const event: FeedEvent = {
         id: data.id || Math.random().toString(36).slice(2),
@@ -156,6 +158,7 @@ export default function LiveDashboard() {
 
     socket.on('activity:new', handleEvent);
     socket.on('pulse:intervention', handleEvent);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     socket.on('governance:vote_cast', (data: any) => {
       handleEvent({
         ...data,
