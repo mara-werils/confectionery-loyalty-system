@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { SparklesIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { SparkleIcon, ClockIcon } from '@phosphor-icons/react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
@@ -509,7 +509,7 @@ export default function SpinWheel() {
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               flexShrink: 0,
             }}>
-              <SparklesIcon style={{ width: 18, height: 18, color: 'var(--sweet-accent)' }} />
+              <SparkleIcon style={{ width: 18, height: 18, color: 'var(--sweet-accent)' }} />
             </div>
             <div>
               <h1 style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.5px', lineHeight: 1.1 }}>
@@ -717,7 +717,7 @@ export default function SpinWheel() {
               </span>
             ) : canSpin ? (
               <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                <SparklesIcon style={{ width: 20, height: 20 }} />
+                <SparkleIcon style={{ width: 20, height: 20 }} />
                 {t('spinWheel.spin')}
               </span>
             ) : (

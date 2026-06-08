@@ -1,30 +1,20 @@
+import React from 'react';
 import { Outlet, NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
-  HomeIcon,
+  HouseIcon,
   GiftIcon,
   UserCircleIcon,
   UserPlusIcon,
   QrCodeIcon,
-  SparklesIcon,
+  SparkleIcon,
   SunIcon,
   MoonIcon,
-  BuildingStorefrontIcon,
-  PaperAirplaneIcon,
-  BanknotesIcon,
-} from '@heroicons/react/24/outline';
-import {
-  HomeIcon as HomeIconSolid,
-  GiftIcon as GiftIconSolid,
-  UserCircleIcon as UserCircleIconSolid,
-  UserPlusIcon as UserPlusIconSolid,
-  QrCodeIcon as QrCodeIconSolid,
-  SparklesIcon as SparklesIconSolid,
-  BuildingStorefrontIcon as BuildingStorefrontIconSolid,
-  PaperAirplaneIcon as PaperAirplaneIconSolid,
-  BanknotesIcon as BanknotesIconSolid,
-} from '@heroicons/react/24/solid';
+  StorefrontIcon,
+  PaperPlaneTiltIcon,
+  MoneyIcon,
+} from '@phosphor-icons/react';
 import clsx from 'clsx';
 import { changeLanguage, languages } from '../i18n';
 import { useTheme } from '../hooks/useTheme';
@@ -39,20 +29,20 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
   const { isDark, toggle } = useTheme();
 
   const businessNavItems = [
-    { path: '/business/dashboard',    label: t('nav.pos'),       icon: HomeIcon,       activeIcon: HomeIconSolid },
-    { path: '/business/verify-coupon',label: t('nav.verify'),    icon: QrCodeIcon,     activeIcon: QrCodeIconSolid },
-    { path: '/ai',                    label: t('nav.ai'),        icon: SparklesIcon,   activeIcon: SparklesIconSolid },
-    { path: '/referrals',             label: t('nav.referrals'), icon: UserPlusIcon,   activeIcon: UserPlusIconSolid },
-    { path: '/business/settlement',   label: 'Earn',             icon: BanknotesIcon,  activeIcon: BanknotesIconSolid },
-    { path: '/business/profile',      label: t('nav.profile'),   icon: UserCircleIcon, activeIcon: UserCircleIconSolid },
+    { path: '/business/dashboard',    label: t('nav.pos'),       icon: HouseIcon,       activeIcon: (props: React.ComponentProps<typeof HouseIcon>) => <HouseIcon weight="fill" {...props} /> },
+    { path: '/business/verify-coupon',label: t('nav.verify'),    icon: QrCodeIcon,      activeIcon: (props: React.ComponentProps<typeof QrCodeIcon>) => <QrCodeIcon weight="fill" {...props} /> },
+    { path: '/ai',                    label: t('nav.ai'),        icon: SparkleIcon,     activeIcon: (props: React.ComponentProps<typeof SparkleIcon>) => <SparkleIcon weight="fill" {...props} /> },
+    { path: '/referrals',             label: t('nav.referrals'), icon: UserPlusIcon,    activeIcon: (props: React.ComponentProps<typeof UserPlusIcon>) => <UserPlusIcon weight="fill" {...props} /> },
+    { path: '/business/settlement',   label: 'Earn',             icon: MoneyIcon,       activeIcon: (props: React.ComponentProps<typeof MoneyIcon>) => <MoneyIcon weight="fill" {...props} /> },
+    { path: '/business/profile',      label: t('nav.profile'),   icon: UserCircleIcon,  activeIcon: (props: React.ComponentProps<typeof UserCircleIcon>) => <UserCircleIcon weight="fill" {...props} /> },
   ];
 
   const customerNavItems = [
-    { path: '/customer/dashboard',  label: t('nav.wallet'),         icon: HomeIcon,               activeIcon: HomeIconSolid },
-    { path: '/customer/rewards',    label: t('nav.rewards'),        icon: GiftIcon,               activeIcon: GiftIconSolid },
-    { path: '/customer/gift',       label: t('nav.gift') || 'Transfer', icon: PaperAirplaneIcon,    activeIcon: PaperAirplaneIconSolid },
-    { path: '/customer/ecosystem',  label: t('nav.ecosystem'),      icon: BuildingStorefrontIcon, activeIcon: BuildingStorefrontIconSolid },
-    { path: '/customer/profile',    label: t('nav.profile'),        icon: UserCircleIcon,         activeIcon: UserCircleIconSolid },
+    { path: '/customer/dashboard',  label: t('nav.wallet'),         icon: HouseIcon,        activeIcon: (props: React.ComponentProps<typeof HouseIcon>) => <HouseIcon weight="fill" {...props} /> },
+    { path: '/customer/rewards',    label: t('nav.rewards'),        icon: GiftIcon,         activeIcon: (props: React.ComponentProps<typeof GiftIcon>) => <GiftIcon weight="fill" {...props} /> },
+    { path: '/customer/gift',       label: t('nav.gift') || 'Transfer', icon: PaperPlaneTiltIcon, activeIcon: (props: React.ComponentProps<typeof PaperPlaneTiltIcon>) => <PaperPlaneTiltIcon weight="fill" {...props} /> },
+    { path: '/customer/ecosystem',  label: t('nav.ecosystem'),      icon: StorefrontIcon,   activeIcon: (props: React.ComponentProps<typeof StorefrontIcon>) => <StorefrontIcon weight="fill" {...props} /> },
+    { path: '/customer/profile',    label: t('nav.profile'),        icon: UserCircleIcon,   activeIcon: (props: React.ComponentProps<typeof UserCircleIcon>) => <UserCircleIcon weight="fill" {...props} /> },
   ];
 
   const navItems = variant === 'customer' ? customerNavItems : businessNavItems;

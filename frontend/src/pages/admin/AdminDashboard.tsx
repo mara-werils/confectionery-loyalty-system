@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  DocumentPlusIcon,
+  FilePlusIcon,
   CheckCircleIcon,
-  BuildingStorefrontIcon,
-  ArrowsRightLeftIcon,
+  StorefrontIcon,
+  ArrowsLeftRightIcon,
   CurrencyDollarIcon,
   GiftIcon,
   ArrowRightIcon,
   ClockIcon,
-  ServerIcon,
-} from '@heroicons/react/24/outline';
+  HardDrivesIcon,
+} from '@phosphor-icons/react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -100,17 +100,17 @@ export default function AdminDashboard() {
     : 0;
 
   const stats = [
-    { label: t('adminDash.totalPartners'), value: totalPartners, icon: BuildingStorefrontIcon, color: 'text-stone-300 bg-stone-400/10 border-stone-400/20' },
-    { label: t('adminDash.transactions'), value: ecoStats.totalTransactions ?? '---', icon: ArrowsRightLeftIcon, color: 'text-stone-300 bg-stone-400/10 border-stone-400/20' },
+    { label: t('adminDash.totalPartners'), value: totalPartners, icon: StorefrontIcon, color: 'text-stone-300 bg-stone-400/10 border-stone-400/20' },
+    { label: t('adminDash.transactions'), value: ecoStats.totalTransactions ?? '---', icon: ArrowsLeftRightIcon, color: 'text-stone-300 bg-stone-400/10 border-stone-400/20' },
     { label: t('adminDash.sweetIssued'), value: ecoStats.totalSweetIssued ? ecoStats.totalSweetIssued.toLocaleString() : '---', icon: CurrencyDollarIcon, color: 'text-amber-400 bg-amber-400/10 border-amber-400/20' },
     { label: t('adminDash.activeRewards'), value: activeRewards, icon: GiftIcon, color: 'text-amber-400 bg-amber-400/10 border-amber-400/20' },
   ];
 
   const quickActions = [
     { label: t('adminDash.addReward'), path: '/admin/rewards', icon: GiftIcon },
-    { label: t('adminDash.partners'), path: '/admin/partners', icon: BuildingStorefrontIcon },
+    { label: t('adminDash.partners'), path: '/admin/partners', icon: StorefrontIcon },
     { label: t('adminDash.auditLog'), path: '/admin/audit', icon: ClockIcon },
-    { label: t('adminDash.settings'), path: '/admin/settings', icon: ServerIcon },
+    { label: t('adminDash.settings'), path: '/admin/settings', icon: HardDrivesIcon },
   ];
 
   const handleMintSweet = async () => {
@@ -213,7 +213,7 @@ export default function AdminDashboard() {
         {/* SBT Management */}
         <GlassCard delay={0.2} className="p-5">
           <h3 className="text-sm font-semibold text-stone-400 mb-4 uppercase tracking-wider flex items-center gap-2">
-            <DocumentPlusIcon className="w-4 h-4" />
+            <FilePlusIcon className="w-4 h-4" />
             {t('adminDash.sbtManagement')}
           </h3>
           <div className="space-y-3">
@@ -230,7 +230,7 @@ export default function AdminDashboard() {
                 disabled={isMinting || !walletAddress}
                 className="flex-1 bg-amber-500 hover:bg-amber-400 disabled:opacity-40 text-black font-bold py-2.5 rounded-xl transition-all text-sm flex items-center justify-center gap-2"
               >
-                {hasBusinessSbt ? <CheckCircleIcon className="w-4 h-4" /> : <DocumentPlusIcon className="w-4 h-4" />}
+                {hasBusinessSbt ? <CheckCircleIcon className="w-4 h-4" /> : <FilePlusIcon className="w-4 h-4" />}
                 {isMinting ? t('adminDash.minting') : t('adminDash.issueSbt')}
               </button>
               <button
@@ -281,7 +281,7 @@ export default function AdminDashboard() {
         {/* System Health */}
         <GlassCard delay={0.25} className="p-5">
           <h3 className="text-sm font-semibold text-stone-400 mb-4 uppercase tracking-wider flex items-center gap-2">
-            <ServerIcon className="w-4 h-4" />
+            <HardDrivesIcon className="w-4 h-4" />
             {t('adminDash.systemHealth')}
           </h3>
           <div className="space-y-3">

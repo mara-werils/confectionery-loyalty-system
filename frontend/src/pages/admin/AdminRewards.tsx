@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   PlusIcon,
-  PencilSquareIcon,
+  PencilSimpleIcon,
   TrashIcon,
-  XMarkIcon,
+  XIcon,
   GiftIcon,
   TagIcon,
-} from '@heroicons/react/24/outline';
+} from '@phosphor-icons/react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
@@ -260,7 +260,7 @@ export default function AdminRewards() {
                   onClick={(e) => { e.stopPropagation(); openEdit(reward); }}
                   className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-stone-800 border border-stone-700 text-stone-300 hover:border-amber-500/30 hover:text-amber-400 transition-all text-xs"
                 >
-                  <PencilSquareIcon className="w-3.5 h-3.5" />
+                  <PencilSimpleIcon className="w-3.5 h-3.5" />
                   {t('adminRewards.edit')}
                 </button>
                 <button
@@ -297,7 +297,7 @@ export default function AdminRewards() {
                   {editingId ? t('adminRewards.editReward') : t('adminRewards.newReward')}
                 </h3>
                 <button onClick={closeModal} className="p-1.5 rounded-lg hover:bg-stone-800 transition-colors">
-                  <XMarkIcon className="w-5 h-5 text-stone-500" />
+                  <XIcon className="w-5 h-5 text-stone-500" />
                 </button>
               </div>
               <form onSubmit={handleSubmit} className="p-6 space-y-4">

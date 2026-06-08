@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { GiftIcon, SparklesIcon, TagIcon } from '@heroicons/react/24/outline';
+import { GiftIcon, SparkleIcon, TagIcon } from '@phosphor-icons/react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 
@@ -20,8 +20,8 @@ interface RewardCardProps {
 const categoryIcons = {
   DISCOUNT: TagIcon,
   PRODUCT: GiftIcon,
-  CASHBACK: SparklesIcon,
-  SPECIAL: SparklesIcon,
+  CASHBACK: SparkleIcon,
+  SPECIAL: SparkleIcon,
 };
 
 const categoryColors = {

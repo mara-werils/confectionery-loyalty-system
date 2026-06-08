@@ -5,12 +5,12 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../services/api';
 import {
   UserPlusIcon,
-  ClipboardDocumentIcon,
+  ClipboardTextIcon,
   CheckIcon,
   TrophyIcon,
-  SparklesIcon,
+  SparkleIcon,
   GiftIcon,
-} from '@heroicons/react/24/outline';
+} from '@phosphor-icons/react';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../store/authStore';
 
@@ -102,7 +102,7 @@ export default function Referrals() {
       <div className="grid grid-cols-2 gap-4">
         {[
           { icon: <UserPlusIcon className="w-4 h-4" style={{ color: 'var(--sweet-text-muted)' }} />, label: t('referrals.partnersReferred'), value: statsLoading ? '…' : (stats?.totalReferrals ?? 0) },
-          { icon: <SparklesIcon className="w-4 h-4" style={{ color: 'var(--sweet-text-muted)' }} />, label: t('referrals.bonusEarned'), value: statsLoading ? '…' : Number(stats?.totalBonusEarned || 0).toLocaleString(), suffix: 'SWEET' },
+          { icon: <SparkleIcon className="w-4 h-4" style={{ color: 'var(--sweet-text-muted)' }} />, label: t('referrals.bonusEarned'), value: statsLoading ? '…' : Number(stats?.totalBonusEarned || 0).toLocaleString(), suffix: 'SWEET' },
         ].map(({ icon, label, value, suffix }) => (
           <div key={label} className="rounded-xl p-5" style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)' }}>
             <div className="flex items-center gap-2 mb-1">
@@ -143,7 +143,7 @@ export default function Referrals() {
               {copied ? (
                 <CheckIcon className="w-5 h-5 text-green-400" />
               ) : (
-                <ClipboardDocumentIcon className="w-5 h-5" style={{ color: 'var(--sweet-text-secondary)' }} />
+                <ClipboardTextIcon className="w-5 h-5" style={{ color: 'var(--sweet-text-secondary)' }} />
               )}
             </button>
           </div>

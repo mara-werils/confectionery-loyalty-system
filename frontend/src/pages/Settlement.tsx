@@ -1,15 +1,15 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  BanknotesIcon,
-  ArrowTopRightOnSquareIcon,
+  MoneyIcon,
+  ArrowSquareOutIcon,
   ClockIcon,
   ShieldCheckIcon,
   CubeTransparentIcon,
-  ArrowPathIcon,
-  SparklesIcon,
-} from '@heroicons/react/24/outline';
-import { CheckCircleIcon as CheckCircleIconSolid } from '@heroicons/react/24/solid';
+  ArrowsClockwiseIcon,
+  SparkleIcon,
+  CheckCircleIcon as CheckCircleIconSolid,
+} from '@phosphor-icons/react';
 import toast from 'react-hot-toast';
 import { api } from '../services/api';
 
@@ -114,7 +114,7 @@ export default function Settlement() {
         className="pt-2"
       >
         <div className="flex items-center gap-2 mb-0.5">
-          <BanknotesIcon className="w-5 h-5" style={{ color: 'var(--sweet-accent)' }} />
+          <MoneyIcon className="w-5 h-5" style={{ color: 'var(--sweet-accent)' }} />
           <h1 className="text-lg font-bold tracking-tight" style={{ color: 'var(--sweet-text)' }}>
             Commission Earnings
           </h1>
@@ -202,7 +202,7 @@ export default function Settlement() {
             className="p-1 rounded-lg transition-colors"
             style={{ color: 'var(--sweet-text-muted)' }}
           >
-            <ArrowPathIcon className="w-3.5 h-3.5" />
+            <ArrowsClockwiseIcon className="w-3.5 h-3.5" />
           </button>
         </div>
 
@@ -278,7 +278,7 @@ export default function Settlement() {
                 </>
               ) : status?.pending.canDistribute ? (
                 <>
-                  <BanknotesIcon className="w-4 h-4" />
+                  <MoneyIcon className="w-4 h-4" />
                   Claim {status.pending.ton} TON Commission
                 </>
               ) : (
@@ -331,7 +331,7 @@ export default function Settlement() {
             }}
           >
             Verify
-            <ArrowTopRightOnSquareIcon className="w-3 h-3" />
+            <ArrowSquareOutIcon className="w-3 h-3" />
           </a>
         </div>
 
@@ -399,7 +399,7 @@ export default function Settlement() {
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <SparklesIcon className="w-4 h-4" style={{ color: 'var(--sweet-accent)' }} />
+            <SparkleIcon className="w-4 h-4" style={{ color: 'var(--sweet-accent)' }} />
             <p className="text-[10px] font-semibold uppercase tracking-widest"
                style={{ color: 'var(--sweet-text-muted)' }}>
               Payout History
@@ -418,7 +418,7 @@ export default function Settlement() {
           </div>
         ) : !history?.payouts.length ? (
           <div className="py-6 text-center">
-            <BanknotesIcon className="w-8 h-8 mx-auto mb-2 opacity-20" style={{ color: 'var(--sweet-text)' }} />
+            <MoneyIcon className="w-8 h-8 mx-auto mb-2 opacity-20" style={{ color: 'var(--sweet-text)' }} />
             <p className="text-sm" style={{ color: 'var(--sweet-text-muted)' }}>
               No payouts yet
             </p>
@@ -443,7 +443,7 @@ export default function Settlement() {
                       className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
                       style={{ background: 'rgba(16,185,129,0.12)' }}
                     >
-                      <CheckCircleIconSolid className="w-4 h-4 text-emerald-400" />
+                      <CheckCircleIconSolid weight="fill" className="w-4 h-4 text-emerald-400" />
                     </div>
                     <div>
                       <p className="text-sm font-bold" style={{ color: 'var(--sweet-text)' }}>
@@ -474,7 +474,7 @@ export default function Settlement() {
                         className="p-1 rounded-lg"
                         style={{ color: 'var(--sweet-text-muted)' }}
                       >
-                        <ArrowTopRightOnSquareIcon className="w-3.5 h-3.5" />
+                        <ArrowSquareOutIcon className="w-3.5 h-3.5" />
                       </a>
                     )}
                   </div>

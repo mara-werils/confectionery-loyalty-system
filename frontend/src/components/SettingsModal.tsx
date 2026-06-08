@@ -2,14 +2,14 @@ import { useState, Fragment } from 'react';
 import { Dialog, Transition, Switch } from '@headlessui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  XMarkIcon,
+  XIcon,
   ShieldCheckIcon,
   BellIcon,
-  QuestionMarkCircleIcon,
-  ClipboardDocumentIcon,
+  QuestionIcon,
+  ClipboardTextIcon,
   CheckIcon,
-  ChevronDownIcon,
-} from '@heroicons/react/24/outline';
+  CaretDownIcon,
+} from '@phosphor-icons/react';
 import { useTonWallet } from '@tonconnect/ui-react';
 import clsx from 'clsx';
 import toast from 'react-hot-toast';
@@ -26,7 +26,7 @@ interface SettingsModalProps {
 const tabKeys = [
   { key: 'security' as const, icon: ShieldCheckIcon },
   { key: 'notifications' as const, icon: BellIcon },
-  { key: 'help' as const, icon: QuestionMarkCircleIcon },
+  { key: 'help' as const, icon: QuestionIcon },
 ];
 
 export default function SettingsModal({ isOpen, onClose, initialTab = 'security' }: SettingsModalProps) {
@@ -106,7 +106,7 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
                     onClick={onClose}
                     className="p-2 rounded-full hover:bg-white/10 transition-colors"
                   >
-                    <XMarkIcon className="w-5 h-5 text-gray-400" />
+                    <XIcon className="w-5 h-5 text-gray-400" />
                   </button>
                 </div>
 
@@ -154,7 +154,7 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
                               {copied ? (
                                 <CheckIcon className="w-4 h-4 text-green-400" />
                               ) : (
-                                <ClipboardDocumentIcon className="w-4 h-4 text-gray-400" />
+                                <ClipboardTextIcon className="w-4 h-4 text-gray-400" />
                               )}
                             </button>
                           </div>
@@ -250,7 +250,7 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
                               className="w-full flex items-center justify-between p-4 text-left"
                             >
                               <span className="font-medium text-white text-sm">{faq.question}</span>
-                              <ChevronDownIcon 
+                              <CaretDownIcon 
                                 className={clsx(
                                   'w-4 h-4 text-gray-400 transition-transform',
                                   expandedFaq === index && 'rotate-180'

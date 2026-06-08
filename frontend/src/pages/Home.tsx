@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTonWallet } from '@tonconnect/ui-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { BuildingStorefrontIcon, UserIcon, SparklesIcon, ShieldCheckIcon, CubeTransparentIcon } from '@heroicons/react/24/outline';
+import { StorefrontIcon, UserIcon, SparkleIcon, ShieldCheckIcon, CubeTransparentIcon } from '@phosphor-icons/react';
 import WalletConnect from '../components/WalletConnect';
 import { useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
@@ -241,12 +241,12 @@ export default function Home() {
 
   const valueCards = [
     {
-      icon: <SparklesIcon className="w-5 h-5" />,
+      icon: <SparkleIcon className="w-5 h-5" />,
       title: t('home.step3Title'),
       body: 'Earn SWEET tokens with every purchase at partner confectioneries.',
     },
     {
-      icon: <BuildingStorefrontIcon className="w-5 h-5" />,
+      icon: <StorefrontIcon className="w-5 h-5" />,
       title: t('home.step2Title'),
       body: 'Redeem SWEET at any partner confectionery in the coalition network.',
     },
@@ -376,7 +376,7 @@ export default function Home() {
                   Gasless transactions
                 </TrustBadge>
                 <TrustBadge>
-                  <SparklesIcon className="w-3.5 h-3.5" style={{ color: 'var(--sweet-accent)' }} />
+                  <SparkleIcon className="w-3.5 h-3.5" style={{ color: 'var(--sweet-accent)' }} />
                   SWEET tokens
                 </TrustBadge>
               </div>
@@ -503,7 +503,7 @@ export default function Home() {
                       onClick={() => handleRoleSelect('customer')}
                     />
                     <RoleCard
-                      icon={<BuildingStorefrontIcon className="w-7 h-7" />}
+                      icon={<StorefrontIcon className="w-7 h-7" />}
                       label={t('home.business')}
                       desc={t('home.businessDesc')}
                       accentColor="#fb923c"

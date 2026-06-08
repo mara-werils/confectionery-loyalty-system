@@ -2,13 +2,12 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   TrophyIcon,
-  LockClosedIcon,
-  ArrowTopRightOnSquareIcon,
-  SparklesIcon,
-  CheckBadgeIcon,
+  LockIcon,
+  ArrowSquareOutIcon,
+  SparkleIcon,
+  SealCheckIcon,
   CubeTransparentIcon,
-} from '@heroicons/react/24/outline';
-import { TrophyIcon as TrophySolid } from '@heroicons/react/24/solid';
+} from '@phosphor-icons/react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../services/api';
 import { useAuthStore } from '../store/authStore';
@@ -88,7 +87,7 @@ function NFTBadge({ txHash }: { txHash: string }) {
     >
       <CubeTransparentIcon className="w-3 h-3" />
       {t('achievements.nftOnchain')}
-      <ArrowTopRightOnSquareIcon className="w-2.5 h-2.5" />
+      <ArrowSquareOutIcon className="w-2.5 h-2.5" />
     </a>
   );
 }
@@ -130,14 +129,14 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
           {/* NFT sparkle indicator */}
           {unlocked && achievement.nftTxHash && (
             <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-500 flex items-center justify-center">
-              <SparklesIcon className="w-2.5 h-2.5 text-white" />
+              <SparkleIcon className="w-2.5 h-2.5 text-white" />
             </div>
           )}
 
           {/* Lock overlay for locked */}
           {!unlocked && (
             <div className="absolute inset-0 rounded-xl flex items-center justify-center" style={{ background: 'var(--sweet-card-hover)', opacity: 0.6 }}>
-              <LockClosedIcon className="w-4 h-4" style={{ color: 'var(--sweet-text-faint)' }} />
+              <LockIcon className="w-4 h-4" style={{ color: 'var(--sweet-text-faint)' }} />
             </div>
           )}
         </div>
@@ -149,7 +148,7 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
               {achievement.name}
             </p>
             {unlocked
-              ? <CheckBadgeIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" />
+              ? <SealCheckIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" />
               : <span className="text-[10px] flex-shrink-0" style={{ color: 'var(--sweet-text-faint)' }}>
                   {achievement.progress}/{achievement.requirement}
                 </span>
@@ -211,7 +210,7 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
                     className="inline-flex items-center gap-1 text-[10px] text-amber-400 hover:text-amber-300 underline underline-offset-2"
                   >
                     {t('achievements.viewTx')}
-                    <ArrowTopRightOnSquareIcon className="w-3 h-3" />
+                    <ArrowSquareOutIcon className="w-3 h-3" />
                   </a>
                 </div>
               ) : unlocked ? (
@@ -282,7 +281,7 @@ export default function Achievements() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-xl bg-yellow-400/15 border border-yellow-400/25 flex items-center justify-center">
-              <TrophySolid className="w-4 h-4 text-yellow-400" />
+              <TrophyIcon weight="fill" className="w-4 h-4 text-yellow-400" />
             </div>
             <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--sweet-text)' }}>{t('achievements.title')}</h1>
           </div>

@@ -2,16 +2,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ShoppingBagIcon,
   GiftIcon,
-  UserGroupIcon,
-  SparklesIcon,
+  UsersThreeIcon,
+  SparkleIcon,
   ArrowUpIcon,
   ArrowDownIcon,
   ShieldCheckIcon,
-  ArrowTopRightOnSquareIcon,
-  DocumentDuplicateIcon,
-  ChevronDownIcon,
+  ArrowSquareOutIcon,
+  CopyIcon,
+  CaretDownIcon,
   LinkIcon,
-} from '@heroicons/react/24/outline';
+} from '@phosphor-icons/react';
 import clsx from 'clsx';
 import { useState } from 'react';
 
@@ -37,7 +37,7 @@ const typeConfig = {
     isPositive: true,
   },
   BONUS: {
-    icon: SparklesIcon,
+    icon: SparkleIcon,
     label: 'Bonus',
     accentColor: 'var(--tx-bonus)',
     accentBg: 'var(--tx-bonus-bg)',
@@ -45,7 +45,7 @@ const typeConfig = {
     isPositive: true,
   },
   REFERRAL: {
-    icon: UserGroupIcon,
+    icon: UsersThreeIcon,
     label: 'Referral',
     accentColor: 'var(--tx-referral)',
     accentBg: 'var(--tx-referral-bg)',
@@ -228,7 +228,7 @@ export default function TransactionItem({
                   className="flex items-center gap-0.5 font-mono transition-colors duration-150 hover:underline"
                   style={{ color: 'var(--sweet-text-muted)' }}
                 >
-                  <ArrowTopRightOnSquareIcon className="w-2.5 h-2.5" />
+                  <ArrowSquareOutIcon className="w-2.5 h-2.5" />
                   {shortenHash(txHash)}
                 </a>
               </>
@@ -266,7 +266,7 @@ export default function TransactionItem({
               transition={{ duration: 0.2 }}
               className="flex justify-end mt-1"
             >
-              <ChevronDownIcon
+              <CaretDownIcon
                 className="w-3 h-3"
                 style={{ color: 'var(--sweet-text-faint)' }}
               />
@@ -331,7 +331,7 @@ export default function TransactionItem({
                       {copied ? (
                         <ShieldCheckIcon className="w-3 h-3" />
                       ) : (
-                        <DocumentDuplicateIcon className="w-3 h-3" />
+                        <CopyIcon className="w-3 h-3" />
                       )}
                     </button>
                   </div>
@@ -373,7 +373,7 @@ export default function TransactionItem({
                     e.currentTarget.style.color = 'var(--sweet-text-secondary)';
                   }}
                 >
-                  <ArrowTopRightOnSquareIcon className="w-3 h-3" />
+                  <ArrowSquareOutIcon className="w-3 h-3" />
                   Verify on TON Explorer
                 </a>
               </div>

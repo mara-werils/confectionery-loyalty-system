@@ -2,18 +2,18 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
-  SparklesIcon,
-  LockClosedIcon,
+  SparkleIcon,
+  LockIcon,
   ClockIcon,
-  BoltIcon,
-  XMarkIcon,
-  ExclamationTriangleIcon,
+  LightningIcon,
+  XIcon,
+  WarningIcon,
   CheckCircleIcon,
   FireIcon,
-  UserGroupIcon,
+  UsersThreeIcon,
   CurrencyDollarIcon,
-  ArrowTrendingUpIcon,
-} from '@heroicons/react/24/outline';
+  TrendUpIcon,
+} from '@phosphor-icons/react';
 import { useAuthStore } from '../../store/authStore';
 import toast from 'react-hot-toast';
 
@@ -28,7 +28,7 @@ interface StakingPool {
   minStake: number;
   totalStaked: number;
   stakers: number;
-  icon: typeof BoltIcon;
+  icon: typeof LightningIcon;
 }
 
 interface StakePosition {
@@ -53,7 +53,7 @@ const POOLS: StakingPool[] = [
     minStake: 10,
     totalStaked: 1_245_800,
     stakers: 3_421,
-    icon: BoltIcon,
+    icon: LightningIcon,
   },
   {
     id: '30day',
@@ -64,7 +64,7 @@ const POOLS: StakingPool[] = [
     minStake: 50,
     totalStaked: 3_890_500,
     stakers: 1_876,
-    icon: LockClosedIcon,
+    icon: LockIcon,
   },
   {
     id: '90day',
@@ -252,7 +252,7 @@ export default function Staking() {
                 border: '1px solid rgba(245,158,11,0.22)',
               }}
             >
-              <SparklesIcon className="w-3.5 h-3.5" style={{ color: 'var(--sweet-accent)' }} />
+              <SparkleIcon className="w-3.5 h-3.5" style={{ color: 'var(--sweet-accent)' }} />
               <span
                 className="text-sm font-black tabular-nums"
                 style={{ color: 'var(--sweet-accent)' }}
@@ -442,19 +442,19 @@ export default function Staking() {
             accentColor="var(--sweet-text-secondary)"
           />
           <StatRow
-            icon={UserGroupIcon}
+            icon={UsersThreeIcon}
             label={t('staking.stats.totalStakers')}
             value={formatNumber(totalStakers)}
             accentColor="var(--sweet-text-secondary)"
           />
           <StatRow
-            icon={ArrowTrendingUpIcon}
+            icon={TrendUpIcon}
             label={t('staking.stats.avgApy')}
             value={`${avgApy.toFixed(1)}%`}
             accentColor="var(--sweet-accent)"
           />
           <StatRow
-            icon={SparklesIcon}
+            icon={SparkleIcon}
             label={t('staking.stats.distributed')}
             value={`${formatNumber(totalDistributed)} SWEET`}
             accentColor="var(--sweet-text-secondary)"
@@ -822,7 +822,7 @@ function StatRow({
   value,
   accentColor,
 }: {
-  icon: typeof SparklesIcon;
+  icon: typeof SparkleIcon;
   label: string;
   value: string;
   accentColor: string;
@@ -942,7 +942,7 @@ function StakeModal({
                   onMouseEnter={e => (e.currentTarget.style.background = 'var(--sweet-input)')}
                   onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                 >
-                  <XMarkIcon className="w-5 h-5" />
+                  <XIcon className="w-5 h-5" />
                 </button>
               </div>
 
@@ -1166,7 +1166,7 @@ function UnstakeConfirmModal({
                   onMouseEnter={e => (e.currentTarget.style.background = 'var(--sweet-input)')}
                   onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                 >
-                  <XMarkIcon className="w-5 h-5" />
+                  <XIcon className="w-5 h-5" />
                 </button>
               </div>
 
@@ -1179,7 +1179,7 @@ function UnstakeConfirmModal({
                   }}
                 >
                   <div className="flex items-start gap-3">
-                    <ExclamationTriangleIcon
+                    <WarningIcon
                       className="w-5 h-5 flex-shrink-0 mt-0.5"
                       style={{ color: '#f87171' }}
                     />

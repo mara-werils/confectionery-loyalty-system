@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { changeLanguage, languages } from '../i18n';
-import { ChevronDownIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
+import { CaretDownIcon, GlobeIcon } from '@phosphor-icons/react';
 
 export const LanguageSelector = () => {
     const { i18n } = useTranslation();
@@ -20,9 +20,9 @@ export const LanguageSelector = () => {
                 onClick={() => setIsOpen(!isOpen)}
                 className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors"
             >
-                <GlobeAltIcon className="w-5 h-5 text-gray-400" />
+                <GlobeIcon className="w-5 h-5 text-gray-400" />
                 <span className="text-sm">{currentLang.flag} {currentLang.code.toUpperCase()}</span>
-                <ChevronDownIcon className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                <CaretDownIcon className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {isOpen && (

@@ -3,10 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   MagnifyingGlassIcon,
   FunnelIcon,
-  XMarkIcon,
-  BuildingStorefrontIcon,
-  EllipsisVerticalIcon,
-} from '@heroicons/react/24/outline';
+  XIcon,
+  StorefrontIcon,
+  DotsThreeVerticalIcon,
+} from '@phosphor-icons/react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { api } from '../../services/api';
@@ -161,7 +161,7 @@ export default function AdminPartners() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="py-16 text-center">
-            <BuildingStorefrontIcon className="w-12 h-12 text-stone-700 mx-auto mb-3" />
+            <StorefrontIcon className="w-12 h-12 text-stone-700 mx-auto mb-3" />
             <p className="text-stone-500 text-sm">Партнёры не найдены</p>
           </div>
         ) : (
@@ -221,7 +221,7 @@ export default function AdminPartners() {
                             onClick={() => setActionMenuId(actionMenuId === partner.id ? null : partner.id)}
                             className="p-1.5 rounded-lg hover:bg-stone-800 transition-colors"
                           >
-                            <EllipsisVerticalIcon className="w-4 h-4 text-stone-500" />
+                            <DotsThreeVerticalIcon className="w-4 h-4 text-stone-500" />
                           </button>
                           <AnimatePresence>
                             {actionMenuId === partner.id && (
@@ -353,7 +353,7 @@ export default function AdminPartners() {
                   onClick={() => setSelectedPartner(null)}
                   className="p-1.5 rounded-lg hover:bg-stone-800 transition-colors"
                 >
-                  <XMarkIcon className="w-5 h-5 text-stone-500" />
+                  <XIcon className="w-5 h-5 text-stone-500" />
                 </button>
               </div>
               <div className="p-6 space-y-4">

@@ -9,16 +9,20 @@ import {
   TicketIcon,
   TrophyIcon,
   ArrowDownIcon,
-  ChevronRightIcon,
+  CaretRightIcon,
   ShieldCheckIcon,
-  ArrowTopRightOnSquareIcon,
-  SparklesIcon,
+  ArrowSquareOutIcon,
+  SparkleIcon,
   LinkIcon,
   ArrowUpRightIcon,
   QrCodeIcon,
   TagIcon,
-} from '@heroicons/react/24/outline';
-import { FireIcon as FireIconSolid } from '@heroicons/react/24/solid';
+  FireIcon,
+  Gift,
+  SpinnerGap,
+  PaperPlaneTilt,
+  Trophy,
+} from '@phosphor-icons/react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
@@ -31,7 +35,6 @@ import AnimatedNumber from '../../components/AnimatedNumber';
 import Skeleton from '../../components/Skeleton';
 import PurchaseNotification from '../../components/PurchaseNotification';
 import { io as socketIO } from 'socket.io-client';
-import { Gift, SpinnerGap, PaperPlaneTilt, Trophy } from '@phosphor-icons/react';
 
 const TIERS = TIER_CONFIG;
 
@@ -439,7 +442,7 @@ export default function CustomerDashboard() {
                       className="flex items-center gap-0.5 text-[10px] transition-colors"
                       style={{ color: 'rgba(255,255,255,0.25)' }}
                     >
-                      <ArrowTopRightOnSquareIcon className="w-2.5 h-2.5" />
+                      <ArrowSquareOutIcon className="w-2.5 h-2.5" />
                       {t('customerDashboard.viewOnChain')}
                     </a>
                   </div>
@@ -625,7 +628,7 @@ export default function CustomerDashboard() {
               className="flex items-center gap-0.5 text-[10px] font-semibold"
               style={{ color: 'var(--sweet-accent)' }}
             >
-              See All <ChevronRightIcon className="w-3 h-3" />
+              See All <CaretRightIcon className="w-3 h-3" />
             </Link>
           }
         />
@@ -728,7 +731,7 @@ export default function CustomerDashboard() {
                 className="flex items-center gap-0.5 text-[10px] font-semibold"
                 style={{ color: 'var(--sweet-accent)' }}
               >
-                {t('customerDashboard.viewAll')} <ChevronRightIcon className="w-3 h-3" />
+                {t('customerDashboard.viewAll')} <CaretRightIcon className="w-3 h-3" />
               </Link>
             }
           />
@@ -774,7 +777,7 @@ export default function CustomerDashboard() {
               className="flex items-center gap-0.5 text-[10px] font-semibold"
               style={{ color: 'var(--sweet-accent)' }}
             >
-              {t('customerDashboard.viewAll')} <ChevronRightIcon className="w-3 h-3" />
+              {t('customerDashboard.viewAll')} <CaretRightIcon className="w-3 h-3" />
             </Link>
           }
         />
@@ -939,12 +942,12 @@ const CATEGORY_META: Record<string, { icon: React.ReactNode; color: string; bg: 
     bg: 'rgba(245,158,11,0.12)',
   },
   CASHBACK: {
-    icon: <SparklesIcon className="w-4 h-4" />,
+    icon: <SparkleIcon className="w-4 h-4" />,
     color: '#34d399',
     bg: 'rgba(52,211,153,0.12)',
   },
   SPECIAL: {
-    icon: <FireIconSolid className="w-4 h-4" />,
+    icon: <FireIcon weight="fill" className="w-4 h-4" />,
     color: '#f87171',
     bg: 'rgba(248,113,113,0.12)',
   },
@@ -1084,7 +1087,7 @@ function DailyCheckinCard() {
             style={{ background: 'rgba(251,191,36,0.12)' }}
           >
             {streak >= 3 ? (
-              <FireIconSolid className="w-4 h-4" style={{ color: '#fbbf24' }} />
+              <FireIcon weight="fill" className="w-4 h-4" style={{ color: '#fbbf24' }} />
             ) : (
               <ClockIcon className="w-4 h-4" style={{ color: '#f59e0b' }} />
             )}

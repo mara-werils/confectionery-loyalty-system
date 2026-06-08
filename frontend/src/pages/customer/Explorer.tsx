@@ -3,20 +3,20 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ShoppingBagIcon,
   GiftIcon,
-  UserGroupIcon,
-  SparklesIcon,
-  ArrowTopRightOnSquareIcon,
-  DocumentDuplicateIcon,
+  UsersThreeIcon,
+  SparkleIcon,
+  ArrowSquareOutIcon,
+  CopyIcon,
   CheckIcon,
   CubeTransparentIcon,
-  SignalIcon,
-  ChevronDownIcon,
+  WifiHighIcon,
+  CaretDownIcon,
   WalletIcon,
-  CircleStackIcon,
-  BoltIcon,
+  DatabaseIcon,
+  LightningIcon,
   ClockIcon,
-} from '@heroicons/react/24/outline';
-import { ShieldCheckIcon } from '@heroicons/react/24/solid';
+  ShieldCheckIcon,
+} from '@phosphor-icons/react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -144,7 +144,7 @@ const TYPE_CONFIG: Record<TxType, {
     badgeText: 'text-emerald-400',
   },
   BONUS: {
-    icon: SparklesIcon,
+    icon: SparkleIcon,
     label: 'Bonus',
     borderColor: 'border-l-blue-500',
     iconBg: 'bg-blue-500/10 border border-blue-500/20',
@@ -153,7 +153,7 @@ const TYPE_CONFIG: Record<TxType, {
     badgeText: 'text-blue-400',
   },
   REFERRAL: {
-    icon: UserGroupIcon,
+    icon: UsersThreeIcon,
     label: 'Referral',
     borderColor: 'border-l-purple-500',
     iconBg: 'bg-purple-500/10 border border-purple-500/20',
@@ -271,7 +271,7 @@ function TokenStatsCard() {
     >
       <div className="flex items-center gap-2 mb-3">
         <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20">
-          <CircleStackIcon className="w-4 h-4 text-amber-400" />
+          <DatabaseIcon className="w-4 h-4 text-amber-400" />
         </div>
         <div>
           <h3 className="text-sm font-bold" style={{ color: 'var(--sweet-text)' }}>
@@ -317,7 +317,7 @@ function TokenStatsCard() {
         className="mt-3 flex items-center justify-center gap-1.5 w-full py-1.5 rounded-xl border text-[10px] font-semibold transition-colors hover:border-amber-500/40"
         style={{ borderColor: 'var(--sweet-border)', color: 'var(--sweet-accent)' }}
       >
-        <ArrowTopRightOnSquareIcon className="w-3 h-3" />
+        <ArrowSquareOutIcon className="w-3 h-3" />
         View Token on TON Explorer
       </a>
     </motion.div>
@@ -362,7 +362,7 @@ function ContractStatusGrid() {
   return (
     <div>
       <div className="flex items-center gap-2 mb-3 pl-1">
-        <BoltIcon className="w-4 h-4" style={{ color: 'var(--sweet-accent)' }} />
+        <LightningIcon className="w-4 h-4" style={{ color: 'var(--sweet-accent)' }} />
         <h3 className="text-sm font-bold" style={{ color: 'var(--sweet-text)' }}>
           Smart Contract Status
         </h3>
@@ -426,7 +426,7 @@ function ContractStatusGrid() {
                 className="mt-2 flex items-center gap-1 text-[9px] font-medium transition-colors hover:text-amber-300"
                 style={{ color: 'var(--sweet-accent)' }}
               >
-                <ArrowTopRightOnSquareIcon className="w-2.5 h-2.5" />
+                <ArrowSquareOutIcon className="w-2.5 h-2.5" />
                 View on tonviewer
               </a>
             </motion.div>
@@ -517,7 +517,7 @@ function AdminWalletCard() {
         className="mt-3 flex items-center justify-center gap-1.5 w-full py-1.5 rounded-xl border text-[10px] font-semibold transition-colors hover:border-purple-500/40"
         style={{ borderColor: 'var(--sweet-border)', color: 'var(--sweet-text-secondary)' }}
       >
-        <ArrowTopRightOnSquareIcon className="w-3 h-3" />
+        <ArrowSquareOutIcon className="w-3 h-3" />
         View Admin Wallet on TON Explorer
       </a>
     </motion.div>
@@ -616,7 +616,7 @@ function TxCard({ tx, index, isNew }: { tx: OnChainTx; index: number; isNew?: bo
               {timeAgo(tx.createdAt)}
             </p>
             <span className="inline-flex items-center gap-0.5 mt-1 px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-[9px] font-bold text-emerald-400">
-              <ShieldCheckIcon className="w-2.5 h-2.5" />
+              <ShieldCheckIcon weight="fill" className="w-2.5 h-2.5" />
               {t('explorer.confirmed')}
             </span>
           </div>
@@ -643,7 +643,7 @@ function TxCard({ tx, index, isNew }: { tx: OnChainTx; index: number; isNew?: bo
               style={{ color: 'var(--sweet-text-secondary)' }}
               title={tx.txHash}
             >
-              <ArrowTopRightOnSquareIcon className="w-2.5 h-2.5 shrink-0" />
+              <ArrowSquareOutIcon className="w-2.5 h-2.5 shrink-0" />
               {shortenHash(tx.txHash)}
             </a>
             <button
@@ -654,7 +654,7 @@ function TxCard({ tx, index, isNew }: { tx: OnChainTx; index: number; isNew?: bo
             >
               {copied
                 ? <CheckIcon className="w-3 h-3 text-emerald-400" />
-                : <DocumentDuplicateIcon className="w-3 h-3" />}
+                : <CopyIcon className="w-3 h-3" />}
             </button>
           </div>
 
@@ -694,7 +694,7 @@ function TxCard({ tx, index, isNew }: { tx: OnChainTx; index: number; isNew?: bo
                   color: 'var(--sweet-text-secondary)',
                 }}
               >
-                <ArrowTopRightOnSquareIcon className="w-3 h-3" />
+                <ArrowSquareOutIcon className="w-3 h-3" />
                 {t('explorer.viewOnExplorer')}
               </motion.a>
             )}
@@ -864,7 +864,7 @@ export default function Explorer() {
               style={{ color: 'var(--sweet-accent)' }}
               onClick={(e) => e.stopPropagation()}
             >
-              <ArrowTopRightOnSquareIcon className="w-2.5 h-2.5" />
+              <ArrowSquareOutIcon className="w-2.5 h-2.5" />
               tonviewer
             </a>
           }
@@ -887,7 +887,7 @@ export default function Explorer() {
         className="mb-6 rounded-2xl border px-4 py-3 flex items-center gap-3"
         style={{ borderColor: 'var(--sweet-border)', background: 'var(--sweet-card)' }}
       >
-        <SignalIcon className="w-4 h-4 shrink-0" style={{ color: 'var(--sweet-accent)' }} />
+        <WifiHighIcon className="w-4 h-4 shrink-0" style={{ color: 'var(--sweet-accent)' }} />
         <div className="flex-1 min-w-0">
           <p
             className="text-[9px] uppercase tracking-wider"
@@ -913,7 +913,7 @@ export default function Explorer() {
             color: 'var(--sweet-text-secondary)',
           }}
         >
-          <ArrowTopRightOnSquareIcon className="w-3 h-3" />
+          <ArrowSquareOutIcon className="w-3 h-3" />
           {t('explorer.viewContract')}
         </a>
       </div>
@@ -977,7 +977,7 @@ export default function Explorer() {
                       }}
                     />
                   ) : (
-                    <ChevronDownIcon className="w-4 h-4" />
+                    <CaretDownIcon className="w-4 h-4" />
                   )}
                   {t('explorer.loadMore')}
                 </button>

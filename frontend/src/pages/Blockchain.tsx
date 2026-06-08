@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { BlockchainService, CONTRACT_ADDRESSES, ContractState } from '../services/ton';
 import { useTonWallet } from '@tonconnect/ui-react';
-import { CodeBracketSquareIcon, CheckCircleIcon, XCircleIcon, BeakerIcon, ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
+import { BracketsAngleIcon, CheckCircleIcon, XCircleIcon, FlaskIcon, ArrowSquareOutIcon } from '@phosphor-icons/react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 
@@ -38,7 +38,7 @@ export default function Blockchain() {
   const getStatusIcon = (state: string) => {
     switch (state) {
       case 'active': return <CheckCircleIcon style={{ width: 14, height: 14, color: '#34d399' }} />;
-      case 'uninitialized': return <BeakerIcon style={{ width: 14, height: 14, color: '#fbbf24' }} />;
+      case 'uninitialized': return <FlaskIcon style={{ width: 14, height: 14, color: '#fbbf24' }} />;
       default: return <XCircleIcon style={{ width: 14, height: 14, color: '#f87171' }} />;
     }
   };
@@ -370,7 +370,7 @@ export default function Blockchain() {
               justifyContent: 'center',
             }}
           >
-            <CodeBracketSquareIcon style={{ width: 16, height: 16, color: 'var(--sweet-accent)' }} />
+            <BracketsAngleIcon style={{ width: 16, height: 16, color: 'var(--sweet-accent)' }} />
           </div>
           <h2
             style={{
@@ -526,7 +526,7 @@ export default function Blockchain() {
                           (e.currentTarget as HTMLElement).style.color = 'var(--sweet-text-secondary)';
                         }}
                       >
-                        <ArrowTopRightOnSquareIcon style={{ width: 12, height: 12 }} />
+                        <ArrowSquareOutIcon style={{ width: 12, height: 12 }} />
                         Tonscan
                       </a>
                       <a
@@ -556,7 +556,7 @@ export default function Blockchain() {
                           (e.currentTarget as HTMLElement).style.color = 'var(--sweet-text-secondary)';
                         }}
                       >
-                        <ArrowTopRightOnSquareIcon style={{ width: 12, height: 12 }} />
+                        <ArrowSquareOutIcon style={{ width: 12, height: 12 }} />
                         Tonviewer
                       </a>
                     </div>

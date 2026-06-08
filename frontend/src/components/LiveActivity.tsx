@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowTrendingUpIcon } from '@heroicons/react/24/outline';
+import { TrendUpIcon } from '@phosphor-icons/react';
 
 // Representative example activities — clearly labeled as examples
 const activities = [
@@ -44,7 +44,7 @@ export default function LiveActivity() {
   return (
     <div className="relative overflow-hidden bg-white/5 rounded-2xl border border-white/10 p-4">
       <div className="flex items-center gap-2 mb-2">
-        <ArrowTrendingUpIcon className="w-4 h-4 text-stone-400" />
+        <TrendUpIcon className="w-4 h-4 text-stone-400" />
         <span className="text-xs font-medium text-stone-500 uppercase tracking-wider">Example Activity</span>
       </div>
 

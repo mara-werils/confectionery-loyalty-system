@@ -2,14 +2,14 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTonWallet, useTonConnectUI } from '@tonconnect/ui-react';
 import {
-  ArrowsRightLeftIcon,
-  ChevronDownIcon,
-  Cog8ToothIcon,
+  ArrowsLeftRightIcon,
+  CaretDownIcon,
+  GearIcon,
   CurrencyDollarIcon,
-  SparklesIcon,
-  InformationCircleIcon,
-  ArrowTopRightOnSquareIcon,
-} from '@heroicons/react/24/outline';
+  SparkleIcon,
+  InfoIcon,
+  ArrowSquareOutIcon,
+} from '@phosphor-icons/react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import { GlassCard } from '../components/GlassCard';
@@ -136,7 +136,7 @@ export default function Swap() {
               className="text-2xl font-bold tracking-tight flex items-center gap-2"
               style={{ color: 'var(--sweet-text)' }}
             >
-              <ArrowsRightLeftIcon className="w-6 h-6" style={{ color: 'var(--sweet-accent)' }} />
+              <ArrowsLeftRightIcon className="w-6 h-6" style={{ color: 'var(--sweet-accent)' }} />
               {t('swap.title')}
             </h1>
             <p
@@ -154,7 +154,7 @@ export default function Swap() {
             style={{ color: 'var(--sweet-text-secondary)' }}
             title="Open DeDust DEX"
           >
-            <Cog8ToothIcon className="w-5 h-5" />
+            <GearIcon className="w-5 h-5" />
           </a>
         </motion.div>
 
@@ -184,7 +184,7 @@ export default function Swap() {
           >
             <span className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0" />
             DeDust DEX
-            <ArrowTopRightOnSquareIcon className="w-3 h-3" />
+            <ArrowSquareOutIcon className="w-3 h-3" />
           </a>
         </motion.div>
 
@@ -258,11 +258,11 @@ export default function Swap() {
                           border: '1px solid var(--sweet-border)',
                         }}
                       >
-                        <SparklesIcon className="w-4 h-4" style={{ color: 'var(--sweet-accent)' }} />
+                        <SparkleIcon className="w-4 h-4" style={{ color: 'var(--sweet-accent)' }} />
                       </div>
                     )}
                     <span className="font-bold text-sm">{payToken}</span>
-                    <ChevronDownIcon className="w-4 h-4" style={{ color: 'var(--sweet-text-muted)' }} />
+                    <CaretDownIcon className="w-4 h-4" style={{ color: 'var(--sweet-text-muted)' }} />
                   </button>
                 </div>
                 <div className="flex justify-between items-center mt-2 h-6">
@@ -298,7 +298,7 @@ export default function Swap() {
                     color: 'var(--sweet-text)',
                   }}
                 >
-                  <ArrowsRightLeftIcon className="w-4 h-4 rotate-90" />
+                  <ArrowsLeftRightIcon className="w-4 h-4 rotate-90" />
                 </motion.button>
               </div>
 
@@ -356,11 +356,11 @@ export default function Swap() {
                           border: '1px solid var(--sweet-border)',
                         }}
                       >
-                        <SparklesIcon className="w-4 h-4" style={{ color: 'var(--sweet-accent)' }} />
+                        <SparkleIcon className="w-4 h-4" style={{ color: 'var(--sweet-accent)' }} />
                       </div>
                     )}
                     <span className="font-bold text-sm">{receiveToken}</span>
-                    <ChevronDownIcon className="w-4 h-4" style={{ color: 'var(--sweet-text-muted)' }} />
+                    <CaretDownIcon className="w-4 h-4" style={{ color: 'var(--sweet-text-muted)' }} />
                   </button>
                 </div>
                 <div className="flex justify-between mt-2 h-6">
@@ -394,7 +394,7 @@ export default function Swap() {
                         style={{ color: 'var(--sweet-text-muted)' }}
                       >
                         <span className="flex items-center gap-1">
-                          {t('swap.rate')} <InformationCircleIcon className="w-3 h-3" />
+                          {t('swap.rate')} <InfoIcon className="w-3 h-3" />
                         </span>
                         <span className="font-mono">1 SWEET = {sweetPrice} TON</span>
                       </div>
@@ -427,7 +427,7 @@ export default function Swap() {
                           className="flex items-center gap-1 hover:opacity-80 transition-opacity"
                           style={{ color: 'var(--sweet-accent)' }}
                         >
-                          DeDust Protocol <ArrowTopRightOnSquareIcon className="w-3 h-3" />
+                          DeDust Protocol <ArrowSquareOutIcon className="w-3 h-3" />
                         </a>
                       </div>
                     </div>
@@ -469,7 +469,7 @@ export default function Swap() {
                   : (
                     <span className="flex items-center justify-center gap-2">
                       {t('swap.swapbtn')} via DeDust
-                      <ArrowTopRightOnSquareIcon className="w-4 h-4" />
+                      <ArrowSquareOutIcon className="w-4 h-4" />
                     </span>
                   )
                 }
