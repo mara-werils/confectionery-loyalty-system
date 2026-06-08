@@ -60,7 +60,8 @@ services:
       JETTON_DECIMALS: "9"
       ADMIN_EMAIL: admin@sweetloyalty.kz
       ADMIN_PASSWORD: "MasterKey2026!"
-      TELEGRAM_BOT_TOKEN: ""
+      TELEGRAM_BOT_TOKEN: "8350474859:AAHbG1t4L7aXp4GbH7OwUixs078Zu7HCKDI"
+      MINI_APP_URL: "https://confectionery-loyalty-system-fronte.vercel.app/customer/dashboard"
       LOG_LEVEL: info
     ports:
       - "3001:3001"
