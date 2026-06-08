@@ -25,10 +25,17 @@ import referralRoutes from './routes/referrals';
 import achievementRoutes from './routes/achievements';
 import couponRoutes from './routes/coupons';
 import aiRoutes from './routes/ai';
+import spinRoutes from './routes/spin';
+import checkinRoutes from './routes/checkin';
+import giftRoutes from './routes/gift';
 
 
 // Initialize Express app
 const app = express();
+
+// Trust first proxy (Cloudflare / reverse-proxy) so rate-limiter sees real IPs
+app.set('trust proxy', 1);
+
 const httpServer = createServer(app);
 
 // Initialize Socket.IO
@@ -79,6 +86,11 @@ app.use(cors({
   },
   credentials: true,
 }));
+
+// BigInt → string serialization
+app.set('json replacer', (_key: string, value: unknown) =>
+  typeof value === 'bigint' ? value.toString() : value
+);
 
 // Request parsing
 app.use(express.json({ limit: '10mb' }));
@@ -142,6 +154,9 @@ app.use(`${apiPrefix}/coupons`, couponRoutes);
 app.use(`${apiPrefix}/admin`, adminRoutes);
 app.use('/webhook', webhookRoutes);
 app.use(`${apiPrefix}/ai`, aiRoutes);
+app.use(`${apiPrefix}/spin`, spinRoutes);
+app.use(`${apiPrefix}/checkin`, checkinRoutes);
+app.use(`${apiPrefix}/gift`, giftRoutes);
 
 // ============================================================================
 // SOCKET.IO
@@ -192,6 +207,21 @@ if (config.app.env !== 'test') {
     logger.info(`📚 API Documentation: http://localhost:${PORT}/api/docs`);
     logger.info(`🔗 API Prefix: ${apiPrefix}`);
     logger.info(`🌐 Environment: ${config.app.env}`);
+
+    // Start Telegram bot if token is configured
+    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    if (botToken) {
+      logger.info('[BOT] Token found, starting Telegram bot...');
+      import('./bot/startBot.js').then(({ startBot }) => {
+        startBot().catch((err: unknown) => {
+          logger.error('[BOT] Failed to start Telegram bot:', err);
+        });
+      }).catch((err) => {
+        logger.error('[BOT] Failed to import bot module:', err);
+      });
+    } else {
+      logger.info('[BOT] No TELEGRAM_BOT_TOKEN set, skipping bot');
+    }
   });
 }
 

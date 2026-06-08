@@ -93,6 +93,8 @@ model Partner {
   referredBy    Partner?      @relation("Referrals", fields: [referredById], references: [id])
   referrals     Partner[]     @relation("Referrals")
   achievements  PartnerAchievement[]
+  spinHistory   SpinHistory[]
+  dailyCheckins DailyCheckin[]
 
   @@map("partners")
 }
@@ -333,5 +335,46 @@ model PartnerAchievement {
 
   @@unique([partnerId, achievementId])
   @@map("partner_achievements")
+}
+
+/// Spin Wheel history
+model SpinHistory {
+  id        String   @id @default(cuid())
+  partnerId String   @map("partner_id")
+  prize     Int
+  createdAt DateTime @default(now()) @map("created_at")
+
+  partner   Partner  @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  @@index([partnerId, createdAt])
+  @@map("spin_history")
+}
+
+/// Daily check-in streak tracking
+model DailyCheckin {
+  id        String   @id @default(cuid())
+  partnerId String   @map("partner_id")
+  streak    Int      @default(1)
+  bonus     Int
+  createdAt DateTime @default(now()) @map("created_at")
+
+  partner   Partner  @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  @@index([partnerId, createdAt])
+  @@map("daily_checkins")
+}
+
+/// Token gift transfers between users
+model TokenGift {
+  id             String   @id @default(cuid())
+  senderWallet   String   @map("sender_wallet")
+  receiverWallet String   @map("receiver_wallet")
+  amount         Int
+  message        String?
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@index([senderWallet])
+  @@index([receiverWallet])
+  @@map("token_gifts")
 }
 

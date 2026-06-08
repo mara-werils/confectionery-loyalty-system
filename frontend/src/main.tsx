@@ -6,6 +6,7 @@ import { TonConnectUIProvider } from '@tonconnect/ui-react';
 import { Toaster } from 'react-hot-toast';
 
 import App from './App';
+import ErrorBoundary from './components/ErrorBoundary';
 import './index.css';
 import './i18n'; // Initialize i18n
 
@@ -40,6 +41,12 @@ const getManifestUrl = () => {
     return `${baseUrl}/api/tonconnect-manifest.json?origin=${encodeURIComponent(origin)}`;
   }
 
+  if (import.meta.env.PROD) {
+    console.error(
+      'VITE_TONCONNECT_MANIFEST_URL or an absolute VITE_API_URL is required in production for reliable TonConnect restore.'
+    );
+  }
+
   // 3. Fallback: assume API is on the same origin (local or proxied)
   // If the origin already ends with something, we just append. 
   // But usually origin is clean.
@@ -53,27 +60,41 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <TonConnectUIProvider manifestUrl={manifestUrl}>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
-          <App />
+          <ErrorBoundary>
+            <App />
+          </ErrorBoundary>
           <Toaster
             position="top-center"
             toastOptions={{
               duration: 4000,
               style: {
-                background: '#321e19',
-                color: '#fff',
-                borderRadius: '12px',
+                background: 'var(--sweet-card)',
+                color: 'var(--sweet-text)',
+                borderRadius: '16px',
                 padding: '12px 16px',
+                border: '1px solid var(--sweet-border)',
+                fontSize: '14px',
+                fontWeight: 500,
               },
               success: {
+                style: { border: '1px solid rgba(34,197,94,0.2)' },
                 iconTheme: {
                   primary: '#22c55e',
                   secondary: '#fff',
                 },
               },
               error: {
+                style: { border: '1px solid rgba(239,68,68,0.2)' },
                 iconTheme: {
                   primary: '#ef4444',
                   secondary: '#fff',
+                },
+              },
+              loading: {
+                style: { border: '1px solid rgba(245,158,11,0.2)' },
+                iconTheme: {
+                  primary: '#f59e0b',
+                  secondary: '#1c1917',
                 },
               },
             }}

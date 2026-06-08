@@ -9,6 +9,65 @@ const router = Router();
 
 /**
  * @swagger
+ * /partners/ecosystem:
+ *   get:
+ *     summary: Public ecosystem overview — active partners + aggregate stats
+ *     tags: [Partners]
+ *     responses:
+ *       200:
+ *         description: Ecosystem data
+ */
+router.get('/ecosystem', async (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    const [partners, totalPartners, txAgg] = await Promise.all([
+      prisma.partner.findMany({
+        where: { status: 'ACTIVE' },
+        select: {
+          id: true,
+          companyName: true,
+          tier: true,
+          walletAddress: true,
+          createdAt: true,
+          _count: { select: { transactions: true } },
+        },
+        orderBy: [{ tier: 'desc' }, { createdAt: 'asc' }],
+        take: 50,
+      }),
+      prisma.partner.count({ where: { status: 'ACTIVE' } }),
+      prisma.transaction.aggregate({ _sum: { amount: true }, _count: { id: true } }),
+    ]);
+
+    const formatted = partners.map((p) => ({
+      id: p.id,
+      companyName: p.companyName,
+      tier: p.tier,
+      walletAddress:
+        p.walletAddress.length > 12
+          ? p.walletAddress.slice(0, 6) + '...' + p.walletAddress.slice(-4)
+          : p.walletAddress,
+      joinedAt: p.createdAt,
+      totalTransactions: p._count.transactions,
+    }));
+
+    const totalSweet = txAgg._sum.amount ? Number(txAgg._sum.amount) : 0;
+    const totalTx = txAgg._count.id ?? 0;
+
+    return successResponse(res, {
+      partners: formatted,
+      stats: {
+        totalPartners,
+        totalSweetIssued: totalSweet,
+        totalTransactions: totalTx,
+        avgRewardValue: totalTx > 0 ? Math.round(totalSweet / totalTx) : 0,
+      },
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+/**
+ * @swagger
  * /partners:
  *   get:
  *     summary: Get all partners (admin only)

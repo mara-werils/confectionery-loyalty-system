@@ -6,7 +6,8 @@
   "workspaces": [
     "contracts",
     "backend",
-    "frontend"
+    "frontend",
+    "bot"
   ],
   "scripts": {
     "contracts:build": "npm run build --workspace=contracts",
@@ -19,6 +20,9 @@
     "frontend:dev": "npm run dev --workspace=frontend",
     "frontend:build": "npm run build --workspace=frontend",
     "frontend:preview": "npm run preview --workspace=frontend",
+    "bot:dev": "npm run dev --workspace=bot",
+    "bot:build": "npm run build --workspace=bot",
+    "bot:start": "npm run start --workspace=bot",
     "db:migrate": "npm run db:migrate --workspace=backend",
     "db:generate": "npm run db:generate --workspace=backend",
     "db:seed": "npm run db:seed --workspace=backend",

@@ -6,6 +6,8 @@ import { z } from 'zod';
 import { config } from '../config';
 import { successResponse, errorResponse } from '../utils/response';
 import { logger } from '../utils/logger';
+import { prisma } from '../utils/prisma';
+import { io } from '../index';
 
 // Standard TEP-74 transfer opcode
 const Opcodes = {
@@ -24,10 +26,14 @@ const retryFn = async <T,>(fn: () => Promise<T>, retries = 5, delay = 3000): Pro
   } catch (err) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const error = err as any;
-    if (retries > 0 && error?.response?.status === 429) {
+    const status = error?.response?.status ?? error?.status;
+    if (retries > 0 && status === 429) {
       logger.warn(`Rate limited (429), waiting ${delay / 1000}s before retry ${6 - retries}/5...`);
       await new Promise((resolve) => setTimeout(resolve, delay));
       return retryFn(fn, retries - 1, delay * 1.5); // Exponential backoff
+    }
+    if (status === 429) {
+      throw new Error('TON API rate limit exceeded after 5 retries — please wait 1-2 minutes and try again');
     }
     throw error;
   }
@@ -126,6 +132,64 @@ export const transferLoyaltyTokens = async (req: Request, res: Response) => {
 
     logger.info(`Transfer transaction broadcasted successfully. Seqno: ${seqno}`);
 
+    // Update DB loyalty balance so customers can redeem coupons immediately
+    try {
+      const rawAddr = toAddress.toRawString();
+      const partner = await prisma.partner.findFirst({ where: { walletAddress: rawAddr } });
+      if (partner) {
+        await prisma.loyaltyPoints.upsert({
+          where: { partnerId: partner.id },
+          update: {
+            balance: { increment: BigInt(amount) },
+            lifetimeEarned: { increment: BigInt(amount) },
+          },
+          create: {
+            partnerId: partner.id,
+            balance: BigInt(amount),
+            lifetimeEarned: BigInt(amount),
+            lifetimeRedeemed: 0n,
+          },
+        });
+        logger.info(`DB loyalty points updated for partner ${partner.id}: +${amount} SWEET`);
+      }
+    } catch (dbErr) {
+      logger.warn('Failed to update loyalty points in DB after transfer (non-critical):', dbErr);
+    }
+
+    // ── Real-time Socket.IO events for transfer ────────────────────────────
+    const clientWalletRaw = toAddress.toRawString();
+    const clientWalletFriendly = toAddress.toString();
+
+    // Notify the customer's wallet room so their dashboard updates live
+    // Emit to all address variants since wallet may subscribe with any format
+    const balancePayload = { amount, newBalance: amount };
+    io.to(`wallet:${clientWallet}`).emit('balance:updated', balancePayload);
+    io.to(`wallet:${clientWalletRaw}`).emit('balance:updated', balancePayload);
+    io.to(`wallet:${clientWalletFriendly}`).emit('balance:updated', balancePayload);
+
+    // Trigger the PurchaseNotification animation on the customer's screen
+    const awardPayload = {
+      partnerName: 'Sweet Loyalty',
+      pointsEarned: amount,
+      amount,
+      items: ['Cashback reward'],
+      txHash: `seqno:${seqno}`,
+      timestamp: new Date().toISOString(),
+    };
+    io.to(`wallet:${clientWallet}`).emit('purchase:awarded', awardPayload);
+    io.to(`wallet:${clientWalletRaw}`).emit('purchase:awarded', awardPayload);
+    io.to(`wallet:${clientWalletFriendly}`).emit('purchase:awarded', awardPayload);
+
+    // Broadcast to the public live-feed
+    io.emit('activity:new', {
+      type: 'purchase',
+      message: `+${amount} SWEET transferred to customer`,
+      amount,
+      timestamp: new Date().toISOString(),
+    });
+
+    logger.info(`Socket events emitted for transfer of ${amount} SWEET to ${clientWalletFriendly}`);
+
     return successResponse(res, {
       status: 'Transaction Broadcasted',
       details: {
@@ -144,6 +208,24 @@ export const transferLoyaltyTokens = async (req: Request, res: Response) => {
     }
 
     logger.error('Error during token transfer:', error);
-    return errorResponse(res, 'Failed to broadcast transfer transaction', 'BLOCKCHAIN_ERROR', 500, error.message);
+
+    // Provide clear, actionable error messages
+    const errMsg = error?.message || String(error);
+    const isRateLimit = errMsg.includes('rate limit') || errMsg.includes('429');
+    const isNetworkError = errMsg.includes('ECONNREFUSED') || errMsg.includes('ETIMEDOUT') || errMsg.includes('fetch failed');
+    const isMnemonicError = errMsg.includes('mnemonic') || errMsg.includes('Invalid secret key');
+
+    let message = 'Failed to broadcast transfer transaction';
+    let statusCode = 500;
+    if (isRateLimit) {
+      message = 'TON API rate limited — please wait 1-2 minutes and retry';
+      statusCode = 429;
+    } else if (isNetworkError) {
+      message = 'Cannot reach TON blockchain node — check network connectivity';
+    } else if (isMnemonicError) {
+      message = 'Server wallet configuration error — contact administrator';
+    }
+
+    return errorResponse(res, message, 'BLOCKCHAIN_ERROR', statusCode, errMsg);
   }
 };

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import {
   QrCodeIcon,
   CheckCircleIcon,
@@ -25,6 +26,7 @@ interface CouponInfo {
 }
 
 export default function CouponVerify() {
+  const { t } = useTranslation();
   const [code, setCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isRedeeming, setIsRedeeming] = useState(false);
@@ -39,7 +41,7 @@ export default function CouponVerify() {
       const res = await api.coupons.verify(trimmed);
       setCoupon((res as { data: CouponInfo }).data);
     } catch (err: unknown) {
-      toast.error((err as Error).message || 'Coupon not found');
+      toast.error((err as Error).message || t('verify.notFound'));
     } finally {
       setIsLoading(false);
     }
@@ -50,10 +52,10 @@ export default function CouponVerify() {
     setIsRedeeming(true);
     try {
       await api.coupons.redeem(coupon.code);
-      toast.success('Coupon marked as used!');
+      toast.success(t('verify.redeemSuccess'));
       setCoupon({ ...coupon, status: 'REDEEMED', isValid: false, redeemedAt: new Date().toISOString() });
     } catch (err: unknown) {
-      toast.error((err as Error).message || 'Failed to redeem coupon');
+      toast.error((err as Error).message || t('verify.redeemFailed'));
     } finally {
       setIsRedeeming(false);
     }
@@ -64,10 +66,10 @@ export default function CouponVerify() {
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="pl-1">
         <div className="flex items-center gap-3 mb-1">
-          <QrCodeIcon className="w-7 h-7 text-zinc-400" />
-          <h1 className="text-3xl font-bold text-white tracking-tight">Verify Coupon</h1>
+          <QrCodeIcon className="w-7 h-7" style={{ color: 'var(--sweet-text-muted)' }} />
+          <h1 className="text-3xl font-bold tracking-tight" style={{ color: 'var(--sweet-text)' }}>{t('verify.title')}</h1>
         </div>
-        <p className="text-zinc-400 mt-1">Enter a customer coupon code to check and redeem it</p>
+        <p className="mt-1" style={{ color: 'var(--sweet-text-muted)' }}>{t('verify.subtitle')}</p>
       </motion.div>
 
       {/* Code input */}
@@ -83,17 +85,17 @@ export default function CouponVerify() {
           onChange={(e) => setCode(e.target.value.toUpperCase())}
           onKeyDown={(e) => e.key === 'Enter' && handleVerify()}
           placeholder="SWT-XXXXXX"
-          className="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3.5 text-white font-mono text-sm uppercase tracking-widest placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
+          className="sweet-input flex-1 rounded-xl px-4 py-3.5 font-mono text-sm uppercase tracking-widest focus:outline-none transition-colors"
           autoComplete="off"
           spellCheck={false}
         />
         <button
           onClick={handleVerify}
           disabled={isLoading || !code.trim()}
-          className="px-5 py-3.5 bg-white text-black rounded-xl font-semibold text-sm disabled:opacity-40 flex items-center gap-2 transition-opacity"
+          className="px-5 py-3.5 bg-amber-500 text-black rounded-xl font-semibold text-sm disabled:opacity-40 flex items-center gap-2 transition-opacity"
         >
           <MagnifyingGlassIcon className="w-4 h-4" />
-          {isLoading ? '...' : 'Check'}
+          {isLoading ? '...' : t('verify.check')}
         </button>
       </motion.div>
 
@@ -102,7 +104,8 @@ export default function CouponVerify() {
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-zinc-900 border border-zinc-800/80 rounded-2xl overflow-hidden"
+          className="rounded-2xl overflow-hidden"
+          style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)' }}
         >
           {/* Status banner */}
           <div
@@ -117,14 +120,12 @@ export default function CouponVerify() {
             ) : (
               <XCircleIcon className="w-5 h-5 text-red-400 shrink-0" />
             )}
-            <span
-              className={`font-semibold text-sm ${coupon.isValid ? 'text-green-400' : 'text-red-400'}`}
-            >
+            <span className={`font-semibold text-sm ${coupon.isValid ? 'text-green-400' : 'text-red-400'}`}>
               {coupon.status === 'REDEEMED'
-                ? 'Already Redeemed'
+                ? t('verify.alreadyRedeemed')
                 : coupon.status === 'EXPIRED'
-                ? 'Expired'
-                : 'Valid — Ready to Use'}
+                ? t('verify.expired')
+                : t('verify.valid')}
             </span>
           </div>
 
@@ -135,12 +136,12 @@ export default function CouponVerify() {
                 <GiftIcon className="w-5 h-5 text-orange-400" />
               </div>
               <div>
-                <p className="font-semibold text-white">{coupon.rewardTitle}</p>
+                <p className="font-semibold" style={{ color: 'var(--sweet-text)' }}>{coupon.rewardTitle}</p>
                 {coupon.rewardDescription && (
-                  <p className="text-xs text-zinc-500 mt-0.5">{coupon.rewardDescription}</p>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--sweet-text-muted)' }}>{coupon.rewardDescription}</p>
                 )}
                 {coupon.rewardCategory && (
-                  <span className="inline-block mt-1.5 text-xs px-2 py-0.5 bg-zinc-800 text-zinc-400 rounded-full">
+                  <span className="inline-block mt-1.5 text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--sweet-input)', color: 'var(--sweet-text-muted)', border: '1px solid var(--sweet-border)' }}>
                     {coupon.rewardCategory}
                   </span>
                 )}
@@ -148,34 +149,21 @@ export default function CouponVerify() {
             </div>
 
             <div className="grid grid-cols-2 gap-3 pt-1">
-              <div className="bg-zinc-800/50 rounded-xl p-3">
-                <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">Issued To</p>
-                <p className="text-sm font-medium text-white truncate">
-                  {coupon.issuedTo || 'Customer'}
-                </p>
-              </div>
-              <div className="bg-zinc-800/50 rounded-xl p-3">
-                <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">Points</p>
-                <p className="text-sm font-bold text-white font-mono">
-                  {Number(coupon.pointsSpent).toLocaleString()}
-                </p>
-              </div>
-              <div className="bg-zinc-800/50 rounded-xl p-3">
-                <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">Code</p>
-                <p className="text-sm font-mono text-zinc-300">{coupon.code}</p>
-              </div>
-              <div className="bg-zinc-800/50 rounded-xl p-3">
-                <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">
-                  {coupon.redeemedAt ? 'Redeemed' : 'Expires'}
-                </p>
-                <p className="text-sm font-medium text-white">
-                  {new Date(coupon.redeemedAt || coupon.expiresAt).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric',
-                  })}
-                </p>
-              </div>
+              {[
+                { label: t('verify.issuedTo'), value: coupon.issuedTo || 'Customer', mono: false },
+                { label: t('verify.points'), value: Number(coupon.pointsSpent).toLocaleString(), mono: true },
+                { label: t('verify.code'), value: coupon.code, mono: true },
+                {
+                  label: coupon.redeemedAt ? t('verify.redeemedLabel') : t('verify.expires'),
+                  value: new Date(coupon.redeemedAt || coupon.expiresAt).toLocaleDateString('ru-RU', { month: 'short', day: 'numeric', year: 'numeric' }),
+                  mono: false,
+                },
+              ].map(({ label, value, mono }) => (
+                <div key={label} className="rounded-xl p-3" style={{ background: 'var(--sweet-input)', border: '1px solid var(--sweet-border)' }}>
+                  <p className="text-xs uppercase tracking-wider mb-1" style={{ color: 'var(--sweet-text-muted)' }}>{label}</p>
+                  <p className={`text-sm font-medium truncate ${mono ? 'font-mono' : ''}`} style={{ color: 'var(--sweet-text)' }}>{value}</p>
+                </div>
+              ))}
             </div>
 
             {/* Redeem button */}
@@ -186,7 +174,7 @@ export default function CouponVerify() {
                 className="w-full bg-green-500 hover:bg-green-600 disabled:opacity-50 text-white font-bold py-4 rounded-xl transition-all flex items-center justify-center gap-2 mt-2"
               >
                 <CheckCircleIcon className="w-5 h-5" />
-                {isRedeeming ? 'Processing...' : 'Mark as Used'}
+                {isRedeeming ? t('verify.processing') : t('verify.markUsed')}
               </button>
             )}
           </div>
@@ -199,10 +187,11 @@ export default function CouponVerify() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.15 }}
-          className="text-center py-12 text-zinc-700"
+          className="text-center py-12"
+          style={{ color: 'var(--sweet-text-faint)' }}
         >
           <QrCodeIcon className="w-16 h-16 mx-auto mb-4" />
-          <p className="text-sm">Enter a coupon code above to verify it</p>
+          <p className="text-sm">{t('verify.hint')}</p>
         </motion.div>
       )}
     </div>

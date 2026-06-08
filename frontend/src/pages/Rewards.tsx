@@ -3,21 +3,23 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Tab } from '@headlessui/react';
 import { TagIcon, GiftIcon, SparklesIcon, StarIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
+import { useTranslation } from 'react-i18next';
 
 import RewardCard from '../components/RewardCard';
 import { useRewards, useClaimReward, useBalance } from '../hooks/useApi';
 import { useTelegram } from '../hooks/useTelegram';
 
-const categories = [
-  { key: 'all', label: 'All', icon: StarIcon },
-  { key: 'DISCOUNT', label: 'Discounts', icon: TagIcon },
-  { key: 'PRODUCT', label: 'Products', icon: GiftIcon },
-  { key: 'CASHBACK', label: 'Cashback', icon: SparklesIcon },
-];
-
 export default function Rewards() {
+  const { t } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const { hapticFeedback, showConfirm } = useTelegram();
+
+  const categories = [
+    { key: 'all', label: t('rewards.categories.all'), icon: StarIcon },
+    { key: 'DISCOUNT', label: t('rewards.categories.discount'), icon: TagIcon },
+    { key: 'PRODUCT', label: t('rewards.categories.product'), icon: GiftIcon },
+    { key: 'CASHBACK', label: t('rewards.categories.cashback'), icon: SparklesIcon },
+  ];
 
   const { data: balanceData } = useBalance();
   const { data: rewardsData, isLoading } = useRewards(
@@ -44,7 +46,7 @@ export default function Rewards() {
 
   const handleClaim = async (rewardId: string) => {
     hapticFeedback('medium');
-    const confirmed = await showConfirm('Are you sure you want to claim this reward?');
+    const confirmed = await showConfirm(t('rewards.confirmClaim'));
     if (confirmed) {
       hapticFeedback('success');
       claimMutation.mutate(rewardId);
@@ -59,13 +61,13 @@ export default function Rewards() {
         animate={{ opacity: 1, y: 0 }}
         className="mb-8 pl-1"
       >
-        <h1 className="text-3xl font-bold text-white tracking-tight">Rewards</h1>
-        <p className="text-zinc-400 mt-1">
-          You have{' '}
+        <h1 className="text-3xl font-bold text-white tracking-tight">{t('rewards.title')}</h1>
+        <p className="text-stone-400 mt-1">
+          {t('rewards.youHave')}{' '}
           <span className="font-semibold text-white bg-white/10 px-2 py-0.5 rounded-md">
             {currentBalance.toLocaleString()}
           </span>{' '}
-          points to spend
+          {t('rewards.pointsForExchange')}
         </p>
       </motion.div>
 
@@ -80,8 +82,8 @@ export default function Rewards() {
                 clsx(
                   'flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-300 focus:outline-none',
                   selected
-                    ? 'bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.3)]'
-                    : 'bg-zinc-900/50 text-zinc-400 hover:text-zinc-200 border border-white/5 hover:border-white/10'
+                    ? 'bg-white text-black'
+                    : 'bg-stone-900/50 text-stone-400 hover:text-stone-200 border border-white/5 hover:border-white/10'
                 )
               }
             >
@@ -123,10 +125,10 @@ export default function Rewards() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-12 text-accent-400">
-                  <GiftIcon className="w-16 h-16 mx-auto mb-4 text-accent-200" />
-                  <p className="text-lg font-medium">No rewards in this category</p>
-                  <p className="text-sm">Check back later for new offers!</p>
+                <div className="text-center py-12 text-stone-500">
+                  <GiftIcon className="w-16 h-16 mx-auto mb-4 text-stone-700" />
+                  <p className="text-lg font-medium">{t('rewards.emptyTitle')}</p>
+                  <p className="text-sm">{t('rewards.emptySubtitle')}</p>
                 </div>
               )}
             </motion.div>

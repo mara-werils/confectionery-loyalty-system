@@ -83,15 +83,21 @@ export async function getJettonBalance(
   jettonMasterAddress: string
 ): Promise<bigint> {
   try {
-    // This would call the get_wallet_address on the jetton master
-    // Then call get_wallet_data on the wallet
+    const network = config.ton.network === 'mainnet' ? '' : 'testnet.';
+    const url = `https://${network}tonapi.io/v2/accounts/${ownerAddress}/jettons/${jettonMasterAddress}`;
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (config.ton.apiKey) headers['Authorization'] = `Bearer ${config.ton.apiKey}`;
 
-    // Placeholder implementation
-    logger.debug(`Getting jetton balance for ${ownerAddress} from ${jettonMasterAddress}`);
-    return 0n;
+    const res = await fetch(url, { headers });
+    if (!res.ok) {
+      logger.debug(`Jetton balance request returned ${res.status} for ${ownerAddress}`);
+      return 0n;
+    }
+    const data = (await res.json()) as { balance?: string };
+    return BigInt(data.balance || '0');
   } catch (error) {
     logger.error('Failed to get jetton balance:', error);
-    throw error;
+    return 0n;
   }
 }
 
