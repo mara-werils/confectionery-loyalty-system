@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
   QrCodeIcon,
@@ -7,7 +7,9 @@ import {
   XCircleIcon,
   MagnifyingGlassIcon,
   GiftIcon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline';
+import { Scanner } from '@yudiel/react-qr-scanner';
 import toast from 'react-hot-toast';
 import { api } from '../../services/api';
 
@@ -31,9 +33,10 @@ export default function CouponVerify() {
   const [isLoading, setIsLoading] = useState(false);
   const [isRedeeming, setIsRedeeming] = useState(false);
   const [coupon, setCoupon] = useState<CouponInfo | null>(null);
+  const [showScanner, setShowScanner] = useState(false);
 
-  const handleVerify = async () => {
-    const trimmed = code.trim().toUpperCase();
+  const handleVerify = async (overrideCode?: string) => {
+    const trimmed = (overrideCode ?? code).trim().toUpperCase();
     if (!trimmed) return;
     setIsLoading(true);
     setCoupon(null);
@@ -60,6 +63,18 @@ export default function CouponVerify() {
       setIsRedeeming(false);
     }
   };
+
+  const handleScan = useCallback((results: Array<{ rawValue: string }>) => {
+    if (!results?.length) return;
+    const raw = results[0].rawValue;
+    // QR format: "sweet-coupon:SWT-XXXXXX"
+    const extracted = raw.startsWith('sweet-coupon:') ? raw.slice(13) : raw;
+    const parsed = extracted.trim().toUpperCase();
+    if (!parsed) return;
+    setShowScanner(false);
+    setCode(parsed);
+    handleVerify(parsed);
+  }, []);
 
   return (
     <div className="px-4 py-6 space-y-6">
@@ -90,7 +105,15 @@ export default function CouponVerify() {
           spellCheck={false}
         />
         <button
-          onClick={handleVerify}
+          onClick={() => setShowScanner(true)}
+          className="px-4 py-3.5 rounded-xl font-semibold text-sm flex items-center gap-2 transition-all"
+          style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)', color: 'var(--sweet-text-muted)' }}
+          title="Scan QR"
+        >
+          <QrCodeIcon className="w-5 h-5" />
+        </button>
+        <button
+          onClick={() => handleVerify()}
           disabled={isLoading || !code.trim()}
           className="px-5 py-3.5 bg-amber-500 text-black rounded-xl font-semibold text-sm disabled:opacity-40 flex items-center gap-2 transition-opacity"
         >
@@ -98,6 +121,78 @@ export default function CouponVerify() {
           {isLoading ? '...' : t('verify.check')}
         </button>
       </motion.div>
+
+      {/* QR Scanner overlay */}
+      <AnimatePresence>
+        {showScanner && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50"
+              style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)' }}
+              onClick={() => setShowScanner(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 20 }}
+              transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+              className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-[60] rounded-3xl overflow-hidden"
+              style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)' }}
+            >
+              {/* Scanner header */}
+              <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid var(--sweet-border)' }}>
+                <div className="flex items-center gap-2.5">
+                  <QrCodeIcon className="w-5 h-5" style={{ color: 'var(--sweet-accent)' }} />
+                  <span className="font-semibold text-sm" style={{ color: 'var(--sweet-text)' }}>
+                    Scan Customer QR
+                  </span>
+                </div>
+                <button
+                  onClick={() => setShowScanner(false)}
+                  className="p-2 rounded-xl transition-colors"
+                  style={{ background: 'var(--sweet-input)', color: 'var(--sweet-text-muted)' }}
+                >
+                  <XMarkIcon className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Camera view */}
+              <div className="relative" style={{ aspectRatio: '1 / 1' }}>
+                <Scanner
+                  onScan={handleScan}
+                  onError={(err) => {
+                    console.warn('QR scanner error:', err);
+                    toast.error('Camera error — use manual input');
+                    setShowScanner(false);
+                  }}
+                  styles={{ container: { width: '100%', height: '100%' } }}
+                  constraints={{ facingMode: 'environment' }}
+                />
+                {/* Corner guides */}
+                <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                  <div className="relative w-48 h-48">
+                    {[
+                      'top-0 left-0 border-t-2 border-l-2 rounded-tl-lg',
+                      'top-0 right-0 border-t-2 border-r-2 rounded-tr-lg',
+                      'bottom-0 left-0 border-b-2 border-l-2 rounded-bl-lg',
+                      'bottom-0 right-0 border-b-2 border-r-2 rounded-br-lg',
+                    ].map((cls, i) => (
+                      <div key={i} className={`absolute w-8 h-8 ${cls}`} style={{ borderColor: 'var(--sweet-accent)' }} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <p className="text-center text-xs py-3" style={{ color: 'var(--sweet-text-muted)' }}>
+                Point camera at the customer's coupon QR code
+              </p>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* Coupon result */}
       {coupon && (
