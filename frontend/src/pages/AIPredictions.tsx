@@ -151,6 +151,7 @@ export default function AIPredictions() {
   const { data: recsRaw, isLoading: recsLoading } = useAiRecommendations();
   const { data: interventionsRaw } = useQuery({
     queryKey: ['ai', 'interventions'],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     queryFn: () => (api.churn.getInterventions({ limit: 5 }) as any).then((r: any) => r.data ?? r),
     refetchInterval: 30000,
   });
@@ -159,6 +160,7 @@ export default function AIPredictions() {
   const forecast: ForecastData | undefined = (forecastRaw as { data: ForecastData })?.data;
   const recs: RewardRec[] = (recsRaw as { data: { recommendations: RewardRec[] } })?.data?.recommendations ?? [];
   const personalizedMsg: string = (recsRaw as { data: { personalizedMessage: string } })?.data?.personalizedMessage ?? '';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const interventions: any = (interventionsRaw as any) ?? null;
 
   // Derive counts for summary row
@@ -253,6 +255,7 @@ export default function AIPredictions() {
             <p className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--sweet-text-faint)' }}>
               Recent Auto-Interventions
             </p>
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             {interventions.recent.slice(0, 3).map((item: any) => (
               <div key={item.id} className="flex items-center justify-between py-2 px-3 rounded-xl"
                 style={{ background: 'var(--sweet-input)', border: '1px solid var(--sweet-border)' }}>

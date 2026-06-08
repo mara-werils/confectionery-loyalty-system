@@ -1,10 +1,8 @@
-import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   BanknotesIcon,
   ArrowTopRightOnSquareIcon,
-  CheckCircleIcon,
   ClockIcon,
   ShieldCheckIcon,
   CubeTransparentIcon,
@@ -70,7 +68,6 @@ function formatDate(iso: string) {
 // ─── Component ─────────────────────────────────────────────────────────────
 export default function Settlement() {
   const qc = useQueryClient();
-  const [showFund, setShowFund] = useState(false);
 
   // Status query (refetch every 20s)
   const { data: statusData, isLoading: statusLoading, refetch: refetchStatus } = useQuery<{ data: SettlementStatus }>({
@@ -92,8 +89,12 @@ export default function Settlement() {
   // Distribute mutation
   const distributeMutation = useMutation({
     mutationFn: () => api.settlement.distribute(),
-    onSuccess: (res: { data: { amountTon: string; txRef: string; explorerUrl: string } }) => {
-      toast.success(`✅ ${res.data.amountTon} TON dispatched on-chain!`);
+    onSuccess: (res: { data: { amountTon: string; txRef: string; explorerUrl: string; onChain: boolean } }) => {
+      if (res.data.onChain) {
+        toast.success(`✅ ${res.data.amountTon} TON dispatched on-chain!`);
+      } else {
+        toast.success(`✅ ${res.data.amountTon} TON commission recorded — payout queued`);
+      }
       qc.invalidateQueries({ queryKey: ['settlement'] });
     },
     onError: (err: Error) => {
@@ -368,6 +369,21 @@ export default function Settlement() {
             Payouts are trustless — no intermediary.
           </span>
         </div>
+
+        {/* Contract balance warning */}
+        {status && parseFloat(status.contract.contractBalanceTon) < 1.1 && (
+          <div
+            className="flex items-start gap-2 p-2.5 rounded-xl text-[10px]"
+            style={{ background: 'rgba(234,179,8,0.1)', color: '#ca8a04' }}
+          >
+            <ClockIcon className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+            <span>
+              Contract reserve: {status.contract.contractBalanceTon} TON.
+              Fund contract with 5+ TON to enable instant payouts.
+              Commission is still accumulating on-chain now.
+            </span>
+          </div>
+        )}
       </motion.div>
 
       {/* ── Payout History ── */}

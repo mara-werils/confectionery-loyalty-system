@@ -1,5 +1,4 @@
 import { useState, Fragment } from 'react';
-import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
@@ -122,7 +121,6 @@ function formatNumber(n: string | number): string {
 /* ================================================================ */
 
 export default function Governance() {
-  const { t } = useTranslation();
   const qc = useQueryClient();
 
   const [showPast, setShowPast] = useState(false);
@@ -136,12 +134,14 @@ export default function Governance() {
   /* ---- Data fetching ---- */
   const { data: govData, isLoading } = useQuery<GovernanceData>({
     queryKey: ['governance', 'proposals'],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     queryFn: () => api.governance.getProposals().then((r: any) => r.data),
     refetchInterval: 15000,
   });
 
   const { data: statsData } = useQuery<GovernanceStats>({
     queryKey: ['governance', 'stats'],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     queryFn: () => api.governance.getStats().then((r: any) => r.data),
     refetchInterval: 30000,
   });
@@ -155,6 +155,7 @@ export default function Governance() {
       toast.success('Vote recorded on-chain!');
       qc.invalidateQueries({ queryKey: ['governance'] });
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onError: (err: any) => {
       toast.error(err?.serverMessage || 'Failed to cast vote');
     },
@@ -177,6 +178,7 @@ export default function Governance() {
       setFormDesc('');
       qc.invalidateQueries({ queryKey: ['governance'] });
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onError: (err: any) => {
       toast.error(err?.serverMessage || 'Failed to create proposal');
     },
