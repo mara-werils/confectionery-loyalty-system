@@ -5,11 +5,11 @@ import {
   ArrowUpRightIcon,
   ArrowDownLeftIcon,
   CheckCircleIcon,
-  ClipboardDocumentIcon,
-  ChevronRightIcon,
-  SparklesIcon,
-  XMarkIcon,
-} from '@heroicons/react/24/outline';
+  ClipboardTextIcon,
+  CaretRightIcon,
+  SparkleIcon,
+  XIcon,
+} from '@phosphor-icons/react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
@@ -281,7 +281,7 @@ export default function GiftTokens() {
                 style={{ color: 'var(--sweet-text-faint)' }}
                 title="Clear"
               >
-                <XMarkIcon className="w-3.5 h-3.5" />
+                <XIcon className="w-3.5 h-3.5" />
               </button>
             )}
             <button
@@ -294,7 +294,7 @@ export default function GiftTokens() {
               }}
               title="Paste from clipboard"
             >
-              <ClipboardDocumentIcon className="w-3 h-3" />
+              <ClipboardTextIcon className="w-3 h-3" />
               Paste
             </button>
           </div>
@@ -431,7 +431,7 @@ export default function GiftTokens() {
                   border: '1px solid var(--sweet-border)',
                 }}
               >
-                <ChevronRightIcon
+                <CaretRightIcon
                   className="w-4 h-4"
                   style={{ color: 'var(--sweet-accent)' }}
                 />
@@ -599,7 +599,7 @@ export default function GiftTokens() {
               border: '1px solid var(--sweet-border)',
             }}
           >
-            <SparklesIcon
+            <SparkleIcon
               className="w-4 h-4"
               style={{ color: 'var(--sweet-accent)' }}
             />

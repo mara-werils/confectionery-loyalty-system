@@ -4,20 +4,20 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import {
   ShieldCheckIcon,
-  HandThumbUpIcon,
-  HandThumbDownIcon,
+  ThumbsUpIcon,
+  ThumbsDownIcon,
   MinusCircleIcon,
   ClockIcon,
-  ChevronDownIcon,
+  CaretDownIcon,
   PlusIcon,
-  XMarkIcon,
-  CheckBadgeIcon,
-  UserGroupIcon,
-  BanknotesIcon,
-  DocumentTextIcon,
+  XIcon,
+  SealCheckIcon,
+  UsersThreeIcon,
+  MoneyIcon,
+  FileTextIcon,
   FireIcon,
-  BoltIcon,
-} from '@heroicons/react/24/outline';
+  LightningIcon,
+} from '@phosphor-icons/react';
 import { api } from '../services/api';
 
 /* ------------------------------------------------------------------ */
@@ -233,7 +233,7 @@ export default function Governance() {
             <div className="flex items-center gap-2 mt-1">
               {govData?.canVote ? (
                 <span className="flex items-center gap-1 text-xs" style={{ color: '#34d399' }}>
-                  <CheckBadgeIcon className="w-3.5 h-3.5" /> Can vote
+                  <SealCheckIcon className="w-3.5 h-3.5" /> Can vote
                 </span>
               ) : (
                 <span className="text-xs" style={{ color: 'var(--sweet-text-faint)' }}>
@@ -242,7 +242,7 @@ export default function Governance() {
               )}
               {govData?.canPropose && (
                 <span className="flex items-center gap-1 text-xs" style={{ color: 'var(--sweet-accent)' }}>
-                  <BoltIcon className="w-3.5 h-3.5" /> Can propose
+                  <LightningIcon className="w-3.5 h-3.5" /> Can propose
                 </span>
               )}
             </div>
@@ -362,8 +362,8 @@ export default function Governance() {
                   <div className="flex gap-2">
                     {(['FOR', 'AGAINST', 'ABSTAIN'] as VoteChoice[]).map(choice => {
                       const isChosen = p.userVote === choice;
-                      const Icon = choice === 'FOR' ? HandThumbUpIcon
-                        : choice === 'AGAINST' ? HandThumbDownIcon : MinusCircleIcon;
+                      const Icon = choice === 'FOR' ? ThumbsUpIcon
+                        : choice === 'AGAINST' ? ThumbsDownIcon : MinusCircleIcon;
                       return (
                         <button
                           key={choice}
@@ -419,10 +419,10 @@ export default function Governance() {
         </h2>
         <div className="grid grid-cols-2 gap-3">
           {[
-            { label: 'Total Proposals', value: (statsData?.totalProposals ?? '—').toString(), icon: DocumentTextIcon },
-            { label: 'Votes Cast', value: (statsData?.totalVotesCast ?? 0).toLocaleString(), icon: UserGroupIcon },
-            { label: 'Participation', value: `${statsData?.participationRate ?? 0}%`, icon: CheckBadgeIcon },
-            { label: 'SWEET in DAO', value: statsData ? formatNumber(statsData.treasuryBalance) : '—', icon: BanknotesIcon },
+            { label: 'Total Proposals', value: (statsData?.totalProposals ?? '—').toString(), icon: FileTextIcon },
+            { label: 'Votes Cast', value: (statsData?.totalVotesCast ?? 0).toLocaleString(), icon: UsersThreeIcon },
+            { label: 'Participation', value: `${statsData?.participationRate ?? 0}%`, icon: SealCheckIcon },
+            { label: 'SWEET in DAO', value: statsData ? formatNumber(statsData.treasuryBalance) : '—', icon: MoneyIcon },
           ].map(s => (
             <div key={s.label} className="rounded-xl p-4 flex flex-col gap-1"
               style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)' }}>
@@ -445,7 +445,7 @@ export default function Governance() {
             onMouseLeave={e => (e.currentTarget.style.background = 'var(--sweet-card)')}
           >
             <span>Past Proposals ({pastProposals.length})</span>
-            <ChevronDownIcon
+            <CaretDownIcon
               className={`w-5 h-5 transition-transform duration-300 ${showPast ? 'rotate-180' : ''}`}
               style={{ color: 'var(--sweet-text-muted)' }}
             />
@@ -511,7 +511,7 @@ export default function Governance() {
               <button onClick={() => setModalOpen(false)}
                 className="absolute top-4 right-4 transition-colors"
                 style={{ color: 'var(--sweet-text-faint)' }}>
-                <XMarkIcon className="w-5 h-5" />
+                <XIcon className="w-5 h-5" />
               </button>
 
               <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--sweet-text)' }}>

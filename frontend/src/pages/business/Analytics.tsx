@@ -17,10 +17,10 @@ import {
   Legend,
 } from 'recharts';
 import {
-  ArrowTrendingUpIcon,
-  ArrowTrendingDownIcon,
-  ArrowDownTrayIcon,
-} from '@heroicons/react/24/outline';
+  TrendUpIcon,
+  TrendDownIcon,
+  DownloadSimpleIcon,
+} from '@phosphor-icons/react';
 import clsx from 'clsx';
 import toast from 'react-hot-toast';
 
@@ -125,7 +125,7 @@ function KpiCard({ title, value, trend, suffix, idx }: { title: string; value: s
         {suffix && <span className="text-sm font-normal ml-1" style={{ color: 'var(--sweet-text-muted)' }}>{suffix}</span>}
       </span>
       <div className={clsx('flex items-center gap-1 text-xs font-medium', positive ? 'text-green-500' : 'text-red-500')}>
-        {positive ? <ArrowTrendingUpIcon className="w-3.5 h-3.5" /> : <ArrowTrendingDownIcon className="w-3.5 h-3.5" />}
+        {positive ? <TrendUpIcon className="w-3.5 h-3.5" /> : <TrendDownIcon className="w-3.5 h-3.5" />}
         <span>{positive ? '+' : ''}{trend}%</span>
         <span className="ml-1" style={{ color: 'var(--sweet-text-muted)' }}>{t('analyticsPage.vsPrevPeriod')}</span>
       </div>
@@ -423,7 +423,7 @@ export default function Analytics() {
           className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-medium transition-all active:scale-[0.97]"
           style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)', color: 'var(--sweet-text-muted)' }}
         >
-          <ArrowDownTrayIcon className="w-3.5 h-3.5" />
+          <DownloadSimpleIcon className="w-3.5 h-3.5" />
           {t('analyticsPage.exportPdf')}
         </button>
       </motion.div>

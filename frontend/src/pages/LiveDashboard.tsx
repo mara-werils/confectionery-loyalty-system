@@ -9,14 +9,14 @@ import { motion, AnimatePresence, animate } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { io as SocketIO, Socket } from 'socket.io-client';
 import {
-  BoltIcon,
-  UserGroupIcon,
+  LightningIcon,
+  UsersThreeIcon,
   CurrencyDollarIcon,
   ShieldCheckIcon,
-  ArrowTrendingUpIcon,
-  SparklesIcon,
-  SignalIcon,
-} from '@heroicons/react/24/outline';
+  TrendUpIcon,
+  SparkleIcon,
+  WifiHighIcon,
+} from '@phosphor-icons/react';
 import {
   AreaChart,
   Area,
@@ -204,7 +204,7 @@ export default function LiveDashboard() {
           <div>
             <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2"
               style={{ color: 'var(--sweet-text)' }}>
-              <SignalIcon className="w-7 h-7" style={{ color: '#f59e0b' }} />
+              <WifiHighIcon className="w-7 h-7" style={{ color: '#f59e0b' }} />
               Ecosystem Pulse
             </h1>
             <p className="text-xs mt-0.5" style={{ color: 'var(--sweet-text-muted)' }}>
@@ -236,7 +236,7 @@ export default function LiveDashboard() {
               label: 'Active Members',
               value: stats?.totalPartners ?? 0,
               suffix: '',
-              icon: UserGroupIcon,
+              icon: UsersThreeIcon,
               color: '#34d399',
               accent: 'rgba(52,211,153,0.12)',
               sub: 'registered partners',
@@ -245,7 +245,7 @@ export default function LiveDashboard() {
               label: "Today's Txns",
               value: stats?.todayTransactions ?? 0,
               suffix: '',
-              icon: BoltIcon,
+              icon: LightningIcon,
               color: '#60a5fa',
               accent: 'rgba(96,165,250,0.12)',
               sub: `${(stats?.allTimeTransactions ?? 0).toLocaleString()} all-time`,
@@ -254,7 +254,7 @@ export default function LiveDashboard() {
               label: 'AI Interventions',
               value: stats?.todayInterventions ?? 0,
               suffix: '',
-              icon: SparklesIcon,
+              icon: SparkleIcon,
               color: '#fb7185',
               accent: 'rgba(251,113,133,0.12)',
               sub: `${(stats?.totalInterventions ?? 0)} total saves`,
@@ -319,7 +319,7 @@ export default function LiveDashboard() {
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full flex items-center justify-center"
               style={{ background: 'rgba(251,113,133,0.12)' }}>
-              <ArrowTrendingUpIcon className="w-5 h-5" style={{ color: '#fb7185' }} />
+              <TrendUpIcon className="w-5 h-5" style={{ color: '#fb7185' }} />
             </div>
             <div>
               <p className="text-sm font-semibold" style={{ color: 'var(--sweet-text)' }}>
@@ -411,7 +411,7 @@ export default function LiveDashboard() {
             <AnimatePresence initial={false}>
               {liveFeed.length === 0 ? (
                 <div className="p-6 text-center">
-                  <BoltIcon className="w-8 h-8 mx-auto mb-2" style={{ color: 'var(--sweet-text-faint)' }} />
+                  <LightningIcon className="w-8 h-8 mx-auto mb-2" style={{ color: 'var(--sweet-text-faint)' }} />
                   <p className="text-sm" style={{ color: 'var(--sweet-text-muted)' }}>
                     Waiting for live events...
                   </p>

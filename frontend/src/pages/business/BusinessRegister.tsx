@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTonWallet } from '@tonconnect/ui-react';
 import { useTranslation } from 'react-i18next';
-import { BuildingStorefrontIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { StorefrontIcon, CheckCircleIcon } from '@phosphor-icons/react';
 import { GlassCard } from '../../components/GlassCard';
 import { useAuthStore } from '../../store/authStore';
 import { api } from '../../services/api';
@@ -123,7 +123,7 @@ export default function BusinessRegister() {
       >
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-white/5 rounded-2xl ring-1 ring-white/10 mb-4">
-            <BuildingStorefrontIcon className="w-8 h-8 text-stone-200" />
+            <StorefrontIcon className="w-8 h-8 text-stone-200" />
           </div>
           <h1 className="text-3xl font-bold text-white mb-1">{t('register.title')}</h1>
           <p className="text-stone-400 text-sm">{t('register.subtitle')}</p>
@@ -188,7 +188,7 @@ export default function BusinessRegister() {
                 <div className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
               ) : (
                 <>
-                  <BuildingStorefrontIcon className="w-4 h-4" />
+                  <StorefrontIcon className="w-4 h-4" />
                   {t('register.submitButton')}
                 </>
               )}

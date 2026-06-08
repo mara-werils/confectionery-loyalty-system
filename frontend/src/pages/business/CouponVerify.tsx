@@ -7,8 +7,8 @@ import {
   XCircleIcon,
   MagnifyingGlassIcon,
   GiftIcon,
-  XMarkIcon,
-} from '@heroicons/react/24/outline';
+  XIcon,
+} from '@phosphor-icons/react';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import toast from 'react-hot-toast';
 import { api } from '../../services/api';
@@ -166,7 +166,7 @@ export default function CouponVerify() {
                   className="p-2 rounded-xl transition-colors"
                   style={{ background: 'var(--sweet-input)', color: 'var(--sweet-text-muted)' }}
                 >
-                  <XMarkIcon className="w-4 h-4" />
+                  <XIcon className="w-4 h-4" />
                 </button>
               </div>
 

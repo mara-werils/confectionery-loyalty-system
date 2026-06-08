@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-  ClipboardDocumentListIcon,
+  ClipboardIcon,
   FunnelIcon,
   ClockIcon,
-} from '@heroicons/react/24/outline';
+} from '@phosphor-icons/react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../services/api';
 import { useTranslation } from 'react-i18next';
@@ -150,7 +150,7 @@ export default function AdminAuditLog() {
           </div>
         ) : logs.length === 0 ? (
           <div className="py-16 text-center">
-            <ClipboardDocumentListIcon className="w-12 h-12 text-stone-700 mx-auto mb-3" />
+            <ClipboardIcon className="w-12 h-12 text-stone-700 mx-auto mb-3" />
             <p className="text-stone-500 text-sm">{t('auditLog.noRecords')}</p>
           </div>
         ) : (

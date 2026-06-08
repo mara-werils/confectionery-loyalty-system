@@ -1,13 +1,13 @@
 import {
-  BuildingStorefrontIcon,
+  StorefrontIcon,
   CurrencyDollarIcon,
   ChartBarIcon,
-  SparklesIcon,
+  SparkleIcon,
   TrophyIcon,
-  ArrowTrendingUpIcon,
+  TrendUpIcon,
   ArrowUpIcon,
   ArrowDownIcon,
-} from '@heroicons/react/24/outline';
+} from '@phosphor-icons/react';
 import { useAnalyticsSummary, useTopPartners } from '../hooks/useApi';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { motion } from 'framer-motion';
@@ -231,7 +231,7 @@ export default function Stats() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <StatCard
               index={0}
-              icon={BuildingStorefrontIcon}
+              icon={StorefrontIcon}
               label="Активные партнёры"
               value={summary?.totalPartners?.toLocaleString() ?? '—'}
               sub="Кондитерские"
@@ -247,7 +247,7 @@ export default function Stats() {
             />
             <StatCard
               index={2}
-              icon={SparklesIcon}
+              icon={SparkleIcon}
               label="SWEET выпущено"
               value={summary?.totalPointsIssued?.toLocaleString() ?? '—'}
               sub="Токенов создано"
@@ -305,7 +305,7 @@ export default function Stats() {
                     flexShrink: 0,
                   }}
                 >
-                  <ArrowTrendingUpIcon style={{ width: 18, height: 18, color: '#34d399' }} />
+                  <TrendUpIcon style={{ width: 18, height: 18, color: '#34d399' }} />
                 </div>
                 <div>
                   <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--sweet-text)', margin: 0 }}>Уровень погашения</p>

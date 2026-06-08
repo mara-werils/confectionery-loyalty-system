@@ -3,23 +3,23 @@ import { useTonConnectUI, useTonWallet } from '@tonconnect/ui-react';
 import { useTranslation } from 'react-i18next';
 import {
   UserCircleIcon,
-  BuildingStorefrontIcon,
+  StorefrontIcon,
   EnvelopeIcon,
   WalletIcon,
-  ArrowRightOnRectangleIcon,
-  ChevronRightIcon,
+  SignOutIcon,
+  CaretRightIcon,
   ShieldCheckIcon,
   BellIcon,
-  QuestionMarkCircleIcon,
-  ArrowsRightLeftIcon,
+  QuestionIcon,
+  ArrowsLeftRightIcon,
   PencilIcon,
   CheckIcon,
-  XMarkIcon,
-  ClipboardDocumentIcon,
-  SparklesIcon,
+  XIcon,
+  ClipboardTextIcon,
+  SparkleIcon,
   TrophyIcon,
   ClockIcon,
-} from '@heroicons/react/24/outline';
+} from '@phosphor-icons/react';
 import clsx from 'clsx';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../store/authStore';
@@ -69,7 +69,7 @@ function Modal({ open, onClose, title, children }: {
               className="w-8 h-8 rounded-full flex items-center justify-center transition-opacity hover:opacity-70"
               style={{ background: 'var(--sweet-border)', color: 'var(--sweet-text-muted)' }}
             >
-              <XMarkIcon className="w-4 h-4" />
+              <XIcon className="w-4 h-4" />
             </button>
           </div>
           {children}
@@ -263,7 +263,7 @@ export default function Profile() {
     { icon: PencilIcon,             label: t('profile.editProfile'),               description: 'Update name and email',         action: () => { setEditName(user?.companyName || ''); setEditEmail(user?.email || ''); setActiveModal('edit'); } },
     { icon: ShieldCheckIcon,        label: t('profile.securityTitle') || 'Security',       description: t('profile.securityDesc') || 'Wallet & SBT certificate',   action: () => setActiveModal('security') },
     { icon: BellIcon,               label: t('profile.notificationsTitle') || 'Notifications', description: t('profile.notificationsDesc') || 'Notification preferences', action: () => setActiveModal('notifications') },
-    { icon: QuestionMarkCircleIcon, label: t('profile.helpTitle') || 'Help & Support',    description: t('profile.helpDesc') || 'FAQ and contacts',             action: () => setActiveModal('help') },
+    { icon: QuestionIcon, label: t('profile.helpTitle') || 'Help & Support',    description: t('profile.helpDesc') || 'FAQ and contacts',             action: () => setActiveModal('help') },
   ];
 
   const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.06 } } };
@@ -384,7 +384,7 @@ export default function Profile() {
         {/* ── Stats Row ── */}
         <motion.div variants={fadeUp} className="grid grid-cols-3 gap-2.5">
           {[
-            { label: 'Balance',  value: balance.toLocaleString(),          sub: 'SWEET',  icon: SparklesIcon, accent: true },
+            { label: 'Balance',  value: balance.toLocaleString(),          sub: 'SWEET',  icon: SparkleIcon, accent: true },
             { label: 'Lifetime', value: lifetimeEarned.toLocaleString(),   sub: 'earned', icon: TrophyIcon,   accent: false },
             { label: 'Coupons',  value: useAuthStore.getState().activeCoupons.length, sub: 'active', icon: ClockIcon, accent: false },
           ].map(({ label, value, sub, icon: Icon, accent }, i) => (
@@ -441,7 +441,7 @@ export default function Profile() {
                 style={{ background: 'var(--sweet-input)' }}>
                 {copied
                   ? <CheckIcon className="w-3.5 h-3.5 text-green-400" />
-                  : <ClipboardDocumentIcon className="w-3.5 h-3.5" style={{ color: 'var(--sweet-text-muted)' }} />
+                  : <ClipboardTextIcon className="w-3.5 h-3.5" style={{ color: 'var(--sweet-text-muted)' }} />
                 }
               </button>
             </div>
@@ -511,7 +511,7 @@ export default function Profile() {
                   <p className="text-sm font-semibold" style={{ color: 'var(--sweet-text)' }}>{item.label}</p>
                   <p className="text-[11px] mt-0.5" style={{ color: 'var(--sweet-text-muted)' }}>{item.description}</p>
                 </div>
-                <ChevronRightIcon className="w-4 h-4 shrink-0" style={{ color: 'var(--sweet-text-faint)' }} />
+                <CaretRightIcon className="w-4 h-4 shrink-0" style={{ color: 'var(--sweet-text-faint)' }} />
               </button>
             ))}
           </div>
@@ -528,7 +528,7 @@ export default function Profile() {
               border: '1px solid var(--sweet-border)',
             }}
           >
-            <ArrowsRightLeftIcon className="w-4 h-4" />
+            <ArrowsLeftRightIcon className="w-4 h-4" />
             {role === 'business' ? t('profile.switchToCustomer') : t('profile.switchToBusiness')}
           </button>
         </motion.div>
@@ -544,7 +544,7 @@ export default function Profile() {
               border: '1px solid rgba(239,68,68,0.2)',
             }}
           >
-            <ArrowRightOnRectangleIcon className="w-4 h-4" />
+            <SignOutIcon className="w-4 h-4" />
             {t('profile.disconnect')}
           </button>
         </motion.div>
@@ -564,7 +564,7 @@ export default function Profile() {
       <Modal open={activeModal === 'edit'} onClose={() => setActiveModal(null)} title="Edit Profile">
         <div className="space-y-4">
           {[
-            { icon: BuildingStorefrontIcon, label: 'Company / Display Name', type: 'text', value: editName, set: setEditName, placeholder: 'Your company name' },
+            { icon: StorefrontIcon, label: 'Company / Display Name', type: 'text', value: editName, set: setEditName, placeholder: 'Your company name' },
             { icon: EnvelopeIcon,           label: 'Email',                  type: 'email', value: editEmail, set: setEditEmail, placeholder: 'your@email.com' },
           ].map(({ icon: Icon, label, type, value, set, placeholder }) => (
             <div key={label}>
@@ -619,7 +619,7 @@ export default function Profile() {
                   </div>
                   {wallet && (
                     <button onClick={handleCopyAddress} className="flex items-center gap-1 text-xs hover:opacity-70 transition-opacity" style={{ color: 'var(--sweet-text-muted)' }}>
-                      <ClipboardDocumentIcon className="w-3.5 h-3.5" />
+                      <ClipboardTextIcon className="w-3.5 h-3.5" />
                       {copied ? 'Copied!' : 'Copy full address'}
                     </button>
                   )}

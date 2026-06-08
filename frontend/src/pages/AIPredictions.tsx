@@ -1,17 +1,17 @@
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
-  ExclamationTriangleIcon,
+  WarningIcon,
   CheckCircleIcon,
-  ArrowTrendingUpIcon,
-  ArrowTrendingDownIcon,
+  TrendUpIcon,
+  TrendDownIcon,
   MinusIcon,
   GiftIcon,
-  BoltIcon,
+  LightningIcon,
   ChartBarIcon,
-  SparklesIcon,
+  SparkleIcon,
   ShieldCheckIcon,
-} from '@heroicons/react/24/outline';
+} from '@phosphor-icons/react';
 import {
   AreaChart,
   Area,
@@ -221,7 +221,7 @@ export default function AIPredictions() {
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <SparklesIcon className="w-5 h-5" style={{ color: '#fb7185' }} />
+            <SparkleIcon className="w-5 h-5" style={{ color: '#fb7185' }} />
             <h2 className="text-sm font-bold" style={{ color: 'var(--sweet-text)' }}>
               AI Auto-Interventions
             </h2>
@@ -284,7 +284,7 @@ export default function AIPredictions() {
       {/* ── Churn Risk Section ── */}
       <section className="space-y-3">
         <div className="flex items-center gap-2">
-          <ExclamationTriangleIcon className="w-4 h-4" style={{ color: 'var(--sweet-text-muted)' }} />
+          <WarningIcon className="w-4 h-4" style={{ color: 'var(--sweet-text-muted)' }} />
           <h2 className="text-sm font-semibold" style={{ color: 'var(--sweet-text)' }}>{t('ai.churnTitle')}</h2>
         </div>
 
@@ -381,8 +381,8 @@ export default function AIPredictions() {
               <div>
                 <p className="text-[10px] uppercase tracking-wide" style={{ color: 'var(--sweet-text-muted)' }}>{t('ai.trend')}</p>
                 <div className="flex items-center gap-1 mt-0.5">
-                  {forecast.trend === 'up' && <ArrowTrendingUpIcon className="w-4 h-4 text-green-400" />}
-                  {forecast.trend === 'down' && <ArrowTrendingDownIcon className="w-4 h-4 text-red-400" />}
+                  {forecast.trend === 'up' && <TrendUpIcon className="w-4 h-4 text-green-400" />}
+                  {forecast.trend === 'down' && <TrendDownIcon className="w-4 h-4 text-red-400" />}
                   {forecast.trend === 'stable' && <MinusIcon className="w-4 h-4 text-yellow-400" />}
                   <span className={`text-sm font-bold ${
                     forecast.trend === 'up' ? 'text-green-400' :
@@ -495,7 +495,7 @@ export default function AIPredictions() {
                 className="bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-3"
               >
                 <div className="flex items-start gap-2">
-                  <BoltIcon className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                  <LightningIcon className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
                   <p className="text-xs text-amber-600">{personalizedMsg}</p>
                 </div>
               </motion.div>

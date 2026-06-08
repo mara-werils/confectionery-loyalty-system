@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
+import { ArrowSquareOutIcon } from '@phosphor-icons/react';
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -576,7 +576,7 @@ export default function PurchaseNotification({ payload, onDismiss }: Props) {
                         }}
                       >
                         <span>{txShort}</span>
-                        <ArrowTopRightOnSquareIcon style={{ width: 10, height: 10 }} />
+                        <ArrowSquareOutIcon style={{ width: 10, height: 10 }} />
                       </motion.a>
                     )}
                   </motion.div>

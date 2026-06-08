@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Tab } from '@headlessui/react';
-import { ClockIcon, GiftIcon, ArrowDownTrayIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { ClockIcon, GiftIcon, DownloadSimpleIcon, MagnifyingGlassIcon } from '@phosphor-icons/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
@@ -207,7 +207,7 @@ export default function History() {
             }}
             title="Export CSV"
           >
-            <ArrowDownTrayIcon style={{ width: 15, height: 15 }} />
+            <DownloadSimpleIcon style={{ width: 15, height: 15 }} />
             CSV
           </motion.button>
         )}

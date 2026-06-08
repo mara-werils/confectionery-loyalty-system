@@ -4,14 +4,14 @@ import { useTranslation } from 'react-i18next';
 import {
   TagIcon,
   GiftIcon,
-  SparklesIcon,
+  SparkleIcon,
   TicketIcon,
-  ClipboardDocumentIcon,
+  ClipboardTextIcon,
   CheckIcon,
-  XMarkIcon,
-  ChevronDownIcon,
-} from '@heroicons/react/24/outline';
-import { CheckCircleIcon as CheckCircleSolid } from '@heroicons/react/24/solid';
+  XIcon,
+  CaretDownIcon,
+  CheckCircleIcon as CheckCircleSolid,
+} from '@phosphor-icons/react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useAuthStore } from '../../store/authStore';
 import { useTonWallet } from '@tonconnect/ui-react';
@@ -113,8 +113,8 @@ const TEXTS: Translations = {
 const CATEGORY_ICON: Record<Category, typeof TagIcon> = {
   DISCOUNT: TagIcon,
   PRODUCT: GiftIcon,
-  CASHBACK: SparklesIcon,
-  SPECIAL: SparklesIcon,
+  CASHBACK: SparkleIcon,
+  SPECIAL: SparkleIcon,
 };
 
 // Category color palette
@@ -276,7 +276,7 @@ export default function CustomerRewards() {
               border: '1px solid var(--sweet-accent-dim)',
             }}
           >
-            <SparklesIcon className="w-3.5 h-3.5" style={{ color: 'var(--sweet-accent)' }} />
+            <SparkleIcon className="w-3.5 h-3.5" style={{ color: 'var(--sweet-accent)' }} />
             <span className="text-sm font-black tabular-nums" style={{ color: 'var(--sweet-accent)' }}>
               {sweetBalance.toLocaleString()}
             </span>
@@ -321,7 +321,7 @@ export default function CustomerRewards() {
               animate={{ rotate: showMyCoupons ? 180 : 0 }}
               transition={{ duration: 0.22 }}
             >
-              <ChevronDownIcon className="w-4 h-4" style={{ color: 'var(--sweet-text-muted)' }} />
+              <CaretDownIcon className="w-4 h-4" style={{ color: 'var(--sweet-text-muted)' }} />
             </motion.div>
           </button>
           <AnimatePresence>
@@ -497,7 +497,7 @@ function RewardCard({
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1.5">
               {canAfford ? (
-                <CheckCircleSolid className="w-4 h-4 flex-shrink-0" style={{ color: '#22c55e' }} />
+                <CheckCircleSolid weight="fill" className="w-4 h-4 flex-shrink-0" style={{ color: '#22c55e' }} />
               ) : (
                 <div
                   className="w-4 h-4 rounded-full flex-shrink-0"
@@ -656,7 +656,7 @@ function MyCouponRow({ code, title, partnerName }: { code: string; title: string
         >
           {copied
             ? <CheckIcon className="w-3.5 h-3.5" style={{ color: '#22c55e' }} />
-            : <ClipboardDocumentIcon className="w-3.5 h-3.5" />}
+            : <ClipboardTextIcon className="w-3.5 h-3.5" />}
         </button>
       </div>
     </div>
@@ -788,7 +788,7 @@ function CouponSheet({
                     color: 'var(--sweet-text-muted)',
                   }}
                 >
-                  <XMarkIcon className="w-4 h-4" />
+                  <XIcon className="w-4 h-4" />
                 </button>
               </div>
 
@@ -836,7 +836,7 @@ function CouponSheet({
                   >
                     {copied
                       ? <CheckIcon className="w-5 h-5" style={{ color: '#22c55e' }} />
-                      : <ClipboardDocumentIcon className="w-5 h-5" style={{ color: 'var(--sweet-text-muted)' }} />}
+                      : <ClipboardTextIcon className="w-5 h-5" style={{ color: 'var(--sweet-text-muted)' }} />}
                     <span className="text-[9px]" style={{ color: 'var(--sweet-text-faint)' }}>
                       {copied ? t('rewards.copied') : t('rewards.copy')}
                     </span>

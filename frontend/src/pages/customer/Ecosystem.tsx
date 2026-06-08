@@ -3,15 +3,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import {
-  BuildingStorefrontIcon,
-  SparklesIcon,
-  CheckBadgeIcon,
-  ArrowPathIcon,
-  GlobeAltIcon,
+  StorefrontIcon,
+  SparkleIcon,
+  SealCheckIcon,
+  ArrowsClockwiseIcon,
+  GlobeIcon,
   ChartBarIcon,
   CurrencyDollarIcon,
   TrophyIcon,
-} from '@heroicons/react/24/outline';
+} from '@phosphor-icons/react';
 import { api } from '../../services/api';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -164,7 +164,7 @@ function NetworkViz({ partners }: { partners: EcosystemPartner[] }) {
           boxShadow: '0 0 28px rgba(245,158,11,0.55), 0 0 60px rgba(245,158,11,0.18)',
         }}
       >
-        <SparklesIcon className="w-5 h-5" style={{ color: '#0d0b0a' }} />
+        <SparkleIcon className="w-5 h-5" style={{ color: '#0d0b0a' }} />
         <span className="text-[8px] font-black tracking-wider" style={{ color: '#0d0b0a' }}>SWEET</span>
       </motion.div>
 
@@ -270,7 +270,7 @@ function PartnerCard({
               color: '#34d399',
             }}
           >
-            <CheckBadgeIcon className="w-2.5 h-2.5" />
+            <SealCheckIcon className="w-2.5 h-2.5" />
             SWEET
           </span>
         </div>
@@ -411,7 +411,7 @@ export default function Ecosystem() {
             color: '#f59e0b',
           }}
         >
-          <GlobeAltIcon className="w-3 h-3" />
+          <GlobeIcon className="w-3 h-3" />
           {t('ecosystem.badge')}
         </div>
         <h1 className="text-2xl font-black leading-tight mb-1" style={{ color: 'var(--sweet-text)' }}>
@@ -425,14 +425,14 @@ export default function Ecosystem() {
       {/* ── Stats bar ─────────────────────────────────────────────────────── */}
       <div className="flex gap-2 mb-5">
         <StatItem
-          icon={<BuildingStorefrontIcon className="w-3.5 h-3.5" />}
+          icon={<StorefrontIcon className="w-3.5 h-3.5" />}
           value={stats.totalPartners}
           label={t('ecosystem.statPartners')}
           color="#f59e0b"
           delay={0.1}
         />
         <StatItem
-          icon={<SparklesIcon className="w-3.5 h-3.5" />}
+          icon={<SparkleIcon className="w-3.5 h-3.5" />}
           value={stats.totalSweetIssued}
           label={t('ecosystem.statSweet')}
           color="#a78bfa"
@@ -486,7 +486,7 @@ export default function Ecosystem() {
             </div>
           ) : partners.length === 0 ? (
             <div className="h-[260px] flex flex-col items-center justify-center gap-2">
-              <BuildingStorefrontIcon className="w-10 h-10" style={{ color: 'rgba(245,158,11,0.30)' }} />
+              <StorefrontIcon className="w-10 h-10" style={{ color: 'rgba(245,158,11,0.30)' }} />
               <p className="text-xs" style={{ color: 'var(--sweet-text-muted)' }}>
                 {t('ecosystem.noPartners')}
               </p>
@@ -592,7 +592,7 @@ export default function Ecosystem() {
         className="mt-6 py-4 text-center"
       >
         <div className="flex items-center justify-center gap-1.5 mb-1">
-          <ArrowPathIcon className="w-3 h-3" style={{ color: 'rgba(245,158,11,0.45)' }} />
+          <ArrowsClockwiseIcon className="w-3 h-3" style={{ color: 'rgba(245,158,11,0.45)' }} />
           <span className="text-[10px] font-semibold tracking-wide" style={{ color: 'var(--sweet-text-faint)' }}>
             {t('ecosystem.poweredBy')}
           </span>

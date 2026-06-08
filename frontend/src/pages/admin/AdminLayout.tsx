@@ -1,53 +1,47 @@
+import React from 'react';
 import { Outlet, NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ChartBarSquareIcon,
-  BuildingStorefrontIcon,
+  ChartBarIcon,
+  StorefrontIcon,
   GiftIcon,
-  ClipboardDocumentListIcon,
-  Cog6ToothIcon,
+  ClipboardIcon,
+  GearSixIcon,
   ShieldCheckIcon,
-} from '@heroicons/react/24/outline';
-import {
-  ChartBarSquareIcon as ChartBarSquareIconSolid,
-  BuildingStorefrontIcon as BuildingStorefrontIconSolid,
-  GiftIcon as GiftIconSolid,
-  ClipboardDocumentListIcon as ClipboardDocumentListIconSolid,
-  Cog6ToothIcon as Cog6ToothIconSolid,
-} from '@heroicons/react/24/solid';
+} from '@phosphor-icons/react';
 import clsx from 'clsx';
 
 const navItems = [
   {
     path: '/admin',
     label: 'Обзор',
-    icon: ChartBarSquareIcon,
-    activeIcon: ChartBarSquareIconSolid,
+    icon: ChartBarIcon,
+    activeIcon: (props: React.ComponentProps<typeof ChartBarIcon>) => <ChartBarIcon weight="fill" {...props} />,
     end: true,
   },
   {
     path: '/admin/partners',
     label: 'Партнёры',
-    icon: BuildingStorefrontIcon,
-    activeIcon: BuildingStorefrontIconSolid,
+    icon: StorefrontIcon,
+    activeIcon: (props: React.ComponentProps<typeof StorefrontIcon>) => <StorefrontIcon weight="fill" {...props} />,
   },
   {
     path: '/admin/rewards',
     label: 'Награды',
     icon: GiftIcon,
-    activeIcon: GiftIconSolid,
+    activeIcon: (props: React.ComponentProps<typeof GiftIcon>) => <GiftIcon weight="fill" {...props} />,
   },
   {
     path: '/admin/audit',
     label: 'Аудит',
-    icon: ClipboardDocumentListIcon,
-    activeIcon: ClipboardDocumentListIconSolid,
+    icon: ClipboardIcon,
+    activeIcon: (props: React.ComponentProps<typeof ClipboardIcon>) => <ClipboardIcon weight="fill" {...props} />,
   },
   {
     path: '/admin/settings',
     label: 'Настройки',
-    icon: Cog6ToothIcon,
-    activeIcon: Cog6ToothIconSolid,
+    icon: GearSixIcon,
+    activeIcon: (props: React.ComponentProps<typeof GearSixIcon>) => <GearSixIcon weight="fill" {...props} />,
   },
 ];
 

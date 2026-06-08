@@ -1,6 +1,6 @@
 import { TonConnectButton, useTonConnectUI, useTonWallet } from '@tonconnect/ui-react';
 import { motion } from 'framer-motion';
-import { WalletIcon } from '@heroicons/react/24/outline';
+import { WalletIcon } from '@phosphor-icons/react';
 
 interface WalletConnectProps {
   className?: string;

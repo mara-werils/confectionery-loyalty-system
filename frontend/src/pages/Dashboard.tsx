@@ -4,23 +4,23 @@ import { EcosystemService } from '../services/ecosystem';
 import { useTonWallet } from '@tonconnect/ui-react';
 import { useTranslation } from 'react-i18next';
 import {
-  BuildingLibraryIcon,
+  BankIcon,
   ChartBarIcon,
-  UserGroupIcon,
+  UsersThreeIcon,
   CreditCardIcon,
   QrCodeIcon,
-  XMarkIcon,
+  XIcon,
   ArrowUpRightIcon,
-  ClipboardDocumentIcon,
-  ExclamationCircleIcon,
+  ClipboardTextIcon,
+  WarningCircleIcon,
   ShoppingBagIcon,
-  SparklesIcon,
-  BoltIcon,
+  SparkleIcon,
+  LightningIcon,
   CakeIcon,
   CurrencyDollarIcon,
-  ArrowTrendingUpIcon,
-} from '@heroicons/react/24/outline';
-import { CheckCircleIcon as CheckCircleSolidIcon } from '@heroicons/react/24/solid';
+  TrendUpIcon,
+  CheckCircleIcon as CheckCircleSolidIcon,
+} from '@phosphor-icons/react';
 import toast from 'react-hot-toast';
 import { useAnalyticsGrowth, useAnalyticsSummary } from '../hooks/useApi';
 import { api } from '../services/api';
@@ -87,7 +87,7 @@ const MOCK_ACTIVITIES = [
 
 const activityMeta: Record<string, { icon: React.ReactNode; colorStyle: React.CSSProperties; label: string }> = {
   earn: {
-    icon: <BoltIcon style={{ width: 14, height: 14 }} />,
+    icon: <LightningIcon style={{ width: 14, height: 14 }} />,
     colorStyle: { color: '#34d399', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)' },
     label: 'Earned',
   },
@@ -97,7 +97,7 @@ const activityMeta: Record<string, { icon: React.ReactNode; colorStyle: React.CS
     label: 'Redeemed',
   },
   join: {
-    icon: <UserGroupIcon style={{ width: 14, height: 14 }} />,
+    icon: <UsersThreeIcon style={{ width: 14, height: 14 }} />,
     colorStyle: { color: '#38bdf8', background: 'rgba(14,165,233,0.1)', border: '1px solid rgba(14,165,233,0.2)' },
     label: 'Joined',
   },
@@ -198,7 +198,7 @@ function StatCard({ title, value, suffix, trend, trendUp = true, icon, accentCol
 
           {trend && (
             <p style={{ fontSize: 11, display: 'flex', alignItems: 'center', gap: 4, fontWeight: 600, color: trendUp ? '#34d399' : '#f87171', margin: 0 }}>
-              <ArrowTrendingUpIcon style={{ width: 12, height: 12, transform: trendUp ? 'none' : 'rotate(180deg)' }} />
+              <TrendUpIcon style={{ width: 12, height: 12, transform: trendUp ? 'none' : 'rotate(180deg)' }} />
               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{trend}</span>
             </p>
           )}
@@ -489,7 +489,7 @@ export default function Dashboard() {
             suffix="SWEET"
             trend={t('dashboard.vsLastMonth') || '+12% vs last month'}
             trendUp
-            icon={<BuildingLibraryIcon style={{ width: 16, height: 16 }} />}
+            icon={<BankIcon style={{ width: 16, height: 16 }} />}
             accentColor="amber"
             loading={balanceLoading && !balance}
           />
@@ -498,7 +498,7 @@ export default function Dashboard() {
             value={summary?.totalPartners ?? null}
             trend="+8% this week"
             trendUp
-            icon={<UserGroupIcon style={{ width: 16, height: 16 }} />}
+            icon={<UsersThreeIcon style={{ width: 16, height: 16 }} />}
             accentColor="emerald"
             loading={summaryLoading}
           />
@@ -554,7 +554,7 @@ export default function Dashboard() {
                   color: 'var(--sweet-accent)',
                 }}
               >
-                <SparklesIcon style={{ width: 10, height: 10 }} />
+                <SparkleIcon style={{ width: 10, height: 10 }} />
                 Demo
               </span>
             }
@@ -698,7 +698,7 @@ export default function Dashboard() {
                 <AnimatePresence mode="wait">
                   {simSuccess ? (
                     <motion.span key="success" initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <CheckCircleSolidIcon style={{ width: 18, height: 18 }} />
+                      <CheckCircleSolidIcon weight="fill" style={{ width: 18, height: 18 }} />
                       Issued!
                     </motion.span>
                   ) : simLoading ? (
@@ -708,7 +708,7 @@ export default function Dashboard() {
                     </motion.span>
                   ) : (
                     <motion.span key="idle" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <SparklesIcon style={{ width: 15, height: 15 }} />
+                      <SparkleIcon style={{ width: 15, height: 15 }} />
                       {t('dashboard.issueSweet') || 'Issue SWEET Tokens'}
                     </motion.span>
                   )}
@@ -826,7 +826,7 @@ export default function Dashboard() {
                       />
                       {clientWalletAddress && addressError && (
                         <div style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)' }}>
-                          <ExclamationCircleIcon style={{ width: 15, height: 15, color: '#f87171' }} />
+                          <WarningCircleIcon style={{ width: 15, height: 15, color: '#f87171' }} />
                         </div>
                       )}
                     </div>
@@ -915,7 +915,7 @@ export default function Dashboard() {
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-                  <ArrowTrendingUpIcon style={{ width: 15, height: 15, color: 'var(--sweet-accent)' }} />
+                  <TrendUpIcon style={{ width: 15, height: 15, color: 'var(--sweet-accent)' }} />
                   <h3 style={{ fontSize: 13, fontWeight: 800, color: 'var(--sweet-text)', margin: 0 }}>
                     {t('dashboard.ecosystemGrowth') || 'Transaction Volume'}
                   </h3>
@@ -990,7 +990,7 @@ export default function Dashboard() {
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-                  <BoltIcon style={{ width: 15, height: 15, color: 'var(--sweet-accent)' }} />
+                  <LightningIcon style={{ width: 15, height: 15, color: 'var(--sweet-accent)' }} />
                   <h3 style={{ fontSize: 13, fontWeight: 800, color: 'var(--sweet-text)', margin: 0 }}>Live Activity</h3>
                 </div>
                 <span
@@ -1095,7 +1095,7 @@ export default function Dashboard() {
                     color: 'var(--sweet-text-muted)', display: 'flex', alignItems: 'center',
                   }}
                 >
-                  <XMarkIcon style={{ width: 15, height: 15 }} />
+                  <XIcon style={{ width: 15, height: 15 }} />
                 </button>
               </div>
               <div style={{ background: '#000', position: 'relative', aspectRatio: '1' }}>
@@ -1169,7 +1169,7 @@ export default function Dashboard() {
                     border: '2px solid rgba(245,158,11,0.4)',
                   }}
                 >
-                  <SparklesIcon style={{ width: 30, height: 30, color: 'var(--sweet-accent)' }} />
+                  <SparkleIcon style={{ width: 30, height: 30, color: 'var(--sweet-accent)' }} />
                 </motion.div>
                 <h3 style={{ fontSize: 17, fontWeight: 800, color: 'var(--sweet-text)', margin: 0 }}>SWEET Issued!</h3>
                 <p style={{ fontSize: 12, marginTop: 5, color: 'var(--sweet-text-muted)' }}>
@@ -1226,7 +1226,7 @@ export default function Dashboard() {
                         onClick={() => { navigator.clipboard.writeText(simReceipt.txHash); toast.success('Copied!', { duration: 1000 }); }}
                         style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}
                       >
-                        <ClipboardDocumentIcon style={{ width: 13, height: 13, color: 'var(--sweet-text-faint)' }} />
+                        <ClipboardTextIcon style={{ width: 13, height: 13, color: 'var(--sweet-text-faint)' }} />
                       </button>
                     )}
                   </div>
@@ -1294,7 +1294,7 @@ export default function Dashboard() {
                     border: '2px solid rgba(16,185,129,0.35)',
                   }}
                 >
-                  <CheckCircleSolidIcon style={{ width: 34, height: 34, color: '#34d399' }} />
+                  <CheckCircleSolidIcon weight="fill" style={{ width: 34, height: 34, color: '#34d399' }} />
                 </motion.div>
                 <h3 style={{ fontSize: 17, fontWeight: 800, color: 'var(--sweet-text)', margin: 0 }}>Transaction Successful</h3>
                 <p style={{ fontSize: 12, marginTop: 5, color: 'var(--sweet-text-muted)' }}>SWEET tokens sent to customer wallet</p>
@@ -1323,7 +1323,7 @@ export default function Dashboard() {
                       onClick={() => { navigator.clipboard.writeText(receipt.txId); toast.success('Copied!', { duration: 1000 }); }}
                       style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}
                     >
-                      <ClipboardDocumentIcon style={{ width: 13, height: 13, color: 'var(--sweet-text-faint)' }} />
+                      <ClipboardTextIcon style={{ width: 13, height: 13, color: 'var(--sweet-text-faint)' }} />
                     </button>
                   </div>
                 </ReceiptRow>
