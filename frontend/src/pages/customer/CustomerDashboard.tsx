@@ -215,7 +215,7 @@ export default function CustomerDashboard() {
       socket.disconnect();
       socketRef.current = null;
     };
-  }, [walletAddress]); // eslint-disable-line
+  }, [walletAddress]);
 
   // ── Data fetch: DB balance (primary) + chain transactions ─────────────────
   const fetchData = async () => {
@@ -286,7 +286,7 @@ export default function CustomerDashboard() {
 
   useEffect(() => {
     fetchData();
-  }, [walletAddress, location.pathname]); // eslint-disable-line
+  }, [walletAddress, location.pathname]);
 
   const formatAddress = (addr: string) => {
     if (!addr || addr.length < 12) return addr;

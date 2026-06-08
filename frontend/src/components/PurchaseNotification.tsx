@@ -227,7 +227,6 @@ export default function PurchaseNotification({ payload, onDismiss }: Props) {
     return () => {
       timerRefs.current.forEach(clearTimeout);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [payload]);
 
   const handleManualDismiss = () => {

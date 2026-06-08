@@ -297,7 +297,7 @@ export default function Dashboard() {
     if (wallet && !clientWalletAddress) {
       setClientWalletAddress(wallet.account.address);
     }
-  }, [wallet]); // eslint-disable-line
+  }, [wallet]);
 
   const loadData = async (address: string) => {
     const bal = await EcosystemService.getBalance(address);
