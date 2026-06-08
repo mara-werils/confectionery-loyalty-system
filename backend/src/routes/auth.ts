@@ -6,6 +6,12 @@ import { generateToken, generateRefreshToken, authenticate } from '../middleware
 import { authRateLimiter } from '../middleware/rateLimiter';
 import { AppError } from '../middleware/errorHandler';
 import { verifyWalletSignature, verifyNonce } from '../services/ton';
+import { config } from '../config';
+import { Address } from '@ton/core';
+
+function normalizeAddress(addr: string): string {
+  try { return Address.parse(addr).toRawString(); } catch { return addr; }
+}
 
 const router = Router();
 
@@ -77,14 +83,23 @@ router.post(
       }
 
       // Verify wallet signature
-      const isValid = await verifyWalletSignature(
-        data.publicKey,
-        data.message,
-        data.signature
-      );
-
-      if (!isValid) {
-        throw new AppError('Invalid wallet signature', 401, 'INVALID_SIGNATURE');
+      // In production this uses @ton/crypto signVerify.
+      // TonConnect UI does not expose signData, so we accept the wallet address
+      // as proof of ownership (wallet connection itself is the auth factor).
+      // TonConnect UI does not expose signData, so wallet-connection-as-proof
+      // is the auth factor. The bypass is only allowed in development.
+      const sigSkipped =
+        config.app.env === 'development' &&
+        data.signature.startsWith('wallet-owned-');
+      if (!sigSkipped) {
+        const isValid = await verifyWalletSignature(
+          data.publicKey,
+          data.message,
+          data.signature
+        );
+        if (!isValid) {
+          throw new AppError('Invalid wallet signature', 401, 'INVALID_SIGNATURE');
+        }
       }
 
       // Check if partner already exists
@@ -93,6 +108,25 @@ router.post(
       });
 
       if (existing) {
+        // Allow upgrading a customer placeholder to a full business partner
+        if (existing.companyName.startsWith('Customer_')) {
+          const updated = await prisma.partner.update({
+            where: { id: existing.id },
+            data: {
+              companyName: data.companyName,
+              email: data.email,
+              phone: data.phone,
+              status: 'PENDING',
+            },
+          });
+          const token = generateToken({ sub: updated.id, walletAddress: updated.walletAddress, type: 'partner' });
+          const refreshToken = generateRefreshToken({ sub: updated.id, walletAddress: updated.walletAddress, type: 'partner' });
+          return successResponse(res, {
+            partner: { id: updated.id, walletAddress: updated.walletAddress, companyName: updated.companyName, tier: updated.tier, status: updated.status },
+            token,
+            refreshToken,
+          }, 'Registration successful', 201);
+        }
         throw new AppError('Partner already registered', 409, 'ALREADY_EXISTS');
       }
 
@@ -354,6 +388,76 @@ router.get('/me', authenticate, async (req: Request, res: Response, next: NextFu
     next(error);
   }
 });
+
+/**
+ * POST /auth/customer
+ * Passwordless auto-login for customers: find-or-create partner by wallet address.
+ * No signature required — wallet address is the identity (demo-grade auth).
+ */
+const customerAuthSchema = z.object({
+  walletAddress: z.string().min(10),
+});
+
+router.post(
+  '/customer',
+  authRateLimiter,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { walletAddress: rawAddr } = customerAuthSchema.parse(req.body);
+      const walletAddress = normalizeAddress(rawAddr);
+
+      // Find or create a customer partner record — try normalized, then original
+      let partner = await prisma.partner.findUnique({
+        where: { walletAddress },
+        include: { loyaltyPoints: true },
+      });
+      if (!partner && walletAddress !== rawAddr) {
+        partner = await prisma.partner.findUnique({
+          where: { walletAddress: rawAddr },
+          include: { loyaltyPoints: true },
+        });
+      }
+
+      if (!partner) {
+        partner = await prisma.partner.create({
+          data: {
+            walletAddress,
+            companyName: `Customer_${walletAddress.slice(0, 8)}`,
+            status: 'ACTIVE',
+            loyaltyPoints: {
+              create: { balance: 0n, lifetimeEarned: 0n, lifetimeRedeemed: 0n },
+            },
+          },
+          include: { loyaltyPoints: true },
+        });
+      } else if (!partner.loyaltyPoints) {
+        // Ensure loyaltyPoints row exists
+        await prisma.loyaltyPoints.create({
+          data: { partnerId: partner.id, balance: 0n, lifetimeEarned: 0n, lifetimeRedeemed: 0n },
+        });
+      }
+
+      const token = generateToken({
+        sub: partner.id,
+        walletAddress: partner.walletAddress,
+        type: 'partner',
+      });
+
+      return successResponse(res, {
+        partner: {
+          id: partner.id,
+          walletAddress: partner.walletAddress,
+          companyName: partner.companyName,
+          tier: partner.tier,
+          status: partner.status,
+        },
+        token,
+      }, 'Customer authenticated', 200);
+    } catch (error) {
+      return next(error);
+    }
+  }
+);
 
 export default router;
 

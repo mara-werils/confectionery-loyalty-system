@@ -4,6 +4,14 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
 
 const SWEET_CONTRACT = '0:4d3a2278693a04f846b5d83a58e67066bb56ca4f46b1b7cd49992f4114f87c9c';
 
+function safeFromJettonRaw(rawBalance: string, decimals: number): number {
+  const safeDecimals = Number.isFinite(decimals) ? Math.max(0, Math.min(18, decimals)) : 9;
+  const parsed = Number(rawBalance);
+  if (!Number.isFinite(parsed)) return 0;
+  const divisor = Math.pow(10, safeDecimals);
+  return Math.floor(parsed / divisor);
+}
+
 export const EcosystemService = {
   // Get real balances from TON testnet API
   getBalance: async (walletAddress: string) => {
@@ -22,11 +30,11 @@ export const EcosystemService = {
       );
 
       const sweetBalance = sweet
-        ? Number(BigInt(sweet.balance) / BigInt(10 ** (sweet.jetton?.decimals || 9)))
+        ? safeFromJettonRaw(sweet.balance, sweet.jetton?.decimals || 9)
         : 0;
 
       const tonBalance = accountData.balance
-        ? Number(BigInt(accountData.balance) / BigInt(1e9))
+        ? Math.floor(Number(accountData.balance) / 1e9)
         : 0;
 
       return {

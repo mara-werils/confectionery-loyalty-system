@@ -13,6 +13,7 @@ import {
 import { useTonWallet } from '@tonconnect/ui-react';
 import clsx from 'clsx';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 
 type TabType = 'security' | 'notifications' | 'help';
 
@@ -22,35 +23,24 @@ interface SettingsModalProps {
   initialTab?: TabType;
 }
 
-const tabs = [
-  { key: 'security' as const, label: 'Security', icon: ShieldCheckIcon },
-  { key: 'notifications' as const, label: 'Notifications', icon: BellIcon },
-  { key: 'help' as const, label: 'Help', icon: QuestionMarkCircleIcon },
-];
-
-const faqs = [
-  {
-    question: 'How do I earn SWEET tokens?',
-    answer: 'You earn SWEET tokens with every purchase at partner confectioneries. 1₸ spent = 1 SWEET point.',
-  },
-  {
-    question: 'Can I transfer tokens to another wallet?',
-    answer: 'Yes! SWEET tokens are standard TON Jettons and can be transferred to any compatible wallet.',
-  },
-  {
-    question: 'How do I redeem rewards?',
-    answer: 'Go to the Rewards tab, choose a reward, and click "Claim". Show the confirmation to the partner.',
-  },
-  {
-    question: 'What are GOV tokens?',
-    answer: 'GOV tokens give you voting power in the DAO. You can participate in governance decisions.',
-  },
+const tabKeys = [
+  { key: 'security' as const, icon: ShieldCheckIcon },
+  { key: 'notifications' as const, icon: BellIcon },
+  { key: 'help' as const, icon: QuestionMarkCircleIcon },
 ];
 
 export default function SettingsModal({ isOpen, onClose, initialTab = 'security' }: SettingsModalProps) {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<TabType>(initialTab);
   const [copied, setCopied] = useState(false);
   const wallet = useTonWallet();
+
+  const faqs = [
+    { question: t('settings.faq1q'), answer: t('settings.faq1a') },
+    { question: t('settings.faq2q'), answer: t('settings.faq2a') },
+    { question: t('settings.faq3q'), answer: t('settings.faq3a') },
+    { question: t('settings.faq4q'), answer: t('settings.faq4a') },
+  ];
   
   // Settings state
   const [settings, setSettings] = useState({
@@ -67,7 +57,7 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
     if (wallet?.account.address) {
       navigator.clipboard.writeText(wallet.account.address);
       setCopied(true);
-      toast.success('Address copied!');
+      toast.success(t('settings.addressCopied'));
       setTimeout(() => setCopied(false), 2000);
     }
   };
@@ -110,7 +100,7 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b border-white/10">
                   <Dialog.Title className="text-lg font-bold text-white">
-                    Settings
+                    {t('settings.title')}
                   </Dialog.Title>
                   <button
                     onClick={onClose}
@@ -122,7 +112,7 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
 
                 {/* Tabs */}
                 <div className="flex border-b border-white/10">
-                  {tabs.map((tab) => (
+                  {tabKeys.map((tab) => (
                     <button
                       key={tab.key}
                       onClick={() => setActiveTab(tab.key)}
@@ -130,11 +120,11 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
                         'flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-all',
                         activeTab === tab.key
                           ? 'text-white border-b-2 border-white'
-                          : 'text-zinc-500 hover:text-zinc-300'
+                          : 'text-stone-500 hover:text-stone-300'
                       )}
                     >
                       <tab.icon className="w-4 h-4" />
-                      {tab.label}
+                      {t(`settings.tabs.${tab.key}`)}
                     </button>
                   ))}
                 </div>
@@ -152,10 +142,10 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
                       >
                         {/* Wallet Address */}
                         <div className="bg-white/5 rounded-xl p-4">
-                          <p className="text-xs text-gray-500 mb-2">Connected Wallet</p>
+                          <p className="text-xs text-gray-500 mb-2">{t('settings.connectedWallet')}</p>
                           <div className="flex items-center gap-2">
                             <code className="flex-1 text-sm text-gray-300 font-mono truncate">
-                              {wallet?.account.address || 'Not connected'}
+                              {wallet?.account.address || t('settings.notConnected')}
                             </code>
                             <button
                               onClick={handleCopyAddress}
@@ -173,21 +163,21 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
                         {/* 2FA Toggle */}
                         <div className="flex items-center justify-between bg-white/5 rounded-xl p-4">
                           <div>
-                            <p className="font-medium text-white">Two-Factor Auth</p>
-                            <p className="text-xs text-gray-500">Extra security for your account</p>
+                            <p className="font-medium text-white">{t('settings.twoFactor')}</p>
+                            <p className="text-xs text-gray-500">{t('settings.twoFactorDesc')}</p>
                           </div>
                           <Switch
                             checked={settings.twoFactorEnabled}
                             onChange={() => toggleSetting('twoFactorEnabled')}
                             className={clsx(
                               'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
-                              settings.twoFactorEnabled ? 'bg-white' : 'bg-zinc-800'
+                              settings.twoFactorEnabled ? 'bg-white' : 'bg-stone-800'
                             )}
                           >
                             <span
                               className={clsx(
                                 'inline-block h-4 w-4 transform rounded-full transition-transform',
-                                settings.twoFactorEnabled ? 'translate-x-6 bg-black' : 'translate-x-1 bg-zinc-400'
+                                settings.twoFactorEnabled ? 'translate-x-6 bg-black' : 'translate-x-1 bg-stone-400'
                               )}
                             />
                           </Switch>
@@ -197,8 +187,8 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
                         <div className="flex items-center gap-3 bg-green-500/10 rounded-xl p-4 border border-green-500/20">
                           <ShieldCheckIcon className="w-8 h-8 text-green-400" />
                           <div>
-                            <p className="font-medium text-green-400">Account Secure</p>
-                            <p className="text-xs text-green-400/70">Your wallet is securely connected via TonConnect</p>
+                            <p className="font-medium text-green-400">{t('settings.accountSecured')}</p>
+                            <p className="text-xs text-green-400/70">{t('settings.accountSecuredDesc')}</p>
                           </div>
                         </div>
                       </motion.div>
@@ -213,10 +203,10 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
                         className="space-y-3"
                       >
                         {[
-                          { key: 'pushNotifications' as const, label: 'Push Notifications', desc: 'Receive push alerts' },
-                          { key: 'transactionAlerts' as const, label: 'Transaction Alerts', desc: 'Get notified on new transactions' },
-                          { key: 'emailNotifications' as const, label: 'Email Notifications', desc: 'Important updates via email' },
-                          { key: 'marketingEmails' as const, label: 'Marketing Emails', desc: 'Promotions and special offers' },
+                          { key: 'pushNotifications' as const, label: t('settings.pushNotifications'), desc: t('settings.pushNotificationsDesc') },
+                          { key: 'transactionAlerts' as const, label: t('settings.transactionAlerts'), desc: t('settings.transactionAlertsDesc') },
+                          { key: 'emailNotifications' as const, label: t('settings.emailNotifications'), desc: t('settings.emailNotificationsDesc') },
+                          { key: 'marketingEmails' as const, label: t('settings.marketingEmails'), desc: t('settings.marketingEmailsDesc') },
                         ].map((item) => (
                           <div key={item.key} className="flex items-center justify-between bg-white/5 rounded-xl p-4">
                             <div>
@@ -228,13 +218,13 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
                               onChange={() => toggleSetting(item.key)}
                               className={clsx(
                                 'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
-                                settings[item.key] ? 'bg-white' : 'bg-zinc-800'
+                                settings[item.key] ? 'bg-white' : 'bg-stone-800'
                               )}
                             >
                               <span
                                 className={clsx(
                                   'inline-block h-4 w-4 transform rounded-full transition-transform',
-                                  settings[item.key] ? 'translate-x-6 bg-black' : 'translate-x-1 bg-zinc-400'
+                                  settings[item.key] ? 'translate-x-6 bg-black' : 'translate-x-1 bg-stone-400'
                                 )}
                               />
                             </Switch>
@@ -251,7 +241,7 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
                         exit={{ opacity: 0, x: 10 }}
                         className="space-y-3"
                       >
-                        <p className="text-sm text-gray-400 mb-4">Frequently Asked Questions</p>
+                        <p className="text-sm text-gray-400 mb-4">{t('settings.faqTitle')}</p>
                         
                         {faqs.map((faq, index) => (
                           <div key={index} className="bg-white/5 rounded-xl overflow-hidden">
@@ -285,12 +275,12 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'security'
                         {/* Contact Support */}
                         <button
                           onClick={() => {
-                            toast.success('Support request sent!');
+                            toast.success(t('settings.supportSent'));
                             onClose();
                           }}
-                          className="w-full mt-4 py-3 bg-white text-black hover:bg-zinc-200 rounded-xl font-bold transition-colors"
+                          className="w-full mt-4 py-3 bg-amber-500 text-black hover:bg-amber-400 rounded-xl font-bold transition-colors"
                         >
-                          Contact Support
+                          {t('settings.contactSupport')}
                         </button>
                       </motion.div>
                     )}

@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
 import { Prisma } from '@prisma/client';
 import { logger } from '../utils/logger';
@@ -23,7 +23,8 @@ export const notFoundHandler = (req: Request, res: Response) => {
   return errorResponse(res, `Route ${req.originalUrl} not found`, 'NOT_FOUND', 404);
 };
 
-export const errorHandler = (err: Error, req: Request, res: Response) => {
+// Express requires exactly 4 params to recognise an error-handling middleware
+export const errorHandler = (err: Error, req: Request, res: Response, _next: NextFunction) => {
   logger.error(err);
 
   // Handle Zod validation errors
