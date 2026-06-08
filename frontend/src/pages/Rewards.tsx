@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tab } from '@headlessui/react';
 import { TagIcon, GiftIcon, SparklesIcon, StarIcon } from '@heroicons/react/24/outline';
-import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 
 import RewardCard from '../components/RewardCard';
@@ -133,24 +132,10 @@ export default function Rewards() {
               <Tab
                 key={category.key}
                 onClick={() => setSelectedCategory(category.key)}
-                className={({ selected }) =>
-                  clsx(
-                    'flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all duration-200 focus:outline-none focus-visible:ring-2',
-                    selected ? '' : ''
-                  )
-                }
-                style={({ selected }: { selected: boolean }) =>
-                  selected
-                    ? {
-                        background: 'var(--sweet-text)',
-                        color: 'var(--sweet-bg)',
-                        boxShadow: '0 2px 12px rgba(0,0,0,0.18)',
-                      }
-                    : {
-                        background: 'var(--sweet-card)',
-                        color: 'var(--sweet-text-muted)',
-                        border: '1px solid var(--sweet-border)',
-                      }
+                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all duration-200 focus:outline-none"
+                style={selectedCategory === category.key
+                  ? { background: 'var(--sweet-text)', color: 'var(--sweet-bg)', boxShadow: '0 2px 12px rgba(0,0,0,0.18)' }
+                  : { background: 'var(--sweet-card)', color: 'var(--sweet-text-muted)', border: '1px solid var(--sweet-border)' }
                 }
               >
                 <category.icon className="w-4 h-4" />
