@@ -42,6 +42,7 @@ interface Proposal {
   votingEndsAt: string;
   createdAt: string;
   userVote: VoteChoice | null;
+  userVotingPower?: string;
 }
 
 interface GovernanceData {
@@ -336,7 +337,7 @@ export default function Governance() {
                     <ClockIcon className="w-3.5 h-3.5" />
                     {formatTimeLeft(p.votingEndsAt)}
                   </span>
-                  <span>{p.totalVoters} voters · {formatNumber(BigInt(p.votesFor) + BigInt(p.votesAgainst) + BigInt(p.votesAbstain))} SWEET cast</span>
+                  <span>{p.totalVoters} voters · {formatNumber((BigInt(p.votesFor) + BigInt(p.votesAgainst) + BigInt(p.votesAbstain)).toString())} SWEET cast</span>
                 </div>
 
                 {/* Voting bar */}
