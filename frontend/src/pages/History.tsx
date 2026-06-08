@@ -2,7 +2,6 @@ import { useState, useMemo } from 'react';
 import { Tab } from '@headlessui/react';
 import { ClockIcon, GiftIcon, ArrowDownTrayIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { motion, AnimatePresence } from 'framer-motion';
-import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 

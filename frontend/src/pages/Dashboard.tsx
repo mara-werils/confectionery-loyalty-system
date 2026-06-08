@@ -103,11 +103,6 @@ const activityMeta: Record<string, { icon: React.ReactNode; colorStyle: React.CS
   },
 };
 
-// ─── Divider line ────────────────────────────────────────────────────────────
-const Divider = () => (
-  <div style={{ height: 1, background: 'var(--sweet-border)', margin: '0' }} />
-);
-
 // ─── Receipt row ──────────────────────────────────────────────────────────────
 function ReceiptRow({ label, children, last }: { label: string; children: React.ReactNode; last?: boolean }) {
   return (
@@ -302,8 +297,7 @@ export default function Dashboard() {
     if (wallet && !clientWalletAddress) {
       setClientWalletAddress(wallet.account.address);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallet]);
+  }, [wallet]); // eslint-disable-line
 
   const loadData = async (address: string) => {
     const bal = await EcosystemService.getBalance(address);
@@ -391,12 +385,12 @@ export default function Dashboard() {
     setSimSuccess(false);
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const res = await api.loyalty.simulatePurchase({
+      const res: any = await api.loyalty.simulatePurchase({
         partnerId: user.id,
         customerWallet: simWallet.trim(),
         amount,
         items: simItems.length > 0 ? simItems : undefined,
-      }) as any;
+      });
 
       const d = res?.data;
       const receiptData: SimulateReceipt = {
