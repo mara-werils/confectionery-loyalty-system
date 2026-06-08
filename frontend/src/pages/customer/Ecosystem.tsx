@@ -164,8 +164,8 @@ function NetworkViz({ partners }: { partners: EcosystemPartner[] }) {
           boxShadow: '0 0 28px rgba(245,158,11,0.55), 0 0 60px rgba(245,158,11,0.18)',
         }}
       >
-        <SparklesIcon className="w-5 h-5 text-black" />
-        <span className="text-[8px] font-black text-black tracking-wider">SWEET</span>
+        <SparklesIcon className="w-5 h-5" style={{ color: '#0d0b0a' }} />
+        <span className="text-[8px] font-black tracking-wider" style={{ color: '#0d0b0a' }}>SWEET</span>
       </motion.div>
 
       {/* Partner nodes */}
