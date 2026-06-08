@@ -40,6 +40,11 @@
     --sweet-accent: #f59e0b;
     --sweet-accent-dim: rgba(245, 158, 11, 0.12);
     --sweet-glow: rgba(245, 158, 11, 0.08);
+    /* UI/UX Pro Max: purple CTA + font stack */
+    --sweet-cta: #8b5cf6;
+    --sweet-cta-dim: rgba(139, 92, 246, 0.12);
+    --sweet-font-heading: 'Orbitron', 'Exo 2', sans-serif;
+    --sweet-font-body: 'Exo 2', sans-serif;
 
     /* Skeleton shimmer colors */
     --skeleton-base: rgba(255, 255, 255, 0.04);
@@ -88,15 +93,36 @@
   body {
     background-color: var(--sweet-bg);
     color: var(--sweet-text);
+    font-family: var(--sweet-font-body);
     @apply antialiased;
     min-height: 100vh;
     transition: background-color 0.3s, color 0.3s;
+  }
+
+  /* UI/UX Pro Max: cursor-pointer on all interactive elements */
+  button, [role="button"], a, label[for], select, [tabindex]:not([tabindex="-1"]) {
+    cursor: pointer;
+  }
+
+  /* UI/UX Pro Max: prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 
   /* Selection color */
   ::selection {
     background: var(--sweet-accent-dim);
     color: var(--sweet-text);
+  }
+
+  /* UI/UX Pro Max: Orbitron for page-level headings */
+  h1 {
+    font-family: var(--sweet-font-heading);
+    letter-spacing: 0.02em;
   }
 
   /* Focus ring — accessibility */
@@ -187,6 +213,38 @@
 
   .text-gradient-gold {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-orange-500;
+  }
+
+  /* UI/UX Pro Max: Orbitron heading class */
+  .font-heading {
+    font-family: var(--sweet-font-heading);
+    letter-spacing: 0.03em;
+  }
+
+  /* UI/UX Pro Max: accent glow effect for dark mode */
+  .sweet-glow-accent {
+    text-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+  }
+  .sweet-glow-cta {
+    box-shadow: 0 0 16px rgba(139, 92, 246, 0.25);
+  }
+
+  /* UI/UX Pro Max: CTA button with purple accent */
+  .btn-cta {
+    background: var(--sweet-cta);
+    color: #fff;
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-weight: 600;
+    font-family: var(--sweet-font-body);
+    transition: all 200ms ease;
+    cursor: pointer;
+    border: none;
+  }
+  .btn-cta:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(139, 92, 246, 0.3);
   }
 
   /* No-scrollbar utility */
