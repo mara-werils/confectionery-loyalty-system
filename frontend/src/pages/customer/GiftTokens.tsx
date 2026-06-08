@@ -13,7 +13,7 @@ import {
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
-import confetti from 'canvas-confetti';
+
 import toast from 'react-hot-toast';
 
 /* ─── tiny helpers ──────────────────────────────────────────────────────── */
@@ -82,7 +82,6 @@ export default function GiftTokens() {
     mutationFn: () => api.gift.send(address, Number(amount), message || undefined),
     onSuccess: () => {
       setSweetBalance(Math.max(0, sweetBalance - Number(amount)));
-      confetti({ particleCount: 120, spread: 70, origin: { y: 0.55 } });
       toast.success(t('gift.sent') || `Sent ${amount} SWEET!`);
       setSent(true);
       setAddress('');
@@ -94,7 +93,6 @@ export default function GiftTokens() {
     onError: () => {
       // Demo mode fallback
       setSweetBalance(Math.max(0, sweetBalance - Number(amount)));
-      confetti({ particleCount: 120, spread: 70, origin: { y: 0.55 } });
       toast.success(t('gift.sent') || `Sent ${amount} SWEET!`);
       setSent(true);
       setAddress('');
@@ -364,7 +362,7 @@ export default function GiftTokens() {
           type="text"
           value={message}
           onChange={e => setMessage(e.target.value)}
-          placeholder={t('gift.messagePlaceholder') || 'Happy birthday! 🎉'}
+          placeholder={t('gift.messagePlaceholder') || 'Add a message (optional)'}
           maxLength={200}
           className="w-full rounded-2xl px-4 py-3 text-sm"
           style={{

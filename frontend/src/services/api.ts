@@ -44,7 +44,11 @@ axiosInstance.interceptors.response.use(
       window.location.href = '/';
     }
 
-    return Promise.reject(new Error(message));
+    // Preserve status and server message so callers can branch on them
+    const enriched: Error & { status?: number; serverMessage?: string } = new Error(message);
+    enriched.status = error.response?.status;
+    enriched.serverMessage = message;
+    return Promise.reject(enriched);
   }
 );
 

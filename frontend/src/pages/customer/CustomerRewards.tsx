@@ -16,7 +16,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { useAuthStore } from '../../store/authStore';
 import { useTonWallet } from '@tonconnect/ui-react';
 import toast from 'react-hot-toast';
-import confetti from 'canvas-confetti';
+
 import { api } from '../../services/api';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -211,21 +211,20 @@ export default function CustomerRewards() {
       setSweetBalance(Math.max(0, sweetBalance - reward.pointsRequired));
       addCoupon({ code, rewardTitleKey: reward.titleKey, partnerName: partner.name });
       setSheet({ code, reward, partner, expiresAt, daysLeft });
-      confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
     } catch (err: unknown) {
       let message = t('rewards.claimError') || 'Error issuing coupon';
       if (err && typeof err === 'object') {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const axiosErr = err as any;
-        const serverMsg = axiosErr?.response?.data?.message || axiosErr?.response?.data?.error;
-        const status = axiosErr?.response?.status;
+        const e = err as any;
+        const status = e.status ?? e?.response?.status;
+        const serverMsg = e.serverMessage ?? e?.response?.data?.message ?? e?.response?.data?.error;
         if (status === 400 && serverMsg?.toLowerCase().includes('balance')) {
           message = t('rewards.notEnoughSweet') || 'Insufficient SWEET balance';
         } else if (status === 401 || status === 403) {
           message = 'Session expired — please log in again';
         } else if (serverMsg) {
           message = serverMsg;
-        } else if (axiosErr?.message === 'Network Error') {
+        } else if (e?.message === 'Network Error') {
           message = 'Cannot reach server — check your connection';
         }
       }
