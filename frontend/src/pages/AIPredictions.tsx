@@ -121,10 +121,10 @@ function RiskGauge({ score, level }: { score: number; level: RiskLevel }) {
 function ForecastTooltip({ active, payload, label }: { active?: boolean; payload?: { value: number; name: string }[]; label?: string }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-stone-900 border border-stone-700 rounded-lg px-3 py-2 text-xs shadow-xl">
-      <p className="text-stone-400 mb-1">{label}</p>
+    <div className="rounded-lg px-3 py-2 text-xs shadow-xl" style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)' }}>
+      <p className="mb-1" style={{ color: 'var(--sweet-text-muted)' }}>{label}</p>
       {payload.map((p) => (
-        <p key={p.name} className="text-white font-semibold">
+        <p key={p.name} className="font-semibold" style={{ color: 'var(--sweet-text)' }}>
           {p.name === 'actual' ? 'Факт' : 'Прогноз'}: {Number(p.value).toLocaleString()} KZT
         </p>
       ))}
@@ -135,7 +135,7 @@ function ForecastTooltip({ active, payload, label }: { active?: boolean; payload
 // ─── Skeleton ────────────────────────────────────────────────────────────────
 
 function Skeleton({ className }: { className?: string }) {
-  return <div className={`animate-pulse rounded-xl bg-stone-800 ${className ?? ''}`} />;
+  return <div className={`animate-pulse rounded-xl ${className ?? ''}`} style={{ background: 'var(--sweet-border)' }} />;
 }
 
 // ─── Main Component ──────────────────────────────────────────────────────────
@@ -169,8 +169,8 @@ export default function AIPredictions() {
         animate={{ opacity: 1, y: 0 }}
         className="space-y-1"
       >
-        <h1 className="text-2xl font-bold text-white tracking-tight">{t('ai.title')}</h1>
-        <p className="text-xs text-stone-500">
+        <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--sweet-text)' }}>{t('ai.title')}</h1>
+        <p className="text-xs" style={{ color: 'var(--sweet-text-muted)' }}>
           {t('ai.subtitle')}
         </p>
       </motion.div>
@@ -190,7 +190,7 @@ export default function AIPredictions() {
           ].map(item => (
             <div key={item.label} className={`border rounded-xl p-3 text-center ${item.bg}`}>
               <p className={`text-2xl font-black ${item.color}`}>{item.count}</p>
-              <p className="text-[10px] text-stone-500 font-medium mt-0.5">{item.label}</p>
+              <p className="text-[10px] font-medium mt-0.5" style={{ color: 'var(--sweet-text-muted)' }}>{item.label}</p>
             </div>
           ))}
         </motion.div>
@@ -199,8 +199,8 @@ export default function AIPredictions() {
       {/* ── Churn Risk Section ── */}
       <section className="space-y-3">
         <div className="flex items-center gap-2">
-          <ExclamationTriangleIcon className="w-4 h-4 text-stone-500" />
-          <h2 className="text-sm font-semibold text-stone-300">{t('ai.churnTitle')}</h2>
+          <ExclamationTriangleIcon className="w-4 h-4" style={{ color: 'var(--sweet-text-muted)' }} />
+          <h2 className="text-sm font-semibold" style={{ color: 'var(--sweet-text)' }}>{t('ai.churnTitle')}</h2>
         </div>
 
         {churnLoading ? (
@@ -208,9 +208,9 @@ export default function AIPredictions() {
             {[1, 2, 3].map(i => <Skeleton key={i} className="h-28" />)}
           </div>
         ) : churnData.length === 0 ? (
-          <div className="bg-stone-900 border border-stone-800 rounded-xl p-6 text-center">
+          <div className="rounded-xl p-6 text-center" style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)' }}>
             <CheckCircleIcon className="w-8 h-8 text-green-400 mx-auto mb-2" />
-            <p className="text-sm text-stone-400">{t('ai.noPartners')}</p>
+            <p className="text-sm" style={{ color: 'var(--sweet-text-secondary)' }}>{t('ai.noPartners')}</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -222,14 +222,14 @@ export default function AIPredictions() {
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.06 }}
-                  className={`bg-stone-900 border ${cfg.border} rounded-xl p-4 space-y-3`}
+                  className={`border ${cfg.border} rounded-xl p-4 space-y-3`} style={{ background: 'var(--sweet-card)' }}
                 >
                   {/* Top row */}
                   <div className="flex items-start gap-3">
                     <RiskGauge score={partner.riskScore} level={partner.riskLevel} />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <p className="text-sm font-bold text-white truncate">{partner.companyName}</p>
+                        <p className="text-sm font-bold truncate" style={{ color: 'var(--sweet-text)' }}>{partner.companyName}</p>
                         <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${TIER_BADGE[partner.tier]}`}>
                           {partner.tier}
                         </span>
@@ -245,8 +245,8 @@ export default function AIPredictions() {
                           { label: 'Спад част.', value: `${partner.signals.frequencyDrop}%` },
                         ].map(s => (
                           <div key={s.label}>
-                            <p className="text-[9px] text-stone-600 uppercase tracking-wide">{s.label}</p>
-                            <p className="text-xs font-semibold text-stone-300">{s.value}</p>
+                            <p className="text-[9px] uppercase tracking-wide" style={{ color: 'var(--sweet-text-faint)' }}>{s.label}</p>
+                            <p className="text-xs font-semibold" style={{ color: 'var(--sweet-text-secondary)' }}>{s.value}</p>
                           </div>
                         ))}
                       </div>
@@ -255,8 +255,8 @@ export default function AIPredictions() {
 
                   {/* Recommendation pill */}
                   <div className={`rounded-lg px-3 py-2 text-xs ${cfg.bg} border ${cfg.border}`}>
-                    <span className="text-stone-400">{t('ai.recommendation')}: </span>
-                    <span className="text-stone-200">{partner.recommendation}</span>
+                    <span style={{ color: 'var(--sweet-text-muted)' }}>{t('ai.recommendation')}: </span>
+                    <span style={{ color: 'var(--sweet-text)' }}>{partner.recommendation}</span>
                   </div>
                 </motion.div>
               );
@@ -268,14 +268,14 @@ export default function AIPredictions() {
       {/* ── Revenue Forecast Section ── */}
       <section className="space-y-3">
         <div className="flex items-center gap-2">
-          <ChartBarIcon className="w-4 h-4 text-stone-500" />
-          <h2 className="text-sm font-semibold text-stone-300">{t('ai.forecastTitle')}</h2>
+          <ChartBarIcon className="w-4 h-4" style={{ color: 'var(--sweet-text-muted)' }} />
+          <h2 className="text-sm font-semibold" style={{ color: 'var(--sweet-text)' }}>{t('ai.forecastTitle')}</h2>
         </div>
 
         {forecastLoading ? (
           <Skeleton className="h-64" />
         ) : !forecast ? (
-          <div className="bg-stone-900 border border-stone-800 rounded-xl p-6 text-center text-stone-500 text-sm">
+          <div className="rounded-xl p-6 text-center text-sm" style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)', color: 'var(--sweet-text-muted)' }}>
             {t('ai.noForecastData')}
           </div>
         ) : (
@@ -283,18 +283,18 @@ export default function AIPredictions() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-stone-900 border border-stone-800 rounded-xl p-4 space-y-4"
+            className="rounded-xl p-4 space-y-4" style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)' }}
           >
             {/* KPI row */}
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <p className="text-[10px] text-stone-500 uppercase tracking-wide">{t('ai.forecast')}</p>
-                <p className="text-base font-black text-white mt-0.5">
-                  {forecast.totalForecast30Days.toLocaleString()} <span className="text-xs font-normal text-stone-500">KZT</span>
+                <p className="text-[10px] uppercase tracking-wide" style={{ color: 'var(--sweet-text-muted)' }}>{t('ai.forecast')}</p>
+                <p className="text-base font-black mt-0.5" style={{ color: 'var(--sweet-text)' }}>
+                  {forecast.totalForecast30Days.toLocaleString()} <span className="text-xs font-normal" style={{ color: 'var(--sweet-text-muted)' }}>KZT</span>
                 </p>
               </div>
               <div>
-                <p className="text-[10px] text-stone-500 uppercase tracking-wide">{t('ai.trend')}</p>
+                <p className="text-[10px] uppercase tracking-wide" style={{ color: 'var(--sweet-text-muted)' }}>{t('ai.trend')}</p>
                 <div className="flex items-center gap-1 mt-0.5">
                   {forecast.trend === 'up' && <ArrowTrendingUpIcon className="w-4 h-4 text-green-400" />}
                   {forecast.trend === 'down' && <ArrowTrendingDownIcon className="w-4 h-4 text-red-400" />}
@@ -308,9 +308,9 @@ export default function AIPredictions() {
                 </div>
               </div>
               <div>
-                <p className="text-[10px] text-stone-500 uppercase tracking-wide">{t('ai.confidence')}</p>
+                <p className="text-[10px] uppercase tracking-wide" style={{ color: 'var(--sweet-text-muted)' }}>{t('ai.confidence')}</p>
                 <div className="flex items-center gap-1.5 mt-1">
-                  <div className="flex-1 h-1.5 bg-stone-800 rounded-full overflow-hidden">
+                  <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--sweet-border)' }}>
                     <div
                       className="h-full bg-amber-500 rounded-full transition-all duration-1000"
                       style={{ width: `${forecast.confidence}%` }}
@@ -373,16 +373,16 @@ export default function AIPredictions() {
             <div className="flex items-center gap-4 justify-center">
               <div className="flex items-center gap-1.5">
                 <div className="w-4 h-0.5 bg-amber-400 rounded" />
-                <span className="text-[10px] text-stone-500">{t('ai.actualRevenue')}</span>
+                <span className="text-[10px]" style={{ color: 'var(--sweet-text-muted)' }}>{t('ai.actualRevenue')}</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-4 h-0.5 bg-stone-500 rounded" style={{ backgroundImage: 'repeating-linear-gradient(90deg,#78716c 0,#78716c 5px,transparent 5px,transparent 8px)' }} />
-                <span className="text-[10px] text-stone-500">{t('ai.aiForecast')}</span>
+                <div className="w-4 h-0.5 rounded" style={{ background: '#78716c', backgroundImage: 'repeating-linear-gradient(90deg,#78716c 0,#78716c 5px,transparent 5px,transparent 8px)' }} />
+                <span className="text-[10px]" style={{ color: 'var(--sweet-text-muted)' }}>{t('ai.aiForecast')}</span>
               </div>
             </div>
 
             {/* Model note */}
-            <p className="text-[10px] text-stone-600 text-center">
+            <p className="text-[10px] text-center" style={{ color: 'var(--sweet-text-faint)' }}>
               {t('ai.modelNote')}
             </p>
           </motion.div>
@@ -392,8 +392,8 @@ export default function AIPredictions() {
       {/* ── Smart Recommendations Section ── */}
       <section className="space-y-3">
         <div className="flex items-center gap-2">
-          <GiftIcon className="w-4 h-4 text-stone-500" />
-          <h2 className="text-sm font-semibold text-stone-300">{t('ai.recsTitle')}</h2>
+          <GiftIcon className="w-4 h-4" style={{ color: 'var(--sweet-text-muted)' }} />
+          <h2 className="text-sm font-semibold" style={{ color: 'var(--sweet-text)' }}>{t('ai.recsTitle')}</h2>
         </div>
 
         {recsLoading ? (
@@ -417,7 +417,7 @@ export default function AIPredictions() {
             )}
 
             {recs.length === 0 ? (
-              <div className="bg-stone-900 border border-stone-800 rounded-xl p-6 text-center text-stone-500 text-sm">
+              <div className="rounded-xl p-6 text-center text-sm" style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)', color: 'var(--sweet-text-muted)' }}>
                 {t('ai.noRecs')}
               </div>
             ) : (
@@ -428,27 +428,27 @@ export default function AIPredictions() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.08 }}
-                    className="bg-stone-900 border border-stone-800/80 rounded-xl p-4"
+                    className="rounded-xl p-4" style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)' }}
                   >
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-stone-800 flex items-center justify-center text-xl flex-shrink-0">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0" style={{ background: 'var(--sweet-border)' }}>
                         {CATEGORY_ICON[rec.category] ?? '🎁'}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2">
-                          <p className="text-sm font-semibold text-white truncate">{rec.title}</p>
+                          <p className="text-sm font-semibold truncate" style={{ color: 'var(--sweet-text)' }}>{rec.title}</p>
                           <span className="text-xs font-bold text-amber-400 flex-shrink-0">
                             {rec.pointsRequired.toLocaleString()} pts
                           </span>
                         </div>
-                        <p className="text-xs text-stone-500 mt-0.5">{rec.reason}</p>
+                        <p className="text-xs mt-0.5" style={{ color: 'var(--sweet-text-muted)' }}>{rec.reason}</p>
                       </div>
                     </div>
 
                     {/* Relevance bar */}
                     <div className="mt-3 flex items-center gap-2">
-                      <span className="text-[10px] text-stone-600 w-16">{t('ai.relevance')}</span>
-                      <div className="flex-1 h-1.5 bg-stone-800 rounded-full overflow-hidden">
+                      <span className="text-[10px] w-16" style={{ color: 'var(--sweet-text-faint)' }}>{t('ai.relevance')}</span>
+                      <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--sweet-border)' }}>
                         <motion.div
                           className="h-full bg-amber-500 rounded-full"
                           initial={{ width: 0 }}
@@ -456,7 +456,7 @@ export default function AIPredictions() {
                           transition={{ delay: 0.3 + i * 0.1, duration: 0.8, ease: 'easeOut' }}
                         />
                       </div>
-                      <span className="text-[10px] font-bold text-stone-400 w-8 text-right">{rec.score}%</span>
+                      <span className="text-[10px] font-bold w-8 text-right" style={{ color: 'var(--sweet-text-secondary)' }}>{rec.score}%</span>
                     </div>
                   </motion.div>
                 ))}
