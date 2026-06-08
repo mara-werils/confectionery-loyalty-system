@@ -79,7 +79,7 @@ const RISK_CONFIG: Record<RiskLevel, { label: string; color: string; bg: string;
 
 const TIER_BADGE: Record<string, string> = {
   GOLD:   'text-amber-400 bg-amber-400/10 border border-amber-400/20',
-  SILVER: 'text-stone-300 bg-stone-400/10 border border-stone-400/20',
+  SILVER: 'text-stone-500 bg-stone-400/10 border border-stone-400/20',
   BRONZE: 'text-orange-400 bg-orange-400/10 border border-orange-400/20',
 };
 
@@ -411,7 +411,7 @@ export default function AIPredictions() {
               >
                 <div className="flex items-start gap-2">
                   <BoltIcon className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
-                  <p className="text-xs text-amber-300">{personalizedMsg}</p>
+                  <p className="text-xs text-amber-600">{personalizedMsg}</p>
                 </div>
               </motion.div>
             )}
