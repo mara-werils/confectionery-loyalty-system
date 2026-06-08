@@ -18,21 +18,66 @@ This project implements a complete loyalty system for confectionery businesses (
 - **Real-time Updates**: WebSocket notifications for instant feedback
 - **Tier System**: Bronze, Silver, Gold tiers with increasing benefits
 
-### Architecture
+## Tech Stack
 
-```
+### Backend
+- Node.js
+- TypeScript
+- Express.js
+- PostgreSQL
+- Prisma ORM
+- Redis
 
- Frontend Backend PostgreSQL
- (Telegram Mini (Express.js) Database
- App)
+### Frontend
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- TonConnect UI
 
+### Blockchain Layer
+- FunC
+- TON Core
+- TON Blueprint
 
+### DevOps
+- Vercel Deployment
+- Docker
+- Docker Compose
+- GitHub Actions
 
+---
 
+## Architecture
 
- TonConnect TON Blockchain
- (Wallet) (Smart Contracts
-
+```text
+┌─────────────────────┐
+│ Telegram Mini App   │
+│ (React + Vite)      │
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│ TonConnect Wallet   │
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│ TON Blockchain      │
+│ Smart Contracts     │
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│ Backend API         │
+│ (Express.js)        │
+└───────┬─────┬───────┘
+        │     │
+        ▼     ▼
+ ┌─────────┐ ┌─────────┐
+ │Redis    │ │PostgreSQL│
+ │Cache    │ │Database  │
+ └─────────┘ └─────────┘
 ```
 
 ## Quick Start
