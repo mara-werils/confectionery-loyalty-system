@@ -37,179 +37,557 @@ export default function Blockchain() {
 
   const getStatusIcon = (state: string) => {
     switch (state) {
-      case 'active': return <CheckCircleIcon className="w-4 h-4 text-green-500" />;
-      case 'uninitialized': return <BeakerIcon className="w-4 h-4 text-yellow-500" />;
-      default: return <XCircleIcon className="w-4 h-4 text-red-500" />;
+      case 'active': return <CheckCircleIcon style={{ width: 14, height: 14, color: '#34d399' }} />;
+      case 'uninitialized': return <BeakerIcon style={{ width: 14, height: 14, color: '#fbbf24' }} />;
+      default: return <XCircleIcon style={{ width: 14, height: 14, color: '#f87171' }} />;
     }
   };
 
+  const getStatusBadgeStyle = (state: string): React.CSSProperties => {
+    switch (state) {
+      case 'active':
+        return {
+          color: '#34d399',
+          background: 'rgba(52,211,153,0.10)',
+          border: '1px solid rgba(52,211,153,0.22)',
+        };
+      case 'uninitialized':
+        return {
+          color: '#fbbf24',
+          background: 'rgba(251,191,36,0.10)',
+          border: '1px solid rgba(251,191,36,0.22)',
+        };
+      default:
+        return {
+          color: '#f87171',
+          background: 'rgba(248,113,113,0.10)',
+          border: '1px solid rgba(248,113,113,0.22)',
+        };
+    }
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: { delay: 0.15 + i * 0.07, duration: 0.38, ease: [0.22, 1, 0.36, 1] },
+    }),
+  };
+
+  const sectionLabel = (text: string) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+      <div style={{ width: '3px', height: '14px', borderRadius: '2px', background: 'var(--sweet-accent)', flexShrink: 0 }} />
+      <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--sweet-text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase' as const }}>
+        {text}
+      </span>
+    </div>
+  );
+
   return (
-    <div className="min-h-screen p-4 md:p-8 space-y-8 pb-32 text-stone-100 font-sans bg-[#0d0b0a]">
-      {/* Header */}
-      <div className="border-b border-stone-800/80 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4 mt-4">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-white">
+    <div
+      style={{
+        minHeight: '100vh',
+        background: 'var(--sweet-bg)',
+        padding: '16px 16px 120px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '20px',
+        fontFamily: 'inherit',
+      }}
+    >
+      {/* ── Header ─────────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        style={{
+          borderBottom: '1px solid var(--sweet-border)',
+          paddingBottom: '20px',
+          paddingTop: '8px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px',
+        }}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <h1
+            style={{
+              fontSize: '26px',
+              fontWeight: 700,
+              color: 'var(--sweet-text)',
+              letterSpacing: '-0.03em',
+              margin: 0,
+            }}
+          >
             {t('blockchain.title') || 'Smart Contracts Observer'}
           </h1>
-          <p className="text-stone-400 mt-1.5 text-sm flex items-center gap-2">
-            API Node: <span className="font-mono text-xs bg-stone-900 px-1.5 py-0.5 rounded border border-stone-800">testnet.toncenter.com</span>
+          <p style={{ fontSize: '13px', color: 'var(--sweet-text-muted)', margin: 0, display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' as const }}>
+            API Node:
+            <span
+              style={{
+                fontFamily: 'monospace',
+                fontSize: '11px',
+                background: 'var(--sweet-input)',
+                padding: '2px 8px',
+                borderRadius: '6px',
+                border: '1px solid var(--sweet-border)',
+                color: 'var(--sweet-text-secondary)',
+              }}
+            >
+              testnet.toncenter.com
+            </span>
           </p>
         </div>
-        <div className="flex items-center gap-2">
+
+        {/* Connection status pill */}
+        <div>
           {loading ? (
-            <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-stone-900 border border-stone-800 text-xs font-medium text-stone-500">
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '5px 12px',
+                borderRadius: '999px',
+                background: 'var(--sweet-input)',
+                border: '1px solid var(--sweet-border)',
+                fontSize: '12px',
+                fontWeight: 500,
+                color: 'var(--sweet-text-muted)',
+              }}
+            >
               Syncing...
-              <span className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse"></span>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#fbbf24', display: 'inline-block', animation: 'pulse 1.5s ease-in-out infinite' }} />
             </span>
           ) : Object.values(contractStates).some(s => s?.state === 'active') ? (
-            <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-stone-900 border border-stone-800 text-xs font-medium text-stone-300">
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '5px 12px',
+                borderRadius: '999px',
+                background: 'rgba(52,211,153,0.08)',
+                border: '1px solid rgba(52,211,153,0.20)',
+                fontSize: '12px',
+                fontWeight: 500,
+                color: '#34d399',
+              }}
+            >
               {t('blockchain.connected') || 'Node Connected'}
-              <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#34d399', display: 'inline-block' }} />
             </span>
           ) : (
-            <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-stone-900 border border-red-900/40 text-xs font-medium text-red-400">
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '5px 12px',
+                borderRadius: '999px',
+                background: 'rgba(248,113,113,0.08)',
+                border: '1px solid rgba(248,113,113,0.20)',
+                fontSize: '12px',
+                fontWeight: 500,
+                color: '#f87171',
+              }}
+            >
               Node Unreachable
-              <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#f87171', display: 'inline-block' }} />
             </span>
           )}
         </div>
-      </div>
+      </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Network Overview */}
-         <div className="bg-stone-900 border border-stone-800/80 rounded-xl p-6 shadow-sm">
-            <h3 className="text-sm font-medium text-stone-400 mb-4 tracking-tight">{t('blockchain.networkStatus') || 'Current Ledger Status'}</h3>
-            <div className="space-y-4">
-               <div>
-                  <p className="text-xs text-stone-500 uppercase tracking-wider mb-1">State</p>
-                  <p className="text-white font-medium">{t('blockchain.operational') || 'Operational'}</p>
-               </div>
-               <div>
-                  <p className="text-xs text-stone-500 uppercase tracking-wider mb-1">Connected Wallet Configuration</p>
-                  {wallet ? (
-                     <p className="text-sm font-mono text-stone-300 bg-stone-950 px-3 py-2 rounded-lg border border-stone-800 block break-all">
-                        {wallet.account.address}
-                     </p>
-                  ) : (
-                     <p className="text-sm text-yellow-500/90">{t('blockchain.walletNotConnected') || 'Not Authenticated'}</p>
-                  )}
-               </div>
+      {/* ── Overview grid ─────────────────────── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
+
+        {/* Network Overview card */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+          style={{
+            background: 'var(--sweet-card)',
+            border: '1px solid var(--sweet-border)',
+            borderRadius: '16px',
+            padding: '20px',
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: '20%',
+              right: '20%',
+              height: '1px',
+              background: 'linear-gradient(90deg, transparent, var(--sweet-accent), transparent)',
+              opacity: 0.25,
+            }}
+          />
+          {sectionLabel(t('blockchain.networkStatus') || 'Current Ledger Status')}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div>
+              <p style={{ fontSize: '10px', color: 'var(--sweet-text-faint)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '4px', margin: '0 0 4px' }}>State</p>
+              <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--sweet-text)', margin: 0 }}>{t('blockchain.operational') || 'Operational'}</p>
             </div>
-         </div>
+            <div>
+              <p style={{ fontSize: '10px', color: 'var(--sweet-text-faint)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '4px', margin: '0 0 6px' }}>
+                Connected Wallet Configuration
+              </p>
+              {wallet ? (
+                <p
+                  style={{
+                    fontSize: '12px',
+                    fontFamily: 'monospace',
+                    color: 'var(--sweet-text-secondary)',
+                    background: 'var(--sweet-input)',
+                    padding: '10px 12px',
+                    borderRadius: '10px',
+                    border: '1px solid var(--sweet-border)',
+                    margin: 0,
+                    wordBreak: 'break-all',
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {wallet.account.address}
+                </p>
+              ) : (
+                <p style={{ fontSize: '13px', color: '#fbbf24', margin: 0 }}>{t('blockchain.walletNotConnected') || 'Not Authenticated'}</p>
+              )}
+            </div>
+          </div>
+        </motion.div>
 
-        {/* Jetton Data Showcase */}
+        {/* Jetton Data card */}
         {tokenData ? (
-          <div className="bg-stone-900 border border-stone-800/80 rounded-xl p-6 shadow-sm">
-            <div className="flex items-center gap-2 mb-4">
-              <h3 className="text-sm font-medium text-stone-400 tracking-tight">{t('blockchain.jettonState') || 'Loyalty Jetton Parameters'}</h3>
-            </div>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-6">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.17, duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+            style={{
+              background: 'var(--sweet-card)',
+              border: '1px solid var(--sweet-border)',
+              borderRadius: '16px',
+              padding: '20px',
+              position: 'relative',
+              overflow: 'hidden',
+            }}
+          >
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: '20%',
+                right: '20%',
+                height: '1px',
+                background: 'linear-gradient(90deg, transparent, var(--sweet-accent), transparent)',
+                opacity: 0.25,
+              }}
+            />
+            {sectionLabel(t('blockchain.jettonState') || 'Loyalty Jetton Parameters')}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px 20px' }}>
               <div>
-                <p className="text-xs text-stone-500 uppercase tracking-wider mb-1">{t('blockchain.totalSupply') || 'Max Supply'}</p>
-                <p className="text-lg font-medium font-mono text-stone-100">{tokenData.totalSupply}</p>
+                <p style={{ fontSize: '10px', color: 'var(--sweet-text-faint)', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px' }}>
+                  {t('blockchain.totalSupply') || 'Max Supply'}
+                </p>
+                <p style={{ fontSize: '18px', fontWeight: 600, fontFamily: 'monospace', color: 'var(--sweet-text)', margin: 0, fontVariantNumeric: 'tabular-nums' }}>
+                  {tokenData.totalSupply}
+                </p>
               </div>
               <div>
-                <p className="text-xs text-stone-500 uppercase tracking-wider mb-1">{t('blockchain.mintable') || 'Mintable'}</p>
-                <p className="text-sm font-medium text-stone-100 mt-1">{tokenData.mintable ? t('blockchain.yes') : t('blockchain.no')}</p>
+                <p style={{ fontSize: '10px', color: 'var(--sweet-text-faint)', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px' }}>
+                  {t('blockchain.mintable') || 'Mintable'}
+                </p>
+                <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--sweet-text)', margin: '4px 0 0' }}>
+                  {tokenData.mintable ? t('blockchain.yes') : t('blockchain.no')}
+                </p>
               </div>
-              <div className="col-span-2">
-                <p className="text-xs text-stone-500 uppercase tracking-wider mb-1">{t('blockchain.adminAddress') || 'Owner / Admin'}</p>
-                <p className="text-sm border border-stone-800 bg-stone-950 font-mono py-2 px-3 rounded-lg text-stone-300 truncate">
+              <div style={{ gridColumn: '1 / -1' }}>
+                <p style={{ fontSize: '10px', color: 'var(--sweet-text-faint)', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 6px' }}>
+                  {t('blockchain.adminAddress') || 'Owner / Admin'}
+                </p>
+                <p
+                  style={{
+                    fontSize: '11px',
+                    fontFamily: 'monospace',
+                    color: 'var(--sweet-text-secondary)',
+                    background: 'var(--sweet-input)',
+                    padding: '10px 12px',
+                    borderRadius: '10px',
+                    border: '1px solid var(--sweet-border)',
+                    margin: 0,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
                   {tokenData.adminAddress}
                 </p>
               </div>
             </div>
-          </div>
+          </motion.div>
         ) : (
-          <div className="bg-stone-900 border border-stone-800/80 rounded-xl p-6 shadow-sm flex items-center justify-center min-h-[220px]">
-            <div className="animate-pulse bg-stone-800 h-8 w-24 rounded-md" />
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.17, duration: 0.38 }}
+            style={{
+              background: 'var(--sweet-card)',
+              border: '1px solid var(--sweet-border)',
+              borderRadius: '16px',
+              padding: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: '200px',
+            }}
+          >
+            <div className="skeleton" style={{ height: 28, width: 100, borderRadius: '8px' }} />
+          </motion.div>
         )}
       </div>
 
-      {/* Smart Contracts Grid */}
+      {/* ── Deployed Smart Contracts ──────────── */}
       <div>
-         <h2 className="text-lg font-semibold mt-4 mb-4 text-white flex items-center gap-2">
-            <CodeBracketSquareIcon className="w-5 h-5 text-stone-500" />
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.22, duration: 0.35 }}
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}
+        >
+          <div
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: '9px',
+              background: 'var(--sweet-accent-dim)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <CodeBracketSquareIcon style={{ width: 16, height: 16, color: 'var(--sweet-accent)' }} />
+          </div>
+          <h2
+            style={{
+              fontSize: '16px',
+              fontWeight: 700,
+              color: 'var(--sweet-text)',
+              letterSpacing: '-0.01em',
+              margin: 0,
+            }}
+          >
             {t('blockchain.deployedContracts') || 'Deployed Smart Contracts'}
-         </h2>
-         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {Object.entries(CONTRACT_ADDRESSES).map(([key, address], index) => {
-               const state = contractStates[key];
-               const isLoading = loading && !state;
-               const nameMap: Record<string, string> = {
-               loyaltyToken: t('blockchain.contracts.loyaltyToken') || 'Loyalty Token Root',
-               partnerRegistry: t('blockchain.contracts.partnerRegistry') || 'Partner Master Registry',
-               redemptionManager: t('blockchain.contracts.redemptionManager') || 'Redemption Vault',
-               revenueDistribution: t('blockchain.contracts.revenueDistribution') || 'Treasury Distributor',
-               };
+          </h2>
+        </motion.div>
 
-               return (
-               <motion.div
-                  key={key}
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="bg-stone-900 border border-stone-800/80 rounded-xl p-5 shadow-sm"
-               >
-                  <div className="flex justify-between items-start mb-4 border-b border-stone-800/50 pb-4">
-                     <div>
-                        <h3 className="font-semibold text-stone-100">{nameMap[key]}</h3>
-                        <p className="text-xs text-stone-500 mt-0.5 font-mono">{key}.fc</p>
-                     </div>
-                     {isLoading ? (
-                        <div className="animate-pulse bg-stone-800 h-5 w-16 rounded-md" />
-                     ) : (
-                        <div className="flex items-center gap-1.5 bg-stone-950 border border-stone-800 px-2 py-1 rounded text-xs text-stone-300">
-                           {getStatusIcon(state.state)}
-                           <span className="capitalize">{state.state}</span>
-                        </div>
-                     )}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {Object.entries(CONTRACT_ADDRESSES).map(([key, address], index) => {
+            const state = contractStates[key];
+            const isLoading = loading && !state;
+            const nameMap: Record<string, string> = {
+              loyaltyToken: t('blockchain.contracts.loyaltyToken') || 'Loyalty Token Root',
+              partnerRegistry: t('blockchain.contracts.partnerRegistry') || 'Partner Master Registry',
+              redemptionManager: t('blockchain.contracts.redemptionManager') || 'Redemption Vault',
+              revenueDistribution: t('blockchain.contracts.revenueDistribution') || 'Treasury Distributor',
+            };
+
+            return (
+              <motion.div
+                key={key}
+                custom={index}
+                variants={cardVariants}
+                initial="hidden"
+                animate="visible"
+                style={{
+                  background: 'var(--sweet-card)',
+                  border: '1px solid var(--sweet-border)',
+                  borderRadius: '16px',
+                  padding: '18px',
+                  position: 'relative',
+                  overflow: 'hidden',
+                }}
+              >
+                {/* Accent shimmer line */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: '15%',
+                    right: '15%',
+                    height: '1px',
+                    background: 'linear-gradient(90deg, transparent, var(--sweet-accent), transparent)',
+                    opacity: 0.2,
+                  }}
+                />
+
+                {/* Card header */}
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                    marginBottom: '16px',
+                    paddingBottom: '14px',
+                    borderBottom: '1px solid var(--sweet-border)',
+                  }}
+                >
+                  <div>
+                    <h3 style={{ fontWeight: 600, fontSize: '14px', color: 'var(--sweet-text)', margin: '0 0 3px' }}>
+                      {nameMap[key]}
+                    </h3>
+                    <p style={{ fontSize: '11px', color: 'var(--sweet-text-faint)', fontFamily: 'monospace', margin: 0 }}>
+                      {key}.fc
+                    </p>
                   </div>
 
-                  <div className="space-y-4">
-                     <div>
-                        <p className="text-xs text-stone-500 uppercase tracking-wider mb-1.5">{t('blockchain.contractAddress') || 'Compiled Hash Address'}</p>
-                        <p className="font-mono text-xs text-stone-300 bg-stone-950 px-3 py-2 rounded-lg border border-stone-800 break-all mb-2">
-                          {address}
-                        </p>
-                        <div className="flex gap-2">
-                          <a
-                            href={`https://testnet.tonscan.org/address/${address}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="flex items-center gap-1 px-2.5 py-1.5 rounded-md bg-stone-800 hover:bg-stone-700 border border-stone-700 text-xs text-stone-300 hover:text-white transition-colors"
-                          >
-                            <ArrowTopRightOnSquareIcon className="w-3.5 h-3.5" />
-                            Tonscan
-                          </a>
-                          <a
-                            href={`https://testnet.tonviewer.com/${address}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="flex items-center gap-1 px-2.5 py-1.5 rounded-md bg-stone-800 hover:bg-stone-700 border border-stone-700 text-xs text-stone-300 hover:text-white transition-colors"
-                          >
-                            <ArrowTopRightOnSquareIcon className="w-3.5 h-3.5" />
-                            Tonviewer
-                          </a>
-                        </div>
-                     </div>
+                  {isLoading ? (
+                    <div className="skeleton" style={{ height: 24, width: 70, borderRadius: '8px' }} />
+                  ) : (
+                    <div
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        padding: '4px 10px',
+                        borderRadius: '999px',
+                        fontSize: '11px',
+                        fontWeight: 500,
+                        ...getStatusBadgeStyle(state.state),
+                      }}
+                    >
+                      {getStatusIcon(state.state)}
+                      <span style={{ textTransform: 'capitalize' }}>{state.state}</span>
+                    </div>
+                  )}
+                </div>
 
-                     <div>
-                        <p className="text-xs text-stone-500 uppercase tracking-wider mb-1.5">{t('blockchain.tonBalance') || 'Locked TON Balance'}</p>
-                        {isLoading ? (
-                        <div className="animate-pulse bg-stone-800 h-5 w-20 rounded-md" />
-                        ) : (
-                        <p className="font-mono text-sm text-stone-200">
-                           {state.balance} <span className="text-stone-500">TON</span>
-                        </p>
-                        )}
-                     </div>
+                {/* Card body */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <div>
+                    <p
+                      style={{
+                        fontSize: '10px',
+                        color: 'var(--sweet-text-faint)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.08em',
+                        margin: '0 0 6px',
+                      }}
+                    >
+                      {t('blockchain.contractAddress') || 'Compiled Hash Address'}
+                    </p>
+                    <p
+                      style={{
+                        fontFamily: 'monospace',
+                        fontSize: '11px',
+                        color: 'var(--sweet-text-secondary)',
+                        background: 'var(--sweet-input)',
+                        padding: '10px 12px',
+                        borderRadius: '10px',
+                        border: '1px solid var(--sweet-border)',
+                        wordBreak: 'break-all',
+                        margin: '0 0 10px',
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      {address}
+                    </p>
+
+                    {/* Explorer buttons */}
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <a
+                        href={`https://testnet.tonscan.org/address/${address}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '5px',
+                          padding: '6px 12px',
+                          borderRadius: '8px',
+                          background: 'var(--sweet-input)',
+                          border: '1px solid var(--sweet-border)',
+                          fontSize: '12px',
+                          fontWeight: 500,
+                          color: 'var(--sweet-text-secondary)',
+                          textDecoration: 'none',
+                          transition: 'background 0.15s, color 0.15s',
+                        }}
+                        onMouseEnter={e => {
+                          (e.currentTarget as HTMLElement).style.background = 'var(--sweet-card-hover)';
+                          (e.currentTarget as HTMLElement).style.color = 'var(--sweet-text)';
+                        }}
+                        onMouseLeave={e => {
+                          (e.currentTarget as HTMLElement).style.background = 'var(--sweet-input)';
+                          (e.currentTarget as HTMLElement).style.color = 'var(--sweet-text-secondary)';
+                        }}
+                      >
+                        <ArrowTopRightOnSquareIcon style={{ width: 12, height: 12 }} />
+                        Tonscan
+                      </a>
+                      <a
+                        href={`https://testnet.tonviewer.com/${address}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '5px',
+                          padding: '6px 12px',
+                          borderRadius: '8px',
+                          background: 'var(--sweet-input)',
+                          border: '1px solid var(--sweet-border)',
+                          fontSize: '12px',
+                          fontWeight: 500,
+                          color: 'var(--sweet-text-secondary)',
+                          textDecoration: 'none',
+                          transition: 'background 0.15s, color 0.15s',
+                        }}
+                        onMouseEnter={e => {
+                          (e.currentTarget as HTMLElement).style.background = 'var(--sweet-card-hover)';
+                          (e.currentTarget as HTMLElement).style.color = 'var(--sweet-text)';
+                        }}
+                        onMouseLeave={e => {
+                          (e.currentTarget as HTMLElement).style.background = 'var(--sweet-input)';
+                          (e.currentTarget as HTMLElement).style.color = 'var(--sweet-text-secondary)';
+                        }}
+                      >
+                        <ArrowTopRightOnSquareIcon style={{ width: 12, height: 12 }} />
+                        Tonviewer
+                      </a>
+                    </div>
                   </div>
-               </motion.div>
-               );
-            })}
-         </div>
+
+                  <div>
+                    <p
+                      style={{
+                        fontSize: '10px',
+                        color: 'var(--sweet-text-faint)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.08em',
+                        margin: '0 0 6px',
+                      }}
+                    >
+                      {t('blockchain.tonBalance') || 'Locked TON Balance'}
+                    </p>
+                    {isLoading ? (
+                      <div className="skeleton" style={{ height: 20, width: 80, borderRadius: '6px' }} />
+                    ) : (
+                      <p style={{ fontFamily: 'monospace', fontSize: '14px', fontWeight: 600, color: 'var(--sweet-text)', margin: 0 }}>
+                        {state.balance}{' '}
+                        <span style={{ color: 'var(--sweet-text-faint)', fontWeight: 400, fontSize: '12px' }}>TON</span>
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
