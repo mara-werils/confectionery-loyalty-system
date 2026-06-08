@@ -108,7 +108,8 @@ router.post('/proposals', authenticate, async (req: Request, res: Response, next
       timestamp: new Date().toISOString(),
     });
 
-    return successResponse(res, { proposal }, 201);
+    res.status(201);
+    return successResponse(res, { proposal });
   } catch (error) {
     return next(error);
   }
