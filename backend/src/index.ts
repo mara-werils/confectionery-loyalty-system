@@ -28,6 +28,9 @@ import aiRoutes from './routes/ai';
 import spinRoutes from './routes/spin';
 import checkinRoutes from './routes/checkin';
 import giftRoutes from './routes/gift';
+import governanceRoutes from './routes/governance';
+import publicRoutes from './routes/public';
+import { startChurnCron } from './cron/churnCron';
 
 
 // Initialize Express app
@@ -157,6 +160,8 @@ app.use(`${apiPrefix}/ai`, aiRoutes);
 app.use(`${apiPrefix}/spin`, spinRoutes);
 app.use(`${apiPrefix}/checkin`, checkinRoutes);
 app.use(`${apiPrefix}/gift`, giftRoutes);
+app.use(`${apiPrefix}/governance`, governanceRoutes);
+app.use(`${apiPrefix}/public`, publicRoutes);
 
 // ============================================================================
 // SOCKET.IO
@@ -207,6 +212,9 @@ if (config.app.env !== 'test') {
     logger.info(`📚 API Documentation: http://localhost:${PORT}/api/docs`);
     logger.info(`🔗 API Prefix: ${apiPrefix}`);
     logger.info(`🌐 Environment: ${config.app.env}`);
+
+    // Start ML Churn Auto-Intervention cron
+    startChurnCron();
 
     // Start Telegram bot if token is configured
     const botToken = process.env.TELEGRAM_BOT_TOKEN;

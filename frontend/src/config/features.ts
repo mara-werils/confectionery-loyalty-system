@@ -1,5 +1,5 @@
 export const FEATURES = {
   SWAP: false,
-  GOVERNANCE: false,
+  GOVERNANCE: true,
   STAKING: false,
 } as const;

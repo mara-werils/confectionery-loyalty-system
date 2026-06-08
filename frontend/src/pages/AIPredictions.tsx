@@ -9,6 +9,8 @@ import {
   GiftIcon,
   BoltIcon,
   ChartBarIcon,
+  SparklesIcon,
+  ShieldCheckIcon,
 } from '@heroicons/react/24/outline';
 import {
   AreaChart,
@@ -20,7 +22,9 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from 'recharts';
+import { useQuery } from '@tanstack/react-query';
 import { useAiChurn, useAiForecast, useAiRecommendations } from '../hooks/useApi';
+import { api } from '../services/api';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -145,11 +149,17 @@ export default function AIPredictions() {
   const { data: churnRaw, isLoading: churnLoading } = useAiChurn();
   const { data: forecastRaw, isLoading: forecastLoading } = useAiForecast();
   const { data: recsRaw, isLoading: recsLoading } = useAiRecommendations();
+  const { data: interventionsRaw } = useQuery({
+    queryKey: ['ai', 'interventions'],
+    queryFn: () => (api.churn.getInterventions({ limit: 5 }) as any).then((r: any) => r.data ?? r),
+    refetchInterval: 30000,
+  });
 
   const churnData: ChurnRisk[] = (churnRaw as { data: ChurnRisk[] })?.data ?? [];
   const forecast: ForecastData | undefined = (forecastRaw as { data: ForecastData })?.data;
   const recs: RewardRec[] = (recsRaw as { data: { recommendations: RewardRec[] } })?.data?.recommendations ?? [];
   const personalizedMsg: string = (recsRaw as { data: { personalizedMessage: string } })?.data?.personalizedMessage ?? '';
+  const interventions: any = (interventionsRaw as any) ?? null;
 
   // Derive counts for summary row
   const criticalCount = churnData.filter(c => c.riskLevel === 'CRITICAL').length;
@@ -195,6 +205,78 @@ export default function AIPredictions() {
           ))}
         </motion.div>
       )}
+
+      {/* ── AI Auto-Interventions Panel ── */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.08 }}
+        className="rounded-2xl p-5 space-y-4"
+        style={{
+          background: 'linear-gradient(135deg, rgba(251,113,133,0.08) 0%, var(--sweet-card) 60%)',
+          border: '1px solid rgba(251,113,133,0.22)',
+        }}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <SparklesIcon className="w-5 h-5" style={{ color: '#fb7185' }} />
+            <h2 className="text-sm font-bold" style={{ color: 'var(--sweet-text)' }}>
+              AI Auto-Interventions
+            </h2>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold px-2 py-0.5 rounded-full"
+              style={{ background: 'rgba(251,113,133,0.15)', color: '#fb7185' }}>
+              Today: {interventions?.todayCount ?? 0}
+            </span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { label: 'Saved Today', value: interventions?.todayCount ?? 0, color: '#fb7185' },
+            { label: 'SWEET Sent', value: interventions?.totalBonusSentToday ?? 0, color: '#f59e0b' },
+            { label: 'All-Time Saves', value: interventions?.totalCount ?? 0, color: '#34d399' },
+          ].map(s => (
+            <div key={s.label} className="rounded-xl p-3 text-center"
+              style={{ background: 'var(--sweet-input)', border: '1px solid var(--sweet-border)' }}>
+              <p className="text-xl font-black" style={{ color: s.color }}>
+                {s.value.toLocaleString()}
+              </p>
+              <p className="text-[10px] mt-0.5" style={{ color: 'var(--sweet-text-faint)' }}>{s.label}</p>
+            </div>
+          ))}
+        </div>
+
+        {interventions?.recent && interventions.recent.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--sweet-text-faint)' }}>
+              Recent Auto-Interventions
+            </p>
+            {interventions.recent.slice(0, 3).map((item: any) => (
+              <div key={item.id} className="flex items-center justify-between py-2 px-3 rounded-xl"
+                style={{ background: 'var(--sweet-input)', border: '1px solid var(--sweet-border)' }}>
+                <div className="flex items-center gap-2">
+                  <ShieldCheckIcon className="w-4 h-4 flex-shrink-0" style={{ color: '#fb7185' }} />
+                  <div>
+                    <p className="text-xs font-medium" style={{ color: 'var(--sweet-text)' }}>{item.company}</p>
+                    <p className="text-[10px]" style={{ color: 'var(--sweet-text-faint)' }}>
+                      Risk {item.riskScore}/100 · {item.riskLevel}
+                    </p>
+                  </div>
+                </div>
+                <span className="text-xs font-bold" style={{ color: '#f59e0b' }}>
+                  +{item.bonusSent} SWEET
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <p className="text-[11px]" style={{ color: 'var(--sweet-text-faint)' }}>
+          ML model runs daily · Automatically sends SWEET bonuses to at-risk partners · No human action required
+        </p>
+      </motion.div>
 
       {/* ── Churn Risk Section ── */}
       <section className="space-y-3">
