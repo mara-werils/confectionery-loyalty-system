@@ -89,7 +89,8 @@ export const generateAdminToken = (admin: {
 }): string => {
     return jwt.sign(
         {
-            id: admin.id,
+            sub: admin.id,
+            type: 'admin',
             walletAddress: admin.walletAddress,
             role: admin.role,
             isAdmin: true,

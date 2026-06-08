@@ -5,9 +5,10 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc -p tsconfig.build.json",
-    "start": "node dist/index.js",
+    "build": "prisma generate && tsc -p tsconfig.build.json",
+    "start": "prisma migrate deploy && node dist/index.js",
     "test": "jest --passWithNoTests",
+    "test:smoke": "jest --testPathPattern=smoke --no-coverage",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage --passWithNoTests",
     "lint": "eslint src --ext .ts",
@@ -16,9 +17,12 @@
     "db:migrate": "prisma migrate dev",
     "db:migrate:prod": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
+    "db:seed:demo": "tsx prisma/seed-demo.ts",
     "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@logtail/node": "^0.5.8",
+    "@logtail/winston": "^0.5.8",
     "@prisma/client": "^5.14.0",
     "@ton/core": "^0.56.0",
     "@ton/crypto": "^3.2.0",
@@ -36,6 +40,7 @@
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "express-rate-limit": "^7.2.0",
+    "grammy": "^1.42.0",
     "helmet": "^7.1.0",
     "ioredis": "^5.8.2",
     "jsonwebtoken": "^9.0.2",

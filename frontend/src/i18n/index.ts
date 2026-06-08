@@ -11,6 +11,23 @@ const resources = {
     kz: { translation: kz },
 };
 
+const safeLocalStorage = {
+    getItem: (key: string) => {
+        try {
+            return window.localStorage.getItem(key);
+        } catch {
+            return null;
+        }
+    },
+    setItem: (key: string, value: string) => {
+        try {
+            window.localStorage.setItem(key, value);
+        } catch {
+            // Storage can be unavailable in restricted webviews.
+        }
+    },
+};
+
 // Detect user language from Telegram or browser
 const detectLanguage = (): string => {
     // Try Telegram WebApp language
@@ -23,11 +40,11 @@ const detectLanguage = (): string => {
     }
 
     // Try localStorage
-    const saved = localStorage.getItem('language');
+    const saved = safeLocalStorage.getItem('language');
     if (saved && ['en', 'ru', 'kz'].includes(saved)) return saved;
 
     // Try browser language
-    const browserLang = navigator.language.split('-')[0];
+    const browserLang = navigator.language?.split('-')[0];
     if (['en', 'ru', 'kz'].includes(browserLang)) return browserLang;
 
     return 'en';
@@ -46,7 +63,7 @@ i18n
 
 export const changeLanguage = (lang: string) => {
     i18n.changeLanguage(lang);
-    localStorage.setItem('language', lang);
+    safeLocalStorage.setItem('language', lang);
 };
 
 export const languages = [

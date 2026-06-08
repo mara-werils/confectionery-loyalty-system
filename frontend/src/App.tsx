@@ -1,29 +1,37 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useTonWallet } from '@tonconnect/ui-react';
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 
-// Pages
+// Pages — eagerly loaded (critical path)
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
-
 import History from './pages/History';
 import Profile from './pages/Profile';
-import Blockchain from './pages/Blockchain';
-import Swap from './pages/Swap';
 import Referrals from './pages/Referrals';
 import Stats from './pages/Stats';
 
-import AIPredictions from './pages/AIPredictions';
-import Achievements from './pages/Achievements';
+// Pages — lazy loaded (heavy / secondary)
+const AIPredictions = lazy(() => import('./pages/AIPredictions'));
+const Achievements = lazy(() => import('./pages/Achievements'));
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminAuthGate from './pages/admin/AdminAuthGate';
+import AdminPartners from './pages/admin/AdminPartners';
+import AdminRewards from './pages/admin/AdminRewards';
+import AdminAuditLog from './pages/admin/AdminAuditLog';
+import AdminSettings from './pages/admin/AdminSettings';
 
 // New role-based pages
 import BusinessRegister from './pages/business/BusinessRegister';
 import CouponVerify from './pages/business/CouponVerify';
+const Analytics = lazy(() => import('./pages/business/Analytics'));
 import CustomerDashboard from './pages/customer/CustomerDashboard';
 import CustomerRewards from './pages/customer/CustomerRewards';
+const SpinWheel = lazy(() => import('./pages/customer/SpinWheel'));
+const GiftTokens = lazy(() => import('./pages/customer/GiftTokens'));
+const Ecosystem = lazy(() => import('./pages/customer/Ecosystem'));
+const Explorer = lazy(() => import('./pages/customer/Explorer'));
 
 // Components
 import Layout from './components/Layout';
@@ -77,13 +85,26 @@ function App() {
     }
   }, [tg?.themeParams]);
 
+  const LazyFallback = (
+    <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--sweet-bg)' }}>
+      <div className="w-8 h-8 border-2 border-amber-400/30 border-t-amber-400 rounded-full animate-spin" />
+    </div>
+  );
+
   return (
+    <Suspense fallback={LazyFallback}>
     <Routes>
       {/* Public route */}
       <Route path="/" element={<Home />} />
       
-      {/* Admin Route - Hidden */}
-      <Route path="/admin" element={<AdminDashboard />} />
+      {/* Admin Routes with Auth Gate + Admin Layout */}
+      <Route path="/admin" element={<AdminAuthGate />}>
+        <Route index element={<AdminDashboard />} />
+        <Route path="partners" element={<AdminPartners />} />
+        <Route path="rewards" element={<AdminRewards />} />
+        <Route path="audit" element={<AdminAuditLog />} />
+        <Route path="settings" element={<AdminSettings />} />
+      </Route>
       
       {/* Business registration (needs wallet but no layout) */}
       <Route element={<ProtectedRoute />}>
@@ -96,11 +117,13 @@ function App() {
           <Route path="/business/dashboard" element={<Dashboard />} />
           <Route path="/business/verify-coupon" element={<CouponVerify />} />
           <Route path="/ai" element={<AIPredictions />} />
-          <Route path="/achievements" element={<Achievements />} />
-          <Route path="/blockchain" element={<Blockchain />} />
-          <Route path="/swap" element={<Swap />} />
           <Route path="/referrals" element={<Referrals />} />
+          <Route path="/analytics" element={<Analytics />} />
           <Route path="/business/profile" element={<Profile />} />
+          {/* Disabled features: redirect to dashboard */}
+          <Route path="/blockchain" element={<Navigate to="/business/dashboard" replace />} />
+          <Route path="/swap" element={<Navigate to="/business/dashboard" replace />} />
+          <Route path="/governance" element={<Navigate to="/business/dashboard" replace />} />
         </Route>
       </Route>
 
@@ -109,10 +132,17 @@ function App() {
         <Route element={<RoleGuard allowedRole="customer"><Layout variant="customer" /></RoleGuard>}>
           <Route path="/customer/dashboard" element={<CustomerDashboard />} />
           <Route path="/customer/rewards" element={<CustomerRewards />} />
+          <Route path="/customer/spin" element={<SpinWheel />} />
+          <Route path="/customer/gift" element={<GiftTokens />} />
+          <Route path="/customer/ecosystem" element={<Ecosystem />} />
+          <Route path="/customer/explorer" element={<Explorer />} />
           <Route path="/achievements" element={<Achievements />} />
           <Route path="/history" element={<History />} />
           <Route path="/stats" element={<Stats />} />
           <Route path="/customer/profile" element={<Profile />} />
+          {/* Disabled features: redirect to dashboard */}
+          <Route path="/staking" element={<Navigate to="/customer/dashboard" replace />} />
+          <Route path="/customer/governance" element={<Navigate to="/customer/dashboard" replace />} />
         </Route>
       </Route>
 
@@ -124,6 +154,7 @@ function App() {
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </Suspense>
   );
 }
 

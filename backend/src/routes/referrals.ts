@@ -5,6 +5,7 @@ import { successResponse } from '../utils/response';
 import { authenticate } from '../middleware/auth';
 import { AppError } from '../middleware/errorHandler';
 import { notificationService } from '../services/notification';
+import { logger } from '../utils/logger';
 import crypto from 'crypto';
 
 const router = Router();
@@ -180,12 +181,12 @@ router.post('/apply', authenticate, async (req: Request, res: Response, next: Ne
             }),
         ]);
 
-        // Notify referrer
-        await notificationService.notifyReferralBonus(
+        // Notify referrer — fire-and-forget so it never blocks the response
+        void notificationService.notifyReferralBonus(
             referrer.id,
             Number(REFERRAL_BONUS),
             req.partner!.companyName
-        );
+        ).catch((err) => logger.warn('Referral notification failed:', err));
 
         return successResponse(res, { referrer: referrer.companyName }, 'Referral applied');
     } catch (error) {

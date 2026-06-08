@@ -29,13 +29,33 @@ import { useState, useEffect } from 'react';
 import { api } from '../services/api';
 import { useBalance, useLoyaltyHistory } from '../hooks/useApi';
 
+const safeStorageGet = (key: string) => {
+  try {
+    return window.localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+};
+
+const safeStorageSet = (key: string, value: string) => {
+  try {
+    window.localStorage.setItem(key, value);
+  } catch {
+    // Storage can be unavailable in restricted webviews.
+  }
+};
+
 // ─── Modal ───────────────────────────────────────────────────────
 function Modal({ open, onClose, title, children }: {
   open: boolean; onClose: () => void; title: string; children: React.ReactNode;
 }) {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 backdrop-blur-sm" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center backdrop-blur-sm"
+      style={{ background: 'rgba(0,0,0,0.5)' }}
+      onClick={onClose}
+    >
       <AnimatePresence>
         <motion.div
           initial={{ y: 80, opacity: 0 }}
@@ -43,11 +63,19 @@ function Modal({ open, onClose, title, children }: {
           exit={{ y: 80, opacity: 0 }}
           transition={{ type: 'spring', damping: 22, stiffness: 300 }}
           onClick={(e) => e.stopPropagation()}
-          className="w-full max-w-lg bg-zinc-900 border border-white/10 rounded-t-3xl p-6 pb-24 space-y-5"
+          className="w-full max-w-lg rounded-t-3xl p-6 pb-24 space-y-5 border"
+          style={{
+            background: 'var(--sweet-card)',
+            borderColor: 'var(--sweet-border)',
+          }}
         >
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-white">{title}</h2>
-            <button onClick={onClose} className="text-zinc-500 hover:text-white transition-colors text-sm font-bold px-3 py-1 rounded-lg bg-white/5">
+            <h2 className="text-xl font-bold" style={{ color: 'var(--sweet-text)' }}>{title}</h2>
+            <button
+              onClick={onClose}
+              className="transition-colors text-sm font-bold px-3 py-1 rounded-lg bg-white/5"
+              style={{ color: 'var(--sweet-text-muted)' }}
+            >
               <XMarkIcon className="w-4 h-4" />
             </button>
           </div>
@@ -63,18 +91,22 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
   return (
     <button
       onClick={() => onChange(!checked)}
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${checked ? 'bg-white' : 'bg-zinc-700'}`}
+      className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+      style={{ background: checked ? 'var(--sweet-text)' : 'var(--sweet-card-hover)' }}
     >
-      <span className={`inline-block h-4 w-4 transform rounded-full bg-zinc-900 transition-transform ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
+      <span
+        className={`inline-block h-4 w-4 transform rounded-full transition-transform ${checked ? 'translate-x-6' : 'translate-x-1'}`}
+        style={{ background: 'var(--sweet-card)' }}
+      />
     </button>
   );
 }
 
-// ─── Tier badge ──────────────────────────────────────────────────
-const TIER_STYLES: Record<string, string> = {
-  GOLD: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30',
-  SILVER: 'bg-zinc-700/50 text-zinc-300 border-zinc-600',
-  BRONZE: 'bg-orange-500/10 text-orange-400 border-orange-500/30',
+// ─── Tier badge inline styles ─────────────────────────────────────
+const TIER_INLINE_STYLES: Record<string, React.CSSProperties> = {
+  GOLD: { background: 'rgba(234,179,8,0.1)', color: '#facc15', borderColor: 'rgba(234,179,8,0.3)' },
+  SILVER: { background: 'var(--sweet-card-hover)', color: 'var(--sweet-text-secondary)', borderColor: 'var(--sweet-border)' },
+  BRONZE: { background: 'rgba(249,115,22,0.1)', color: '#fb923c', borderColor: 'rgba(249,115,22,0.3)' },
 };
 
 const TIER_NEXT: Record<string, { next: string; required: number }> = {
@@ -86,7 +118,20 @@ const TIER_NEXT: Record<string, { next: string; required: number }> = {
 export default function Profile() {
   const [tonConnectUI] = useTonConnectUI();
   const wallet = useTonWallet();
-  const { user, role, setRole, logout, avatar, setAvatar, hasBusinessSbt, setHasBusinessSbt, setUser, sweetBalance, token } = useAuthStore();
+  const {
+    user,
+    role,
+    setRole,
+    logout,
+    avatar,
+    setAvatar,
+    hasBusinessSbt,
+    setHasBusinessSbt,
+    setUser,
+    setToken,
+    sweetBalance,
+    token,
+  } = useAuthStore();
   const { hapticFeedback } = useTelegram();
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -99,29 +144,34 @@ export default function Profile() {
   const [isSaving, setIsSaving] = useState(false);
 
   // Notification settings
-  const [notifPush, setNotifPush] = useState(() => localStorage.getItem('notif_push') !== 'false');
-  const [notifCashback, setNotifCashback] = useState(() => localStorage.getItem('notif_cashback') !== 'false');
-  const [notifRewards, setNotifRewards] = useState(() => localStorage.getItem('notif_rewards') !== 'false');
-  const [notifMarketing, setNotifMarketing] = useState(() => localStorage.getItem('notif_marketing') === 'true');
+  const [notifPush, setNotifPush] = useState(() => safeStorageGet('notif_push') !== 'false');
+  const [notifCashback, setNotifCashback] = useState(() => safeStorageGet('notif_cashback') !== 'false');
+  const [notifRewards, setNotifRewards] = useState(() => safeStorageGet('notif_rewards') !== 'false');
+  const [notifMarketing, setNotifMarketing] = useState(() => safeStorageGet('notif_marketing') === 'true');
 
-  useEffect(() => { localStorage.setItem('notif_push', String(notifPush)); }, [notifPush]);
-  useEffect(() => { localStorage.setItem('notif_cashback', String(notifCashback)); }, [notifCashback]);
-  useEffect(() => { localStorage.setItem('notif_rewards', String(notifRewards)); }, [notifRewards]);
-  useEffect(() => { localStorage.setItem('notif_marketing', String(notifMarketing)); }, [notifMarketing]);
+  useEffect(() => { safeStorageSet('notif_push', String(notifPush)); }, [notifPush]);
+  useEffect(() => { safeStorageSet('notif_cashback', String(notifCashback)); }, [notifCashback]);
+  useEffect(() => { safeStorageSet('notif_rewards', String(notifRewards)); }, [notifRewards]);
+  useEffect(() => { safeStorageSet('notif_marketing', String(notifMarketing)); }, [notifMarketing]);
 
   // Real balance + recent activity
   const { data: balanceData } = useBalance();
   const { data: historyData } = useLoyaltyHistory(1, 3);
 
-  const balance = Number(balanceData?.data?.balance || sweetBalance || 0);
+  const apiBalance = Number(balanceData?.data?.balance || 0);
+  const balance = sweetBalance > 0 ? sweetBalance : apiBalance;
   const lifetimeEarned = Number(balanceData?.data?.lifetimeEarned || 0);
   const recentTxs: { id: string; type: string; pointsEarned: string; description?: string; createdAt: string }[] =
     historyData?.data || [];
 
-  // Tier progress
-  const tier = user?.tier || 'BRONZE';
+  // Tier progress — use the higher of DB tier and balance-derived tier
+  const dbTier = user?.tier || 'BRONZE';
+  const balanceTier = balance >= 20000 ? 'GOLD' : balance >= 5000 ? 'SILVER' : 'BRONZE';
+  const tierOrder = ['BRONZE', 'SILVER', 'GOLD'];
+  const tier = tierOrder.indexOf(balanceTier) > tierOrder.indexOf(dbTier) ? balanceTier : dbTier;
   const tierInfo = TIER_NEXT[tier];
-  const progress = tier === 'GOLD' ? 100 : Math.min(100, Math.round((lifetimeEarned / tierInfo.required) * 100));
+  const remaining = Math.max(0, tierInfo.required - balance);
+  const progress = tier === 'GOLD' ? 100 : Math.min(100, Math.round((balance / tierInfo.required) * 100));
 
   // Wallet address copy
   const [copied, setCopied] = useState(false);
@@ -154,7 +204,7 @@ export default function Profile() {
   const handleAvatarSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) { toast.error('Image must be under 2MB'); return; }
+    if (file.size > 512 * 1024) { toast.error('Image must be under 512KB'); return; }
     const reader = new FileReader();
     reader.onloadend = () => { setAvatar(reader.result as string); toast.success('Avatar updated!'); };
     reader.readAsDataURL(file);
@@ -195,8 +245,52 @@ export default function Profile() {
       }
     }
     const newRole = role === 'business' ? 'customer' : 'business';
-    setRole(newRole);
-    navigate(newRole === 'business' ? '/business/register' : '/customer/dashboard');
+    if (newRole === 'business') {
+      // Check server-side if already registered as business
+      const existingToken = useAuthStore.getState().token;
+      if (existingToken) {
+        try {
+          const meRes = await api.auth.me() as { data?: { partner?: { id: string; walletAddress: string; companyName: string; email?: string; tier: 'BRONZE' | 'SILVER' | 'GOLD'; status: 'PENDING' | 'ACTIVE' | 'SUSPENDED' | 'BANNED' } } };
+          const partner = meRes?.data?.partner;
+          if (partner && !partner.companyName?.startsWith('Customer_')) {
+            setUser(partner);
+            setRole('business');
+            navigate('/business/dashboard');
+            return;
+          }
+        } catch {
+          // token invalid — fall through to register
+        }
+      }
+      setRole('business');
+      navigate('/business/register');
+    } else {
+      // Re-auth as customer to avoid stale/invalid session after role switch
+      const address = wallet?.account?.address;
+      if (address) {
+        try {
+          const res = await api.auth.customerAuth(address) as {
+            data?: {
+              token?: string;
+              partner?: {
+                id: string;
+                walletAddress: string;
+                companyName: string;
+                email?: string;
+                tier: 'BRONZE' | 'SILVER' | 'GOLD';
+                status: 'PENDING' | 'ACTIVE' | 'SUSPENDED' | 'BANNED';
+              };
+            };
+          };
+          if (res.data?.token) setToken(res.data.token);
+          if (res.data?.partner) setUser(res.data.partner);
+        } catch {
+          // Non-fatal: keep navigation, dashboard has its own fallbacks
+        }
+      }
+      setRole('customer');
+      navigate('/customer/dashboard');
+    }
   };
 
   const formatAddress = (addr: string) => `${addr.slice(0, 10)}...${addr.slice(-8)}`;
@@ -209,7 +303,7 @@ export default function Profile() {
   };
 
   const menuItems = [
-    { icon: PencilIcon, label: 'Edit Profile', description: 'Update name and email', action: () => { setEditName(user?.companyName || ''); setEditEmail(user?.email || ''); setActiveModal('edit'); } },
+    { icon: PencilIcon, label: t('profile.editProfile'), description: 'Update name and email', action: () => { setEditName(user?.companyName || ''); setEditEmail(user?.email || ''); setActiveModal('edit'); } },
     { icon: ShieldCheckIcon, label: t('profile.securityTitle') || 'Security', description: t('profile.securityDesc') || 'Wallet & SBT certificate', action: () => setActiveModal('security') },
     { icon: BellIcon, label: t('profile.notificationsTitle') || 'Notifications', description: t('profile.notificationsDesc') || 'Notification preferences', action: () => setActiveModal('notifications') },
     { icon: QuestionMarkCircleIcon, label: t('profile.helpTitle') || 'Help & Support', description: t('profile.helpDesc') || 'FAQ and contacts', action: () => setActiveModal('help') },
@@ -219,23 +313,25 @@ export default function Profile() {
     <div className="px-4 py-6 space-y-5 pb-32">
 
       {/* Header */}
-      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="pl-1">
-        <h1 className="text-3xl font-bold text-white tracking-tight">{t('profile.title')}</h1>
-        <p className="text-zinc-400 mt-1 text-sm">{t('profile.subtitle')}</p>
-      </motion.div>
+      <div className="pl-1">
+        <h1 className="text-3xl font-bold tracking-tight" style={{ color: 'var(--sweet-text)' }}>{t('profile.title')}</h1>
+        <p className="mt-1 text-sm" style={{ color: 'var(--sweet-text-muted)' }}>{t('profile.subtitle')}</p>
+      </div>
 
       {/* Profile Card */}
-      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
-        className="bg-zinc-900 border border-zinc-800/80 rounded-2xl p-5"
+      <div
+        className="rounded-2xl p-5 border"
+        style={{ background: 'var(--sweet-card)', borderColor: 'var(--sweet-border)' }}
       >
         <div className="flex items-center gap-4">
           <div
-            className="relative w-18 h-18 w-[72px] h-[72px] bg-zinc-800 rounded-2xl flex items-center justify-center border border-white/5 cursor-pointer group overflow-hidden shrink-0"
+            className="relative w-[72px] h-[72px] rounded-2xl flex items-center justify-center cursor-pointer group overflow-hidden shrink-0 border"
+            style={{ background: 'var(--sweet-card-hover)', borderColor: 'var(--sweet-border)' }}
             onClick={() => document.getElementById('avatar-upload')?.click()}
           >
             {avatar
               ? <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
-              : <UserCircleIcon className="w-9 h-9 text-zinc-500 group-hover:text-white transition-colors" />
+              : <UserCircleIcon className="w-9 h-9 group-hover:opacity-80 transition-opacity" style={{ color: 'var(--sweet-text-muted)' }} />
             }
             <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
               <PencilIcon className="w-5 h-5 text-white" />
@@ -243,14 +339,24 @@ export default function Profile() {
             <input id="avatar-upload" type="file" accept="image/*" className="hidden" onChange={handleAvatarSelect} />
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className="text-lg font-bold text-white tracking-tight truncate">
+            <h2 className="text-lg font-bold tracking-tight truncate" style={{ color: 'var(--sweet-text)' }}>
               {user?.companyName || 'My Account'}
             </h2>
             <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border bg-white/5 text-zinc-300 border-white/10">
+              <span
+                className="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border"
+                style={{
+                  background: 'var(--sweet-card-hover)',
+                  color: 'var(--sweet-text-secondary)',
+                  borderColor: 'var(--sweet-border)',
+                }}
+              >
                 {role === 'business' ? 'Business' : 'Customer'}
               </span>
-              <span className={clsx('px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border', TIER_STYLES[tier])}>
+              <span
+                className="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border"
+                style={TIER_INLINE_STYLES[tier]}
+              >
                 {tier}
               </span>
               {user?.status === 'ACTIVE' && (
@@ -260,140 +366,158 @@ export default function Profile() {
               )}
             </div>
             {user?.email && (
-              <p className="text-xs text-zinc-500 mt-1.5 truncate">{user.email}</p>
+              <p className="text-xs mt-1.5 truncate" style={{ color: 'var(--sweet-text-muted)' }}>{user.email}</p>
             )}
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* Stats Row */}
-      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-        className="grid grid-cols-3 gap-3"
-      >
+      <div className="grid grid-cols-3 gap-3">
         {[
           { label: 'Balance', value: balance.toLocaleString(), sub: 'SWEET', icon: SparklesIcon },
           { label: 'Lifetime', value: lifetimeEarned.toLocaleString(), sub: 'earned', icon: TrophyIcon },
           { label: 'Coupons', value: useAuthStore.getState().activeCoupons.length, sub: 'active', icon: ClockIcon },
         ].map(({ label, value, sub, icon: Icon }) => (
-          <div key={label} className="bg-zinc-900 border border-zinc-800/80 rounded-xl p-3 text-center">
-            <Icon className="w-4 h-4 text-zinc-500 mx-auto mb-1" />
-            <p className="text-lg font-bold text-white leading-tight">{value}</p>
-            <p className="text-[10px] text-zinc-500 mt-0.5">{label}</p>
-            <p className="text-[9px] text-zinc-600">{sub}</p>
+          <div
+            key={label}
+            className="rounded-xl p-3 text-center border"
+            style={{ background: 'var(--sweet-card)', borderColor: 'var(--sweet-border)' }}
+          >
+            <Icon className="w-4 h-4 mx-auto mb-1" style={{ color: 'var(--sweet-text-muted)' }} />
+            <p className="text-lg font-bold leading-tight" style={{ color: 'var(--sweet-text)' }}>{value}</p>
+            <p className="text-[10px] mt-0.5" style={{ color: 'var(--sweet-text-muted)' }}>{label}</p>
+            <p className="text-[9px]" style={{ color: 'var(--sweet-text-faint)' }}>{sub}</p>
           </div>
         ))}
-      </motion.div>
+      </div>
 
       {/* Tier Progress */}
       {tier !== 'GOLD' && (
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.13 }}
-          className="bg-zinc-900 border border-zinc-800/80 rounded-2xl p-4"
+        <div
+          className="rounded-2xl p-4 border"
+          style={{ background: 'var(--sweet-card)', borderColor: 'var(--sweet-border)' }}
         >
           <div className="flex justify-between items-center mb-2">
-            <p className="text-xs font-semibold text-zinc-400">Progress to {tierInfo.next}</p>
-            <p className="text-xs font-mono text-zinc-400">{lifetimeEarned.toLocaleString()} / {tierInfo.required.toLocaleString()}</p>
+            <p className="text-xs font-semibold" style={{ color: 'var(--sweet-text-secondary)' }}>Progress to {tierInfo.next}</p>
+            <p className="text-xs font-mono" style={{ color: 'var(--sweet-text-secondary)' }}>{lifetimeEarned.toLocaleString()} / {tierInfo.required.toLocaleString()}</p>
           </div>
-          <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
+          <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--sweet-card-hover)' }}>
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
               transition={{ duration: 1, delay: 0.3, ease: 'easeOut' }}
-              className={clsx('h-full rounded-full', tier === 'BRONZE' ? 'bg-orange-400' : 'bg-zinc-300')}
+              className={clsx('h-full rounded-full', tier === 'BRONZE' ? 'bg-orange-400' : 'bg-stone-300')}
             />
           </div>
-          <p className="text-[10px] text-zinc-600 mt-1.5">{progress}% — {(tierInfo.required - lifetimeEarned).toLocaleString()} SWEET to reach {tierInfo.next}</p>
-        </motion.div>
+          <p className="text-[10px] mt-1.5" style={{ color: 'var(--sweet-text-faint)' }}>{progress}% — {remaining > 0 ? `${remaining.toLocaleString()} SWEET to reach ${tierInfo.next}` : `Ready for ${tierInfo.next}!`}</p>
+        </div>
       )}
 
       {/* Wallet Address */}
       {wallet && (
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-          className="bg-zinc-900 border border-zinc-800/80 rounded-2xl p-4"
+        <div
+          className="rounded-2xl p-4 border"
+          style={{ background: 'var(--sweet-card)', borderColor: 'var(--sweet-border)' }}
         >
-          <p className="text-xs text-zinc-500 mb-2 font-medium">TON Wallet</p>
+          <p className="text-xs mb-2 font-medium" style={{ color: 'var(--sweet-text-muted)' }}>TON Wallet</p>
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-500/10 rounded-xl border border-blue-500/20">
-              <WalletIcon className="w-4 h-4 text-blue-400" />
+            <div
+              className="p-2 rounded-xl border"
+              style={{ background: 'var(--sweet-card-hover)', borderColor: 'var(--sweet-border)' }}
+            >
+              <WalletIcon className="w-4 h-4" style={{ color: 'var(--sweet-text-secondary)' }} />
             </div>
-            <p className="flex-1 font-mono text-xs text-zinc-300 truncate">{formatAddress(wallet.account.address)}</p>
+            <p className="flex-1 font-mono text-xs truncate" style={{ color: 'var(--sweet-text-secondary)' }}>{formatAddress(wallet.account.address)}</p>
             <button onClick={handleCopyAddress} className="p-2 hover:bg-white/5 rounded-lg transition-colors">
-              {copied ? <CheckIcon className="w-4 h-4 text-green-400" /> : <ClipboardDocumentIcon className="w-4 h-4 text-zinc-500" />}
+              {copied ? <CheckIcon className="w-4 h-4 text-green-400" /> : <ClipboardDocumentIcon className="w-4 h-4" style={{ color: 'var(--sweet-text-muted)' }} />}
             </button>
           </div>
           <div className="flex items-center gap-1.5 mt-2">
             <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-            <p className="text-[10px] text-zinc-600">Connected · TON Testnet</p>
+            <p className="text-[10px]" style={{ color: 'var(--sweet-text-faint)' }}>Connected · TON Testnet</p>
           </div>
-        </motion.div>
+        </div>
       )}
 
       {/* Recent Activity */}
       {token && recentTxs.length > 0 && (
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}
-          className="bg-zinc-900 border border-zinc-800/80 rounded-2xl p-4"
+        <div
+          className="rounded-2xl p-4 border"
+          style={{ background: 'var(--sweet-card)', borderColor: 'var(--sweet-border)' }}
         >
-          <p className="text-xs text-zinc-500 mb-3 font-medium">Recent Activity</p>
+          <p className="text-xs mb-3 font-medium" style={{ color: 'var(--sweet-text-muted)' }}>Recent Activity</p>
           <div className="space-y-2">
             {recentTxs.map((tx) => (
               <div key={tx.id} className="flex items-center justify-between py-1">
                 <div className="flex items-center gap-2">
-                  <div className={clsx('w-1.5 h-1.5 rounded-full', tx.type === 'PURCHASE' ? 'bg-green-400' : tx.type === 'REFERRAL' ? 'bg-purple-400' : 'bg-zinc-500')} />
-                  <p className="text-xs text-zinc-400 truncate max-w-[160px]">{tx.description || tx.type}</p>
+                  <div className={clsx('w-1.5 h-1.5 rounded-full', tx.type === 'PURCHASE' ? 'bg-green-400' : tx.type === 'REFERRAL' ? 'bg-amber-400' : 'bg-stone-500')} />
+                  <p className="text-xs truncate max-w-[160px]" style={{ color: 'var(--sweet-text-secondary)' }}>{tx.description || tx.type}</p>
                 </div>
                 <div className="text-right shrink-0">
                   <p className="text-xs font-bold text-green-400">+{Number(tx.pointsEarned).toLocaleString()}</p>
-                  <p className="text-[9px] text-zinc-600">{timeAgo(tx.createdAt)}</p>
+                  <p className="text-[9px]" style={{ color: 'var(--sweet-text-faint)' }}>{timeAgo(tx.createdAt)}</p>
                 </div>
               </div>
             ))}
           </div>
-        </motion.div>
+        </div>
       )}
 
       {/* Menu */}
-      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-        className="bg-zinc-900 border border-zinc-800/80 rounded-2xl overflow-hidden"
+      <div
+        className="rounded-2xl overflow-hidden border"
+        style={{ background: 'var(--sweet-card)', borderColor: 'var(--sweet-border)' }}
       >
         {menuItems.map((item, idx) => (
           <button
             key={idx}
             onClick={item.action}
-            className="w-full flex items-center gap-4 px-4 py-3.5 hover:bg-white/5 transition-colors text-left border-b border-zinc-800/60 last:border-0"
+            className="w-full flex items-center gap-4 px-4 py-3.5 hover:bg-white/5 transition-colors text-left border-b last:border-0"
+            style={{ borderColor: 'var(--sweet-border)' }}
           >
-            <div className="p-2 bg-white/5 rounded-xl border border-white/5 shrink-0">
-              <item.icon className="w-4 h-4 text-zinc-300" />
+            <div
+              className="p-2 rounded-xl border shrink-0"
+              style={{ background: 'var(--sweet-card-hover)', borderColor: 'var(--sweet-border)' }}
+            >
+              <item.icon className="w-4 h-4" style={{ color: 'var(--sweet-text-secondary)' }} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-white">{item.label}</p>
-              <p className="text-xs text-zinc-500 mt-0.5">{item.description}</p>
+              <p className="text-sm font-semibold" style={{ color: 'var(--sweet-text)' }}>{item.label}</p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--sweet-text-muted)' }}>{item.description}</p>
             </div>
-            <ChevronRightIcon className="w-4 h-4 text-zinc-600 shrink-0" />
+            <ChevronRightIcon className="w-4 h-4 shrink-0" style={{ color: 'var(--sweet-text-faint)' }} />
           </button>
         ))}
-      </motion.div>
+      </div>
 
       {/* Switch Role */}
-      <motion.button initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
+      <button
         onClick={handleSwitchRole}
-        className="w-full flex items-center justify-center gap-2 py-3.5 bg-white/5 text-zinc-300 rounded-2xl font-bold hover:bg-white/10 border border-white/10 transition-colors text-sm"
+        className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl font-bold transition-colors text-sm border hover:opacity-80"
+        style={{
+          background: 'var(--sweet-card)',
+          color: 'var(--sweet-text-secondary)',
+          borderColor: 'var(--sweet-border)',
+        }}
       >
         <ArrowsRightLeftIcon className="w-5 h-5" />
         {role === 'business' ? t('profile.switchToCustomer') : t('profile.switchToBusiness')}
-      </motion.button>
+      </button>
 
       {/* Disconnect */}
-      <motion.button initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+      <button
         onClick={handleDisconnect}
-        className="w-full flex items-center justify-center gap-2 py-3.5 bg-red-500/5 text-red-500 rounded-2xl font-bold hover:bg-red-500/10 border border-red-500/10 transition-colors text-sm"
+        className="w-full flex items-center justify-center gap-2 py-3.5 bg-red-500/5 text-red-500 rounded-2xl font-bold hover:bg-red-500/10 border border-red-500/20 transition-colors text-sm"
       >
         <ArrowRightOnRectangleIcon className="w-5 h-5" />
         {t('profile.disconnect')}
-      </motion.button>
+      </button>
 
       {/* Footer */}
       <div className="text-center pt-2 pb-4">
-        <p className="text-[10px] font-bold tracking-widest uppercase text-zinc-700">{t('profile.version')}</p>
-        <p className="text-[10px] text-zinc-700 mt-1">{t('profile.diploma')}</p>
+        <p className="text-[10px] font-bold tracking-widest uppercase" style={{ color: 'var(--sweet-text-faint)' }}>{t('profile.version')}</p>
+        <p className="text-[10px] mt-1" style={{ color: 'var(--sweet-text-faint)' }}>{t('profile.diploma')}</p>
       </div>
 
       {/* ══════════════════════════════════════════
@@ -402,7 +526,7 @@ export default function Profile() {
       <Modal open={activeModal === 'edit'} onClose={() => setActiveModal(null)} title="Edit Profile">
         <div className="space-y-4">
           <div>
-            <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest block mb-2">
+            <label className="text-xs font-bold uppercase tracking-widest block mb-2" style={{ color: 'var(--sweet-text-secondary)' }}>
               <BuildingStorefrontIcon className="w-3.5 h-3.5 inline mr-1" />
               Company / Display Name
             </label>
@@ -410,11 +534,16 @@ export default function Profile() {
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
               placeholder="Your company name"
-              className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-zinc-600 transition-colors placeholder:text-zinc-600"
+              className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none transition-colors border"
+              style={{
+                background: 'var(--sweet-input)',
+                borderColor: 'var(--sweet-border)',
+                color: 'var(--sweet-text)',
+              }}
             />
           </div>
           <div>
-            <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest block mb-2">
+            <label className="text-xs font-bold uppercase tracking-widest block mb-2" style={{ color: 'var(--sweet-text-secondary)' }}>
               <EnvelopeIcon className="w-3.5 h-3.5 inline mr-1" />
               Email
             </label>
@@ -423,23 +552,33 @@ export default function Profile() {
               value={editEmail}
               onChange={(e) => setEditEmail(e.target.value)}
               placeholder="your@email.com"
-              className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-zinc-600 transition-colors placeholder:text-zinc-600"
+              className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none transition-colors border"
+              style={{
+                background: 'var(--sweet-input)',
+                borderColor: 'var(--sweet-border)',
+                color: 'var(--sweet-text)',
+              }}
             />
           </div>
           <div className="flex gap-3 pt-2">
             <button
               onClick={() => setActiveModal(null)}
-              className="flex-1 py-3 rounded-xl bg-zinc-800 text-zinc-300 text-sm font-bold hover:bg-zinc-700 transition-colors"
+              className="flex-1 py-3 rounded-xl text-sm font-bold transition-colors border"
+              style={{
+                background: 'var(--sweet-card-hover)',
+                color: 'var(--sweet-text-secondary)',
+                borderColor: 'var(--sweet-border)',
+              }}
             >
               Cancel
             </button>
             <button
               onClick={handleSaveProfile}
               disabled={isSaving || (!editName.trim() && !editEmail.trim())}
-              className="flex-1 py-3 rounded-xl bg-white text-zinc-950 text-sm font-bold hover:bg-zinc-200 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              className="flex-1 py-3 rounded-xl bg-amber-500 text-black text-sm font-bold hover:bg-amber-400 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {isSaving ? (
-                <div className="w-4 h-4 border-2 border-zinc-400 border-t-zinc-900 rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-stone-400 border-t-stone-900 rounded-full animate-spin" />
               ) : (
                 <><CheckIcon className="w-4 h-4" /> Save</>
               )}
@@ -453,18 +592,22 @@ export default function Profile() {
       ══════════════════════════════════════════ */}
       <Modal open={activeModal === 'security'} onClose={() => setActiveModal(null)} title="Security">
         <div className="space-y-4">
-          <div className="p-4 bg-white/5 rounded-2xl border border-white/10 space-y-3">
-            <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Connected Wallet</p>
+          <div
+            className="p-4 rounded-2xl border space-y-3"
+            style={{ background: 'var(--sweet-card-hover)', borderColor: 'var(--sweet-border)' }}
+          >
+            <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--sweet-text-secondary)' }}>Connected Wallet</p>
             <div className="flex items-center gap-3">
               <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse shrink-0" />
-              <p className="font-mono text-xs text-zinc-200 break-all">
+              <p className="font-mono text-xs break-all" style={{ color: 'var(--sweet-text-secondary)' }}>
                 {wallet ? wallet.account.address : 'Not connected'}
               </p>
             </div>
             {wallet && (
               <button
                 onClick={handleCopyAddress}
-                className="text-xs text-zinc-500 hover:text-white flex items-center gap-1 transition-colors"
+                className="text-xs flex items-center gap-1 transition-colors hover:opacity-80"
+                style={{ color: 'var(--sweet-text-muted)' }}
               >
                 <ClipboardDocumentIcon className="w-3.5 h-3.5" />
                 {copied ? 'Copied!' : 'Copy full address'}
@@ -472,27 +615,33 @@ export default function Profile() {
             )}
           </div>
 
-          <div className="p-4 bg-white/5 rounded-2xl border border-white/10 space-y-3">
-            <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Authentication</p>
+          <div
+            className="p-4 rounded-2xl border space-y-3"
+            style={{ background: 'var(--sweet-card-hover)', borderColor: 'var(--sweet-border)' }}
+          >
+            <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--sweet-text-secondary)' }}>Authentication</p>
             <div className="flex items-center gap-3">
               <ShieldCheckIcon className="w-5 h-5 text-green-400 shrink-0" />
               <div>
-                <p className="text-sm font-semibold text-white">TON Wallet Signature</p>
-                <p className="text-xs text-zinc-500">Cryptographic proof — no password stored</p>
+                <p className="text-sm font-semibold" style={{ color: 'var(--sweet-text)' }}>TON Wallet Signature</p>
+                <p className="text-xs" style={{ color: 'var(--sweet-text-muted)' }}>Cryptographic proof — no password stored</p>
               </div>
             </div>
           </div>
 
-          <div className="p-4 bg-white/5 rounded-2xl border border-white/10 space-y-3">
-            <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">SBT Partner Certificate</p>
+          <div
+            className="p-4 rounded-2xl border space-y-3"
+            style={{ background: 'var(--sweet-card-hover)', borderColor: 'var(--sweet-border)' }}
+          >
+            <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--sweet-text-secondary)' }}>SBT Partner Certificate</p>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className={`w-2 h-2 rounded-full ${hasBusinessSbt ? 'bg-green-400' : 'bg-zinc-600'}`} />
+                <div className={`w-2 h-2 rounded-full ${hasBusinessSbt ? 'bg-green-400' : 'bg-stone-600'}`} />
                 <div>
-                  <p className="text-sm font-semibold text-white">
+                  <p className="text-sm font-semibold" style={{ color: 'var(--sweet-text)' }}>
                     {hasBusinessSbt ? 'Valid — Bound to Wallet' : 'Not Issued'}
                   </p>
-                  <p className="text-xs text-zinc-500">Soulbound Token — non-transferable</p>
+                  <p className="text-xs" style={{ color: 'var(--sweet-text-muted)' }}>Soulbound Token — non-transferable</p>
                 </div>
               </div>
               {hasBusinessSbt && (
@@ -503,24 +652,27 @@ export default function Profile() {
             </div>
           </div>
 
-          <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
-            <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-3">Account Status</p>
+          <div
+            className="p-4 rounded-2xl border"
+            style={{ background: 'var(--sweet-card-hover)', borderColor: 'var(--sweet-border)' }}
+          >
+            <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--sweet-text-secondary)' }}>Account Status</p>
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div>
-                <p className="text-zinc-600">Tier</p>
-                <p className="font-bold text-white mt-0.5">{tier}</p>
+                <p style={{ color: 'var(--sweet-text-faint)' }}>Tier</p>
+                <p className="font-bold mt-0.5" style={{ color: 'var(--sweet-text)' }}>{tier}</p>
               </div>
               <div>
-                <p className="text-zinc-600">Status</p>
+                <p style={{ color: 'var(--sweet-text-faint)' }}>Status</p>
                 <p className="font-bold text-green-400 mt-0.5">{user?.status || 'ACTIVE'}</p>
               </div>
               <div>
-                <p className="text-zinc-600">Balance</p>
-                <p className="font-bold text-white mt-0.5">{balance.toLocaleString()} SWEET</p>
+                <p style={{ color: 'var(--sweet-text-faint)' }}>Balance</p>
+                <p className="font-bold mt-0.5" style={{ color: 'var(--sweet-text)' }}>{balance.toLocaleString()} SWEET</p>
               </div>
               <div>
-                <p className="text-zinc-600">Network</p>
-                <p className="font-bold text-white mt-0.5">TON Testnet</p>
+                <p style={{ color: 'var(--sweet-text-faint)' }}>Network</p>
+                <p className="font-bold mt-0.5" style={{ color: 'var(--sweet-text)' }}>TON Testnet</p>
               </div>
             </div>
           </div>
@@ -545,15 +697,19 @@ export default function Profile() {
             { label: 'Push Notifications', subtitle: 'General app and system updates', value: notifPush, set: setNotifPush },
             { label: 'Marketing & Offers', subtitle: 'Special deals from partner confectioneries', value: notifMarketing, set: setNotifMarketing },
           ].map(({ label, subtitle, value, set }) => (
-            <div key={label} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10">
+            <div
+              key={label}
+              className="flex items-center justify-between p-4 rounded-2xl border"
+              style={{ background: 'var(--sweet-card-hover)', borderColor: 'var(--sweet-border)' }}
+            >
               <div className="mr-4">
-                <p className="text-sm font-semibold text-white">{label}</p>
-                <p className="text-xs text-zinc-500 mt-0.5">{subtitle}</p>
+                <p className="text-sm font-semibold" style={{ color: 'var(--sweet-text)' }}>{label}</p>
+                <p className="text-xs mt-0.5" style={{ color: 'var(--sweet-text-muted)' }}>{subtitle}</p>
               </div>
               <Toggle checked={value} onChange={(v) => { set(v); toast.success(`${label} ${v ? 'on' : 'off'}`, { duration: 1000 }); }} />
             </div>
           ))}
-          <p className="text-xs text-zinc-600 text-center pt-1">Settings are saved locally on this device</p>
+          <p className="text-xs text-center pt-1" style={{ color: 'var(--sweet-text-faint)' }}>Settings are saved locally on this device</p>
         </div>
       </Modal>
 
@@ -562,8 +718,11 @@ export default function Profile() {
       ══════════════════════════════════════════ */}
       <Modal open={activeModal === 'help'} onClose={() => setActiveModal(null)} title="Help & Support">
         <div className="space-y-4">
-          <div className="p-4 bg-white/5 rounded-2xl border border-white/10 space-y-3">
-            <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Contact</p>
+          <div
+            className="p-4 rounded-2xl border space-y-3"
+            style={{ background: 'var(--sweet-card-hover)', borderColor: 'var(--sweet-border)' }}
+          >
+            <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--sweet-text-secondary)' }}>Contact</p>
             <a href="https://t.me/marlenqq" target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-3 py-2 hover:opacity-80 transition-opacity"
             >
@@ -573,25 +732,31 @@ export default function Profile() {
                 </svg>
               </div>
               <div>
-                <p className="text-sm font-semibold text-white">Telegram Support</p>
-                <p className="text-xs text-zinc-500">@marlenqq</p>
+                <p className="text-sm font-semibold" style={{ color: 'var(--sweet-text)' }}>Telegram Support</p>
+                <p className="text-xs" style={{ color: 'var(--sweet-text-muted)' }}>@marlenqq</p>
               </div>
             </a>
             <a href="mailto:support@sweetloyalty.kz"
               className="flex items-center gap-3 py-2 hover:opacity-80 transition-opacity"
             >
-              <div className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
-                <EnvelopeIcon className="w-5 h-5 text-zinc-300" />
+              <div
+                className="w-9 h-9 rounded-xl border flex items-center justify-center shrink-0"
+                style={{ background: 'var(--sweet-card)', borderColor: 'var(--sweet-border)' }}
+              >
+                <EnvelopeIcon className="w-5 h-5" style={{ color: 'var(--sweet-text-secondary)' }} />
               </div>
               <div>
-                <p className="text-sm font-semibold text-white">Email Support</p>
-                <p className="text-xs text-zinc-500">support@sweetloyalty.kz</p>
+                <p className="text-sm font-semibold" style={{ color: 'var(--sweet-text)' }}>Email Support</p>
+                <p className="text-xs" style={{ color: 'var(--sweet-text-muted)' }}>support@sweetloyalty.kz</p>
               </div>
             </a>
           </div>
 
-          <div className="p-4 bg-white/5 rounded-2xl border border-white/10 space-y-3">
-            <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">FAQ</p>
+          <div
+            className="p-4 rounded-2xl border space-y-3"
+            style={{ background: 'var(--sweet-card-hover)', borderColor: 'var(--sweet-border)' }}
+          >
+            <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--sweet-text-secondary)' }}>FAQ</p>
             {[
               { q: 'How do I earn SWEET tokens?', a: 'Every purchase at a partner confectionery earns you SWEET tokens. 10% of the purchase amount is converted instantly.' },
               { q: 'How do I redeem rewards?', a: 'Go to the Rewards section, choose an offer, and tap Redeem. A coupon code is generated immediately.' },
@@ -600,11 +765,11 @@ export default function Profile() {
               { q: 'What is an SBT Certificate?', a: 'A Soulbound Token proves you are a verified partner. It is bound to your wallet and cannot be transferred.' },
             ].map(({ q, a }) => (
               <details key={q} className="group cursor-pointer">
-                <summary className="text-sm font-semibold text-white list-none flex justify-between items-center gap-2">
+                <summary className="text-sm font-semibold list-none flex justify-between items-center gap-2" style={{ color: 'var(--sweet-text)' }}>
                   <span>{q}</span>
-                  <span className="text-zinc-500 group-open:rotate-180 transition-transform shrink-0">▾</span>
+                  <span className="group-open:rotate-180 transition-transform shrink-0" style={{ color: 'var(--sweet-text-muted)' }}>▾</span>
                 </summary>
-                <p className="text-xs text-zinc-400 mt-2 leading-relaxed">{a}</p>
+                <p className="text-xs mt-2 leading-relaxed" style={{ color: 'var(--sweet-text-secondary)' }}>{a}</p>
               </details>
             ))}
           </div>

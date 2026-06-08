@@ -13,6 +13,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../services/api';
 import { useAuthStore } from '../store/authStore';
 import toast from 'react-hot-toast';
+import confetti from 'canvas-confetti';
+import { useTranslation } from 'react-i18next';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -36,23 +38,23 @@ interface AchievementsResponse {
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const CATEGORY_META: Record<string, { label: string; emoji: string; color: string }> = {
-  transactions: { label: 'Transactions', emoji: '⚡',  color: 'text-blue-400' },
-  referrals:    { label: 'Referrals',    emoji: '🤝',  color: 'text-purple-400' },
-  spending:     { label: 'Points',       emoji: '💎',  color: 'text-cyan-400' },
-  general:      { label: 'Milestones',   emoji: '🏅',  color: 'text-yellow-400' },
+const CATEGORY_EMOJI: Record<string, string> = {
+  transactions: '↺',
+  referrals:    '◈',
+  spending:     '◆',
+  general:      '▲',
 };
 
 const ACHIEVEMENT_EMOJI: Record<string, string> = {
-  FIRST_PURCHASE:  '🎯',
-  TRANSACTIONS_10: '⚡',
-  TRANSACTIONS_100:'🚀',
-  REFERRER_5:      '🤝',
-  REFERRER_20:     '🌟',
-  POINTS_10000:    '💰',
-  POINTS_100000:   '👑',
-  TIER_SILVER:     '🥈',
-  TIER_GOLD:       '🥇',
+  FIRST_PURCHASE:  '●',
+  TRANSACTIONS_10: '↺',
+  TRANSACTIONS_100:'↑',
+  REFERRER_5:      '◈',
+  REFERRER_20:     '★',
+  POINTS_10000:    '◆',
+  POINTS_100000:   '◆◆',
+  TIER_SILVER:     'Ag',
+  TIER_GOLD:       'Au',
 };
 
 const TON_VIEWER_BASE = 'https://testnet.tonviewer.com/transaction/';
@@ -62,9 +64,10 @@ const TON_VIEWER_BASE = 'https://testnet.tonviewer.com/transaction/';
 function ProgressBar({ value, max, unlocked }: { value: number; max: number; unlocked: boolean }) {
   const pct = max === 0 ? 100 : Math.min(100, (value / max) * 100);
   return (
-    <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden mt-3">
+    <div className="w-full h-1.5 rounded-full overflow-hidden mt-3" style={{ background: 'var(--sweet-border)' }}>
       <motion.div
-        className={`h-full rounded-full ${unlocked ? 'bg-gradient-to-r from-yellow-400 to-orange-400' : 'bg-zinc-600'}`}
+        className={`h-full rounded-full ${unlocked ? 'bg-amber-400' : ''}`}
+        style={unlocked ? undefined : { background: 'var(--sweet-border-light)' }}
         initial={{ width: 0 }}
         animate={{ width: `${pct}%` }}
         transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }}
@@ -74,25 +77,27 @@ function ProgressBar({ value, max, unlocked }: { value: number; max: number; unl
 }
 
 function NFTBadge({ txHash }: { txHash: string }) {
+  const { t } = useTranslation();
   return (
     <a
       href={`${TON_VIEWER_BASE}${txHash}`}
       target="_blank"
       rel="noopener noreferrer"
       onClick={e => e.stopPropagation()}
-      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-500/15 border border-blue-500/30 text-blue-400 text-[10px] font-semibold hover:bg-blue-500/25 transition-colors"
+      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-[10px] font-semibold hover:bg-amber-500/25 transition-colors"
     >
       <CubeTransparentIcon className="w-3 h-3" />
-      NFT on-chain
+      {t('achievements.nftOnchain')}
       <ArrowTopRightOnSquareIcon className="w-2.5 h-2.5" />
     </a>
   );
 }
 
 function AchievementCard({ achievement, index }: { achievement: Achievement; index: number }) {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
   const unlocked = !!achievement.unlockedAt;
-  const emoji = ACHIEVEMENT_EMOJI[achievement.code] ?? '🏆';
+  const emoji = ACHIEVEMENT_EMOJI[achievement.code] ?? '◆';
 
   return (
     <motion.div
@@ -101,11 +106,13 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
       onClick={() => setExpanded(v => !v)}
-      className={`relative rounded-xl border p-4 cursor-pointer transition-colors ${
-        unlocked
-          ? 'bg-zinc-900 border-yellow-500/30 hover:border-yellow-500/50'
-          : 'bg-zinc-900 border-zinc-800/80 hover:border-zinc-700'
-      }`}
+      className="relative rounded-xl p-4 cursor-pointer transition-colors"
+      style={{
+        background: 'var(--sweet-card)',
+        border: unlocked
+          ? '1px solid rgba(234,179,8,0.3)'
+          : '1px solid var(--sweet-border)',
+      }}
     >
       {/* Glow ring for unlocked */}
       {unlocked && (
@@ -114,22 +121,23 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
 
       <div className="flex items-start gap-3">
         {/* Icon */}
-        <div className={`relative w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 ${
-          unlocked ? 'bg-yellow-400/10' : 'bg-zinc-800'
-        }`}>
+        <div
+          className="relative w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
+          style={{ background: unlocked ? 'rgba(234,179,8,0.1)' : 'var(--sweet-card-hover)' }}
+        >
           <span className={unlocked ? '' : 'grayscale opacity-40'}>{emoji}</span>
 
           {/* NFT sparkle indicator */}
           {unlocked && achievement.nftTxHash && (
-            <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center">
+            <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-500 flex items-center justify-center">
               <SparklesIcon className="w-2.5 h-2.5 text-white" />
             </div>
           )}
 
           {/* Lock overlay for locked */}
           {!unlocked && (
-            <div className="absolute inset-0 rounded-xl flex items-center justify-center bg-zinc-900/60">
-              <LockClosedIcon className="w-4 h-4 text-zinc-600" />
+            <div className="absolute inset-0 rounded-xl flex items-center justify-center" style={{ background: 'var(--sweet-card-hover)', opacity: 0.6 }}>
+              <LockClosedIcon className="w-4 h-4" style={{ color: 'var(--sweet-text-faint)' }} />
             </div>
           )}
         </div>
@@ -137,18 +145,18 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
         {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
-            <p className={`text-sm font-bold ${unlocked ? 'text-white' : 'text-zinc-400'}`}>
+            <p className="text-sm font-bold" style={{ color: unlocked ? 'var(--sweet-text)' : 'var(--sweet-text-secondary)' }}>
               {achievement.name}
             </p>
             {unlocked
               ? <CheckBadgeIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" />
-              : <span className="text-[10px] text-zinc-600 flex-shrink-0">
+              : <span className="text-[10px] flex-shrink-0" style={{ color: 'var(--sweet-text-faint)' }}>
                   {achievement.progress}/{achievement.requirement}
                 </span>
             }
           </div>
 
-          <p className="text-xs text-zinc-500 mt-0.5 line-clamp-1">{achievement.description}</p>
+          <p className="text-xs mt-0.5 line-clamp-1" style={{ color: 'var(--sweet-text-muted)' }}>{achievement.description}</p>
 
           {/* NFT badge row */}
           {unlocked && achievement.nftTxHash && (
@@ -159,7 +167,7 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
 
           {/* Points reward */}
           {achievement.points > 0 && (
-            <p className={`text-[10px] mt-1 font-semibold ${unlocked ? 'text-yellow-400' : 'text-zinc-600'}`}>
+            <p className="text-[10px] mt-1 font-semibold" style={{ color: unlocked ? 'rgb(250,204,21)' : 'var(--sweet-text-faint)' }}>
               +{achievement.points.toLocaleString()} SWEET
             </p>
           )}
@@ -179,40 +187,40 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="mt-3 pt-3 border-t border-zinc-800 space-y-2">
+            <div className="mt-3 pt-3 space-y-2" style={{ borderTop: '1px solid var(--sweet-border)' }}>
               {unlocked && achievement.unlockedAt && (
-                <p className="text-[11px] text-zinc-500">
-                  Unlocked: {new Date(achievement.unlockedAt).toLocaleDateString('en-GB', {
+                <p className="text-[11px]" style={{ color: 'var(--sweet-text-muted)' }}>
+                  {t('achievements.unlockedAt')}: {new Date(achievement.unlockedAt).toLocaleDateString(undefined, {
                     day: '2-digit', month: 'short', year: 'numeric',
                   })}
                 </p>
               )}
 
               {unlocked && achievement.nftTxHash ? (
-                <div className="rounded-lg bg-blue-500/8 border border-blue-500/20 px-3 py-2 space-y-1">
+                <div className="rounded-lg bg-amber-500/8 border border-amber-500/20 px-3 py-2 space-y-1">
                   <div className="flex items-center gap-1.5">
-                    <CubeTransparentIcon className="w-3.5 h-3.5 text-blue-400" />
-                    <span className="text-[11px] font-semibold text-blue-300">Soul-Bound Token (SBT)</span>
+                    <CubeTransparentIcon className="w-3.5 h-3.5 text-amber-400" />
+                    <span className="text-[11px] font-semibold text-amber-300">{t('achievements.sbtLabel')}</span>
                   </div>
-                  <p className="text-[10px] text-zinc-500 font-mono break-all">{achievement.nftTxHash}</p>
+                  <p className="text-[10px] font-mono break-all" style={{ color: 'var(--sweet-text-muted)' }}>{achievement.nftTxHash}</p>
                   <a
                     href={`${TON_VIEWER_BASE}${achievement.nftTxHash}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={e => e.stopPropagation()}
-                    className="inline-flex items-center gap-1 text-[10px] text-blue-400 hover:text-blue-300 underline underline-offset-2"
+                    className="inline-flex items-center gap-1 text-[10px] text-amber-400 hover:text-amber-300 underline underline-offset-2"
                   >
-                    View transaction on TON testnet
+                    {t('achievements.viewTx')}
                     <ArrowTopRightOnSquareIcon className="w-3 h-3" />
                   </a>
                 </div>
               ) : unlocked ? (
-                <div className="rounded-lg bg-zinc-800/50 px-3 py-2">
-                  <p className="text-[10px] text-zinc-500">NFT minting in progress…</p>
+                <div className="rounded-lg px-3 py-2" style={{ background: 'var(--sweet-card-hover)' }}>
+                  <p className="text-[10px]" style={{ color: 'var(--sweet-text-muted)' }}>{t('achievements.nftMinting')}</p>
                 </div>
               ) : (
-                <p className="text-[11px] text-zinc-500">
-                  {achievement.requirement - achievement.progress} more to go
+                <p className="text-[11px]" style={{ color: 'var(--sweet-text-muted)' }}>
+                  {t('achievements.remaining')} {achievement.requirement - achievement.progress}
                 </p>
               )}
             </div>
@@ -226,6 +234,7 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function Achievements() {
+  const { t } = useTranslation();
   const { token } = useAuthStore();
   const queryClient = useQueryClient();
   const [activeCategory, setActiveCategory] = useState<string>('all');
@@ -242,19 +251,20 @@ export default function Achievements() {
     onSuccess: (res) => {
       const newly: string[] = (res as { data: { newlyUnlocked: string[] } }).data.newlyUnlocked;
       if (newly.length > 0) {
-        toast.success(`🏆 Unlocked: ${newly.join(', ')}`, { duration: 4000 });
+        confetti({ particleCount: 150, spread: 80, origin: { y: 0.5 } });
+        toast.success(t('achievements.newlyUnlocked', { items: newly.join(', ') }), { duration: 4000 });
       } else {
-        toast('No new achievements yet.', { icon: '🔍' });
+        toast(t('achievements.noNew'));
       }
       queryClient.invalidateQueries({ queryKey: ['achievements'] });
     },
-    onError: () => toast.error('Failed to check achievements'),
+    onError: () => toast.error(t('achievements.checkFailed')),
   });
 
   const data: AchievementsResponse | undefined = (raw as { data: AchievementsResponse })?.data;
   const achievements = data?.achievements ?? [];
 
-  const categories = ['all', ...Object.keys(CATEGORY_META)];
+  const categories = ['all', ...Object.keys(CATEGORY_EMOJI)];
   const filtered = activeCategory === 'all'
     ? achievements
     : achievements.filter(a => a.category === activeCategory);
@@ -274,14 +284,15 @@ export default function Achievements() {
             <div className="w-8 h-8 rounded-xl bg-yellow-400/15 border border-yellow-400/25 flex items-center justify-center">
               <TrophySolid className="w-4 h-4 text-yellow-400" />
             </div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">Achievements</h1>
+            <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--sweet-text)' }}>{t('achievements.title')}</h1>
           </div>
           <button
             onClick={() => checkMutation.mutate()}
             disabled={checkMutation.isPending}
-            className="text-xs px-3 py-1.5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300 hover:bg-zinc-700 transition-colors disabled:opacity-50"
+            className="text-xs px-3 py-1.5 rounded-full transition-colors disabled:opacity-50"
+            style={{ background: 'var(--sweet-card-hover)', border: '1px solid var(--sweet-border)', color: 'var(--sweet-text-secondary)' }}
           >
-            {checkMutation.isPending ? 'Checking…' : 'Check progress'}
+            {checkMutation.isPending ? t('achievements.checking') : t('achievements.check')}
           </button>
         </div>
       </motion.div>
@@ -295,13 +306,13 @@ export default function Achievements() {
           className="grid grid-cols-3 gap-3"
         >
           {[
-            { label: 'Unlocked',   value: `${unlockedCount}/${achievements.length}`, color: 'text-yellow-400' },
-            { label: 'Completion', value: `${completionPct}%`,                       color: 'text-green-400' },
-            { label: 'NFTs minted',value: nftCount,                                  color: 'text-blue-400' },
+            { label: t('achievements.stats.unlocked'),  value: `${unlockedCount}/${achievements.length}`, color: 'text-yellow-400' },
+            { label: t('achievements.stats.progress'),  value: `${completionPct}%`,                       color: 'text-green-400' },
+            { label: t('achievements.stats.nftMinted'), value: nftCount,                                  color: 'text-amber-400' },
           ].map(s => (
-            <div key={s.label} className="bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-center">
+            <div key={s.label} className="rounded-xl p-3 text-center" style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)' }}>
               <p className={`text-xl font-black ${s.color}`}>{s.value}</p>
-              <p className="text-[10px] text-zinc-500 mt-0.5">{s.label}</p>
+              <p className="text-[10px] mt-0.5" style={{ color: 'var(--sweet-text-muted)' }}>{s.label}</p>
             </div>
           ))}
         </motion.div>
@@ -313,15 +324,15 @@ export default function Achievements() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.1 }}
-          className="bg-blue-500/8 border border-blue-500/20 rounded-xl px-4 py-3 flex items-start gap-3"
+          className="bg-amber-500/8 border border-amber-500/20 rounded-xl px-4 py-3 flex items-start gap-3"
         >
-          <CubeTransparentIcon className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+          <CubeTransparentIcon className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
           <div>
-            <p className="text-xs font-semibold text-blue-300">
-              {nftCount} Soul-Bound Token{nftCount > 1 ? 's' : ''} minted on TON testnet
+            <p className="text-xs font-semibold text-amber-300">
+              {nftCount} {t('achievements.sbtBanner')}
             </p>
-            <p className="text-[10px] text-zinc-500 mt-0.5">
-              Your achievements are permanently recorded on the blockchain — tap any unlocked badge to view.
+            <p className="text-[10px] mt-0.5" style={{ color: 'var(--sweet-text-muted)' }}>
+              {t('achievements.sbtBannerDesc')}
             </p>
           </div>
         </motion.div>
@@ -330,18 +341,19 @@ export default function Achievements() {
       {/* ── Category filter ── */}
       <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
         {categories.map(cat => {
-          const meta = cat === 'all' ? null : CATEGORY_META[cat];
+          const emoji = cat === 'all' ? null : CATEGORY_EMOJI[cat];
+          const isActive = activeCategory === cat;
           return (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
-                activeCategory === cat
-                  ? 'bg-white text-black'
-                  : 'bg-zinc-900 border border-zinc-800 text-zinc-400 hover:border-zinc-600'
-              }`}
+              className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors"
+              style={isActive
+                ? { background: 'var(--sweet-text)', color: 'var(--sweet-bg)' }
+                : { background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)', color: 'var(--sweet-text-secondary)' }
+              }
             >
-              {meta ? `${meta.emoji} ${meta.label}` : '🏆 All'}
+              {emoji ? `${emoji} ${t(`achievements.categories.${cat}`)}` : t('achievements.categories.all')}
             </button>
           );
         })}
@@ -351,13 +363,13 @@ export default function Achievements() {
       {isLoading ? (
         <div className="space-y-3">
           {[1, 2, 3, 4].map(i => (
-            <div key={i} className="h-20 rounded-xl bg-zinc-900 border border-zinc-800 animate-pulse" />
+            <div key={i} className="h-20 rounded-xl animate-pulse" style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)' }} />
           ))}
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-12">
-          <TrophyIcon className="w-12 h-12 text-zinc-700 mx-auto mb-3" />
-          <p className="text-zinc-500 text-sm">No achievements in this category yet.</p>
+          <TrophyIcon className="w-12 h-12 mx-auto mb-3" style={{ color: 'var(--sweet-text-faint)' }} />
+          <p className="text-sm" style={{ color: 'var(--sweet-text-muted)' }}>{t('achievements.emptyCategory')}</p>
         </div>
       ) : (
         <div className="space-y-3">

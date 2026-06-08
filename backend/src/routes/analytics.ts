@@ -27,6 +27,7 @@ router.get(
         const now = new Date();
         const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+        const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
         const [
           totalPartners,
@@ -42,6 +43,7 @@ router.get(
           prevWeekPartners,
           currentWeekPoints,
           prevWeekPoints,
+          activePartnersLast30d,
         ] = await Promise.all([
           prisma.partner.count(),
           prisma.partner.count({ where: { status: 'ACTIVE' } }),
@@ -60,6 +62,10 @@ router.get(
           prisma.partner.count({ where: { createdAt: { gte: twoWeeksAgo, lt: weekAgo } } }),
           prisma.transaction.aggregate({ where: { createdAt: { gte: weekAgo } }, _sum: { pointsEarned: true } }),
           prisma.transaction.aggregate({ where: { createdAt: { gte: twoWeeksAgo, lt: weekAgo } }, _sum: { pointsEarned: true } }),
+          prisma.transaction.groupBy({
+            by: ['partnerId'],
+            where: { createdAt: { gte: thirtyDaysAgo } },
+          }).then((rows) => rows.length),
         ]);
 
         const totalPointsIssued = Number(pointsAggregate._sum.lifetimeEarned || 0n);
@@ -77,6 +83,7 @@ router.get(
         return successResponse(res, {
           totalPartners,
           activePartners,
+          activePartnersLast30d,
           totalTransactions,
           totalPointsIssued,
           totalPointsRedeemed,
@@ -287,6 +294,7 @@ router.get(
         by: ['partnerId'],
         where: { createdAt: { gte: weekAgo } },
         _sum: { pointsEarned: true },
+        _count: { id: true },
         orderBy: { _sum: { pointsEarned: 'desc' } },
         take: 5,
       });
@@ -305,6 +313,7 @@ router.get(
         companyName: partnerMap.get(g.partnerId)?.companyName || 'Unknown',
         tier: partnerMap.get(g.partnerId)?.tier || 'BRONZE',
         pointsIssued: (g._sum.pointsEarned || 0n).toString(),
+        transactionCount: g._count.id,
       }));
 
       return successResponse(res, topPartners);
