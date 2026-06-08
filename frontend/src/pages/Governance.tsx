@@ -128,11 +128,12 @@ const PAST_PROPOSALS_DATA: PastProposalData[] = [
   { titleKey: 'governance.pastProposals.5.title', status: 'rejected', resultKey: 'governance.pastProposals.5.result', dateKey: 'governance.pastProposals.5.date' },
 ];
 
-const STATUS_STYLES: Record<ProposalStatus, { bg: string; text: string }> = {
-  active: { bg: 'bg-amber-500/15', text: 'text-amber-400' },
-  passed: { bg: 'bg-green-500/15', text: 'text-green-400' },
-  rejected: { bg: 'bg-stone-500/15', text: 'text-stone-400' },
-  pending: { bg: 'bg-stone-500/15', text: 'text-stone-500' },
+/* Status styles using inline CSS vars */
+const STATUS_INLINE: Record<ProposalStatus, { bg: string; color: string }> = {
+  active:   { bg: 'rgba(245,158,11,0.13)',  color: '#f59e0b' },
+  passed:   { bg: 'rgba(52,211,153,0.13)',  color: '#34d399' },
+  rejected: { bg: 'rgba(120,113,108,0.18)', color: 'var(--sweet-text-muted)' },
+  pending:  { bg: 'rgba(120,113,108,0.14)', color: 'var(--sweet-text-faint)' },
 };
 
 const CATEGORY_KEYS = [
@@ -247,14 +248,17 @@ export default function Governance() {
   /*  JSX                                                              */
   /* ================================================================ */
   return (
-    <div className="space-y-6 pb-10 text-stone-100">
+    <div className="space-y-6 pb-10" style={{ color: 'var(--sweet-text)' }}>
       {/* -------- Header -------- */}
       <motion.div variants={fadeUp} initial="hidden" animate="show" custom={0}>
-        <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-          <ShieldCheckIcon className="w-7 h-7 text-amber-400" />
+        <h1
+          className="text-2xl font-bold tracking-tight flex items-center gap-2"
+          style={{ color: 'var(--sweet-text)' }}
+        >
+          <ShieldCheckIcon className="w-7 h-7" style={{ color: 'var(--sweet-accent)' }} />
           {t('governance.title')}
         </h1>
-        <p className="text-stone-400 text-sm mt-1">
+        <p className="text-sm mt-1" style={{ color: 'var(--sweet-text-muted)' }}>
           {t('governance.subtitle')}
         </p>
       </motion.div>
@@ -265,21 +269,44 @@ export default function Governance() {
         initial="hidden"
         animate="show"
         custom={1}
-        className="bg-gradient-to-br from-amber-500/10 via-stone-900 to-stone-900 border border-amber-500/20 rounded-2xl p-5"
+        className="rounded-2xl p-5"
+        style={{
+          background: 'linear-gradient(135deg, rgba(245,158,11,0.10) 0%, var(--sweet-card) 60%, var(--sweet-card) 100%)',
+          border: '1px solid rgba(245,158,11,0.22)',
+        }}
       >
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs text-stone-400 uppercase tracking-wider">{t('governance.votingPower')}</p>
-            <p className="text-3xl font-bold text-white mt-1">
-              1,250 <span className="text-base font-medium text-amber-400">GOV</span>
+            <p
+              className="text-xs uppercase tracking-wider"
+              style={{ color: 'var(--sweet-text-muted)' }}
+            >
+              {t('governance.votingPower')}
             </p>
-            <p className="text-sm text-stone-400 mt-0.5">1.0% {t('governance.ofTotalSupply')}</p>
+            <p className="text-3xl font-bold mt-1" style={{ color: 'var(--sweet-text)' }}>
+              1,250{' '}
+              <span className="text-base font-medium" style={{ color: 'var(--sweet-accent)' }}>
+                GOV
+              </span>
+            </p>
+            <p className="text-sm mt-0.5" style={{ color: 'var(--sweet-text-muted)' }}>
+              1.0% {t('governance.ofTotalSupply')}
+            </p>
           </div>
           <div className="flex flex-col items-end gap-2">
-            <div className="w-16 h-16 rounded-full bg-amber-400/10 border border-amber-400/30 flex items-center justify-center">
-              <FireIcon className="w-8 h-8 text-amber-400" />
+            <div
+              className="w-16 h-16 rounded-full flex items-center justify-center"
+              style={{
+                background: 'rgba(245,158,11,0.10)',
+                border: '1px solid rgba(245,158,11,0.30)',
+              }}
+            >
+              <FireIcon className="w-8 h-8" style={{ color: 'var(--sweet-accent)' }} />
             </div>
-            <button className="text-xs text-amber-400 hover:text-amber-300 font-medium transition-colors">
+            <button
+              className="text-xs font-medium transition-colors"
+              style={{ color: 'var(--sweet-accent)' }}
+            >
               {t('governance.delegate')}
             </button>
           </div>
@@ -290,7 +317,14 @@ export default function Governance() {
       <motion.div variants={fadeUp} initial="hidden" animate="show" custom={2}>
         <button
           onClick={() => setModalOpen(true)}
-          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 font-semibold text-sm hover:bg-amber-500/20 transition-colors"
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-colors"
+          style={{
+            background: 'rgba(245,158,11,0.10)',
+            border: '1px solid rgba(245,158,11,0.30)',
+            color: 'var(--sweet-accent)',
+          }}
+          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(245,158,11,0.18)')}
+          onMouseLeave={e => (e.currentTarget.style.background = 'rgba(245,158,11,0.10)')}
         >
           <PlusIcon className="w-5 h-5" />
           {t('governance.createProposal')}
@@ -299,7 +333,9 @@ export default function Governance() {
 
       {/* -------- Active Proposals -------- */}
       <motion.div variants={fadeUp} initial="hidden" animate="show" custom={3}>
-        <h2 className="text-lg font-semibold text-white mb-3">{t('governance.proposalsTitle')}</h2>
+        <h2 className="text-lg font-semibold mb-3" style={{ color: 'var(--sweet-text)' }}>
+          {t('governance.proposalsTitle')}
+        </h2>
       </motion.div>
 
       <div className="space-y-4">
@@ -307,7 +343,7 @@ export default function Governance() {
           const forPct = pct(p.votesFor, p.votesAgainst);
           const againstPct = 100 - forPct;
           const totalVotes = p.votesFor + p.votesAgainst + p.votesAbstain;
-          const cfg = STATUS_STYLES[p.status];
+          const cfg = STATUS_INLINE[p.status];
 
           return (
             <motion.div
@@ -316,24 +352,53 @@ export default function Governance() {
               initial="hidden"
               animate="show"
               custom={4 + idx}
-              className="bg-stone-900 border border-stone-800/80 rounded-2xl p-5 space-y-4"
+              className="rounded-2xl p-5 space-y-4"
+              style={{
+                background: 'var(--sweet-card)',
+                border: '1px solid var(--sweet-border)',
+              }}
             >
               {/* Top row */}
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-semibold text-white leading-snug">{t(p.titleKey, { defaultValue: p.titleKey })}</h3>
-                  <p className="text-xs text-stone-500 mt-1 line-clamp-2">{t(p.descKey, { defaultValue: p.descKey })}</p>
+                  <h3
+                    className="text-sm font-semibold leading-snug"
+                    style={{ color: 'var(--sweet-text)' }}
+                  >
+                    {t(p.titleKey, { defaultValue: p.titleKey })}
+                  </h3>
+                  <p
+                    className="text-xs mt-1 line-clamp-2"
+                    style={{ color: 'var(--sweet-text-faint)' }}
+                  >
+                    {t(p.descKey, { defaultValue: p.descKey })}
+                  </p>
                 </div>
-                <span className={`shrink-0 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${cfg.bg} ${cfg.text}`}>
+                <span
+                  className="shrink-0 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full"
+                  style={{ background: cfg.bg, color: cfg.color }}
+                >
                   {t(`governance.status.${p.status}`)}
                 </span>
               </div>
 
               {/* Meta */}
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-stone-500">
-                <span>{t('governance.author')}: <span className="text-stone-400 font-mono">{p.proposer}</span></span>
+              <div
+                className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px]"
+                style={{ color: 'var(--sweet-text-faint)' }}
+              >
+                <span>
+                  {t('governance.author')}:{' '}
+                  <span
+                    className="font-mono"
+                    style={{ color: 'var(--sweet-text-muted)' }}
+                  >
+                    {p.proposer}
+                  </span>
+                </span>
                 <span className="flex items-center gap-1">
-                  <ClockIcon className="w-3.5 h-3.5" /> {t(p.endsInKey, { defaultValue: p.endsInKey })}
+                  <ClockIcon className="w-3.5 h-3.5" />
+                  {t(p.endsInKey, { defaultValue: p.endsInKey })}
                 </span>
                 <span>{t(p.categoryKey, { defaultValue: p.categoryKey })}</span>
               </div>
@@ -342,27 +407,44 @@ export default function Governance() {
               {(p.status === 'active' || p.status === 'passed' || p.status === 'rejected') && totalVotes > 0 && (
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between text-[11px] font-medium">
-                    <span className="text-amber-400">{t('governance.voteFor')} {forPct}%</span>
-                    <span className="text-stone-400">{t('governance.voteAgainst')} {againstPct}%</span>
+                    <span style={{ color: 'var(--sweet-accent)' }}>
+                      {t('governance.voteFor')} {forPct}%
+                    </span>
+                    <span style={{ color: 'var(--sweet-text-muted)' }}>
+                      {t('governance.voteAgainst')} {againstPct}%
+                    </span>
                   </div>
-                  <div className="h-2.5 rounded-full bg-stone-800 overflow-hidden flex">
+                  <div
+                    className="h-2.5 rounded-full overflow-hidden flex"
+                    style={{ background: 'var(--sweet-input)' }}
+                  >
                     <motion.div
-                      className="bg-amber-500 rounded-l-full"
+                      className="rounded-l-full"
+                      style={{ background: 'var(--sweet-accent)' }}
                       initial={{ width: 0 }}
                       animate={{ width: `${forPct}%` }}
                       transition={{ duration: 0.6, ease: 'easeOut' }}
                     />
                     <motion.div
-                      className="bg-stone-500 rounded-r-full"
+                      className="rounded-r-full"
+                      style={{ background: 'var(--sweet-text-faint)' }}
                       initial={{ width: 0 }}
                       animate={{ width: `${againstPct}%` }}
                       transition={{ duration: 0.6, ease: 'easeOut' }}
                     />
                   </div>
-                  <div className="flex items-center justify-between text-[10px] text-stone-500">
-                    <span>{totalVotes.toLocaleString()} {t('governance.govVoted')}</span>
-                    <span className={quorumReached(p) ? 'text-amber-400' : 'text-stone-500'}>
-                      {t('governance.quorum')}: {quorumReached(p) ? t('governance.quorumReached') : t('governance.quorumNotReached')}
+                  <div
+                    className="flex items-center justify-between text-[10px]"
+                    style={{ color: 'var(--sweet-text-faint)' }}
+                  >
+                    <span>
+                      {totalVotes.toLocaleString()} {t('governance.govVoted')}
+                    </span>
+                    <span
+                      style={{ color: quorumReached(p) ? 'var(--sweet-accent)' : 'var(--sweet-text-faint)' }}
+                    >
+                      {t('governance.quorum')}:{' '}
+                      {quorumReached(p) ? t('governance.quorumReached') : t('governance.quorumNotReached')}
                     </span>
                   </div>
                 </div>
@@ -371,35 +453,70 @@ export default function Governance() {
               {/* Vote buttons */}
               {p.status === 'active' && (
                 <div className="flex gap-2">
+                  {/* FOR */}
                   <button
                     onClick={() => handleVote(p.id, 'for')}
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold transition-all ${
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold transition-all"
+                    style={
                       p.userVote === 'for'
-                        ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40 ring-1 ring-amber-500/20'
-                        : 'bg-stone-800 text-stone-400 border border-stone-700 hover:border-amber-500/40 hover:text-amber-400'
-                    }`}
+                        ? {
+                            background: 'rgba(245,158,11,0.18)',
+                            color: 'var(--sweet-accent)',
+                            border: '1px solid rgba(245,158,11,0.40)',
+                            boxShadow: '0 0 0 1px rgba(245,158,11,0.18)',
+                          }
+                        : {
+                            background: 'var(--sweet-input)',
+                            color: 'var(--sweet-text-muted)',
+                            border: '1px solid var(--sweet-border)',
+                          }
+                    }
                   >
                     <HandThumbUpIcon className="w-4 h-4" />
                     {t('governance.voteFor')}
                   </button>
+
+                  {/* AGAINST */}
                   <button
                     onClick={() => handleVote(p.id, 'against')}
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold transition-all ${
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold transition-all"
+                    style={
                       p.userVote === 'against'
-                        ? 'bg-stone-600/20 text-stone-300 border border-stone-500/40 ring-1 ring-stone-500/20'
-                        : 'bg-stone-800 text-stone-400 border border-stone-700 hover:border-stone-500/40 hover:text-stone-300'
-                    }`}
+                        ? {
+                            background: 'rgba(120,113,108,0.22)',
+                            color: 'var(--sweet-text-secondary)',
+                            border: '1px solid rgba(120,113,108,0.40)',
+                            boxShadow: '0 0 0 1px rgba(120,113,108,0.18)',
+                          }
+                        : {
+                            background: 'var(--sweet-input)',
+                            color: 'var(--sweet-text-muted)',
+                            border: '1px solid var(--sweet-border)',
+                          }
+                    }
                   >
                     <HandThumbDownIcon className="w-4 h-4" />
                     {t('governance.voteAgainst')}
                   </button>
+
+                  {/* ABSTAIN */}
                   <button
                     onClick={() => handleVote(p.id, 'abstain')}
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold transition-all ${
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold transition-all"
+                    style={
                       p.userVote === 'abstain'
-                        ? 'bg-stone-600/30 text-stone-300 border border-stone-500/40 ring-1 ring-stone-500/20'
-                        : 'bg-stone-800 text-stone-400 border border-stone-700 hover:border-stone-500/40 hover:text-stone-300'
-                    }`}
+                        ? {
+                            background: 'rgba(120,113,108,0.28)',
+                            color: 'var(--sweet-text-secondary)',
+                            border: '1px solid rgba(120,113,108,0.40)',
+                            boxShadow: '0 0 0 1px rgba(120,113,108,0.18)',
+                          }
+                        : {
+                            background: 'var(--sweet-input)',
+                            color: 'var(--sweet-text-muted)',
+                            border: '1px solid var(--sweet-border)',
+                          }
+                    }
                   >
                     <MinusCircleIcon className="w-4 h-4" />
                     {t('governance.voteAbstain')}
@@ -413,18 +530,31 @@ export default function Governance() {
 
       {/* -------- Governance Stats -------- */}
       <motion.div variants={fadeUp} initial="hidden" animate="show" custom={9}>
-        <h2 className="text-lg font-semibold text-white mb-3">{t('governance.statsTitle')}</h2>
+        <h2 className="text-lg font-semibold mb-3" style={{ color: 'var(--sweet-text)' }}>
+          {t('governance.statsTitle')}
+        </h2>
         <div className="grid grid-cols-2 gap-3">
           {[
-            { label: t('governance.stats.totalProposals'), value: totalProposals.toString(), icon: DocumentTextIcon, color: 'text-amber-400' },
-            { label: t('governance.stats.votesCast'), value: totalVotesCast.toLocaleString(), icon: UserGroupIcon, color: 'text-stone-300' },
-            { label: t('governance.stats.participation'), value: `${participationRate}%`, icon: CheckBadgeIcon, color: 'text-amber-400' },
-            { label: t('governance.stats.treasury'), value: treasuryBalance, icon: BanknotesIcon, color: 'text-amber-400' },
+            { label: t('governance.stats.totalProposals'), value: totalProposals.toString(), icon: DocumentTextIcon, accent: 'var(--sweet-accent)' },
+            { label: t('governance.stats.votesCast'), value: totalVotesCast.toLocaleString(), icon: UserGroupIcon, accent: 'var(--sweet-text-secondary)' },
+            { label: t('governance.stats.participation'), value: `${participationRate}%`, icon: CheckBadgeIcon, accent: 'var(--sweet-accent)' },
+            { label: t('governance.stats.treasury'), value: treasuryBalance, icon: BanknotesIcon, accent: 'var(--sweet-accent)' },
           ].map((s) => (
-            <div key={s.label} className="bg-stone-900 border border-stone-800/80 rounded-xl p-4 flex flex-col gap-1">
-              <s.icon className={`w-5 h-5 ${s.color}`} />
-              <span className="text-lg font-bold text-white">{s.value}</span>
-              <span className="text-[11px] text-stone-500">{s.label}</span>
+            <div
+              key={s.label}
+              className="rounded-xl p-4 flex flex-col gap-1"
+              style={{
+                background: 'var(--sweet-card)',
+                border: '1px solid var(--sweet-border)',
+              }}
+            >
+              <s.icon className="w-5 h-5" style={{ color: s.accent }} />
+              <span className="text-lg font-bold" style={{ color: 'var(--sweet-text)' }}>
+                {s.value}
+              </span>
+              <span className="text-[11px]" style={{ color: 'var(--sweet-text-faint)' }}>
+                {s.label}
+              </span>
             </div>
           ))}
         </div>
@@ -434,10 +564,20 @@ export default function Governance() {
       <motion.div variants={fadeUp} initial="hidden" animate="show" custom={10}>
         <button
           onClick={() => setShowPast(!showPast)}
-          className="w-full flex items-center justify-between py-3 px-4 rounded-xl bg-stone-900 border border-stone-800/80 text-sm font-semibold text-white hover:bg-stone-800/60 transition-colors"
+          className="w-full flex items-center justify-between py-3 px-4 rounded-xl text-sm font-semibold transition-colors"
+          style={{
+            background: 'var(--sweet-card)',
+            border: '1px solid var(--sweet-border)',
+            color: 'var(--sweet-text)',
+          }}
+          onMouseEnter={e => (e.currentTarget.style.background = 'var(--sweet-card-hover)')}
+          onMouseLeave={e => (e.currentTarget.style.background = 'var(--sweet-card)')}
         >
           <span>{t('governance.pastProposalsTitle')}</span>
-          <ChevronDownIcon className={`w-5 h-5 text-stone-400 transition-transform duration-300 ${showPast ? 'rotate-180' : ''}`} />
+          <ChevronDownIcon
+            className={`w-5 h-5 transition-transform duration-300 ${showPast ? 'rotate-180' : ''}`}
+            style={{ color: 'var(--sweet-text-muted)' }}
+          />
         </button>
 
         <AnimatePresence>
@@ -451,22 +591,45 @@ export default function Governance() {
             >
               <div className="space-y-2 mt-3">
                 {PAST_PROPOSALS_DATA.map((pp, i) => {
-                  const cfg = STATUS_STYLES[pp.status];
+                  const cfg = STATUS_INLINE[pp.status];
                   return (
                     <motion.div
                       key={i}
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.05 }}
-                      className="flex items-center justify-between gap-2 py-3 px-4 rounded-xl bg-stone-900/60 border border-stone-800/60"
+                      className="flex items-center justify-between gap-2 py-3 px-4 rounded-xl"
+                      style={{
+                        background: 'var(--sweet-card)',
+                        border: '1px solid var(--sweet-border)',
+                        opacity: 0.85,
+                      }}
                     >
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm text-white truncate">{t(pp.titleKey)}</p>
-                        <p className="text-[10px] text-stone-500 mt-0.5">{t(pp.dateKey)}</p>
+                        <p
+                          className="text-sm truncate"
+                          style={{ color: 'var(--sweet-text)' }}
+                        >
+                          {t(pp.titleKey)}
+                        </p>
+                        <p
+                          className="text-[10px] mt-0.5"
+                          style={{ color: 'var(--sweet-text-faint)' }}
+                        >
+                          {t(pp.dateKey)}
+                        </p>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        <span className="text-xs text-stone-400">{t(pp.resultKey)}</span>
-                        <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${cfg.bg} ${cfg.text}`}>
+                        <span
+                          className="text-xs"
+                          style={{ color: 'var(--sweet-text-muted)' }}
+                        >
+                          {t(pp.resultKey)}
+                        </span>
+                        <span
+                          className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full"
+                          style={{ background: cfg.bg, color: cfg.color }}
+                        >
                           {t(`governance.status.${pp.status}`)}
                         </span>
                       </div>
@@ -500,49 +663,97 @@ export default function Governance() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 40, scale: 0.97 }}
               transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-              className="fixed inset-x-4 top-[10%] z-[70] mx-auto max-w-lg bg-stone-900 border border-stone-700 rounded-2xl p-6 shadow-2xl"
+              className="fixed inset-x-4 top-[10%] z-[70] mx-auto max-w-lg rounded-2xl p-6 shadow-2xl"
+              style={{
+                background: 'var(--sweet-card)',
+                border: '1px solid var(--sweet-border)',
+              }}
             >
               {/* Close */}
               <button
                 onClick={() => setModalOpen(false)}
-                className="absolute top-4 right-4 text-stone-500 hover:text-white transition-colors"
+                className="absolute top-4 right-4 transition-colors"
+                style={{ color: 'var(--sweet-text-faint)' }}
+                onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.color = 'var(--sweet-text)')}
+                onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.color = 'var(--sweet-text-faint)')}
               >
                 <XMarkIcon className="w-5 h-5" />
               </button>
 
-              <h2 className="text-lg font-bold text-white mb-4">{t('governance.createProposal')}</h2>
+              <h2
+                className="text-lg font-bold mb-4"
+                style={{ color: 'var(--sweet-text)' }}
+              >
+                {t('governance.createProposal')}
+              </h2>
 
               <div className="space-y-4">
                 {/* Title */}
                 <div>
-                  <label className="block text-xs text-stone-400 mb-1">{t('governance.form.title')}</label>
+                  <label
+                    className="block text-xs mb-1"
+                    style={{ color: 'var(--sweet-text-muted)' }}
+                  >
+                    {t('governance.form.title')}
+                  </label>
                   <input
                     value={formTitle}
                     onChange={(e) => setFormTitle(e.target.value)}
                     placeholder={t('governance.form.titlePlaceholder')}
-                    className="w-full bg-stone-800 border border-stone-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder-stone-600 focus:outline-none focus:border-amber-500/50"
+                    className="w-full rounded-xl px-4 py-2.5 text-sm focus:outline-none transition-colors"
+                    style={{
+                      background: 'var(--sweet-input)',
+                      border: '1px solid var(--sweet-border)',
+                      color: 'var(--sweet-text)',
+                    }}
+                    onFocus={e => (e.target.style.borderColor = 'var(--sweet-accent)')}
+                    onBlur={e => (e.target.style.borderColor = 'var(--sweet-border)')}
                   />
                 </div>
 
                 {/* Description */}
                 <div>
-                  <label className="block text-xs text-stone-400 mb-1">{t('governance.form.description')}</label>
+                  <label
+                    className="block text-xs mb-1"
+                    style={{ color: 'var(--sweet-text-muted)' }}
+                  >
+                    {t('governance.form.description')}
+                  </label>
                   <textarea
                     value={formDesc}
                     onChange={(e) => setFormDesc(e.target.value)}
                     placeholder={t('governance.form.descriptionPlaceholder')}
                     rows={4}
-                    className="w-full bg-stone-800 border border-stone-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder-stone-600 focus:outline-none focus:border-amber-500/50 resize-none"
+                    className="w-full rounded-xl px-4 py-2.5 text-sm focus:outline-none resize-none transition-colors"
+                    style={{
+                      background: 'var(--sweet-input)',
+                      border: '1px solid var(--sweet-border)',
+                      color: 'var(--sweet-text)',
+                    }}
+                    onFocus={e => (e.target.style.borderColor = 'var(--sweet-accent)')}
+                    onBlur={e => (e.target.style.borderColor = 'var(--sweet-border)')}
                   />
                 </div>
 
                 {/* Category */}
                 <div>
-                  <label className="block text-xs text-stone-400 mb-1">{t('governance.form.category')}</label>
+                  <label
+                    className="block text-xs mb-1"
+                    style={{ color: 'var(--sweet-text-muted)' }}
+                  >
+                    {t('governance.form.category')}
+                  </label>
                   <select
                     value={formCategory}
                     onChange={(e) => setFormCategory(e.target.value)}
-                    className="w-full bg-stone-800 border border-stone-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500/50 appearance-none"
+                    className="w-full rounded-xl px-4 py-2.5 text-sm focus:outline-none appearance-none transition-colors"
+                    style={{
+                      background: 'var(--sweet-input)',
+                      border: '1px solid var(--sweet-border)',
+                      color: 'var(--sweet-text)',
+                    }}
+                    onFocus={e => (e.target.style.borderColor = 'var(--sweet-accent)')}
+                    onBlur={e => (e.target.style.borderColor = 'var(--sweet-border)')}
                   >
                     {CATEGORY_KEYS.map((c) => (
                       <option key={c} value={c}>{t(c)}</option>
@@ -552,17 +763,31 @@ export default function Governance() {
 
                 {/* Duration */}
                 <div>
-                  <label className="block text-xs text-stone-400 mb-1">{t('governance.form.duration')}</label>
+                  <label
+                    className="block text-xs mb-1"
+                    style={{ color: 'var(--sweet-text-muted)' }}
+                  >
+                    {t('governance.form.duration')}
+                  </label>
                   <div className="flex gap-2">
                     {[3, 5, 7].map((d) => (
                       <button
                         key={d}
                         onClick={() => setFormDuration(d)}
-                        className={`flex-1 py-2 rounded-xl text-sm font-medium transition-all border ${
+                        className="flex-1 py-2 rounded-xl text-sm font-medium transition-all"
+                        style={
                           formDuration === d
-                            ? 'bg-amber-500/15 border-amber-500/40 text-amber-400'
-                            : 'bg-stone-800 border-stone-700 text-stone-400 hover:border-stone-600'
-                        }`}
+                            ? {
+                                background: 'rgba(245,158,11,0.15)',
+                                border: '1px solid rgba(245,158,11,0.40)',
+                                color: 'var(--sweet-accent)',
+                              }
+                            : {
+                                background: 'var(--sweet-input)',
+                                border: '1px solid var(--sweet-border)',
+                                color: 'var(--sweet-text-muted)',
+                              }
+                        }
                       >
                         {d} {t('governance.form.days')}
                       </button>
@@ -571,7 +796,7 @@ export default function Governance() {
                 </div>
 
                 {/* Requirement notice */}
-                <p className="text-[11px] text-stone-500">
+                <p className="text-[11px]" style={{ color: 'var(--sweet-text-faint)' }}>
                   {t('governance.form.minRequirement')}
                 </p>
 
@@ -579,7 +804,11 @@ export default function Governance() {
                 <button
                   onClick={handleCreate}
                   disabled={!formTitle.trim()}
-                  className="w-full py-3 rounded-xl bg-amber-500 text-stone-900 font-bold text-sm hover:bg-amber-400 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="w-full py-3 rounded-xl font-bold text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  style={{
+                    background: 'var(--sweet-accent)',
+                    color: 'var(--sweet-bg, #0d0b0a)',
+                  }}
                 >
                   {t('governance.form.submit')}
                 </button>
