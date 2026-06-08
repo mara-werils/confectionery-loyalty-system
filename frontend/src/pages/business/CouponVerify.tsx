@@ -84,7 +84,6 @@ export default function CouponVerify() {
     setCode(parsed);
     // Defer to next tick so state updates above flush before verify kicks off
     setTimeout(() => handleVerify(parsed), 0);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
