@@ -296,21 +296,27 @@ router.post('/:code/redeem', authenticate, async (req: Request, res: Response, n
   try {
     const { code } = req.params;
 
+    // First verify the coupon exists and check its state
     const coupon = await prisma.coupon.findUnique({ where: { code } });
     if (!coupon) throw new AppError('Coupon not found', 404, 'COUPON_NOT_FOUND');
     if (coupon.status === 'REDEEMED') throw new AppError('Coupon already redeemed', 400, 'ALREADY_REDEEMED');
-    if (coupon.status === 'EXPIRED') throw new AppError('Coupon has expired', 400, 'COUPON_EXPIRED');
-    if (coupon.expiresAt < new Date()) throw new AppError('Coupon has expired', 400, 'COUPON_EXPIRED');
+    if (coupon.status === 'EXPIRED' || coupon.expiresAt < new Date()) {
+      throw new AppError('Coupon has expired', 400, 'COUPON_EXPIRED');
+    }
 
     const redeemedAt = new Date();
-    const updated = await prisma.coupon.update({
-      where: { code },
+    // Atomic update: only succeeds if status is still ACTIVE — prevents race condition
+    // from concurrent requests that both passed the status check above
+    const result = await prisma.coupon.updateMany({
+      where: { code, status: 'ACTIVE' },
       data: { status: 'REDEEMED', redeemedAt },
     });
-
+    if (result.count === 0) {
+      throw new AppError('Coupon already redeemed', 400, 'ALREADY_REDEEMED');
+    }
     // Always overwrite cache — even on miss — so next verify never returns stale ACTIVE
     const existingCache = await cache.get(`coupon:${code}`);
-    const base = existingCache ? JSON.parse(existingCache) : { code: updated.code, rewardTitle: updated.rewardTitle };
+    const base = existingCache ? JSON.parse(existingCache) : { code: coupon.code, rewardTitle: coupon.rewardTitle };
     await cache.set(`coupon:${code}`, JSON.stringify({
       ...base,
       status: 'REDEEMED',
@@ -318,9 +324,9 @@ router.post('/:code/redeem', authenticate, async (req: Request, res: Response, n
     }), COUPON_CACHE_TTL);
 
     return successResponse(res, {
-      code: updated.code,
-      rewardTitle: updated.rewardTitle,
-      redeemedAt: updated.redeemedAt?.toISOString(),
+      code: coupon.code,
+      rewardTitle: coupon.rewardTitle,
+      redeemedAt: redeemedAt.toISOString(),
     }, 'Coupon redeemed successfully');
   } catch (error) {
     return next(error);
