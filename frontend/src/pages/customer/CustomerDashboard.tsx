@@ -856,7 +856,7 @@ export default function CustomerDashboard() {
                   <div>
                     <div className="flex items-center gap-1.5">
                       <p className="text-xs font-medium" style={{ color: 'var(--sweet-text)' }}>
-                        {tx.comment || t('customerDashboard.cashback')}
+                        SWEET {t('customerDashboard.cashback')}
                       </p>
                       <span
                         className="flex items-center gap-0.5 px-1 py-0.5 rounded"
