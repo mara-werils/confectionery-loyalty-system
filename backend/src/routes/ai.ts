@@ -7,6 +7,8 @@ import {
   computeRevenueForecast,
   computeRecommendations,
 } from '../services/ai.service';
+import { askClaude, askClaudeJSON } from '../services/claude.service';
+import { AppError } from '../middleware/errorHandler';
 
 const router = Router();
 
@@ -142,6 +144,284 @@ router.get(
           bonusSent: i.bonusSent,
           createdAt: i.createdAt.toISOString(),
         })),
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+);
+
+// ============================================================================
+// 5. AI WEEKLY BI REPORT (Claude Code CLI)
+// ============================================================================
+
+/**
+ * @swagger
+ * /ai/report:
+ *   post:
+ *     summary: Generate AI-powered weekly business intelligence report
+ *     description: >
+ *       Collects all ecosystem metrics (partners, revenue, churn, tokens,
+ *       rewards) and sends them to Claude AI for a comprehensive narrative
+ *       business report in Markdown format.
+ *     tags: [AI]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Generated BI report
+ */
+router.post(
+  '/report',
+  authenticate,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const now = new Date();
+      const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+
+      // Gather all metrics in parallel
+      const [
+        totalPartners,
+        activePartners,
+        newPartnersThisWeek,
+        txThisWeek,
+        txLastWeek,
+        totalTokensIssued,
+        totalTokensRedeemed,
+        rewardsClaimedThisWeek,
+        topPartners,
+        churnRisks,
+        revenueThisWeek,
+        revenueLastWeek,
+      ] = await Promise.all([
+        prisma.partner.count(),
+        prisma.partner.count({ where: { status: 'ACTIVE' } }),
+        prisma.partner.count({ where: { createdAt: { gte: sevenDaysAgo } } }),
+        prisma.transaction.count({ where: { createdAt: { gte: sevenDaysAgo } } }),
+        prisma.transaction.count({
+          where: { createdAt: { gte: fourteenDaysAgo, lt: sevenDaysAgo } },
+        }),
+        prisma.transaction.aggregate({
+          where: { createdAt: { gte: sevenDaysAgo } },
+          _sum: { pointsEarned: true },
+        }),
+        prisma.claimedReward.count({ where: { createdAt: { gte: sevenDaysAgo } } }).then(c => ({ _sum: { pointsEarned: c } })),
+        prisma.claimedReward.count({ where: { createdAt: { gte: sevenDaysAgo } } }),
+        prisma.partner.findMany({
+          where: { status: 'ACTIVE' },
+          include: { loyaltyPoints: true, transactions: { where: { createdAt: { gte: sevenDaysAgo } } } },
+          orderBy: { createdAt: 'desc' },
+          take: 10,
+        }),
+        computeChurnRisks(),
+        prisma.transaction.aggregate({
+          where: { createdAt: { gte: sevenDaysAgo } },
+          _sum: { amount: true },
+        }),
+        prisma.transaction.aggregate({
+          where: { createdAt: { gte: fourteenDaysAgo, lt: sevenDaysAgo } },
+          _sum: { amount: true },
+        }),
+      ]);
+
+      const criticalChurn = churnRisks.filter(c => c.riskLevel === 'CRITICAL').length;
+      const highChurn = churnRisks.filter(c => c.riskLevel === 'HIGH').length;
+
+      const metrics = {
+        period: `${sevenDaysAgo.toISOString().split('T')[0]} — ${now.toISOString().split('T')[0]}`,
+        partners: { total: totalPartners, active: activePartners, newThisWeek: newPartnersThisWeek },
+        transactions: {
+          thisWeek: txThisWeek,
+          lastWeek: txLastWeek,
+          changePercent: txLastWeek > 0 ? Math.round(((txThisWeek - txLastWeek) / txLastWeek) * 100) : 0,
+        },
+        revenue: {
+          thisWeekKZT: Number(revenueThisWeek._sum.amount ?? 0),
+          lastWeekKZT: Number(revenueLastWeek._sum.amount ?? 0),
+        },
+        tokens: {
+          issuedThisWeek: Number(totalTokensIssued._sum.pointsEarned ?? 0),
+          redeemedThisWeek: Math.abs(Number(totalTokensRedeemed._sum.pointsEarned ?? 0)),
+        },
+        rewards: { claimedThisWeek: rewardsClaimedThisWeek },
+        churnRisk: { critical: criticalChurn, high: highChurn, total: churnRisks.length },
+        topPartners: topPartners.map(p => ({
+          name: p.companyName,
+          tier: p.tier,
+          txCount: p.transactions.length,
+          balance: Number(p.loyaltyPoints?.balance ?? 0),
+        })),
+      };
+
+      const prompt = `You are a senior business analyst for "Sweet Loyalty" — a blockchain-based loyalty platform for confectioneries in Kazakhstan. Generate a professional weekly business intelligence report based on the following metrics.
+
+DATA:
+${JSON.stringify(metrics, null, 2)}
+
+REQUIREMENTS:
+- Write in Russian language
+- Use Markdown formatting with headers (##), bold, and bullet points
+- Structure: Краткое резюме → Партнёры → Выручка и транзакции → Токеномика SWEET → Риски оттока → Рекомендации на следующую неделю
+- Include specific numbers and percentage changes
+- Be concise but insightful — highlight what's important
+- Add 2-3 actionable recommendations at the end
+- Do NOT wrap the output in a code block`;
+
+      const report = await askClaude(prompt, {
+        timeout: 90_000,
+        systemPrompt: 'You are a business intelligence analyst. Return only the Markdown report, no extra commentary.',
+      });
+
+      return successResponse(res, {
+        report,
+        metrics,
+        generatedAt: now.toISOString(),
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+);
+
+// ============================================================================
+// 6. AI TRANSACTION ANOMALY DETECTION (Claude Code CLI)
+// ============================================================================
+
+/**
+ * @swagger
+ * /ai/anomalies:
+ *   post:
+ *     summary: Detect anomalies in recent transactions using AI
+ *     description: >
+ *       Analyses the last 48 hours of transactions and flags suspicious
+ *       patterns: point farming, unusual spikes, duplicate transactions,
+ *       and potential fraud — with natural language explanations.
+ *     tags: [AI]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Anomaly detection results
+ */
+router.post(
+  '/anomalies',
+  authenticate,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const now = new Date();
+      const twoDaysAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000);
+
+      // Get recent transactions with partner details
+      const transactions = await prisma.transaction.findMany({
+        where: { createdAt: { gte: twoDaysAgo } },
+        include: {
+          partner: { select: { companyName: true, tier: true, status: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 200,
+      });
+
+      if (transactions.length === 0) {
+        return successResponse(res, {
+          anomalies: [],
+          summary: 'Нет транзакций за последние 48 часов для анализа.',
+          riskLevel: 'NONE',
+          analyzedCount: 0,
+          generatedAt: now.toISOString(),
+        });
+      }
+
+      // Pre-compute statistical signals for Claude
+      const partnerTxCounts: Record<string, number> = {};
+      const hourlyVolume: Record<string, number> = {};
+      const amounts: number[] = [];
+
+      for (const tx of transactions) {
+        const pName = tx.partner?.companyName ?? tx.partnerId;
+        partnerTxCounts[pName] = (partnerTxCounts[pName] ?? 0) + 1;
+
+        const hour = new Date(tx.createdAt).toISOString().slice(0, 13);
+        hourlyVolume[hour] = (hourlyVolume[hour] ?? 0) + 1;
+
+        amounts.push(Number(tx.amount));
+      }
+
+      const avgAmount = amounts.reduce((a, b) => a + b, 0) / amounts.length;
+      const maxAmount = Math.max(...amounts);
+      const stdDev = Math.sqrt(amounts.reduce((sum, a) => sum + (a - avgAmount) ** 2, 0) / amounts.length);
+
+      const txSample = transactions.slice(0, 100).map(tx => ({
+        id: tx.id.slice(0, 8),
+        partner: tx.partner?.companyName ?? 'Unknown',
+        tier: tx.partner?.tier ?? 'N/A',
+        type: tx.type,
+        amount: Number(tx.amount),
+        points: Number(tx.pointsEarned),
+        time: tx.createdAt.toISOString(),
+      }));
+
+      const prompt = `You are a fraud detection analyst for "Sweet Loyalty" — a blockchain-based confectionery loyalty system. Analyze these transactions for anomalies.
+
+STATISTICAL OVERVIEW:
+- Total transactions (48h): ${transactions.length}
+- Average amount: ${Math.round(avgAmount)} KZT
+- Max amount: ${maxAmount} KZT
+- Standard deviation: ${Math.round(stdDev)} KZT
+- Transactions per partner: ${JSON.stringify(partnerTxCounts)}
+- Hourly volume: ${JSON.stringify(hourlyVolume)}
+
+TRANSACTION SAMPLE (latest 100):
+${JSON.stringify(txSample, null, 2)}
+
+DETECT THESE PATTERNS:
+1. Point farming — same partner making many small transactions to accumulate points
+2. Unusual spikes — abnormal transaction volume in a short time window
+3. Amount outliers — transactions > 3 standard deviations from mean
+4. Duplicate patterns — same amount repeated many times from same partner
+5. Suspicious timing — burst of transactions at unusual hours
+6. Tier abuse — Bronze partner with unusually high transaction volume
+
+Return ONLY valid JSON (no markdown, no code blocks) with this exact structure:
+{
+  "anomalies": [
+    {
+      "id": "string — short anomaly ID like ANM-001",
+      "type": "POINT_FARMING | SPIKE | OUTLIER | DUPLICATE | TIMING | TIER_ABUSE",
+      "severity": "LOW | MEDIUM | HIGH | CRITICAL",
+      "partner": "partner name",
+      "description": "1-2 sentence explanation in Russian",
+      "evidence": "specific numbers/data supporting the finding",
+      "recommendation": "what to do about it in Russian"
+    }
+  ],
+  "summary": "2-3 sentence overall assessment in Russian",
+  "riskLevel": "NONE | LOW | MEDIUM | HIGH | CRITICAL"
+}`;
+
+      const result = await askClaudeJSON<{
+        anomalies: Array<{
+          id: string;
+          type: string;
+          severity: string;
+          partner: string;
+          description: string;
+          evidence: string;
+          recommendation: string;
+        }>;
+        summary: string;
+        riskLevel: string;
+      }>(prompt, {
+        timeout: 90_000,
+        systemPrompt: 'You are a fraud detection system. Return ONLY valid JSON, no markdown.',
+      });
+
+      return successResponse(res, {
+        ...result,
+        analyzedCount: transactions.length,
+        timeRange: { from: twoDaysAgo.toISOString(), to: now.toISOString() },
+        stats: { avgAmount: Math.round(avgAmount), maxAmount, stdDev: Math.round(stdDev) },
+        generatedAt: now.toISOString(),
       });
     } catch (error) {
       return next(error);
