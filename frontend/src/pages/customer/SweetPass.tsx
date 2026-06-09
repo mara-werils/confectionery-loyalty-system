@@ -83,6 +83,9 @@ export default function SweetPass() {
   const [submitting, setSubmitting] = useState(false);
 
   const socketRef = useRef<Socket | null>(null);
+  // Order ids the chain has already confirmed FUNDED (via socket push or a poll),
+  // so an in-flight pollConfirm can stop the moment funding lands either way.
+  const fundedRef = useRef<Set<string>>(new Set());
 
   const loadOrders = async () => {
     try {
@@ -126,7 +129,11 @@ export default function SweetPass() {
     socket.emit('subscribe:wallet', walletAddress);
 
     const refresh = () => { loadOrders(); loadMetrics(); };
-    socket.on('sweetpass:funded', () => { toast.success('Deposit locked in escrow'); refresh(); });
+    socket.on('sweetpass:funded', (p?: { orderId?: string }) => {
+      if (p?.orderId) fundedRef.current.add(p.orderId);
+      toast.success('Deposit locked in escrow');
+      refresh();
+    });
     socket.on('sweetpass:released', () => { toast.success('Order fulfilled — paid to confectionery'); refresh(); });
     socket.on('sweetpass:refunded', () => { toast('Order refunded to you', { icon: '↩️' }); refresh(); });
 
@@ -175,19 +182,32 @@ export default function SweetPass() {
     }
   };
 
-  // Poll confirm-deposit until the chain shows FUNDED (escrow is the source of truth)
+  // Confirm the deposit as fast as the chain allows. We try immediately, then on a
+  // short backoff, and bail the instant funding is observed — either from this poll
+  // or from the backend's socket push (whichever wins). The backend also runs its
+  // own deposit-confirmation sweep, so funding still lands if this poll is cut short.
   const pollConfirm = (orderId: string) => {
     let attempts = 0;
     const tick = async () => {
+      if (fundedRef.current.has(orderId)) return; // socket push already confirmed it
       attempts += 1;
       try {
         const res = await api.sweetpass.confirmDeposit(orderId);
         const status = (res as { data?: { status?: string } }).data?.status;
-        if (status === 'FUNDED') { loadOrders(); loadMetrics(); return; }
+        if (status === 'FUNDED') {
+          fundedRef.current.add(orderId);
+          loadOrders();
+          loadMetrics();
+          return;
+        }
       } catch { /* keep polling */ }
-      if (attempts < 20) setTimeout(tick, 3000);
+      if (attempts < 30) {
+        // 1.5s for the first few checks, easing out to 3s to stay light on the RPC.
+        const delay = attempts < 6 ? 1500 : Math.min(1500 + (attempts - 5) * 300, 3000);
+        setTimeout(tick, delay);
+      }
     };
-    setTimeout(tick, 3000);
+    tick(); // first attempt immediately — no upfront wait
   };
 
   const metricCards = metrics
