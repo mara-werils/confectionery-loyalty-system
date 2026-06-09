@@ -4,7 +4,7 @@ import {
   ShoppingBagIcon,
   GiftIcon,
   UsersThreeIcon,
-  SparkleIcon,
+  CoinsIcon,
   ArrowSquareOutIcon,
   CopyIcon,
   CheckIcon,
@@ -144,7 +144,7 @@ const TYPE_CONFIG: Record<TxType, {
     badgeText: 'text-emerald-400',
   },
   BONUS: {
-    icon: SparkleIcon,
+    icon: CoinsIcon,
     label: 'Bonus',
     borderColor: 'border-l-blue-500',
     iconBg: 'bg-blue-500/10 border border-blue-500/20',

@@ -4,7 +4,7 @@ import {
   TrophyIcon,
   LockIcon,
   ArrowSquareOutIcon,
-  SparkleIcon,
+  StarIcon,
   SealCheckIcon,
   CubeTransparentIcon,
 } from '@phosphor-icons/react';
@@ -129,7 +129,7 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
           {/* NFT sparkle indicator */}
           {unlocked && achievement.nftTxHash && (
             <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-500 flex items-center justify-center">
-              <SparkleIcon className="w-2.5 h-2.5 text-white" />
+              <StarIcon className="w-2.5 h-2.5 text-white" />
             </div>
           )}
 

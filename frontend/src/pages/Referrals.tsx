@@ -8,7 +8,7 @@ import {
   ClipboardTextIcon,
   CheckIcon,
   TrophyIcon,
-  SparkleIcon,
+  CoinsIcon,
   GiftIcon,
 } from '@phosphor-icons/react';
 import toast from 'react-hot-toast';
@@ -102,7 +102,7 @@ export default function Referrals() {
       <div className="grid grid-cols-2 gap-4">
         {[
           { icon: <UserPlusIcon className="w-4 h-4" style={{ color: 'var(--sweet-text-muted)' }} />, label: t('referrals.partnersReferred'), value: statsLoading ? '…' : (stats?.totalReferrals ?? 0) },
-          { icon: <SparkleIcon className="w-4 h-4" style={{ color: 'var(--sweet-text-muted)' }} />, label: t('referrals.bonusEarned'), value: statsLoading ? '…' : Number(stats?.totalBonusEarned || 0).toLocaleString(), suffix: 'SWEET' },
+          { icon: <CoinsIcon className="w-4 h-4" style={{ color: 'var(--sweet-text-muted)' }} />, label: t('referrals.bonusEarned'), value: statsLoading ? '…' : Number(stats?.totalBonusEarned || 0).toLocaleString(), suffix: 'SWEET' },
         ].map(({ icon, label, value, suffix }) => (
           <div key={label} className="rounded-xl p-5" style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)' }}>
             <div className="flex items-center gap-2 mb-1">

@@ -2,7 +2,7 @@ import {
   StorefrontIcon,
   CurrencyDollarIcon,
   ChartBarIcon,
-  SparkleIcon,
+  StarIcon,
   TrophyIcon,
   TrendUpIcon,
   ArrowUpIcon,
@@ -247,7 +247,7 @@ export default function Stats() {
             />
             <StatCard
               index={2}
-              icon={SparkleIcon}
+              icon={StarIcon}
               label="SWEET выпущено"
               value={summary?.totalPointsIssued?.toLocaleString() ?? '—'}
               sub="Токенов создано"

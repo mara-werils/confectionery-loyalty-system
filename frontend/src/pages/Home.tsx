@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTonWallet } from '@tonconnect/ui-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { StorefrontIcon, UserIcon, SparkleIcon, ShieldCheckIcon, CubeTransparentIcon } from '@phosphor-icons/react';
+import { StorefrontIcon, UserIcon, StarIcon, ShieldCheckIcon, CubeTransparentIcon } from '@phosphor-icons/react';
 import WalletConnect from '../components/WalletConnect';
 import { useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
@@ -241,7 +241,7 @@ export default function Home() {
 
   const valueCards = [
     {
-      icon: <SparkleIcon className="w-5 h-5" />,
+      icon: <StarIcon className="w-5 h-5" />,
       title: t('home.step3Title'),
       body: 'Earn SWEET tokens with every purchase at partner confectioneries.',
     },
@@ -376,7 +376,7 @@ export default function Home() {
                   Gasless transactions
                 </TrustBadge>
                 <TrustBadge>
-                  <SparkleIcon className="w-3.5 h-3.5" style={{ color: 'var(--sweet-accent)' }} />
+                  <StarIcon className="w-3.5 h-3.5" style={{ color: 'var(--sweet-accent)' }} />
                   SWEET tokens
                 </TrustBadge>
               </div>

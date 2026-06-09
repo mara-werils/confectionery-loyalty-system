@@ -16,7 +16,7 @@ import {
   CheckIcon,
   XIcon,
   ClipboardTextIcon,
-  SparkleIcon,
+  CoinsIcon,
   TrophyIcon,
   ClockIcon,
 } from '@phosphor-icons/react';
@@ -384,7 +384,7 @@ export default function Profile() {
         {/* ── Stats Row ── */}
         <motion.div variants={fadeUp} className="grid grid-cols-3 gap-2.5">
           {[
-            { label: 'Balance',  value: balance.toLocaleString(),          sub: 'SWEET',  icon: SparkleIcon, accent: true },
+            { label: 'Balance',  value: balance.toLocaleString(),          sub: 'SWEET',  icon: CoinsIcon, accent: true },
             { label: 'Lifetime', value: lifetimeEarned.toLocaleString(),   sub: 'earned', icon: TrophyIcon,   accent: false },
             { label: 'Coupons',  value: useAuthStore.getState().activeCoupons.length, sub: 'active', icon: ClockIcon, accent: false },
           ].map(({ label, value, sub, icon: Icon, accent }, i) => (

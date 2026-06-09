@@ -14,7 +14,8 @@ import {
   ClipboardTextIcon,
   WarningCircleIcon,
   ShoppingBagIcon,
-  SparkleIcon,
+  FlaskIcon,
+  CoinsIcon,
   LightningIcon,
   CakeIcon,
   CurrencyDollarIcon,
@@ -554,7 +555,7 @@ export default function Dashboard() {
                   color: 'var(--sweet-accent)',
                 }}
               >
-                <SparkleIcon style={{ width: 10, height: 10 }} />
+                <FlaskIcon style={{ width: 10, height: 10 }} />
                 Demo
               </span>
             }
@@ -708,7 +709,7 @@ export default function Dashboard() {
                     </motion.span>
                   ) : (
                     <motion.span key="idle" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <SparkleIcon style={{ width: 15, height: 15 }} />
+                      <CoinsIcon style={{ width: 15, height: 15 }} />
                       {t('dashboard.issueSweet') || 'Issue SWEET Tokens'}
                     </motion.span>
                   )}
@@ -1169,7 +1170,7 @@ export default function Dashboard() {
                     border: '2px solid rgba(245,158,11,0.4)',
                   }}
                 >
-                  <SparkleIcon style={{ width: 30, height: 30, color: 'var(--sweet-accent)' }} />
+                  <CoinsIcon style={{ width: 30, height: 30, color: 'var(--sweet-accent)' }} />
                 </motion.div>
                 <h3 style={{ fontSize: 17, fontWeight: 800, color: 'var(--sweet-text)', margin: 0 }}>SWEET Issued!</h3>
                 <p style={{ fontSize: 12, marginTop: 5, color: 'var(--sweet-text-muted)' }}>
