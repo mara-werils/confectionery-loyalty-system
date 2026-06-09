@@ -514,7 +514,7 @@ export default function Dashboard() {
           />
         </div>
 
-        {/* ── Simulate Purchase ───────────────────────────────────────────── */}
+        {/* ── POS / Cashback Terminal ──────────────────────────────────────── */}
         <motion.section
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
@@ -528,6 +528,161 @@ export default function Dashboard() {
             boxShadow: '0 0 0 1px var(--sweet-accent-dim), 0 4px 28px rgba(0,0,0,0.12)',
           }}
         >
+              <SectionHeader
+                icon={
+                  <div
+                    style={{
+                      width: 32, height: 32, borderRadius: 9,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      background: 'var(--sweet-input)',
+                      border: '1px solid var(--sweet-border)',
+                      color: 'var(--sweet-text-muted)',
+                    }}
+                  >
+                    <CreditCardIcon style={{ width: 15, height: 15 }} />
+                  </div>
+                }
+                title={t('dashboard.cashbackTerminal') || 'Point of Sale Terminal'}
+              />
+
+              <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 18 }}>
+                {/* Amount */}
+                <div>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--sweet-text-muted)', marginBottom: 8 }}>
+                    {t('dashboard.enterPurchaseAmount') || 'Transaction Amount (KZT)'}
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <span style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)', fontSize: 13, fontWeight: 800, color: 'var(--sweet-accent)', userSelect: 'none' }}>
+                      &#x20B8;
+                    </span>
+                    <input
+                      type="number"
+                      style={{ ...inputStyle, paddingLeft: 30 }}
+                      placeholder="0.00"
+                      value={posAmount}
+                      onChange={(e) => setPosAmount(Number(e.target.value) || '')}
+                      onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--sweet-accent)')}
+                      onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--sweet-border)')}
+                    />
+                  </div>
+                </div>
+
+                {/* Wallet + QR */}
+                <div>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--sweet-text-muted)', marginBottom: 8 }}>
+                    {t('dashboard.scanCustomerQr') || 'Customer Wallet Address'}
+                  </label>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <div style={{ position: 'relative', flex: 1, minWidth: 0 }}>
+                      <input
+                        type="text"
+                        style={{
+                          ...inputStyle,
+                          fontFamily: 'monospace',
+                          fontSize: 11,
+                          color: 'var(--sweet-text-secondary)',
+                          borderColor: addressError
+                            ? 'rgba(239,68,68,0.5)'
+                            : clientWalletAddress && !addressError
+                            ? 'rgba(16,185,129,0.5)'
+                            : 'var(--sweet-border)',
+                        }}
+                        placeholder="UQ... or EQ..."
+                        value={clientWalletAddress}
+                        onChange={(e) => handleAddressChange(e.target.value)}
+                      />
+                      {clientWalletAddress && addressError && (
+                        <div style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)' }}>
+                          <WarningCircleIcon style={{ width: 15, height: 15, color: '#f87171' }} />
+                        </div>
+                      )}
+                    </div>
+                    <motion.button
+                      whileTap={{ scale: 0.93 }}
+                      onClick={() => setShowScanner(true)}
+                      style={{
+                        flexShrink: 0, padding: '11px 12px', borderRadius: 12,
+                        background: 'var(--sweet-input)', border: '1px solid var(--sweet-border)',
+                        color: 'var(--sweet-text-muted)', cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}
+                      title="Scan QR"
+                    >
+                      <QrCodeIcon style={{ width: 18, height: 18 }} />
+                    </motion.button>
+                  </div>
+                  {addressError && <p style={{ fontSize: 11, color: '#f87171', marginTop: 5 }}>{addressError}</p>}
+                  {clientWalletAddress && !addressError && (
+                    <p style={{ fontSize: 11, color: '#34d399', marginTop: 5 }}>Valid TON address</p>
+                  )}
+                </div>
+
+                {/* Cashback preview */}
+                <div
+                  style={{
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    padding: '12px 16px', borderRadius: 12,
+                    background: 'var(--sweet-input)', border: '1px solid var(--sweet-border)',
+                  }}
+                >
+                  <span style={{ fontSize: 12, color: 'var(--sweet-text-muted)' }}>
+                    {t('dashboard.cashbackReward') || 'Loyalty Reward'} ({CASHBACK_RATE * 100}%)
+                  </span>
+                  <span style={{ fontFamily: 'monospace', fontSize: 14, fontWeight: 800, color: 'var(--sweet-accent)' }}>
+                    +{Math.floor(Number(posAmount) * CASHBACK_RATE)} SWEET
+                  </span>
+                </div>
+
+                {/* CTA */}
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  disabled={loading || !wallet || Number(posAmount) <= 0 || !!addressError || !clientWalletAddress}
+                  onClick={handleTransfer}
+                  style={{
+                    width: '100%',
+                    fontWeight: 800,
+                    padding: '13px',
+                    borderRadius: 14,
+                    border: 'none',
+                    background: 'var(--sweet-accent)',
+                    color: '#0d0b0a',
+                    fontSize: 13,
+                    cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                    opacity: (loading || !wallet || Number(posAmount) <= 0 || !!addressError || !clientWalletAddress) ? 0.5 : 1,
+                    transition: 'opacity 0.15s',
+                  }}
+                >
+                  {loading ? (
+                    <><div style={{ width: 15, height: 15, border: '2px solid rgba(0,0,0,0.25)', borderTopColor: '#000', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} /> Sending...</>
+                  ) : !wallet ? (
+                    t('dashboard.connectWalletFirst')
+                  ) : (
+                    t('dashboard.processPayment') || 'Authorize Transaction'
+                  )}
+                </motion.button>
+              </div>
+        </motion.section>
+
+        {/* ── Bottom grid ──────────────────────────────────────────────────── */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 20 }}>
+
+          {/* Simulate Purchase (Demo) */}
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+          >
+            <div
+              style={{
+                borderRadius: 20,
+                display: 'flex',
+                flexDirection: 'column',
+                background: 'var(--sweet-card)',
+                border: '1px solid var(--sweet-border)',
+                overflow: 'hidden',
+              }}
+            >
           <SectionHeader
             icon={
               <div
@@ -741,161 +896,6 @@ export default function Dashboard() {
               </AnimatePresence>
             </div>
           </div>
-        </motion.section>
-
-        {/* ── Bottom grid ──────────────────────────────────────────────────── */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 20 }}>
-
-          {/* POS Terminal */}
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-          >
-            <div
-              style={{
-                borderRadius: 20,
-                display: 'flex',
-                flexDirection: 'column',
-                background: 'var(--sweet-card)',
-                border: '1px solid var(--sweet-border)',
-                overflow: 'hidden',
-              }}
-            >
-              <SectionHeader
-                icon={
-                  <div
-                    style={{
-                      width: 32, height: 32, borderRadius: 9,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      background: 'var(--sweet-input)',
-                      border: '1px solid var(--sweet-border)',
-                      color: 'var(--sweet-text-muted)',
-                    }}
-                  >
-                    <CreditCardIcon style={{ width: 15, height: 15 }} />
-                  </div>
-                }
-                title={t('dashboard.cashbackTerminal') || 'Point of Sale Terminal'}
-              />
-
-              <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 18 }}>
-                {/* Amount */}
-                <div>
-                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--sweet-text-muted)', marginBottom: 8 }}>
-                    {t('dashboard.enterPurchaseAmount') || 'Transaction Amount (KZT)'}
-                  </label>
-                  <div style={{ position: 'relative' }}>
-                    <span style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)', fontSize: 13, fontWeight: 800, color: 'var(--sweet-accent)', userSelect: 'none' }}>
-                      &#x20B8;
-                    </span>
-                    <input
-                      type="number"
-                      style={{ ...inputStyle, paddingLeft: 30 }}
-                      placeholder="0.00"
-                      value={posAmount}
-                      onChange={(e) => setPosAmount(Number(e.target.value) || '')}
-                      onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--sweet-accent)')}
-                      onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--sweet-border)')}
-                    />
-                  </div>
-                </div>
-
-                {/* Wallet + QR */}
-                <div>
-                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--sweet-text-muted)', marginBottom: 8 }}>
-                    {t('dashboard.scanCustomerQr') || 'Customer Wallet Address'}
-                  </label>
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <div style={{ position: 'relative', flex: 1, minWidth: 0 }}>
-                      <input
-                        type="text"
-                        style={{
-                          ...inputStyle,
-                          fontFamily: 'monospace',
-                          fontSize: 11,
-                          color: 'var(--sweet-text-secondary)',
-                          borderColor: addressError
-                            ? 'rgba(239,68,68,0.5)'
-                            : clientWalletAddress && !addressError
-                            ? 'rgba(16,185,129,0.5)'
-                            : 'var(--sweet-border)',
-                        }}
-                        placeholder="UQ... or EQ..."
-                        value={clientWalletAddress}
-                        onChange={(e) => handleAddressChange(e.target.value)}
-                      />
-                      {clientWalletAddress && addressError && (
-                        <div style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)' }}>
-                          <WarningCircleIcon style={{ width: 15, height: 15, color: '#f87171' }} />
-                        </div>
-                      )}
-                    </div>
-                    <motion.button
-                      whileTap={{ scale: 0.93 }}
-                      onClick={() => setShowScanner(true)}
-                      style={{
-                        flexShrink: 0, padding: '11px 12px', borderRadius: 12,
-                        background: 'var(--sweet-input)', border: '1px solid var(--sweet-border)',
-                        color: 'var(--sweet-text-muted)', cursor: 'pointer',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      }}
-                      title="Scan QR"
-                    >
-                      <QrCodeIcon style={{ width: 18, height: 18 }} />
-                    </motion.button>
-                  </div>
-                  {addressError && <p style={{ fontSize: 11, color: '#f87171', marginTop: 5 }}>{addressError}</p>}
-                  {clientWalletAddress && !addressError && (
-                    <p style={{ fontSize: 11, color: '#34d399', marginTop: 5 }}>Valid TON address</p>
-                  )}
-                </div>
-
-                {/* Cashback preview */}
-                <div
-                  style={{
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                    padding: '12px 16px', borderRadius: 12,
-                    background: 'var(--sweet-input)', border: '1px solid var(--sweet-border)',
-                  }}
-                >
-                  <span style={{ fontSize: 12, color: 'var(--sweet-text-muted)' }}>
-                    {t('dashboard.cashbackReward') || 'Loyalty Reward'} ({CASHBACK_RATE * 100}%)
-                  </span>
-                  <span style={{ fontFamily: 'monospace', fontSize: 14, fontWeight: 800, color: 'var(--sweet-accent)' }}>
-                    +{Math.floor(Number(posAmount) * CASHBACK_RATE)} SWEET
-                  </span>
-                </div>
-
-                {/* CTA */}
-                <motion.button
-                  whileTap={{ scale: 0.97 }}
-                  disabled={loading || !wallet || Number(posAmount) <= 0 || !!addressError || !clientWalletAddress}
-                  onClick={handleTransfer}
-                  style={{
-                    width: '100%',
-                    fontWeight: 800,
-                    padding: '13px',
-                    borderRadius: 14,
-                    border: 'none',
-                    background: 'var(--sweet-accent)',
-                    color: '#0d0b0a',
-                    fontSize: 13,
-                    cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                    opacity: (loading || !wallet || Number(posAmount) <= 0 || !!addressError || !clientWalletAddress) ? 0.5 : 1,
-                    transition: 'opacity 0.15s',
-                  }}
-                >
-                  {loading ? (
-                    <><div style={{ width: 15, height: 15, border: '2px solid rgba(0,0,0,0.25)', borderTopColor: '#000', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} /> Sending...</>
-                  ) : !wallet ? (
-                    t('dashboard.connectWalletFirst')
-                  ) : (
-                    t('dashboard.processPayment') || 'Authorize Transaction'
-                  )}
-                </motion.button>
-              </div>
             </div>
           </motion.div>
 
