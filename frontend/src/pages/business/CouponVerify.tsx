@@ -125,10 +125,13 @@ export default function CouponVerify() {
         <button
           onClick={() => handleVerify()}
           disabled={isLoading || !code.trim()}
-          className="px-5 py-3.5 bg-amber-500 text-black rounded-xl font-semibold text-sm disabled:opacity-40 flex items-center gap-2 transition-opacity"
+          className="px-4 py-3.5 bg-amber-500 text-black rounded-xl font-semibold text-sm disabled:opacity-40 flex items-center justify-center transition-opacity shrink-0"
+          style={{ minWidth: 48 }}
         >
-          <MagnifyingGlassIcon className="w-4 h-4" />
-          {isLoading ? '...' : t('verify.check')}
+          {isLoading
+            ? <div style={{ width: 16, height: 16, border: '2px solid rgba(0,0,0,0.25)', borderTopColor: '#000', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+            : <MagnifyingGlassIcon className="w-4 h-4" />
+          }
         </button>
       </motion.div>
 
@@ -170,7 +173,7 @@ export default function CouponVerify() {
               </div>
 
               {/* Camera view */}
-              <div className="relative" style={{ aspectRatio: '1 / 1' }}>
+              <div className="relative" style={{ height: 280, overflow: 'hidden' }}>
                 <Scanner
                   onScan={handleScan}
                   onError={(err) => {
@@ -178,7 +181,10 @@ export default function CouponVerify() {
                     toast.error('Camera error — use manual input');
                     setShowScanner(false);
                   }}
-                  styles={{ container: { width: '100%', height: '100%' } }}
+                  styles={{
+                    container: { width: '100%', height: '100%', position: 'relative' },
+                    video: { width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0 },
+                  }}
                   constraints={{ facingMode: 'environment' }}
                 />
                 {/* Corner guides */}
