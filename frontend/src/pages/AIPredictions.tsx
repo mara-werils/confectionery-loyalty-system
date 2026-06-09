@@ -9,7 +9,7 @@ import {
   GiftIcon,
   LightningIcon,
   ChartBarIcon,
-  SparkleIcon,
+  BrainIcon,
   ShieldCheckIcon,
 } from '@phosphor-icons/react';
 import {
@@ -221,7 +221,7 @@ export default function AIPredictions() {
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <SparkleIcon className="w-5 h-5" style={{ color: '#fb7185' }} />
+            <BrainIcon className="w-5 h-5" style={{ color: '#fb7185' }} />
             <h2 className="text-sm font-bold" style={{ color: 'var(--sweet-text)' }}>
               AI Auto-Interventions
             </h2>

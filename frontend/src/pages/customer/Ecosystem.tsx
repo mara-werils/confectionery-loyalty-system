@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import {
   StorefrontIcon,
-  SparkleIcon,
+  StarIcon,
   SealCheckIcon,
   ArrowsClockwiseIcon,
   GlobeIcon,
@@ -164,7 +164,7 @@ function NetworkViz({ partners }: { partners: EcosystemPartner[] }) {
           boxShadow: '0 0 28px rgba(245,158,11,0.55), 0 0 60px rgba(245,158,11,0.18)',
         }}
       >
-        <SparkleIcon className="w-5 h-5" style={{ color: '#0d0b0a' }} />
+        <StarIcon className="w-5 h-5" style={{ color: '#0d0b0a' }} />
         <span className="text-[8px] font-black tracking-wider" style={{ color: '#0d0b0a' }}>SWEET</span>
       </motion.div>
 
@@ -432,7 +432,7 @@ export default function Ecosystem() {
           delay={0.1}
         />
         <StatItem
-          icon={<SparkleIcon className="w-3.5 h-3.5" />}
+          icon={<StarIcon className="w-3.5 h-3.5" />}
           value={stats.totalSweetIssued}
           label={t('ecosystem.statSweet')}
           color="#a78bfa"

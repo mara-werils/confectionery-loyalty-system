@@ -3,7 +3,6 @@ import {
   ShoppingBagIcon,
   GiftIcon,
   UsersThreeIcon,
-  SparkleIcon,
   ArrowUpIcon,
   ArrowDownIcon,
   ShieldCheckIcon,
@@ -37,7 +36,7 @@ const typeConfig = {
     isPositive: true,
   },
   BONUS: {
-    icon: SparkleIcon,
+    icon: GiftIcon,
     label: 'Bonus',
     accentColor: 'var(--tx-bonus)',
     accentBg: 'var(--tx-bonus-bg)',

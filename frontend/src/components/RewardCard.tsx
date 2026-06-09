@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { GiftIcon, SparkleIcon, TagIcon } from '@phosphor-icons/react';
+import { GiftIcon, TagIcon, CrownIcon } from '@phosphor-icons/react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 
@@ -20,8 +20,8 @@ interface RewardCardProps {
 const categoryIcons = {
   DISCOUNT: TagIcon,
   PRODUCT: GiftIcon,
-  CASHBACK: SparkleIcon,
-  SPECIAL: SparkleIcon,
+  CASHBACK: TagIcon,
+  SPECIAL: CrownIcon,
 };
 
 const categoryColors = {

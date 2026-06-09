@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next';
 import {
   TagIcon,
   GiftIcon,
-  SparkleIcon,
+  CrownIcon,
+  StarIcon,
   TicketIcon,
   ClipboardTextIcon,
   CheckIcon,
@@ -113,8 +114,8 @@ const TEXTS: Translations = {
 const CATEGORY_ICON: Record<Category, typeof TagIcon> = {
   DISCOUNT: TagIcon,
   PRODUCT: GiftIcon,
-  CASHBACK: SparkleIcon,
-  SPECIAL: SparkleIcon,
+  CASHBACK: TagIcon,
+  SPECIAL: CrownIcon,
 };
 
 // Category color palette
@@ -276,7 +277,7 @@ export default function CustomerRewards() {
               border: '1px solid var(--sweet-accent-dim)',
             }}
           >
-            <SparkleIcon className="w-3.5 h-3.5" style={{ color: 'var(--sweet-accent)' }} />
+            <StarIcon className="w-3.5 h-3.5" style={{ color: 'var(--sweet-accent)' }} />
             <span className="text-sm font-black tabular-nums" style={{ color: 'var(--sweet-accent)' }}>
               {sweetBalance.toLocaleString()}
             </span>

@@ -7,7 +7,7 @@ import {
   ShieldCheckIcon,
   CubeTransparentIcon,
   ArrowsClockwiseIcon,
-  SparkleIcon,
+  CoinsIcon,
   CheckCircleIcon as CheckCircleIconSolid,
 } from '@phosphor-icons/react';
 import toast from 'react-hot-toast';
@@ -399,7 +399,7 @@ export default function Settlement() {
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <SparkleIcon className="w-4 h-4" style={{ color: 'var(--sweet-accent)' }} />
+            <CoinsIcon className="w-4 h-4" style={{ color: 'var(--sweet-accent)' }} />
             <p className="text-[10px] font-semibold uppercase tracking-widest"
                style={{ color: 'var(--sweet-text-muted)' }}>
               Payout History

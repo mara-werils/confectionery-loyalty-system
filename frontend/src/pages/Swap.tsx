@@ -6,7 +6,7 @@ import {
   CaretDownIcon,
   GearIcon,
   CurrencyDollarIcon,
-  SparkleIcon,
+  StarIcon,
   InfoIcon,
   ArrowSquareOutIcon,
 } from '@phosphor-icons/react';
@@ -258,7 +258,7 @@ export default function Swap() {
                           border: '1px solid var(--sweet-border)',
                         }}
                       >
-                        <SparkleIcon className="w-4 h-4" style={{ color: 'var(--sweet-accent)' }} />
+                        <StarIcon className="w-4 h-4" style={{ color: 'var(--sweet-accent)' }} />
                       </div>
                     )}
                     <span className="font-bold text-sm">{payToken}</span>
@@ -356,7 +356,7 @@ export default function Swap() {
                           border: '1px solid var(--sweet-border)',
                         }}
                       >
-                        <SparkleIcon className="w-4 h-4" style={{ color: 'var(--sweet-accent)' }} />
+                        <StarIcon className="w-4 h-4" style={{ color: 'var(--sweet-accent)' }} />
                       </div>
                     )}
                     <span className="font-bold text-sm">{receiveToken}</span>

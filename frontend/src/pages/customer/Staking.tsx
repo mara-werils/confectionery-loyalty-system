@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
-  SparkleIcon,
+  CoinsIcon,
   LockIcon,
   ClockIcon,
   LightningIcon,
@@ -252,7 +252,7 @@ export default function Staking() {
                 border: '1px solid rgba(245,158,11,0.22)',
               }}
             >
-              <SparkleIcon className="w-3.5 h-3.5" style={{ color: 'var(--sweet-accent)' }} />
+              <CoinsIcon className="w-3.5 h-3.5" style={{ color: 'var(--sweet-accent)' }} />
               <span
                 className="text-sm font-black tabular-nums"
                 style={{ color: 'var(--sweet-accent)' }}
@@ -454,7 +454,7 @@ export default function Staking() {
             accentColor="var(--sweet-accent)"
           />
           <StatRow
-            icon={SparkleIcon}
+            icon={CoinsIcon}
             label={t('staking.stats.distributed')}
             value={`${formatNumber(totalDistributed)} SWEET`}
             accentColor="var(--sweet-text-secondary)"
@@ -822,7 +822,7 @@ function StatRow({
   value,
   accentColor,
 }: {
-  icon: typeof SparkleIcon;
+  icon: typeof CoinsIcon;
   label: string;
   value: string;
   accentColor: string;

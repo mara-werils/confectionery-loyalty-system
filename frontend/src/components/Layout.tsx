@@ -8,7 +8,7 @@ import {
   UserCircleIcon,
   UserPlusIcon,
   QrCodeIcon,
-  SparkleIcon,
+  BrainIcon,
   SunIcon,
   MoonIcon,
   StorefrontIcon,
@@ -31,7 +31,7 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
   const businessNavItems = [
     { path: '/business/dashboard',    label: t('nav.pos'),       icon: HouseIcon,       activeIcon: (props: React.ComponentProps<typeof HouseIcon>) => <HouseIcon weight="fill" {...props} /> },
     { path: '/business/verify-coupon',label: t('nav.verify'),    icon: QrCodeIcon,      activeIcon: (props: React.ComponentProps<typeof QrCodeIcon>) => <QrCodeIcon weight="fill" {...props} /> },
-    { path: '/ai',                    label: t('nav.ai'),        icon: SparkleIcon,     activeIcon: (props: React.ComponentProps<typeof SparkleIcon>) => <SparkleIcon weight="fill" {...props} /> },
+    { path: '/ai',                    label: t('nav.ai'),        icon: BrainIcon,       activeIcon: (props: React.ComponentProps<typeof BrainIcon>) => <BrainIcon weight="fill" {...props} /> },
     { path: '/referrals',             label: t('nav.referrals'), icon: UserPlusIcon,    activeIcon: (props: React.ComponentProps<typeof UserPlusIcon>) => <UserPlusIcon weight="fill" {...props} /> },
     { path: '/business/settlement',   label: 'Earn',             icon: MoneyIcon,       activeIcon: (props: React.ComponentProps<typeof MoneyIcon>) => <MoneyIcon weight="fill" {...props} /> },
     { path: '/business/profile',      label: t('nav.profile'),   icon: UserCircleIcon,  activeIcon: (props: React.ComponentProps<typeof UserCircleIcon>) => <UserCircleIcon weight="fill" {...props} /> },

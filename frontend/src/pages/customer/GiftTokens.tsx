@@ -7,7 +7,7 @@ import {
   CheckCircleIcon,
   ClipboardTextIcon,
   CaretRightIcon,
-  SparkleIcon,
+  GiftIcon,
   XIcon,
 } from '@phosphor-icons/react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -599,7 +599,7 @@ export default function GiftTokens() {
               border: '1px solid var(--sweet-border)',
             }}
           >
-            <SparkleIcon
+            <GiftIcon
               className="w-4 h-4"
               style={{ color: 'var(--sweet-accent)' }}
             />

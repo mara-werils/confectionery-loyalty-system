@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { SparkleIcon, TrendUpIcon } from '@phosphor-icons/react';
+import { StarIcon, TrendUpIcon } from '@phosphor-icons/react';
 import clsx from 'clsx';
 
 interface BalanceCardProps {
@@ -70,7 +70,7 @@ export default function BalanceCard({
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <SparkleIcon weight="fill" className="w-5 h-5 text-white/80" />
+            <StarIcon weight="fill" className="w-5 h-5 text-white/80" />
             <span className="text-white/80 font-medium">Баллы лояльности</span>
           </div>
           <span
@@ -109,7 +109,7 @@ export default function BalanceCard({
           </div>
           <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3">
             <div className="flex items-center gap-1.5 mb-1">
-              <SparkleIcon weight="fill" className="w-4 h-4 text-white/70" />
+              <StarIcon weight="fill" className="w-4 h-4 text-white/70" />
               <span className="text-xs text-white/70">Потрачено</span>
             </div>
             <span className="text-lg font-bold text-white">

@@ -14,7 +14,7 @@ import {
   CurrencyDollarIcon,
   ShieldCheckIcon,
   TrendUpIcon,
-  SparkleIcon,
+  StarIcon,
   WifiHighIcon,
 } from '@phosphor-icons/react';
 import {
@@ -254,7 +254,7 @@ export default function LiveDashboard() {
               label: 'AI Interventions',
               value: stats?.todayInterventions ?? 0,
               suffix: '',
-              icon: SparkleIcon,
+              icon: StarIcon,
               color: '#fb7185',
               accent: 'rgba(251,113,133,0.12)',
               sub: `${(stats?.totalInterventions ?? 0)} total saves`,

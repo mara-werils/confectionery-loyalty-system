@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tab } from '@headlessui/react';
-import { TagIcon, GiftIcon, SparkleIcon, StarIcon } from '@phosphor-icons/react';
+import { TagIcon, GiftIcon, StarIcon } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 
 import RewardCard from '../components/RewardCard';
@@ -35,7 +35,7 @@ export default function Rewards() {
     { key: 'all', label: t('rewards.categories.all'), icon: StarIcon },
     { key: 'DISCOUNT', label: t('rewards.categories.discount'), icon: TagIcon },
     { key: 'PRODUCT', label: t('rewards.categories.product'), icon: GiftIcon },
-    { key: 'CASHBACK', label: t('rewards.categories.cashback'), icon: SparkleIcon },
+    { key: 'CASHBACK', label: t('rewards.categories.cashback'), icon: TagIcon },
   ];
 
   const { data: balanceData } = useBalance();
@@ -101,7 +101,7 @@ export default function Rewards() {
             className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
             style={{ background: 'var(--sweet-accent-dim)' }}
           >
-            <SparkleIcon className="w-5 h-5" style={{ color: 'var(--sweet-accent)' }} />
+            <StarIcon className="w-5 h-5" style={{ color: 'var(--sweet-accent)' }} />
           </div>
           <div className="min-w-0">
             <p className="text-[11px] font-medium uppercase tracking-widest" style={{ color: 'var(--sweet-text-muted)' }}>

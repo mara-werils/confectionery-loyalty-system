@@ -12,7 +12,7 @@ import {
   CaretRightIcon,
   ShieldCheckIcon,
   ArrowSquareOutIcon,
-  SparkleIcon,
+  StarIcon,
   LinkIcon,
   ArrowUpRightIcon,
   QrCodeIcon,
@@ -942,7 +942,7 @@ const CATEGORY_META: Record<string, { icon: React.ReactNode; color: string; bg: 
     bg: 'rgba(245,158,11,0.12)',
   },
   CASHBACK: {
-    icon: <SparkleIcon className="w-4 h-4" />,
+    icon: <StarIcon className="w-4 h-4" />,
     color: '#34d399',
     bg: 'rgba(52,211,153,0.12)',
   },
