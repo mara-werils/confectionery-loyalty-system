@@ -361,6 +361,18 @@
     "locking": "Locking in escrow…",
     "insufficient": "Not enough SWEET to cover this order",
     "insufficientBtn": "Not enough SWEET",
+    "mLocked": "Locked in escrow",
+    "mPreorders": "{{count}} pre-orders",
+    "mGuaranteed": "Guaranteed revenue",
+    "mFulfilled": "{{count}} fulfilled",
+    "mWriteoffs": "Write-offs prevented",
+    "mCommitted": "committed demand",
+    "status": {
+      "PENDING_DEPOSIT": "Awaiting deposit",
+      "FUNDED": "Locked in escrow",
+      "RELEASED": "Fulfilled",
+      "REFUNDED": "Refunded"
+    },
     "myOrders": "My pre-orders",
     "empty": "No pre-orders yet. Lock your first deposit above.",
     "why": "Your deposit is held by an on-chain escrow contract — not the shop. The confectionery only gets paid when you pick up your order. If they miss the deadline, the contract refunds you automatically, no questions asked.",
