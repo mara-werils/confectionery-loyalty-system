@@ -102,7 +102,7 @@ export default function CouponVerify() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05 }}
-        className="flex gap-3"
+        className="flex gap-2"
       >
         <input
           type="text"
@@ -110,13 +110,13 @@ export default function CouponVerify() {
           onChange={(e) => setCode(e.target.value.toUpperCase())}
           onKeyDown={(e) => e.key === 'Enter' && handleVerify()}
           placeholder="SWT-XXXXXX"
-          className="sweet-input flex-1 rounded-xl px-4 py-3.5 font-mono text-sm uppercase tracking-widest focus:outline-none transition-colors"
+          className="sweet-input flex-1 min-w-0 rounded-xl px-4 py-3.5 font-mono text-sm uppercase tracking-widest focus:outline-none transition-colors"
           autoComplete="off"
           spellCheck={false}
         />
         <button
           onClick={() => setShowScanner(true)}
-          className="px-4 py-3.5 rounded-xl font-semibold text-sm flex items-center gap-2 transition-all"
+          className="w-11 h-11 shrink-0 rounded-xl flex items-center justify-center transition-all self-center"
           style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)', color: 'var(--sweet-text-muted)' }}
           title="Scan QR"
         >
@@ -125,35 +125,34 @@ export default function CouponVerify() {
         <button
           onClick={() => handleVerify()}
           disabled={isLoading || !code.trim()}
-          className="px-4 py-3.5 bg-amber-500 text-black rounded-xl font-semibold text-sm disabled:opacity-40 flex items-center justify-center transition-opacity shrink-0"
-          style={{ minWidth: 48 }}
+          className="w-11 h-11 shrink-0 bg-amber-500 text-black rounded-xl disabled:opacity-40 flex items-center justify-center transition-opacity self-center"
         >
           {isLoading
-            ? <div style={{ width: 16, height: 16, border: '2px solid rgba(0,0,0,0.25)', borderTopColor: '#000', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+            ? <div style={{ width: 14, height: 14, border: '2px solid rgba(0,0,0,0.25)', borderTopColor: '#000', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
             : <MagnifyingGlassIcon className="w-4 h-4" />
           }
         </button>
       </motion.div>
 
-      {/* QR Scanner overlay */}
+      {/* QR Scanner overlay — flex-centered for reliable Telegram Mini App positioning */}
       <AnimatePresence>
         {showScanner && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50"
-              style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)' }}
-              onClick={() => { scanLockRef.current = false; setShowScanner(false); }}
-            />
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center px-4"
+            style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)' }}
+            onClick={() => { scanLockRef.current = false; setShowScanner(false); }}
+          >
             <motion.div
               initial={{ opacity: 0, scale: 0.92, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.92, y: 20 }}
               transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-              className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-[60] rounded-3xl overflow-hidden"
+              className="w-full rounded-3xl overflow-hidden"
               style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)' }}
+              onClick={(e) => e.stopPropagation()}
             >
               {/* Scanner header */}
               <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid var(--sweet-border)' }}>
@@ -172,8 +171,8 @@ export default function CouponVerify() {
                 </button>
               </div>
 
-              {/* Camera view */}
-              <div className="relative" style={{ height: 280, overflow: 'hidden' }}>
+              {/* Camera view — fixed height, override Scanner's built-in aspectRatio:1/1 */}
+              <div style={{ position: 'relative', height: 280, overflow: 'hidden' }}>
                 <Scanner
                   onScan={handleScan}
                   onError={(err) => {
@@ -182,13 +181,25 @@ export default function CouponVerify() {
                     setShowScanner(false);
                   }}
                   styles={{
-                    container: { width: '100%', height: '100%', position: 'relative' },
-                    video: { width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0 },
+                    container: {
+                      width: '100%',
+                      height: '280px',
+                      aspectRatio: 'unset',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      display: 'block',
+                    },
+                    video: {
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                    },
                   }}
                   constraints={{ facingMode: 'environment' }}
                 />
                 {/* Corner guides */}
-                <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                <div className="absolute inset-0 pointer-events-none flex items-center justify-center" style={{ zIndex: 1 }}>
                   <div className="relative w-48 h-48">
                     {[
                       'top-0 left-0 border-t-2 border-l-2 rounded-tl-lg',
@@ -206,7 +217,7 @@ export default function CouponVerify() {
                 Point camera at the customer's coupon QR code
               </p>
             </motion.div>
-          </>
+          </motion.div>
         )}
       </AnimatePresence>
 
