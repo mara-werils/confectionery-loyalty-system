@@ -700,7 +700,7 @@ export default function CustomerDashboard() {
                   </div>
                   <div>
                     <p className="text-xs font-semibold" style={{ color: 'var(--sweet-text)' }}>
-                      {t(coupon.rewardTitleKey)}
+                      {(() => { const tr = t(coupon.rewardTitleKey); return tr !== coupon.rewardTitleKey ? tr : (coupon.rewardTitle || tr); })()}
                     </p>
                     <p className="text-[10px]" style={{ color: 'var(--sweet-text-muted)' }}>
                       {coupon.partnerName}
