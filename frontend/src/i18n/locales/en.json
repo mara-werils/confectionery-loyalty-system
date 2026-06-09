@@ -345,7 +345,28 @@
     "spin": "Spin",
     "gift": "Gift",
     "ecosystem": "Partners",
-    "explorer": "Explorer"
+    "explorer": "Explorer",
+    "sweetpass": "Pre-order"
+  },
+  "sweetpass": {
+    "title": "Sweet Pass",
+    "subtitle": "Prepay your order. A smart contract holds your SWEET in escrow and auto-refunds if it is not ready by the deadline.",
+    "newOrder": "New pre-order",
+    "confectionery": "Confectionery",
+    "item": "What are you ordering?",
+    "amount": "Deposit amount (KZT)",
+    "deadline": "Pickup deadline",
+    "connect": "Connect wallet to prepay",
+    "lockDeposit": "Lock deposit in escrow",
+    "myOrders": "My pre-orders",
+    "empty": "No pre-orders yet. Lock your first deposit above.",
+    "why": "Your deposit is held by an on-chain escrow contract — not the shop. The confectionery only gets paid when you pick up your order. If they miss the deadline, the contract refunds you automatically, no questions asked.",
+    "partnerTitle": "Sweet Pass — Pre-orders",
+    "partnerSubtitle": "Customers prepay into escrow. Confirm pickup to release the funds to you. Unfulfilled orders auto-refund after the deadline.",
+    "awaitingPickup": "Awaiting pickup",
+    "noPending": "No prepaid orders waiting for pickup.",
+    "confirmPickup": "Confirm pickup & release",
+    "history": "History"
   },
   "explorer": {
     "title": "Blockchain Explorer",
