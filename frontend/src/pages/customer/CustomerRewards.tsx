@@ -184,14 +184,15 @@ export default function CustomerRewards() {
 
   useEffect(() => {
     if (!token) return;
-    (api.coupons.list() as Promise<{ data: Array<{ code: string; rewardId: string; status: string }> }>)
+    (api.coupons.list() as Promise<{ data: Array<{ code: string; rewardId: string; rewardTitle?: string; status: string }> }>)
       .then(res => {
         const active = res.data
           .filter(c => c.status === 'ACTIVE')
           .map(c => ({
             code: c.code,
-            rewardTitleKey: `${c.rewardId}-title`,
-            partnerName: REWARD_PARTNER_NAME[c.rewardId] ?? 'Sweet Platform',
+            rewardTitleKey: `${c.rewardId.toLowerCase()}-title`,
+            rewardTitle: c.rewardTitle || '',
+            partnerName: REWARD_PARTNER_NAME[c.rewardId.toLowerCase()] ?? REWARD_PARTNER_NAME[c.rewardId] ?? 'Sweet Platform',
           }));
         if (active.length > 0) setCoupons(active);
       })
@@ -329,9 +330,11 @@ export default function CustomerRewards() {
                 className="overflow-hidden"
               >
                 <div className="pt-2 space-y-2">
-                  {activeCoupons.map((c, i) => (
-                    <MyCouponRow key={i} code={c.code} title={getText(c.rewardTitleKey)} partnerName={c.partnerName} />
-                  ))}
+                  {activeCoupons.map((c, i) => {
+                    const resolved = getText(c.rewardTitleKey);
+                    const title = resolved !== c.rewardTitleKey ? resolved : (c.rewardTitle || resolved);
+                    return <MyCouponRow key={i} code={c.code} title={title} partnerName={c.partnerName} />;
+                  })}
                 </div>
               </motion.div>
             )}
