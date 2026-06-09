@@ -107,67 +107,128 @@ async function openAdminWallet() {
 }
 
 /**
+ * Serialize every admin-wallet send. The escrow release, the deadline refund cron
+ * and any manual refund all sign from the SAME WalletContractV4. If two of them
+ * read `seqno` concurrently they would reuse it and one transaction would be
+ * silently dropped by the network. This promise chain guarantees that each send
+ * fully completes (including the seqno advancing) before the next one reads seqno.
+ */
+let adminQueue: Promise<void> = Promise.resolve();
+function withAdminWallet<T>(fn: () => Promise<T>): Promise<T> {
+  const run = adminQueue.then(fn);
+  adminQueue = run.then(
+    (): void => undefined,
+    (): void => undefined
+  );
+  return run;
+}
+
+/**
+ * Sign and send one op::escrow_* message to the escrow contract, then wait for the
+ * admin wallet's seqno to advance (proof the external message was accepted). The
+ * whole read-seqno → send → wait sequence runs under the admin queue so it can
+ * never interleave with another admin send.
+ */
+async function sendEscrowOp(op: number, orderId: bigint): Promise<string> {
+  return withAdminWallet(async () => {
+    const { walletContract, keyPair } = await openAdminWallet();
+    const seqno = await retryFn(() => walletContract.getSeqno());
+
+    const body = beginCell()
+      .storeUint(op, 32)
+      .storeUint(BigInt(seqno), 64) // query_id doubles as a replay-safe nonce
+      .storeUint(orderId, 64)
+      .endCell();
+
+    await retryFn(() =>
+      walletContract.sendTransfer({
+        secretKey: keyPair.secretKey,
+        seqno,
+        messages: [
+          internal({
+            to: escrowAddress(),
+            // Must cover the onward jetton transfer (sent with mode 64 from the escrow).
+            value: toNano('0.15'),
+            body,
+          }),
+        ],
+      })
+    );
+
+    // Wait until the wallet's seqno advances — proof the external message was
+    // accepted — before releasing the queue, so the next send reads a fresh seqno.
+    const waitDeadline = Date.now() + 30000;
+    while (Date.now() < waitDeadline) {
+      await sleep(2000);
+      try {
+        if ((await walletContract.getSeqno()) > seqno) break;
+      } catch {
+        /* transient RPC error — keep polling */
+      }
+    }
+
+    return `seqno:${seqno}`;
+  });
+}
+
+/**
+ * Poll the escrow's get_order until the order reaches `expected` status (or timeout).
+ * This is the source of truth that a release/refund actually executed on-chain —
+ * `sendEscrowOp` only proves the wallet accepted the message, not that the escrow
+ * transitioned. Callers update the DB only after this confirms.
+ */
+export async function confirmOnChainStatus(
+  orderId: bigint,
+  expected: OnChainStatus,
+  timeoutMs = 45000
+): Promise<boolean> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    try {
+      const onchain = await getOnChainOrder(orderId);
+      if (onchain.status === expected) return true;
+      // A terminal state other than the one we want means we will never reach it.
+      if (
+        onchain.status === OnChainStatus.Released ||
+        onchain.status === OnChainStatus.Refunded
+      ) {
+        return false;
+      }
+    } catch {
+      /* transient RPC error — keep polling */
+    }
+    await sleep(2500);
+  }
+  return false;
+}
+
+/**
  * Admin-signed release: FUNDED -> RELEASED, escrow pays the partner.
- * Sends op::escrow_release(order_id) to the escrow contract.
+ * Sends op::escrow_release(order_id), then confirms the escrow actually flipped to
+ * RELEASED on-chain before reporting success — so the DB never diverges from chain.
  */
 export async function releaseOnChain(orderId: bigint): Promise<string> {
-  const { walletContract, keyPair } = await openAdminWallet();
-  const seqno = await retryFn(() => walletContract.getSeqno());
-
-  const body = beginCell()
-    .storeUint(OP_ESCROW_RELEASE, 32)
-    .storeUint(BigInt(seqno), 64) // query_id (also doubles as a replay-safe nonce)
-    .storeUint(orderId, 64)
-    .endCell();
-
-  await retryFn(() =>
-    walletContract.sendTransfer({
-      secretKey: keyPair.secretKey,
-      seqno,
-      messages: [
-        internal({
-          to: escrowAddress(),
-          // Must cover the onward jetton transfer (sent with mode 64 from the escrow).
-          value: toNano('0.15'),
-          body,
-        }),
-      ],
-    })
-  );
-
-  logger.info(`[Escrow] release sent: order=${orderId} seqno=${seqno}`);
-  return `seqno:${seqno}`;
+  const ref = await sendEscrowOp(OP_ESCROW_RELEASE, orderId);
+  const confirmed = await confirmOnChainStatus(orderId, OnChainStatus.Released);
+  if (!confirmed) {
+    throw new Error('Release was sent but not confirmed on-chain in time — please retry');
+  }
+  logger.info(`[Escrow] release confirmed on-chain: order=${orderId} (${ref})`);
+  return ref;
 }
 
 /**
  * Keeper-signed refund: FUNDED -> REFUNDED, escrow refunds the customer.
  * Permissionless on-chain (the contract enforces now() >= deadline); the backend
- * simply acts as the keeper that pokes the contract after expiry.
+ * simply acts as the keeper that pokes the contract after expiry. Confirms the
+ * REFUNDED transition landed before reporting success.
  */
 export async function refundOnChain(orderId: bigint): Promise<string> {
-  const { walletContract, keyPair } = await openAdminWallet();
-  const seqno = await retryFn(() => walletContract.getSeqno());
-
-  const body = beginCell()
-    .storeUint(OP_ESCROW_REFUND, 32)
-    .storeUint(BigInt(seqno), 64)
-    .storeUint(orderId, 64)
-    .endCell();
-
-  await retryFn(() =>
-    walletContract.sendTransfer({
-      secretKey: keyPair.secretKey,
-      seqno,
-      messages: [
-        internal({
-          to: escrowAddress(),
-          value: toNano('0.15'),
-          body,
-        }),
-      ],
-    })
-  );
-
-  logger.info(`[Escrow] refund sent: order=${orderId} seqno=${seqno}`);
-  return `seqno:${seqno}`;
+  const ref = await sendEscrowOp(OP_ESCROW_REFUND, orderId);
+  const confirmed = await confirmOnChainStatus(orderId, OnChainStatus.Refunded);
+  if (!confirmed) {
+    throw new Error('Refund was sent but not confirmed on-chain in time — please retry');
+  }
+  logger.info(`[Escrow] refund confirmed on-chain: order=${orderId} (${ref})`);
+  return ref;
 }
