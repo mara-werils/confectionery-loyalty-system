@@ -115,7 +115,7 @@ export default function CouponVerify() {
           spellCheck={false}
         />
         <button
-          onClick={() => setShowScanner(true)}
+          onClick={() => { (document.activeElement as HTMLElement)?.blur(); setShowScanner(true); }}
           className="w-11 h-11 shrink-0 rounded-xl flex items-center justify-center transition-all self-center"
           style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)', color: 'var(--sweet-text-muted)' }}
           title="Scan QR"
