@@ -10,12 +10,14 @@ import { io } from '../index';
 import { config } from '../config';
 import { logger } from '../utils/logger';
 import {
-  buildDepositPayloadBoc,
   getOnChainOrder,
+  depositToEscrowOnChain,
+  confirmOnChainStatus,
   releaseOnChain,
   refundOnChain,
   OnChainStatus,
 } from '../services/escrow.service';
+import { debitSweet, creditSweet, getSweetBalance } from '../services/sweetpassLedger';
 
 const router = Router();
 
@@ -41,7 +43,8 @@ function normalizeAddress(addr: string): string {
 }
 
 // ============================================================================
-// CREATE PRE-ORDER  (customer initiates, gets deposit instructions)
+// CREATE PRE-ORDER  (gasless: debit the customer's SWEET ledger, then the
+// treasury funds the escrow on-chain — no wallet, gas or testnet for the customer)
 // ============================================================================
 const createSchema = z.object({
   partnerId: z.string().min(1), // the confectionery being ordered from
@@ -55,6 +58,10 @@ router.post('/orders', authenticate, async (req: Request, res: Response, next: N
     const data = createSchema.parse(req.body);
     const customerWallet = req.user!.walletAddress;
 
+    if (!config.ton.contracts.sweetPassEscrow || !config.ton.contracts.loyaltyToken) {
+      throw new AppError('Sweet Pass is not available right now', 503, 'ESCROW_UNCONFIGURED');
+    }
+
     const partner = await prisma.partner.findUnique({ where: { id: data.partnerId } });
     if (!partner) throw new AppError('Confectionery not found', 404, 'NOT_FOUND');
 
@@ -66,8 +73,20 @@ router.post('/orders', authenticate, async (req: Request, res: Response, next: N
     const deadline = new Date(Date.now() + data.deadlineHours * 3600 * 1000);
     const deadlineUnix = Math.floor(deadline.getTime() / 1000);
     const amount = kztToNano(data.amountKzt);
+    const amountKzt = BigInt(data.amountKzt);
 
-    // Generate a collision-free on-chain order id.
+    // 1. Debit the customer's spendable SWEET (atomic, race-safe). 1 SWEET = 1 KZT.
+    const debited = await debitSweet(customerWallet, amountKzt);
+    if (!debited) {
+      const have = await getSweetBalance(customerWallet);
+      throw new AppError(
+        `Not enough SWEET — you have ${have.toString()}, this order needs ${amountKzt.toString()}`,
+        400,
+        'INSUFFICIENT_BALANCE'
+      );
+    }
+
+    // 2. Generate a collision-free on-chain order id and reserve the order.
     let orderId = generateOrderId();
     for (let i = 0; i < 5; i++) {
       const existing = await prisma.preOrder.findUnique({ where: { orderId } });
@@ -83,34 +102,69 @@ router.post('/orders', authenticate, async (req: Request, res: Response, next: N
         partnerWallet: partner.walletAddress,
         itemDescription: data.itemDescription,
         amount,
-        amountKzt: BigInt(data.amountKzt),
+        amountKzt,
         deadline,
         status: 'PENDING_DEPOSIT',
       },
     });
 
-    // Everything the frontend needs to build the TonConnect jetton transfer.
-    const depositPayload = buildDepositPayloadBoc({
-      orderId,
-      partnerWallet: partner.walletAddress,
-      deadline: deadlineUnix,
+    // 3. Treasury funds the escrow on-chain, then confirm the FUNDED transition.
+    try {
+      await depositToEscrowOnChain({
+        orderId,
+        partnerWallet: partner.walletAddress,
+        deadline: deadlineUnix,
+        amountNano: amount,
+      });
+      const funded = await confirmOnChainStatus(orderId, OnChainStatus.Funded, 60000);
+      if (!funded) throw new Error('escrow did not report FUNDED in time');
+    } catch (err) {
+      // Roll back: re-credit the customer and drop the unfunded order so it is never
+      // picked up by the confirmation sweep. The treasury's own SWEET (if it did land
+      // late) auto-refunds to the treasury after the deadline — no customer charge.
+      await creditSweet(customerWallet, amountKzt);
+      await prisma.preOrder.delete({ where: { orderId } }).catch((): void => undefined);
+      logger.error(`[SweetPass] gasless deposit failed for order=${orderId}:`, err);
+      throw new AppError(
+        'Prepayment could not be settled on-chain — your balance was not charged. Please try again.',
+        502,
+        'DEPOSIT_FAILED'
+      );
+    }
+
+    // 4. Flip to FUNDED (idempotent vs the sweep) and announce in real time.
+    const flip = await prisma.preOrder.updateMany({
+      where: { orderId, status: 'PENDING_DEPOSIT' },
+      data: { status: 'FUNDED', fundedAt: new Date() },
     });
+    if (flip.count === 1) {
+      io.to(`wallet:${customerWallet}`).emit('sweetpass:funded', {
+        orderId: orderId.toString(),
+        amountKzt: data.amountKzt,
+        item: preOrder.itemDescription,
+      });
+      io.to(`partner:${partner.id}`).emit('sweetpass:funded', {
+        orderId: orderId.toString(),
+        amountKzt: data.amountKzt,
+        item: preOrder.itemDescription,
+      });
+      io.emit('activity:new', {
+        type: 'sweetpass_funded',
+        message: `New Sweet Pass pre-order locked: ${preOrder.itemDescription} (${data.amountKzt} KZT)`,
+        amount: data.amountKzt,
+        timestamp: new Date().toISOString(),
+      });
+    }
 
     return successResponse(res, {
       id: preOrder.id,
       orderId: orderId.toString(),
-      escrowAddress: config.ton.contracts.sweetPassEscrow ?? null,
-      jettonMaster: config.ton.contracts.loyaltyToken ?? null,
-      partnerWallet: partner.walletAddress,
       partnerName: partner.companyName,
       itemDescription: preOrder.itemDescription,
-      amount: amount.toString(),
       amountKzt: data.amountKzt,
       deadline: preOrder.deadline.toISOString(),
-      deadlineUnix,
-      depositPayload, // base64 BOC to attach as forward_payload
-      status: preOrder.status,
-    });
+      status: 'FUNDED',
+    }, 'Prepaid — locked in escrow');
   } catch (error) {
     return next(error);
   }
@@ -269,6 +323,9 @@ router.post('/orders/:orderId/refund', authenticate, posRateLimiter, async (req:
       data: { status: 'REFUNDED', refundedAt: new Date(), refundTxHash: txRef },
     });
 
+    // Custodial model: return the prepaid SWEET to the customer's spendable balance.
+    await creditSweet(preOrder.customerWallet, preOrder.amountKzt);
+
     io.to(`wallet:${preOrder.customerWallet}`).emit('sweetpass:refunded', {
       orderId: orderId.toString(),
       amountKzt: Number(preOrder.amountKzt),
@@ -423,6 +480,7 @@ router.post('/admin/orders/:orderId/force-refund', authenticate, requireAdmin, a
       where: { orderId },
       data: { status: 'REFUNDED', refundedAt: new Date(), refundTxHash: txRef },
     });
+    await creditSweet(preOrder.customerWallet, preOrder.amountKzt);
     logger.info(`[Escrow] admin force-refund order=${orderId}`);
     return successResponse(res, { status: 'REFUNDED', orderId: orderId.toString(), refundTxHash: txRef });
   } catch (error) {

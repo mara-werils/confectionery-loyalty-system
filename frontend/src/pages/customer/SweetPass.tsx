@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { useTonWallet, useTonConnectUI } from '@tonconnect/ui-react';
 import {
   TicketIcon,
   LockIcon,
@@ -10,12 +9,12 @@ import {
   ClockIcon,
   StorefrontIcon,
   ShieldCheckIcon,
+  CoinsIcon,
 } from '@phosphor-icons/react';
 import { io as socketIO, Socket } from 'socket.io-client';
 import toast from 'react-hot-toast';
 import { api } from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
-import { buildDepositTransaction, DepositInstructions } from '../../services/sweetpass';
 
 interface Partner {
   id: string;
@@ -68,9 +67,7 @@ function timeLeft(deadline: string): string {
 
 export default function SweetPass() {
   const { t } = useTranslation();
-  const wallet = useTonWallet();
-  const [tonConnectUI] = useTonConnectUI();
-  const { walletAddress } = useAuthStore();
+  const { walletAddress, sweetBalance, setSweetBalance } = useAuthStore();
 
   const [partners, setPartners] = useState<Partner[]>([]);
   const [orders, setOrders] = useState<PreOrder[]>([]);
@@ -83,9 +80,6 @@ export default function SweetPass() {
   const [submitting, setSubmitting] = useState(false);
 
   const socketRef = useRef<Socket | null>(null);
-  // Order ids the chain has already confirmed FUNDED (via socket push or a poll),
-  // so an in-flight pollConfirm can stop the moment funding lands either way.
-  const fundedRef = useRef<Set<string>>(new Set());
 
   const loadOrders = async () => {
     try {
@@ -99,8 +93,15 @@ export default function SweetPass() {
       setMetrics((res as { data: Metrics }).data);
     } catch { /* ignore */ }
   };
+  const loadBalance = async () => {
+    try {
+      const res = await api.loyalty.getBalance();
+      const bal = Number((res as { data?: { balance?: string | number } }).data?.balance ?? 0);
+      if (!Number.isNaN(bal)) setSweetBalance(bal);
+    } catch { /* ignore */ }
+  };
 
-  // Initial data: partners (to order from), my orders, live metrics
+  // Initial data: partners (to order from), my orders, live metrics, my balance
   useEffect(() => {
     api.partners
       .ecosystem()
@@ -114,6 +115,7 @@ export default function SweetPass() {
       .catch(() => { /* ignore */ });
     loadOrders();
     loadMetrics();
+    loadBalance();
   }, [walletAddress]);
 
   // Real-time order lifecycle updates
@@ -128,14 +130,10 @@ export default function SweetPass() {
     socketRef.current = socket;
     socket.emit('subscribe:wallet', walletAddress);
 
-    const refresh = () => { loadOrders(); loadMetrics(); };
-    socket.on('sweetpass:funded', (p?: { orderId?: string }) => {
-      if (p?.orderId) fundedRef.current.add(p.orderId);
-      toast.success('Deposit locked in escrow');
-      refresh();
-    });
+    const refresh = () => { loadOrders(); loadMetrics(); loadBalance(); };
+    socket.on('sweetpass:funded', () => { refresh(); });
     socket.on('sweetpass:released', () => { toast.success('Order fulfilled — paid to confectionery'); refresh(); });
-    socket.on('sweetpass:refunded', () => { toast('Order refunded to you', { icon: '↩️' }); refresh(); });
+    socket.on('sweetpass:refunded', () => { toast('Refunded — SWEET returned to your balance', { icon: '↩️' }); refresh(); });
 
     return () => {
       socket.emit('unsubscribe:wallet', walletAddress);
@@ -145,69 +143,36 @@ export default function SweetPass() {
   }, [walletAddress]);
 
   const kztNum = Number(amountKzt) || 0;
-  const canSubmit = !!partnerId && item.trim().length > 0 && kztNum > 0 && !submitting;
+  const insufficient = kztNum > sweetBalance;
+  const canSubmit = !!partnerId && item.trim().length > 0 && kztNum > 0 && !insufficient && !submitting;
 
   const handleCreate = async () => {
     if (!canSubmit) return;
-    if (!wallet) { tonConnectUI.openModal(); return; }
     setSubmitting(true);
     try {
-      // 1. Reserve the order + get on-chain deposit instructions
-      const res = await api.sweetpass.createOrder({
+      // Gasless: the backend debits your SWEET balance and the platform treasury
+      // funds the escrow on-chain. No wallet, gas or signing needed.
+      await api.sweetpass.createOrder({
         partnerId,
         itemDescription: item.trim(),
         amountKzt: kztNum,
         deadlineHours,
       });
-      const data = (res as { data: DepositInstructions & { orderId: string } }).data;
-      if (!data.escrowAddress || !data.jettonMaster) {
-        throw new Error('Escrow is not configured on the server');
-      }
-
-      // 2. Build + sign the SWEET jetton deposit into the escrow
-      const tx = await buildDepositTransaction(wallet.account.address, data);
-      await tonConnectUI.sendTransaction(tx);
-      toast.success('Deposit sent — confirming on-chain…');
-
-      // 3. Reset form; poll until the escrow reports FUNDED
+      toast.success('Prepaid — locked in escrow');
       setItem('');
       setAmountKzt('');
       loadOrders();
-      pollConfirm(data.orderId);
+      loadMetrics();
+      loadBalance();
     } catch (err: unknown) {
-      const msg = (err as Error)?.message || '';
-      if (!/reject|cancel|decline/i.test(msg)) toast.error(msg || 'Deposit failed');
+      const msg =
+        (err as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message ||
+        (err as Error)?.message ||
+        'Prepayment failed';
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
-  };
-
-  // Confirm the deposit as fast as the chain allows. We try immediately, then on a
-  // short backoff, and bail the instant funding is observed — either from this poll
-  // or from the backend's socket push (whichever wins). The backend also runs its
-  // own deposit-confirmation sweep, so funding still lands if this poll is cut short.
-  const pollConfirm = (orderId: string) => {
-    let attempts = 0;
-    const tick = async () => {
-      if (fundedRef.current.has(orderId)) return; // socket push already confirmed it
-      attempts += 1;
-      try {
-        const res = await api.sweetpass.confirmDeposit(orderId);
-        const status = (res as { data?: { status?: string } }).data?.status;
-        if (status === 'FUNDED') {
-          fundedRef.current.add(orderId);
-          loadOrders();
-          loadMetrics();
-          return;
-        }
-      } catch { /* keep polling */ }
-      if (attempts < 30) {
-        // 1.5s for the first few checks, easing out to 3s to stay light on the RPC.
-        const delay = attempts < 6 ? 1500 : Math.min(1500 + (attempts - 5) * 300, 3000);
-        setTimeout(tick, delay);
-      }
-    };
-    tick(); // first attempt immediately — no upfront wait
   };
 
   const metricCards = metrics
@@ -300,10 +265,16 @@ export default function SweetPass() {
         />
 
         {/* Amount */}
-        <label className="text-[11px] font-semibold uppercase tracking-wider mb-2 block" style={{ color: 'var(--sweet-text-muted)' }}>
-          {t('sweetpass.amount') || 'Deposit amount (KZT)'}
-        </label>
-        <div className="relative mb-4">
+        <div className="flex items-center justify-between mb-2">
+          <label className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'var(--sweet-text-muted)' }}>
+            {t('sweetpass.amount') || 'Deposit amount (KZT)'}
+          </label>
+          <span className="text-[11px] font-bold flex items-center gap-1" style={{ color: 'var(--sweet-text-secondary)' }}>
+            <CoinsIcon className="w-3.5 h-3.5" weight="fill" style={{ color: 'var(--sweet-accent)' }} />
+            {sweetBalance.toLocaleString()} SWEET
+          </span>
+        </div>
+        <div className="relative mb-1">
           <input
             type="text"
             inputMode="numeric"
@@ -311,12 +282,22 @@ export default function SweetPass() {
             onChange={(e) => setAmountKzt(e.target.value.replace(/\D/g, ''))}
             placeholder="0"
             className="w-full rounded-2xl px-4 py-3 text-sm font-bold"
-            style={{ background: 'var(--sweet-input)', border: '1px solid var(--sweet-border)', color: 'var(--sweet-text)', outline: 'none' }}
+            style={{
+              background: 'var(--sweet-input)',
+              border: `1px solid ${insufficient ? '#ef4444' : 'var(--sweet-border)'}`,
+              color: 'var(--sweet-text)',
+              outline: 'none',
+            }}
           />
           <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold" style={{ color: 'var(--sweet-text-faint)' }}>
             ₸ → {kztNum.toLocaleString()} SWEET
           </span>
         </div>
+        <p className="text-[10px] mb-4 h-3.5" style={{ color: insufficient ? '#ef4444' : 'var(--sweet-text-faint)' }}>
+          {insufficient
+            ? (t('sweetpass.insufficient') || `Not enough SWEET — you have ${sweetBalance.toLocaleString()}`)
+            : ''}
+        </p>
 
         {/* Deadline */}
         <label className="text-[11px] font-semibold uppercase tracking-wider mb-2 block" style={{ color: 'var(--sweet-text-muted)' }}>
@@ -358,14 +339,14 @@ export default function SweetPass() {
           {submitting ? (
             <>
               <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" style={{ opacity: 0.7 }} />
-              Signing deposit…
+              {t('sweetpass.locking') || 'Locking in escrow…'}
             </>
-          ) : !wallet ? (
-            <>{t('sweetpass.connect') || 'Connect wallet to prepay'}</>
+          ) : insufficient ? (
+            <>{t('sweetpass.insufficientBtn') || 'Not enough SWEET'}</>
           ) : (
             <>
               <LockIcon className="w-4 h-4" weight="fill" />
-              {t('sweetpass.lockDeposit') || 'Lock deposit in escrow'}
+              {t('sweetpass.lockDeposit') || 'Prepay & lock in escrow'}
             </>
           )}
         </motion.button>
