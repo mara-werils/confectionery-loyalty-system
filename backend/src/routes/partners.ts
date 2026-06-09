@@ -34,7 +34,7 @@ router.get('/ecosystem', async (_req: Request, res: Response, next: NextFunction
         take: 50,
       }),
       prisma.partner.count({ where: { status: 'ACTIVE' } }),
-      prisma.transaction.aggregate({ _sum: { amount: true }, _count: { id: true } }),
+      prisma.transaction.aggregate({ _sum: { pointsEarned: true }, _count: { id: true } }),
     ]);
 
     const formatted = partners.map((p) => ({
@@ -49,7 +49,8 @@ router.get('/ecosystem', async (_req: Request, res: Response, next: NextFunction
       totalTransactions: p._count.transactions,
     }));
 
-    const totalSweet = txAgg._sum.amount ? Number(txAgg._sum.amount) : 0;
+    // SWEET issued lives in pointsEarned; `amount` is the purchase value in KZT.
+    const totalSweet = txAgg._sum.pointsEarned ? Number(txAgg._sum.pointsEarned) : 0;
     const totalTx = txAgg._count.id ?? 0;
 
     return successResponse(res, {
