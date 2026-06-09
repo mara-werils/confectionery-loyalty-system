@@ -100,9 +100,9 @@ export default function SweetPass() {
   // Initial data: partners (to order from), my orders, live metrics
   useEffect(() => {
     api.partners
-      .list({ page: 1, limit: 100 })
+      .ecosystem()
       .then((res) => {
-        const list = ((res as { data: Partner[] }).data || []).filter(
+        const list = ((res as { data: { partners: Partner[] } }).data?.partners || []).filter(
           (p) => p.walletAddress && p.walletAddress !== walletAddress
         );
         setPartners(list);
