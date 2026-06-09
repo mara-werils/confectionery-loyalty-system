@@ -7,6 +7,8 @@ import { logger } from '../utils/logger';
 // Op codes — must match contracts/contracts/imports/op-codes.fc
 const OP_ESCROW_RELEASE = 0x30;
 const OP_ESCROW_REFUND = 0x31;
+// TEP-74 jetton transfer op-code (used for the gasless treasury-funded deposit).
+const JETTON_TRANSFER_OP = 0x0f8a7ea5;
 
 // On-chain order lifecycle — must match STATUS_* in sweet_pass_escrow.fc
 export enum OnChainStatus {
@@ -200,6 +202,86 @@ export async function confirmOnChainStatus(
     await sleep(2500);
   }
   return false;
+}
+
+/** Resolve a SWEET jetton-wallet address for `owner` by calling the master's get_wallet_address. */
+async function getJettonWalletAddress(owner: Address): Promise<Address> {
+  if (!config.ton.contracts.loyaltyToken) throw new Error('LoyaltyToken (SWEET) address not configured');
+  const master = Address.parse(config.ton.contracts.loyaltyToken);
+  const res = await retryFn(() =>
+    tonClient.runMethod(master, 'get_wallet_address', [
+      { type: 'slice', cell: beginCell().storeAddress(owner).endCell() },
+    ])
+  );
+  return res.stack.readAddress();
+}
+
+/**
+ * Gasless deposit: the platform treasury (admin wallet) funds the escrow on the
+ * customer's behalf, so the customer never needs a wallet, TON for gas, or testnet.
+ * Signs a TEP-74 SWEET transfer from the admin's jetton wallet into the escrow,
+ * carrying the order payload (order_id, partner, deadline) that the escrow's
+ * transfer_notification handler reads to open a FUNDED order.
+ *
+ * The on-chain depositor (and thus the refund recipient) is the treasury itself;
+ * the customer's spendable balance is debited/credited in the off-chain ledger.
+ */
+export async function depositToEscrowOnChain(opts: {
+  orderId: bigint;
+  partnerWallet: string;
+  deadline: number; // unix seconds
+  amountNano: bigint;
+}): Promise<string> {
+  return withAdminWallet(async () => {
+    const { walletContract, keyPair } = await openAdminWallet();
+    const admin = walletContract.address;
+    const adminJettonWallet = await getJettonWalletAddress(admin);
+
+    const forwardPayload = beginCell()
+      .storeUint(opts.orderId, 64)
+      .storeAddress(Address.parse(opts.partnerWallet))
+      .storeUint(opts.deadline, 64)
+      .endCell();
+
+    const seqno = await retryFn(() => walletContract.getSeqno());
+
+    const body = beginCell()
+      .storeUint(JETTON_TRANSFER_OP, 32)
+      .storeUint(BigInt(seqno), 64)
+      .storeCoins(opts.amountNano)
+      .storeAddress(escrowAddress()) // new owner = escrow
+      .storeAddress(admin) // response_destination — TON excess returns to treasury
+      .storeMaybeRef(null) // no custom_payload
+      .storeCoins(toNano('0.05')) // forward_ton_amount must be > 0 to trigger the notification
+      .storeMaybeRef(forwardPayload) // order payload as a ref
+      .endCell();
+
+    await retryFn(() =>
+      walletContract.sendTransfer({
+        secretKey: keyPair.secretKey,
+        seqno,
+        messages: [
+          internal({
+            to: adminJettonWallet,
+            value: toNano('0.2'), // gas + forward_ton_amount
+            body,
+          }),
+        ],
+      })
+    );
+
+    const waitDeadline = Date.now() + 30000;
+    while (Date.now() < waitDeadline) {
+      await sleep(2000);
+      try {
+        if ((await walletContract.getSeqno()) > seqno) break;
+      } catch {
+        /* transient RPC error — keep polling */
+      }
+    }
+
+    return `seqno:${seqno}`;
+  });
 }
 
 /**

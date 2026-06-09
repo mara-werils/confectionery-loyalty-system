@@ -15,6 +15,7 @@ import { logger } from '../utils/logger';
 import { io } from '../index';
 import { config } from '../config';
 import { refundOnChain, getOnChainOrder, OnChainStatus } from '../services/escrow.service';
+import { creditSweet } from '../services/sweetpassLedger';
 
 const POLL_INTERVAL_MS = 60 * 1000;
 // Deposit confirmation runs more often so a funded order surfaces within seconds,
@@ -70,6 +71,9 @@ export async function runEscrowRefundSweep(): Promise<void> {
           where: { orderId: order.orderId },
           data: { status: 'REFUNDED', refundedAt: new Date(), refundTxHash: txRef },
         });
+
+        // Custodial model: return the prepaid SWEET to the customer's spendable balance.
+        await creditSweet(order.customerWallet, order.amountKzt);
 
         io.to(`wallet:${order.customerWallet}`).emit('sweetpass:refunded', {
           orderId: order.orderId.toString(),
