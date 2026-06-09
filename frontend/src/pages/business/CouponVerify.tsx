@@ -13,6 +13,23 @@ import { Scanner } from '@yudiel/react-qr-scanner';
 import toast from 'react-hot-toast';
 import { api } from '../../services/api';
 
+// Fallback map for raw translation keys stored in DB
+const REWARD_TITLE_FALLBACK: Record<string, string> = {
+  'hm-1-title': '10% Discount on Macarons',
+  'hm-2-title': 'Free Box of 6 Macarons',
+  'sa-1-title': '15% off Custom Cakes',
+  'sa-2-title': 'VIP Cake Tasting',
+  'mm-1-title': 'Free Dessert of the Day',
+  'mm-2-title': '20% off Dessert Sets',
+  'oc-1-title': 'Free Mini Cake',
+  'cl-1-title': '10% off 3D Cakes',
+  'pl-1-title': 'Free Eclair Set (4 pcs)',
+  'hg-1-title': '10% off at GreenLine',
+  'mr-1-title': 'Free Coffee with Pastry',
+  'pw-1-title': '+5% Cashback Boost',
+};
+const resolveTitle = (raw: string) => REWARD_TITLE_FALLBACK[raw] ?? raw;
+
 interface CouponInfo {
   code: string;
   status: string;
@@ -258,7 +275,7 @@ export default function CouponVerify() {
                 <GiftIcon className="w-5 h-5 text-orange-400" />
               </div>
               <div>
-                <p className="font-semibold" style={{ color: 'var(--sweet-text)' }}>{coupon.rewardTitle}</p>
+                <p className="font-semibold" style={{ color: 'var(--sweet-text)' }}>{resolveTitle(coupon.rewardTitle)}</p>
                 {coupon.rewardDescription && (
                   <p className="text-xs mt-0.5" style={{ color: 'var(--sweet-text-muted)' }}>{coupon.rewardDescription}</p>
                 )}
