@@ -67,6 +67,7 @@ tmp/
 
 # Claude Code local config & skills (not part of project)
 .claude/
+CLAUDE.md
 
 
 
