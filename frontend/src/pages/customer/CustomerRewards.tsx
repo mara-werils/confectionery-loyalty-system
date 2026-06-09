@@ -15,7 +15,6 @@ import {
 } from '@phosphor-icons/react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useAuthStore } from '../../store/authStore';
-import { useTonWallet } from '@tonconnect/ui-react';
 import toast from 'react-hot-toast';
 
 import { api } from '../../services/api';
@@ -148,7 +147,6 @@ const cardVariants = {
 // ─── Main component ─────────────────────────────────────────────────────────
 
 export default function CustomerRewards() {
-  const wallet = useTonWallet();
   const { t, i18n } = useTranslation();
   const lang = (i18n.language as 'en' | 'ru' | 'kz') || 'ru';
 
@@ -200,20 +198,16 @@ export default function CustomerRewards() {
       .catch(() => {});
   }, [token, setCoupons, REWARD_PARTNER_NAME]);
 
+  // Fetch DB balance as fallback only if store is empty (DB is source of truth)
   useEffect(() => {
-    if (!wallet) return;
-    fetch(`https://testnet.tonapi.io/v2/accounts/${wallet.account.address}/jettons`)
-      .then(r => r.json())
-      .then(data => {
-        const sweet = data.balances?.find(
-          (b: { jetton: { address: string; decimals: number }; balance: string }) =>
-            b.jetton?.address?.toLowerCase() ===
-            '0:4d3a2278693a04f846b5d83a58e67066bb56ca4f46b1b7cd49992f4114f87c9c'
-        );
-        if (sweet) setSweetBalance(Number(BigInt(sweet.balance) / BigInt(10 ** sweet.jetton.decimals)));
+    if (!token || sweetBalance > 0) return;
+    (api.loyalty.getBalance() as Promise<{ data: { balance: number } }>)
+      .then(res => {
+        const bal = Number(res?.data?.balance || 0);
+        if (bal > 0) setSweetBalance(bal);
       })
       .catch(() => {});
-  }, [wallet?.account.address]);
+  }, [token]);
 
   const handleRedeem = async (reward: Reward) => {
     if (sweetBalance < reward.pointsRequired) {
