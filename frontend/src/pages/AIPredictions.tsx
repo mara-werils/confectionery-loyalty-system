@@ -670,7 +670,7 @@ function AIReportSection() {
               </div>
             </div>
             <p className="text-xs font-medium" style={{ color: 'var(--sweet-text-secondary)' }}>
-              Claude AI анализирует данные экосистемы...
+              AI анализирует данные экосистемы...
             </p>
             <p className="text-[10px]" style={{ color: 'var(--sweet-text-faint)' }}>
               Сбор метрик → Анализ трендов → Генерация отчёта
@@ -699,7 +699,7 @@ function AIReportSection() {
                 </div>
                 <div>
                   <p className="text-[11px] font-bold" style={{ color: 'var(--sweet-text)' }}>
-                    Сгенерировано Claude AI
+                    Сгенерировано AI-аналитиком
                   </p>
                   {generatedAt && (
                     <p className="text-[9px]" style={{ color: 'var(--sweet-text-faint)' }}>
@@ -753,7 +753,7 @@ function AIReportSection() {
             Нажмите «Сгенерировать» для создания AI-отчёта за неделю
           </p>
           <p className="text-[10px] mt-1" style={{ color: 'var(--sweet-text-faint)' }}>
-            Claude AI проанализирует все метрики и создаст детальный отчёт
+            AI проанализирует все метрики и создаст детальный отчёт
           </p>
         </div>
       )}
@@ -999,7 +999,7 @@ function AIAnomalySection() {
               </div>
             </div>
             <p className="text-xs font-medium" style={{ color: 'var(--sweet-text-secondary)' }}>
-              Claude AI сканирует транзакции за 48 часов...
+              AI сканирует транзакции за 48 часов...
             </p>
             <p className="text-[10px]" style={{ color: 'var(--sweet-text-faint)' }}>
               Статистический анализ → Поиск паттернов → Оценка рисков
@@ -1027,7 +1027,7 @@ function AIAnomalySection() {
                 <div className="flex items-center gap-2">
                   <ShieldCheckIcon className="w-5 h-5" style={{ color: riskCfg.color }} />
                   <span className="text-xs font-bold" style={{ color: riskCfg.color }}>
-                    Уровень риска: {result.riskLevel}
+                    Уровень риска: {{ NONE: 'Отсутствует', LOW: 'Низкий', MEDIUM: 'Средний', HIGH: 'Высокий', CRITICAL: 'Критический' }[result.riskLevel] ?? result.riskLevel}
                   </span>
                 </div>
                 <span className="text-[10px]" style={{ color: 'var(--sweet-text-faint)' }}>
@@ -1118,7 +1118,7 @@ function AIAnomalySection() {
 
             {/* Timestamp */}
             <p className="text-[10px] text-center" style={{ color: 'var(--sweet-text-faint)' }}>
-              Анализ выполнен Claude AI · {new Date(result.generatedAt).toLocaleString('ru-RU')}
+              Анализ выполнен · {new Date(result.generatedAt).toLocaleString('ru-RU')}
             </p>
           </motion.div>
         )}
@@ -1131,7 +1131,7 @@ function AIAnomalySection() {
             Нажмите «Запустить скан» для анализа транзакций за 48 часов
           </p>
           <p className="text-[10px] mt-1" style={{ color: 'var(--sweet-text-faint)' }}>
-            Claude AI проверит фарминг баллов, всплески, дубликаты и подозрительные паттерны
+            AI проверит фарминг баллов, всплески, дубликаты и подозрительные паттерны
           </p>
         </div>
       )}
