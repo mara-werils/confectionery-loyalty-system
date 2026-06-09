@@ -766,9 +766,78 @@ function AIReportSection() {
 function MarkdownRenderer({ content }: { content: string }) {
   const lines = content.split('\n');
   const elements: React.ReactNode[] = [];
+  let i = 0;
 
-  for (let i = 0; i < lines.length; i++) {
+  while (i < lines.length) {
     const line = lines[i]!;
+
+    // Detect markdown table (line with | separators, followed by |---|)
+    if (line.includes('|') && i + 1 < lines.length && lines[i + 1]?.match(/^\|?\s*-{2,}/)) {
+      const tableLines: string[] = [];
+      let j = i;
+      while (j < lines.length && lines[j]!.includes('|')) {
+        tableLines.push(lines[j]!);
+        j++;
+      }
+      // Skip separator line (|---|---|)
+      const headerLine = tableLines[0]!;
+      const dataLines = tableLines.slice(2); // skip header + separator
+
+      const parseRow = (row: string) =>
+        row.split('|').map(c => c.trim()).filter(c => c.length > 0);
+
+      const headers = parseRow(headerLine);
+
+      elements.push(
+        <div key={i} style={{ overflowX: 'auto', margin: '12px 0' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
+            <thead>
+              <tr>
+                {headers.map((h, hi) => (
+                  <th
+                    key={hi}
+                    style={{
+                      padding: '8px 10px',
+                      textAlign: 'left',
+                      fontWeight: 700,
+                      fontSize: 10,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                      color: 'var(--sweet-text-muted)',
+                      borderBottom: '1px solid var(--sweet-border)',
+                      whiteSpace: 'nowrap',
+                    }}
+                    dangerouslySetInnerHTML={{ __html: boldify(h) }}
+                  />
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {dataLines.map((row, ri) => {
+                const cells = parseRow(row);
+                return (
+                  <tr key={ri} style={{ borderBottom: '1px solid var(--sweet-border)' }}>
+                    {cells.map((cell, ci) => (
+                      <td
+                        key={ci}
+                        style={{
+                          padding: '7px 10px',
+                          color: 'var(--sweet-text-secondary)',
+                          whiteSpace: 'nowrap',
+                        }}
+                        dangerouslySetInnerHTML={{ __html: boldify(cell) }}
+                      />
+                    ))}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      );
+      i = j;
+      continue;
+    }
 
     if (line.startsWith('## ')) {
       elements.push(
@@ -810,6 +879,7 @@ function MarkdownRenderer({ content }: { content: string }) {
         <p key={i} style={{ marginBottom: 4 }} dangerouslySetInnerHTML={{ __html: boldify(line) }} />
       );
     }
+    i++;
   }
 
   return <>{elements}</>;
