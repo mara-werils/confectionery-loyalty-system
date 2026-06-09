@@ -1015,63 +1015,88 @@ function AIAnomalySection() {
             animate={{ opacity: 1, y: 0 }}
             className="space-y-3"
           >
-            {/* Summary card */}
-            <div
-              className="rounded-2xl p-4 space-y-3"
-              style={{
-                background: `linear-gradient(135deg, ${riskCfg.bg} 0%, var(--sweet-card) 60%)`,
-                border: `1px solid ${riskCfg.border}`,
-              }}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <ShieldCheckIcon className="w-5 h-5" style={{ color: riskCfg.color }} />
-                  <span className="text-xs font-bold" style={{ color: riskCfg.color }}>
-                    Уровень риска: {{ NONE: 'Отсутствует', LOW: 'Низкий', MEDIUM: 'Средний', HIGH: 'Высокий', CRITICAL: 'Критический' }[result.riskLevel] ?? result.riskLevel}
+            {result.anomalies.length === 0 ? (
+              /* ── Clean state: no anomalies ── */
+              <div className="rounded-2xl p-5" style={{ background: 'var(--sweet-card)', border: '1px solid rgba(74,222,128,0.20)' }}>
+                <div className="flex items-center gap-3">
+                  <div style={{
+                    width: 40, height: 40, borderRadius: 12,
+                    background: 'rgba(74,222,128,0.10)',
+                    border: '1px solid rgba(74,222,128,0.25)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                  }}>
+                    <ShieldCheckIcon className="w-5 h-5" style={{ color: '#4ade80' }} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <p className="text-sm font-bold" style={{ color: '#4ade80' }}>Аномалий не обнаружено</p>
+                    <p className="text-[11px] mt-1" style={{ color: 'var(--sweet-text-muted)', lineHeight: 1.5 }}>
+                      {result.summary}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between mt-3 pt-3" style={{ borderTop: '1px solid var(--sweet-border)' }}>
+                  <span className="text-[10px]" style={{ color: 'var(--sweet-text-faint)' }}>
+                    Проверено {result.analyzedCount} транзакций · Ср. сумма {result.stats.avgAmount.toLocaleString()} ₸
+                  </span>
+                  <span className="text-[10px]" style={{ color: 'var(--sweet-text-faint)' }}>
+                    {new Date(result.generatedAt).toLocaleString('ru-RU')}
                   </span>
                 </div>
-                <span className="text-[10px]" style={{ color: 'var(--sweet-text-faint)' }}>
-                  Проанализировано: {result.analyzedCount} транзакций
-                </span>
               </div>
-              <p className="text-xs" style={{ color: 'var(--sweet-text-secondary)', lineHeight: 1.6 }}>
-                {result.summary}
-              </p>
-
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-3">
-                {[
-                  { label: 'Средняя сумма', value: `${result.stats.avgAmount.toLocaleString()} ₸` },
-                  { label: 'Макс. сумма', value: `${result.stats.maxAmount.toLocaleString()} ₸` },
-                  { label: 'Аномалий', value: result.anomalies.length, color: result.anomalies.length > 0 ? '#f87171' : '#4ade80' },
-                ].map(s => (
-                  <div key={s.label} className="rounded-xl p-2.5 text-center"
-                    style={{ background: 'var(--sweet-input)', border: '1px solid var(--sweet-border)' }}>
-                    <p className="text-sm font-black" style={{ color: s.color ?? 'var(--sweet-text)' }}>
-                      {s.value}
-                    </p>
-                    <p className="text-[9px] mt-0.5" style={{ color: 'var(--sweet-text-faint)' }}>{s.label}</p>
+            ) : (
+              /* ── Anomalies found ── */
+              <>
+                <div
+                  className="rounded-2xl p-4 space-y-3"
+                  style={{
+                    background: `linear-gradient(135deg, ${riskCfg.bg} 0%, var(--sweet-card) 60%)`,
+                    border: `1px solid ${riskCfg.border}`,
+                  }}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <ShieldWarningIcon className="w-5 h-5" style={{ color: riskCfg.color }} />
+                      <span className="text-xs font-bold" style={{ color: riskCfg.color }}>
+                        Уровень риска: {{ LOW: 'Низкий', MEDIUM: 'Средний', HIGH: 'Высокий', CRITICAL: 'Критический' }[result.riskLevel] ?? result.riskLevel}
+                      </span>
+                    </div>
+                    <span className="text-[10px]" style={{ color: 'var(--sweet-text-faint)' }}>
+                      {result.analyzedCount} транзакций · {result.anomalies.length} аномалий
+                    </span>
                   </div>
-                ))}
-              </div>
-            </div>
+                  <p className="text-xs" style={{ color: 'var(--sweet-text-secondary)', lineHeight: 1.6 }}>
+                    {result.summary}
+                  </p>
 
-            {/* Anomaly cards */}
-            {result.anomalies.length > 0 && (
-              <div className="space-y-2">
-                {result.anomalies.map((anomaly, i) => {
-                  const cfg = SEVERITY_CONFIG[anomaly.severity] ?? SEVERITY_CONFIG.LOW;
-                  return (
-                    <motion.div
-                      key={anomaly.id}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.08 }}
-                      className="rounded-xl p-4 space-y-2"
-                      style={{ background: 'var(--sweet-card)', border: `1px solid ${cfg.border}` }}
-                    >
-                      {/* Header */}
-                      <div className="flex items-center justify-between">
+                  <div className="grid grid-cols-3 gap-3">
+                    {[
+                      { label: 'Средняя сумма', value: `${result.stats.avgAmount.toLocaleString()} ₸` },
+                      { label: 'Макс. сумма', value: `${result.stats.maxAmount.toLocaleString()} ₸` },
+                      { label: 'Аномалий', value: result.anomalies.length, color: '#f87171' },
+                    ].map(s => (
+                      <div key={s.label} className="rounded-xl p-2.5 text-center"
+                        style={{ background: 'var(--sweet-input)', border: '1px solid var(--sweet-border)' }}>
+                        <p className="text-sm font-black" style={{ color: s.color ?? 'var(--sweet-text)' }}>
+                          {s.value}
+                        </p>
+                        <p className="text-[9px] mt-0.5" style={{ color: 'var(--sweet-text-faint)' }}>{s.label}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  {result.anomalies.map((anomaly, i) => {
+                    const cfg = SEVERITY_CONFIG[anomaly.severity] ?? SEVERITY_CONFIG.LOW;
+                    return (
+                      <motion.div
+                        key={anomaly.id}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.08 }}
+                        className="rounded-xl p-4 space-y-2"
+                        style={{ background: 'var(--sweet-card)', border: `1px solid ${cfg.border}` }}
+                      >
                         <div className="flex items-center gap-2">
                           <span className="text-[10px] font-mono font-bold" style={{ color: cfg.color }}>
                             {anomaly.id}
@@ -1085,41 +1110,32 @@ function AIAnomalySection() {
                             {ANOMALY_TYPE_LABEL[anomaly.type] ?? anomaly.type}
                           </span>
                         </div>
-                      </div>
-
-                      {/* Partner */}
-                      <p className="text-xs font-semibold" style={{ color: 'var(--sweet-text)' }}>
-                        {anomaly.partner}
-                      </p>
-
-                      {/* Description */}
-                      <p className="text-xs" style={{ color: 'var(--sweet-text-secondary)', lineHeight: 1.5 }}>
-                        {anomaly.description}
-                      </p>
-
-                      {/* Evidence */}
-                      <div className="rounded-lg px-3 py-2" style={{ background: 'var(--sweet-input)', border: '1px solid var(--sweet-border)' }}>
-                        <p className="text-[10px]" style={{ color: 'var(--sweet-text-faint)' }}>
-                          Доказательство: <span style={{ color: 'var(--sweet-text-muted)' }}>{anomaly.evidence}</span>
+                        <p className="text-xs font-semibold" style={{ color: 'var(--sweet-text)' }}>
+                          {anomaly.partner}
                         </p>
-                      </div>
-
-                      {/* Recommendation */}
-                      <div className="rounded-lg px-3 py-2" style={{ background: cfg.bg, border: `1px solid ${cfg.border}` }}>
-                        <p className="text-[10px]" style={{ color: cfg.color }}>
-                          Рекомендация: <span style={{ color: 'var(--sweet-text-secondary)' }}>{anomaly.recommendation}</span>
+                        <p className="text-xs" style={{ color: 'var(--sweet-text-secondary)', lineHeight: 1.5 }}>
+                          {anomaly.description}
                         </p>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
+                        <div className="rounded-lg px-3 py-2" style={{ background: 'var(--sweet-input)', border: '1px solid var(--sweet-border)' }}>
+                          <p className="text-[10px]" style={{ color: 'var(--sweet-text-faint)' }}>
+                            Доказательство: <span style={{ color: 'var(--sweet-text-muted)' }}>{anomaly.evidence}</span>
+                          </p>
+                        </div>
+                        <div className="rounded-lg px-3 py-2" style={{ background: cfg.bg, border: `1px solid ${cfg.border}` }}>
+                          <p className="text-[10px]" style={{ color: cfg.color }}>
+                            Рекомендация: <span style={{ color: 'var(--sweet-text-secondary)' }}>{anomaly.recommendation}</span>
+                          </p>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+
+                <p className="text-[10px] text-center" style={{ color: 'var(--sweet-text-faint)' }}>
+                  Анализ выполнен · {new Date(result.generatedAt).toLocaleString('ru-RU')}
+                </p>
+              </>
             )}
-
-            {/* Timestamp */}
-            <p className="text-[10px] text-center" style={{ color: 'var(--sweet-text-faint)' }}>
-              Анализ выполнен · {new Date(result.generatedAt).toLocaleString('ru-RU')}
-            </p>
           </motion.div>
         )}
       </AnimatePresence>
