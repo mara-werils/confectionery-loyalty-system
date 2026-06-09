@@ -1,4 +1,5 @@
 import { execFile } from 'child_process';
+import { existsSync } from 'fs';
 import { logger } from '../utils/logger';
 
 interface ClaudeResponse {
@@ -7,6 +8,23 @@ interface ClaudeResponse {
   usage?: { input_tokens: number; output_tokens: number };
   total_cost_usd?: number;
 }
+
+// Resolve Claude CLI binary path
+const CLAUDE_PATHS = [
+  '/home/intern/.nvm/versions/node/v22.22.3/bin/claude',
+  '/usr/local/bin/claude',
+  '/usr/bin/claude',
+  'claude', // fallback to PATH
+];
+
+function getClaudeBin(): string {
+  for (const p of CLAUDE_PATHS) {
+    if (p === 'claude' || existsSync(p)) return p;
+  }
+  return 'claude';
+}
+
+const NODE_BIN_DIR = '/home/intern/.nvm/versions/node/v22.22.3/bin';
 
 /**
  * Call Claude Code CLI in non-interactive pipe mode.
@@ -17,6 +35,7 @@ export async function askClaude(prompt: string, options?: {
   systemPrompt?: string;
 }): Promise<string> {
   const timeout = options?.timeout ?? 60_000;
+  const claudeBin = getClaudeBin();
 
   const args = ['-p', prompt, '--output-format', 'json'];
   if (options?.systemPrompt) {
@@ -24,10 +43,11 @@ export async function askClaude(prompt: string, options?: {
   }
 
   return new Promise((resolve, reject) => {
-    const child = execFile('claude', args, {
+    const child = execFile(claudeBin, args, {
       timeout,
       encoding: 'utf-8',
       maxBuffer: 1024 * 1024, // 1MB
+      env: { ...process.env, PATH: `${NODE_BIN_DIR}:${process.env.PATH ?? ''}` },
     }, (error, stdout, stderr) => {
       if (error) {
         logger.error('[Claude] CLI error:', error.message);
