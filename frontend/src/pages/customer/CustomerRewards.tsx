@@ -158,7 +158,7 @@ export default function CustomerRewards() {
   const [sheet, setSheet] = useState<IssuedCoupon | null>(null);
   const [showMyCoupons, setShowMyCoupons] = useState(false);
 
-  const getText = (key: string): string => TEXTS[key]?.[lang] ?? TEXTS[key]?.en ?? key;
+  const getText = (key: string): string => TEXTS[key]?.[lang] ?? TEXTS[key]?.en ?? TEXTS[key.toLowerCase()]?.[lang] ?? TEXTS[key.toLowerCase()]?.en ?? key;
 
   const visibleRewards = useMemo(() => {
     let list = REWARDS;
@@ -223,7 +223,7 @@ export default function CustomerRewards() {
       const { code, expiresAt, daysLeft } = res.data;
       const partner = PARTNER_MAP[reward.partnerId] ?? PARTNER_MAP['platform'];
       setSweetBalance(Math.max(0, sweetBalance - reward.pointsRequired));
-      addCoupon({ code, rewardTitleKey: reward.titleKey, partnerName: partner.name });
+      addCoupon({ code, rewardTitleKey: reward.titleKey, rewardTitle: getText(reward.titleKey), partnerName: partner.name });
       setSheet({ code, reward, partner, expiresAt, daysLeft });
     } catch (err: unknown) {
       let message = t('rewards.claimError') || 'Error issuing coupon';
