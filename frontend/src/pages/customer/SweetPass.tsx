@@ -177,9 +177,9 @@ export default function SweetPass() {
 
   const metricCards = metrics
     ? [
-        { label: 'Locked in escrow', value: fmtKzt(metrics.kztPrepaidLocked), sub: `${metrics.preOrdersLocked} pre-orders`, Icon: LockIcon },
-        { label: 'Guaranteed revenue', value: fmtKzt(metrics.kztSettledToPartners), sub: `${metrics.ordersFulfilled} fulfilled`, Icon: CheckCircleIcon },
-        { label: 'Write-offs prevented', value: fmtKzt(metrics.writeOffsPreventedKzt), sub: 'committed demand', Icon: ShieldCheckIcon },
+        { label: t('sweetpass.mLocked'), value: fmtKzt(metrics.kztPrepaidLocked), sub: t('sweetpass.mPreorders', { count: metrics.preOrdersLocked }), Icon: LockIcon },
+        { label: t('sweetpass.mGuaranteed'), value: fmtKzt(metrics.kztSettledToPartners), sub: t('sweetpass.mFulfilled', { count: metrics.ordersFulfilled }), Icon: CheckCircleIcon },
+        { label: t('sweetpass.mWriteoffs'), value: fmtKzt(metrics.writeOffsPreventedKzt), sub: t('sweetpass.mCommitted'), Icon: ShieldCheckIcon },
       ]
     : [];
 
@@ -384,27 +384,22 @@ export default function SweetPass() {
                   className="rounded-2xl p-4"
                   style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)' }}
                 >
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: meta.bg }}>
-                      <meta.Icon className="w-5 h-5" style={{ color: meta.color }} weight="fill" />
+                  <div className="min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-sm font-bold truncate" style={{ color: 'var(--sweet-text)' }}>{o.itemDescription}</p>
+                      <span className="text-sm font-black flex-shrink-0" style={{ color: 'var(--sweet-text)' }}>{fmtKzt(o.amountKzt)}</span>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="text-sm font-bold truncate" style={{ color: 'var(--sweet-text)' }}>{o.itemDescription}</p>
-                        <span className="text-sm font-black flex-shrink-0" style={{ color: 'var(--sweet-text)' }}>{fmtKzt(o.amountKzt)}</span>
-                      </div>
-                      <p className="text-[11px] mt-0.5" style={{ color: 'var(--sweet-text-muted)' }}>{o.partnerName}</p>
-                      <div className="flex items-center justify-between gap-2 mt-2">
-                        <span
-                          className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-                          style={{ background: meta.bg, color: meta.color }}
-                        >
-                          {meta.label}
-                        </span>
-                        {o.status === 'FUNDED' && (
-                          <span className="text-[10px]" style={{ color: 'var(--sweet-text-faint)' }}>{timeLeft(o.deadline)}</span>
-                        )}
-                      </div>
+                    <p className="text-[11px] mt-0.5" style={{ color: 'var(--sweet-text-muted)' }}>{o.partnerName}</p>
+                    <div className="flex items-center justify-between gap-2 mt-2">
+                      <span
+                        className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                        style={{ background: meta.bg, color: meta.color }}
+                      >
+                        {t(`sweetpass.status.${o.status}`)}
+                      </span>
+                      {o.status === 'FUNDED' && (
+                        <span className="text-[10px]" style={{ color: 'var(--sweet-text-faint)' }}>{timeLeft(o.deadline)}</span>
+                      )}
                     </div>
                   </div>
                 </motion.div>
