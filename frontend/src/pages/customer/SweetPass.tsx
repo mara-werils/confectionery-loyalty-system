@@ -111,7 +111,6 @@ export default function SweetPass() {
       .catch(() => { /* ignore */ });
     loadOrders();
     loadMetrics();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletAddress]);
 
   // Real-time order lifecycle updates
@@ -136,7 +135,6 @@ export default function SweetPass() {
       socket.disconnect();
       socketRef.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletAddress]);
 
   const kztNum = Number(amountKzt) || 0;
