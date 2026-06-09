@@ -1,4 +1,5 @@
-import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
   WarningIcon,
@@ -11,6 +12,10 @@ import {
   ChartBarIcon,
   BrainIcon,
   ShieldCheckIcon,
+  FileTextIcon,
+  ShieldWarningIcon,
+  SpinnerGapIcon,
+  DownloadSimpleIcon,
 } from '@phosphor-icons/react';
 import {
   AreaChart,
@@ -551,8 +556,515 @@ export default function AIPredictions() {
         )}
       </section>
 
+      {/* ── AI BI Report Section ── */}
+      <AIReportSection />
+
+      {/* ── AI Anomaly Detection Section ── */}
+      <AIAnomalySection />
+
       {/* Bottom padding */}
       <div className="h-4" />
     </div>
+  );
+}
+
+// ─── Severity helpers ──────────────────────────────────────────────────────
+
+const SEVERITY_CONFIG: Record<string, { color: string; bg: string; border: string }> = {
+  CRITICAL: { color: '#f87171', bg: 'rgba(248,113,113,0.10)', border: 'rgba(248,113,113,0.25)' },
+  HIGH:     { color: '#fb923c', bg: 'rgba(251,146,60,0.10)',  border: 'rgba(251,146,60,0.25)' },
+  MEDIUM:   { color: '#facc15', bg: 'rgba(250,204,21,0.10)',  border: 'rgba(250,204,21,0.25)' },
+  LOW:      { color: '#4ade80', bg: 'rgba(74,222,128,0.10)',   border: 'rgba(74,222,128,0.25)' },
+  NONE:     { color: '#4ade80', bg: 'rgba(74,222,128,0.10)',   border: 'rgba(74,222,128,0.25)' },
+};
+
+const ANOMALY_TYPE_LABEL: Record<string, string> = {
+  POINT_FARMING: 'Фарминг баллов',
+  SPIKE: 'Всплеск активности',
+  OUTLIER: 'Аномальная сумма',
+  DUPLICATE: 'Дублирование',
+  TIMING: 'Подозрительное время',
+  TIER_ABUSE: 'Злоупотребление уровнем',
+};
+
+// ─── AI BI Report Component ───────────────────────────────────────────────
+
+function AIReportSection() {
+  const [report, setReport] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [generatedAt, setGeneratedAt] = useState<string | null>(null);
+
+  const handleGenerate = async () => {
+    setLoading(true);
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const res: any = await api.ai.generateReport();
+      const data = res.data?.data ?? res.data;
+      setReport(data.report);
+      setGeneratedAt(data.generatedAt);
+    } catch {
+      setReport('Ошибка генерации отчёта. Убедитесь что Claude CLI настроен на сервере.');
+    }
+    setLoading(false);
+  };
+
+  return (
+    <section className="space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <FileTextIcon className="w-4 h-4" style={{ color: 'var(--sweet-text-muted)' }} />
+          <h2 className="text-sm font-semibold" style={{ color: 'var(--sweet-text)' }}>
+            AI Бизнес-отчёт
+          </h2>
+        </div>
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          onClick={handleGenerate}
+          disabled={loading}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '6px 14px',
+            borderRadius: 10,
+            fontSize: 11,
+            fontWeight: 700,
+            cursor: loading ? 'wait' : 'pointer',
+            background: 'var(--sweet-accent)',
+            color: '#0d0b0a',
+            border: 'none',
+            opacity: loading ? 0.6 : 1,
+          }}
+        >
+          {loading ? (
+            <>
+              <SpinnerGapIcon className="w-3.5 h-3.5 animate-spin" />
+              Генерация...
+            </>
+          ) : (
+            <>
+              <BrainIcon className="w-3.5 h-3.5" />
+              Сгенерировать
+            </>
+          )}
+        </motion.button>
+      </div>
+
+      <AnimatePresence>
+        {loading && !report && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="rounded-2xl p-6 text-center space-y-3"
+            style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)' }}
+          >
+            <div className="flex justify-center">
+              <div style={{
+                width: 48, height: 48, borderRadius: '50%',
+                background: 'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(251,191,36,0.08))',
+                border: '2px solid rgba(245,158,11,0.3)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <SpinnerGapIcon className="w-6 h-6 animate-spin" style={{ color: 'var(--sweet-accent)' }} />
+              </div>
+            </div>
+            <p className="text-xs font-medium" style={{ color: 'var(--sweet-text-secondary)' }}>
+              Claude AI анализирует данные экосистемы...
+            </p>
+            <p className="text-[10px]" style={{ color: 'var(--sweet-text-faint)' }}>
+              Сбор метрик → Анализ трендов → Генерация отчёта
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {report && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-2xl overflow-hidden"
+            style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)' }}
+          >
+            {/* Report header */}
+            <div className="flex items-center justify-between px-5 py-3" style={{ borderBottom: '1px solid var(--sweet-border)' }}>
+              <div className="flex items-center gap-2">
+                <div style={{
+                  width: 28, height: 28, borderRadius: 8,
+                  background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <BrainIcon className="w-3.5 h-3.5" style={{ color: 'var(--sweet-accent)' }} />
+                </div>
+                <div>
+                  <p className="text-[11px] font-bold" style={{ color: 'var(--sweet-text)' }}>
+                    Сгенерировано Claude AI
+                  </p>
+                  {generatedAt && (
+                    <p className="text-[9px]" style={{ color: 'var(--sweet-text-faint)' }}>
+                      {new Date(generatedAt).toLocaleString('ru-RU')}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <motion.button
+                whileTap={{ scale: 0.93 }}
+                onClick={() => {
+                  const blob = new Blob([report], { type: 'text/markdown' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `sweet-loyalty-report-${new Date().toISOString().split('T')[0]}.md`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 4,
+                  padding: '4px 10px', borderRadius: 8, fontSize: 10, fontWeight: 600,
+                  background: 'var(--sweet-input)', border: '1px solid var(--sweet-border)',
+                  color: 'var(--sweet-text-muted)', cursor: 'pointer',
+                }}
+              >
+                <DownloadSimpleIcon className="w-3 h-3" />
+                .md
+              </motion.button>
+            </div>
+
+            {/* Report body — rendered as styled text */}
+            <div
+              className="px-5 py-4 prose prose-sm prose-invert max-w-none"
+              style={{
+                fontSize: 12,
+                lineHeight: 1.7,
+                color: 'var(--sweet-text-secondary)',
+              }}
+            >
+              <MarkdownRenderer content={report} />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {!report && !loading && (
+        <div className="rounded-xl p-6 text-center" style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)' }}>
+          <FileTextIcon className="w-8 h-8 mx-auto mb-2" style={{ color: 'var(--sweet-text-faint)' }} />
+          <p className="text-xs" style={{ color: 'var(--sweet-text-muted)' }}>
+            Нажмите «Сгенерировать» для создания AI-отчёта за неделю
+          </p>
+          <p className="text-[10px] mt-1" style={{ color: 'var(--sweet-text-faint)' }}>
+            Claude AI проанализирует все метрики и создаст детальный отчёт
+          </p>
+        </div>
+      )}
+    </section>
+  );
+}
+
+// ─── Simple Markdown Renderer ──────────────────────────────────────────────
+
+function MarkdownRenderer({ content }: { content: string }) {
+  const lines = content.split('\n');
+  const elements: React.ReactNode[] = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]!;
+
+    if (line.startsWith('## ')) {
+      elements.push(
+        <h2 key={i} style={{ fontSize: 15, fontWeight: 800, color: 'var(--sweet-text)', margin: '20px 0 8px' }}>
+          {line.slice(3)}
+        </h2>
+      );
+    } else if (line.startsWith('### ')) {
+      elements.push(
+        <h3 key={i} style={{ fontSize: 13, fontWeight: 700, color: 'var(--sweet-text)', margin: '16px 0 6px' }}>
+          {line.slice(4)}
+        </h3>
+      );
+    } else if (line.startsWith('# ')) {
+      elements.push(
+        <h1 key={i} style={{ fontSize: 17, fontWeight: 900, color: 'var(--sweet-text)', margin: '0 0 12px' }}>
+          {line.slice(2)}
+        </h1>
+      );
+    } else if (line.startsWith('- ') || line.startsWith('* ')) {
+      elements.push(
+        <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 4 }}>
+          <span style={{ color: 'var(--sweet-accent)', fontWeight: 800 }}>•</span>
+          <span dangerouslySetInnerHTML={{ __html: boldify(line.slice(2)) }} />
+        </div>
+      );
+    } else if (line.match(/^\d+\.\s/)) {
+      const num = line.match(/^(\d+)\.\s/)![1];
+      elements.push(
+        <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 4 }}>
+          <span style={{ color: 'var(--sweet-accent)', fontWeight: 800, minWidth: 16 }}>{num}.</span>
+          <span dangerouslySetInnerHTML={{ __html: boldify(line.replace(/^\d+\.\s/, '')) }} />
+        </div>
+      );
+    } else if (line.trim() === '') {
+      elements.push(<div key={i} style={{ height: 8 }} />);
+    } else {
+      elements.push(
+        <p key={i} style={{ marginBottom: 4 }} dangerouslySetInnerHTML={{ __html: boldify(line) }} />
+      );
+    }
+  }
+
+  return <>{elements}</>;
+}
+
+function boldify(text: string): string {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong style="color: var(--sweet-text); font-weight: 700;">$1</strong>')
+    .replace(/`(.*?)`/g, '<code style="background: var(--sweet-input); padding: 1px 5px; border-radius: 4px; font-size: 11px;">$1</code>');
+}
+
+// ─── AI Anomaly Detection Component ──────────────────────────────────────
+
+interface Anomaly {
+  id: string;
+  type: string;
+  severity: string;
+  partner: string;
+  description: string;
+  evidence: string;
+  recommendation: string;
+}
+
+interface AnomalyResult {
+  anomalies: Anomaly[];
+  summary: string;
+  riskLevel: string;
+  analyzedCount: number;
+  stats: { avgAmount: number; maxAmount: number; stdDev: number };
+  generatedAt: string;
+}
+
+function AIAnomalySection() {
+  const [result, setResult] = useState<AnomalyResult | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleScan = async () => {
+    setLoading(true);
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const res: any = await api.ai.detectAnomalies();
+      const data = res.data?.data ?? res.data;
+      setResult(data);
+    } catch {
+      setResult({
+        anomalies: [],
+        summary: 'Ошибка анализа. Убедитесь что Claude CLI настроен на сервере.',
+        riskLevel: 'NONE',
+        analyzedCount: 0,
+        stats: { avgAmount: 0, maxAmount: 0, stdDev: 0 },
+        generatedAt: new Date().toISOString(),
+      });
+    }
+    setLoading(false);
+  };
+
+  const riskCfg = SEVERITY_CONFIG[result?.riskLevel ?? 'NONE'] ?? SEVERITY_CONFIG.NONE;
+
+  return (
+    <section className="space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <ShieldWarningIcon className="w-4 h-4" style={{ color: 'var(--sweet-text-muted)' }} />
+          <h2 className="text-sm font-semibold" style={{ color: 'var(--sweet-text)' }}>
+            AI Детектор аномалий
+          </h2>
+        </div>
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          onClick={handleScan}
+          disabled={loading}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '6px 14px',
+            borderRadius: 10,
+            fontSize: 11,
+            fontWeight: 700,
+            cursor: loading ? 'wait' : 'pointer',
+            background: loading ? 'var(--sweet-input)' : 'rgba(248,113,113,0.15)',
+            color: loading ? 'var(--sweet-text-muted)' : '#f87171',
+            border: `1px solid ${loading ? 'var(--sweet-border)' : 'rgba(248,113,113,0.3)'}`,
+          }}
+        >
+          {loading ? (
+            <>
+              <SpinnerGapIcon className="w-3.5 h-3.5 animate-spin" />
+              Сканирование...
+            </>
+          ) : (
+            <>
+              <ShieldWarningIcon className="w-3.5 h-3.5" />
+              Запустить скан
+            </>
+          )}
+        </motion.button>
+      </div>
+
+      <AnimatePresence>
+        {loading && !result && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="rounded-2xl p-6 text-center space-y-3"
+            style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)' }}
+          >
+            <div className="flex justify-center">
+              <div style={{
+                width: 48, height: 48, borderRadius: '50%',
+                background: 'rgba(248,113,113,0.10)',
+                border: '2px solid rgba(248,113,113,0.25)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <SpinnerGapIcon className="w-6 h-6 animate-spin" style={{ color: '#f87171' }} />
+              </div>
+            </div>
+            <p className="text-xs font-medium" style={{ color: 'var(--sweet-text-secondary)' }}>
+              Claude AI сканирует транзакции за 48 часов...
+            </p>
+            <p className="text-[10px]" style={{ color: 'var(--sweet-text-faint)' }}>
+              Статистический анализ → Поиск паттернов → Оценка рисков
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {result && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-3"
+          >
+            {/* Summary card */}
+            <div
+              className="rounded-2xl p-4 space-y-3"
+              style={{
+                background: `linear-gradient(135deg, ${riskCfg.bg} 0%, var(--sweet-card) 60%)`,
+                border: `1px solid ${riskCfg.border}`,
+              }}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <ShieldCheckIcon className="w-5 h-5" style={{ color: riskCfg.color }} />
+                  <span className="text-xs font-bold" style={{ color: riskCfg.color }}>
+                    Уровень риска: {result.riskLevel}
+                  </span>
+                </div>
+                <span className="text-[10px]" style={{ color: 'var(--sweet-text-faint)' }}>
+                  Проанализировано: {result.analyzedCount} транзакций
+                </span>
+              </div>
+              <p className="text-xs" style={{ color: 'var(--sweet-text-secondary)', lineHeight: 1.6 }}>
+                {result.summary}
+              </p>
+
+              {/* Stats */}
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { label: 'Средняя сумма', value: `${result.stats.avgAmount.toLocaleString()} ₸` },
+                  { label: 'Макс. сумма', value: `${result.stats.maxAmount.toLocaleString()} ₸` },
+                  { label: 'Аномалий', value: result.anomalies.length, color: result.anomalies.length > 0 ? '#f87171' : '#4ade80' },
+                ].map(s => (
+                  <div key={s.label} className="rounded-xl p-2.5 text-center"
+                    style={{ background: 'var(--sweet-input)', border: '1px solid var(--sweet-border)' }}>
+                    <p className="text-sm font-black" style={{ color: s.color ?? 'var(--sweet-text)' }}>
+                      {s.value}
+                    </p>
+                    <p className="text-[9px] mt-0.5" style={{ color: 'var(--sweet-text-faint)' }}>{s.label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Anomaly cards */}
+            {result.anomalies.length > 0 && (
+              <div className="space-y-2">
+                {result.anomalies.map((anomaly, i) => {
+                  const cfg = SEVERITY_CONFIG[anomaly.severity] ?? SEVERITY_CONFIG.LOW;
+                  return (
+                    <motion.div
+                      key={anomaly.id}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.08 }}
+                      className="rounded-xl p-4 space-y-2"
+                      style={{ background: 'var(--sweet-card)', border: `1px solid ${cfg.border}` }}
+                    >
+                      {/* Header */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-mono font-bold" style={{ color: cfg.color }}>
+                            {anomaly.id}
+                          </span>
+                          <span className="text-[9px] px-2 py-0.5 rounded-full font-bold"
+                            style={{ background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}` }}>
+                            {anomaly.severity}
+                          </span>
+                          <span className="text-[9px] px-2 py-0.5 rounded-full font-medium"
+                            style={{ background: 'var(--sweet-input)', color: 'var(--sweet-text-muted)', border: '1px solid var(--sweet-border)' }}>
+                            {ANOMALY_TYPE_LABEL[anomaly.type] ?? anomaly.type}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Partner */}
+                      <p className="text-xs font-semibold" style={{ color: 'var(--sweet-text)' }}>
+                        {anomaly.partner}
+                      </p>
+
+                      {/* Description */}
+                      <p className="text-xs" style={{ color: 'var(--sweet-text-secondary)', lineHeight: 1.5 }}>
+                        {anomaly.description}
+                      </p>
+
+                      {/* Evidence */}
+                      <div className="rounded-lg px-3 py-2" style={{ background: 'var(--sweet-input)', border: '1px solid var(--sweet-border)' }}>
+                        <p className="text-[10px]" style={{ color: 'var(--sweet-text-faint)' }}>
+                          Доказательство: <span style={{ color: 'var(--sweet-text-muted)' }}>{anomaly.evidence}</span>
+                        </p>
+                      </div>
+
+                      {/* Recommendation */}
+                      <div className="rounded-lg px-3 py-2" style={{ background: cfg.bg, border: `1px solid ${cfg.border}` }}>
+                        <p className="text-[10px]" style={{ color: cfg.color }}>
+                          Рекомендация: <span style={{ color: 'var(--sweet-text-secondary)' }}>{anomaly.recommendation}</span>
+                        </p>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Timestamp */}
+            <p className="text-[10px] text-center" style={{ color: 'var(--sweet-text-faint)' }}>
+              Анализ выполнен Claude AI · {new Date(result.generatedAt).toLocaleString('ru-RU')}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {!result && !loading && (
+        <div className="rounded-xl p-6 text-center" style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)' }}>
+          <ShieldWarningIcon className="w-8 h-8 mx-auto mb-2" style={{ color: 'var(--sweet-text-faint)' }} />
+          <p className="text-xs" style={{ color: 'var(--sweet-text-muted)' }}>
+            Нажмите «Запустить скан» для анализа транзакций за 48 часов
+          </p>
+          <p className="text-[10px] mt-1" style={{ color: 'var(--sweet-text-faint)' }}>
+            Claude AI проверит фарминг баллов, всплески, дубликаты и подозрительные паттерны
+          </p>
+        </div>
+      )}
+    </section>
   );
 }

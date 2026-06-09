@@ -206,6 +206,8 @@ export const api = {
     getChurnRisks: () => axiosInstance.get('/ai/churn'),
     getForecast: () => axiosInstance.get('/ai/forecast'),
     getRecommendations: () => axiosInstance.get('/ai/recommendations'),
+    generateReport: () => axiosInstance.post('/ai/report'),
+    detectAnomalies: () => axiosInstance.post('/ai/anomalies'),
   },
 
   // Referrals
