@@ -266,7 +266,19 @@ export default function PurchaseNotification({ payload, onDismiss }: Props) {
             }}
           />
 
-          {/* ── Notification card ──────────────────────────────────────── */}
+          {/* ── Notification card wrapper (centering) ────────────────── */}
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 9999,
+              display: 'flex',
+              alignItems: 'flex-start',
+              justifyContent: 'center',
+              paddingTop: '10vh',
+              pointerEvents: 'none',
+            }}
+          >
           <motion.div
             key="notification"
             initial={{ opacity: 0, y: -40, scale: 0.88 }}
@@ -274,18 +286,14 @@ export default function PurchaseNotification({ payload, onDismiss }: Props) {
             exit={{ opacity: 0, y: -24, scale: 0.92 }}
             transition={{ type: 'spring', stiffness: 320, damping: 26 }}
             style={{
-              position: 'fixed',
-              top: '10%',
-              left: '50%',
-              transform: 'translateX(-50%)',
               width: 'min(92vw, 380px)',
-              zIndex: 9999,
               borderRadius: 28,
               background: 'var(--sweet-card)',
               border: '1px solid rgba(245,158,11,0.30)',
               boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
               overflow: 'hidden',
               padding: '28px 24px 22px',
+              pointerEvents: 'auto',
             }}
           >
             {/* Clean card — no decorative overlays */}
@@ -610,6 +618,7 @@ export default function PurchaseNotification({ payload, onDismiss }: Props) {
               </div>
             </div>
           </motion.div>
+          </div>
         </>
       )}
     </AnimatePresence>
