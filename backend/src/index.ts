@@ -31,7 +31,9 @@ import giftRoutes from './routes/gift';
 import governanceRoutes from './routes/governance';
 import publicRoutes from './routes/public';
 import settlementRoutes from './routes/settlement';
+import sweetPassRoutes from './routes/sweetpass';
 import { startChurnCron } from './cron/churnCron';
+import { startEscrowRefundCron } from './cron/escrowRefundCron';
 
 
 // Initialize Express app
@@ -164,6 +166,7 @@ app.use(`${apiPrefix}/gift`, giftRoutes);
 app.use(`${apiPrefix}/governance`, governanceRoutes);
 app.use(`${apiPrefix}/public`, publicRoutes);
 app.use(`${apiPrefix}/settlement`, settlementRoutes);
+app.use(`${apiPrefix}/sweetpass`, sweetPassRoutes);
 
 // ============================================================================
 // SOCKET.IO
@@ -217,6 +220,9 @@ if (config.app.env !== 'test') {
 
     // Start ML Churn Auto-Intervention cron
     startChurnCron();
+
+    // Start Sweet Pass auto-refund keeper (permissionless refunds after deadline)
+    startEscrowRefundCron();
 
     // Start Telegram bot if token is configured
     const botToken = process.env.TELEGRAM_BOT_TOKEN;

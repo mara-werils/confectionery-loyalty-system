@@ -272,6 +272,25 @@ export const api = {
     distribute: () => axiosInstance.post('/settlement/distribute'),
     globalStats: () => axiosInstance.get('/settlement/global-stats'),
   },
+
+  // Sweet Pass — prepaid pre-order escrow
+  sweetpass: {
+    createOrder: (data: {
+      partnerId: string;
+      itemDescription: string;
+      amountKzt: number;
+      deadlineHours?: number;
+    }) => axiosInstance.post('/sweetpass/orders', data),
+    confirmDeposit: (orderId: string, txHash?: string) =>
+      axiosInstance.post(`/sweetpass/orders/${orderId}/confirm-deposit`, { txHash }),
+    release: (orderId: string) =>
+      axiosInstance.post(`/sweetpass/orders/${orderId}/release`),
+    refund: (orderId: string) =>
+      axiosInstance.post(`/sweetpass/orders/${orderId}/refund`),
+    listOrders: () => axiosInstance.get('/sweetpass/orders'),
+    getOrder: (orderId: string) => axiosInstance.get(`/sweetpass/orders/${orderId}`),
+    getMetrics: () => axiosInstance.get('/sweetpass/metrics'),
+  },
 };
 
 export default axiosInstance;

@@ -6,7 +6,6 @@ import {
   HouseIcon,
   GiftIcon,
   UserCircleIcon,
-  UserPlusIcon,
   QrCodeIcon,
   BrainIcon,
   SunIcon,
@@ -14,6 +13,7 @@ import {
   StorefrontIcon,
   PaperPlaneTiltIcon,
   MoneyIcon,
+  TicketIcon,
 } from '@phosphor-icons/react';
 import clsx from 'clsx';
 import { changeLanguage, languages } from '../i18n';
@@ -31,8 +31,8 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
   const businessNavItems = [
     { path: '/business/dashboard',    label: t('nav.pos'),       icon: HouseIcon,       activeIcon: (props: React.ComponentProps<typeof HouseIcon>) => <HouseIcon weight="fill" {...props} /> },
     { path: '/business/verify-coupon',label: t('nav.verify'),    icon: QrCodeIcon,      activeIcon: (props: React.ComponentProps<typeof QrCodeIcon>) => <QrCodeIcon weight="fill" {...props} /> },
+    { path: '/business/sweetpass',    label: t('nav.sweetpass') || 'Pre-orders', icon: TicketIcon, activeIcon: (props: React.ComponentProps<typeof TicketIcon>) => <TicketIcon weight="fill" {...props} /> },
     { path: '/ai',                    label: t('nav.ai'),        icon: BrainIcon,       activeIcon: (props: React.ComponentProps<typeof BrainIcon>) => <BrainIcon weight="fill" {...props} /> },
-    { path: '/referrals',             label: t('nav.referrals'), icon: UserPlusIcon,    activeIcon: (props: React.ComponentProps<typeof UserPlusIcon>) => <UserPlusIcon weight="fill" {...props} /> },
     { path: '/business/settlement',   label: 'Earn',             icon: MoneyIcon,       activeIcon: (props: React.ComponentProps<typeof MoneyIcon>) => <MoneyIcon weight="fill" {...props} /> },
     { path: '/business/profile',      label: t('nav.profile'),   icon: UserCircleIcon,  activeIcon: (props: React.ComponentProps<typeof UserCircleIcon>) => <UserCircleIcon weight="fill" {...props} /> },
   ];
@@ -40,6 +40,7 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
   const customerNavItems = [
     { path: '/customer/dashboard',  label: t('nav.wallet'),         icon: HouseIcon,        activeIcon: (props: React.ComponentProps<typeof HouseIcon>) => <HouseIcon weight="fill" {...props} /> },
     { path: '/customer/rewards',    label: t('nav.rewards'),        icon: GiftIcon,         activeIcon: (props: React.ComponentProps<typeof GiftIcon>) => <GiftIcon weight="fill" {...props} /> },
+    { path: '/customer/sweetpass',  label: t('nav.sweetpass') || 'Pre-order', icon: TicketIcon, activeIcon: (props: React.ComponentProps<typeof TicketIcon>) => <TicketIcon weight="fill" {...props} /> },
     { path: '/customer/gift',       label: t('nav.gift') || 'Transfer', icon: PaperPlaneTiltIcon, activeIcon: (props: React.ComponentProps<typeof PaperPlaneTiltIcon>) => <PaperPlaneTiltIcon weight="fill" {...props} /> },
     { path: '/customer/ecosystem',  label: t('nav.ecosystem'),      icon: StorefrontIcon,   activeIcon: (props: React.ComponentProps<typeof StorefrontIcon>) => <StorefrontIcon weight="fill" {...props} /> },
     { path: '/customer/profile',    label: t('nav.profile'),        icon: UserCircleIcon,   activeIcon: (props: React.ComponentProps<typeof UserCircleIcon>) => <UserCircleIcon weight="fill" {...props} /> },

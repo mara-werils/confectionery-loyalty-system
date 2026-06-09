@@ -35,6 +35,8 @@ const SpinWheel = lazy(() => import('./pages/customer/SpinWheel'));
 const GiftTokens = lazy(() => import('./pages/customer/GiftTokens'));
 const Ecosystem = lazy(() => import('./pages/customer/Ecosystem'));
 const Explorer = lazy(() => import('./pages/customer/Explorer'));
+const SweetPass = lazy(() => import('./pages/customer/SweetPass'));
+const SweetPassPartner = lazy(() => import('./pages/business/SweetPassPartner'));
 
 // Components
 import Layout from './components/Layout';
@@ -120,6 +122,7 @@ function App() {
         <Route element={<RoleGuard allowedRole="business"><Layout variant="business" /></RoleGuard>}>
           <Route path="/business/dashboard" element={<Dashboard />} />
           <Route path="/business/verify-coupon" element={<CouponVerify />} />
+          <Route path="/business/sweetpass" element={<SweetPassPartner />} />
           <Route path="/ai" element={<AIPredictions />} />
           <Route path="/referrals" element={<Referrals />} />
           <Route path="/analytics" element={<Analytics />} />
@@ -139,6 +142,7 @@ function App() {
           <Route path="/customer/rewards" element={<CustomerRewards />} />
           <Route path="/customer/spin" element={<SpinWheel />} />
           <Route path="/customer/gift" element={<GiftTokens />} />
+          <Route path="/customer/sweetpass" element={<SweetPass />} />
           <Route path="/customer/ecosystem" element={<Ecosystem />} />
           <Route path="/customer/explorer" element={<Explorer />} />
           <Route path="/achievements" element={<Achievements />} />
