@@ -36,6 +36,10 @@ int op::withdraw_platform_fee() asm "0x23 PUSHINT";
 int op::set_partner_registry() asm "0x24 PUSHINT";
 int op::commission_payout() asm "0x25 PUSHINT";
 
+;; Sweet Pass Escrow Operations (prepaid pre-orders)
+int op::escrow_release() asm "0x30 PUSHINT";
+int op::escrow_refund() asm "0x31 PUSHINT";
+
 
 
 

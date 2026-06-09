@@ -8,7 +8,6 @@ import {
   computeRecommendations,
 } from '../services/ai.service';
 import { askClaude, askClaudeJSON } from '../services/claude.service';
-import { AppError } from '../middleware/errorHandler';
 
 const router = Router();
 

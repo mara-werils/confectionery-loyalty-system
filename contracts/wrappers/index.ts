@@ -19,6 +19,13 @@ export {
   RevenueDistributionConfig,
   CommissionRates,
 } from './RevenueDistribution';
+export {
+  SweetPassEscrow,
+  SweetPassEscrowConfig,
+  OrderStatus,
+  EscrowOrder,
+  buildDepositPayload,
+} from './SweetPassEscrow';
 
 
 

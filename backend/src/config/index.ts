@@ -36,6 +36,7 @@ const envSchema = z.object({
   REDEMPTION_MANAGER_ADDRESS: z.string().optional(),
   REVENUE_DISTRIBUTION_ADDRESS: z.string().optional(),
   NFT_COLLECTION_ADDRESS: z.string().optional(),
+  SWEET_PASS_ESCROW_ADDRESS: z.string().optional(),
   ADMIN_MNEMONIC: z.string().optional(),
   JETTON_DECIMALS: z.string().transform(Number).default('9'),
 
@@ -89,6 +90,7 @@ export const config = {
       redemptionManager: env.REDEMPTION_MANAGER_ADDRESS,
       revenueDistribution: env.REVENUE_DISTRIBUTION_ADDRESS,
       nftCollection: env.NFT_COLLECTION_ADDRESS,
+      sweetPassEscrow: env.SWEET_PASS_ESCROW_ADDRESS,
     },
   },
   telegram: {

@@ -82,6 +82,14 @@ enum ProposalCategory {
   OTHER
 }
 
+/// Sweet Pass prepaid pre-order lifecycle (mirrors the on-chain escrow state machine)
+enum PreOrderStatus {
+  PENDING_DEPOSIT // created off-chain, awaiting the customer's on-chain SWEET deposit
+  FUNDED          // deposit confirmed on-chain, escrow holds the SWEET
+  RELEASED        // partner fulfilled the order, escrow paid the confectionery
+  REFUNDED        // deadline passed without fulfilment, escrow refunded the customer
+}
+
 // ============================================================================
 // MODELS
 // ============================================================================
@@ -118,6 +126,7 @@ model Partner {
   proposals     Proposal[]         @relation("ProposerProposals")
   votes         Vote[]             @relation("PartnerVotes")
   churnInterventions ChurnIntervention[]
+  preOrders     PreOrder[]
 
   @@map("partners")
 }
@@ -443,6 +452,53 @@ model Vote {
   @@unique([proposalId, partnerId])
   @@index([proposalId])
   @@map("votes")
+}
+
+/// Sweet Pass prepaid pre-order escrowed on-chain.
+/// The customer locks SWEET in the SweetPassEscrow contract for a future pickup;
+/// on fulfilment the partner is paid, otherwise the deposit auto-refunds after the deadline.
+model PreOrder {
+  id              String         @id @default(cuid())
+  /// On-chain escrow order id (uint64). Unique key shared with the smart contract.
+  orderId         BigInt         @unique @map("order_id")
+
+  /// Customer wallet (TonConnect) that deposits and receives any refund.
+  customerWallet  String         @map("customer_wallet")
+  /// Partner (confectionery) that fulfils the order and receives the payout.
+  partnerId       String         @map("partner_id")
+  /// Partner's on-chain wallet that the escrow pays on release.
+  partnerWallet   String         @map("partner_wallet")
+
+  /// What was ordered, e.g. "Napoleon cake (2 kg)".
+  itemDescription String         @map("item_description")
+  /// Escrowed amount in nano-SWEET (9 decimals).
+  amount          BigInt
+  /// Prepaid value in KZT (SWEET is pegged 1:1 to KZT). Used for demo metrics.
+  amountKzt       BigInt         @map("amount_kzt")
+
+  status          PreOrderStatus @default(PENDING_DEPOSIT)
+  /// Pickup deadline; after this a permissionless refund becomes possible on-chain.
+  deadline        DateTime
+
+  // Blockchain references — proof the funds really moved on testnet.
+  depositTxHash   String?        @map("deposit_tx_hash")
+  releaseTxHash   String?        @map("release_tx_hash")
+  refundTxHash    String?        @map("refund_tx_hash")
+
+  // Lifecycle timestamps
+  fundedAt        DateTime?      @map("funded_at")
+  releasedAt      DateTime?      @map("released_at")
+  refundedAt      DateTime?      @map("refunded_at")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+
+  partner         Partner        @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  @@index([customerWallet])
+  @@index([partnerId])
+  @@index([status])
+  @@index([deadline])
+  @@map("pre_orders")
 }
 
 /// ML Churn auto-intervention record
