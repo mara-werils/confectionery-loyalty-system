@@ -11,6 +11,18 @@ import { askClaude, askClaudeJSON } from '../services/claude.service';
 
 const router = Router();
 
+// Language for AI-generated text, driven by the UI locale sent from the frontend
+const AI_LANG_NAME: Record<string, string> = {
+  ru: 'Russian',
+  en: 'English',
+  kz: 'Kazakh',
+};
+
+function resolveAiLang(body: unknown): { code: string; name: string } {
+  const code = String((body as { lang?: string })?.lang ?? 'ru');
+  return AI_LANG_NAME[code] ? { code, name: AI_LANG_NAME[code] } : { code: 'ru', name: 'Russian' };
+}
+
 /**
  * @swagger
  * /ai/churn:
@@ -175,6 +187,7 @@ router.post(
   authenticate,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const aiLang = resolveAiLang(req.body);
       const now = new Date();
       const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
       const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
@@ -259,9 +272,9 @@ DATA:
 ${JSON.stringify(metrics, null, 2)}
 
 REQUIREMENTS:
-- Write in Russian language
+- Write the entire report in ${aiLang.name} language (including all section titles)
 - Use Markdown formatting with headers (##), bold, and bullet points
-- Structure: Краткое резюме → Партнёры → Выручка и транзакции → Токеномика SWEET → Риски оттока → Рекомендации на следующую неделю
+- Structure: Executive Summary → Partners → Revenue & Transactions → SWEET Tokenomics → Churn Risks → Recommendations for next week (translate these section titles into ${aiLang.name})
 - Include specific numbers and percentage changes
 - Be concise but insightful — highlight what's important
 - Add 2-3 actionable recommendations at the end
@@ -308,6 +321,7 @@ router.post(
   authenticate,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const aiLang = resolveAiLang(req.body);
       const now = new Date();
       const twoDaysAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000);
 
@@ -322,11 +336,18 @@ router.post(
       });
 
       if (transactions.length === 0) {
+        const NO_TX_SUMMARY: Record<string, string> = {
+          ru: 'Нет транзакций за последние 48 часов для анализа.',
+          en: 'No transactions in the last 48 hours to analyze.',
+          kz: 'Соңғы 48 сағатта талдауға транзакциялар жоқ.',
+        };
         return successResponse(res, {
           anomalies: [],
-          summary: 'Нет транзакций за последние 48 часов для анализа.',
+          summary: NO_TX_SUMMARY[aiLang.code] ?? NO_TX_SUMMARY.ru,
           riskLevel: 'NONE',
           analyzedCount: 0,
+          stats: { avgAmount: 0, maxAmount: 0, stdDev: 0 },
+          timeRange: { from: twoDaysAgo.toISOString(), to: now.toISOString() },
           generatedAt: now.toISOString(),
         });
       }
@@ -389,12 +410,12 @@ Return ONLY valid JSON (no markdown, no code blocks) with this exact structure:
       "type": "POINT_FARMING | SPIKE | OUTLIER | DUPLICATE | TIMING | TIER_ABUSE",
       "severity": "LOW | MEDIUM | HIGH | CRITICAL",
       "partner": "partner name",
-      "description": "1-2 sentence explanation in Russian",
+      "description": "1-2 sentence explanation in ${aiLang.name}",
       "evidence": "specific numbers/data supporting the finding",
-      "recommendation": "what to do about it in Russian"
+      "recommendation": "what to do about it in ${aiLang.name}"
     }
   ],
-  "summary": "2-3 sentence overall assessment in Russian",
+  "summary": "2-3 sentence overall assessment in ${aiLang.name}",
   "riskLevel": "NONE | LOW | MEDIUM | HIGH | CRITICAL"
 }`;
 
