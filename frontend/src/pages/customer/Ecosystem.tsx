@@ -35,6 +35,19 @@ const TIER_STYLE: Record<EcosystemPartner['tier'], { color: string; label: strin
   BRONZE: { color: '#c2783c', label: 'Bronze' },
 };
 
+// ─── Partner logos (keyed by company name) ────────────────────────────────────
+
+const PARTNER_LOGOS: Record<string, string> = {
+  'Home Macaron': '/confectionary_logos/home_macaron.jpg',
+  'Sweets. The Art of Cake': '/confectionary_logos/sweets_art.svg',
+  'Дом десертов MUS-MUS': '/confectionary_logos/mus_mus.svg',
+  'O-Cake': '/confectionary_logos/o_cake.svg',
+  'CakeLab Astana': '/confectionary_logos/cakelab.svg',
+  'Patisserie de Luxe': '/confectionary_logos/patisserie.svg',
+  'Home Macaron GreenLine': '/confectionary_logos/hm_greenline.svg',
+  'Марлен': '/confectionary_logos/marlen.svg',
+};
+
 // ─── Fallback seed data (shown when API is unavailable) ───────────────────────
 
 const SEED_PARTNERS: EcosystemPartner[] = [
@@ -84,6 +97,7 @@ function AnimatedCounter({ to, duration = 1.4 }: { to: number; duration?: number
 function PartnerCard({ partner, index }: { partner: EcosystemPartner; index: number }) {
   const ts = TIER_STYLE[partner.tier];
   const letter = partner.companyName.charAt(0).toUpperCase();
+  const logo = PARTNER_LOGOS[partner.companyName];
   const joinDate = new Date(partner.joinedAt).toLocaleDateString('en-US', {
     month: 'short',
     year: 'numeric',
@@ -99,12 +113,20 @@ function PartnerCard({ partner, index }: { partner: EcosystemPartner; index: num
     >
       {/* Header: avatar + tier */}
       <div className="flex items-center justify-between">
-        <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center text-base font-black flex-shrink-0"
-          style={{ background: `${ts.color}1a`, color: ts.color }}
-        >
-          {letter}
-        </div>
+        {logo ? (
+          <img
+            src={logo}
+            alt={partner.companyName}
+            className="w-10 h-10 rounded-xl object-cover flex-shrink-0"
+          />
+        ) : (
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center text-base font-black flex-shrink-0"
+            style={{ background: `${ts.color}1a`, color: ts.color }}
+          >
+            {letter}
+          </div>
+        )}
         <span className="text-[10px] font-bold tracking-wide" style={{ color: ts.color }}>
           {ts.label}
         </span>
@@ -157,7 +179,7 @@ export default function Ecosystem() {
   const { t } = useTranslation();
   const [filterTier, setFilterTier] = useState<'ALL' | 'GOLD' | 'SILVER' | 'BRONZE'>('ALL');
 
-  const { data: raw, isLoading, isError } = useQuery({
+  const { data: raw, isLoading } = useQuery({
     queryKey: ['ecosystem'],
     queryFn: () => api.partners.ecosystem(),
     staleTime: 3 * 60 * 1000,
@@ -167,8 +189,13 @@ export default function Ecosystem() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const ecoData: EcosystemData | null = (raw as any)?.data ?? null;
 
-  const partners: EcosystemPartner[] = ecoData?.partners ?? (isError ? SEED_PARTNERS : []);
-  const stats: EcosystemStats = ecoData?.stats ?? SEED_STATS;
+  // Use API partners only when they look like the curated, branded partners
+  // (i.e. we have a logo for them). Otherwise fall back to the curated seed
+  // list so the showcase stays coherent and logos render.
+  const apiPartners = ecoData?.partners ?? [];
+  const apiHasCurated = apiPartners.some((p) => PARTNER_LOGOS[p.companyName]);
+  const partners: EcosystemPartner[] = apiHasCurated ? apiPartners : SEED_PARTNERS;
+  const stats: EcosystemStats = apiHasCurated && ecoData?.stats ? ecoData.stats : SEED_STATS;
 
   const filtered = filterTier === 'ALL' ? partners : partners.filter((p) => p.tier === filterTier);
 
