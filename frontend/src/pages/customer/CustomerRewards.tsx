@@ -438,21 +438,11 @@ function RewardCard({
       className="rounded-2xl overflow-hidden transition-all"
       style={{
         background: 'var(--sweet-card)',
-        border: canAfford
-          ? `1px solid ${catColors.color}35`
-          : '1px solid var(--sweet-border)',
+        border: '1px solid var(--sweet-border)',
         opacity: canAfford ? 1 : 0.78,
-        boxShadow: canAfford ? `0 4px 20px ${catColors.color}14` : 'none',
-        transition: 'box-shadow 0.25s, border-color 0.25s, opacity 0.25s',
+        transition: 'border-color 0.25s, opacity 0.25s',
       }}
     >
-      {/* Category accent strip */}
-      {canAfford && (
-        <div
-          className="h-0.5 w-full"
-          style={{ background: `linear-gradient(90deg, ${catColors.color}80, transparent)` }}
-        />
-      )}
 
       <div className="p-4">
         {/* Partner + Category */}
