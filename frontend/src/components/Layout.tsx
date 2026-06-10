@@ -35,7 +35,7 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
     { path: '/business/verify-coupon',label: t('nav.verify'),    icon: QrCodeIcon,      activeIcon: (props: React.ComponentProps<typeof QrCodeIcon>) => <QrCodeIcon weight="fill" {...props} /> },
     { path: '/business/sweetpass',    label: t('nav.sweetpass') || 'Pre-orders', icon: TicketIcon, activeIcon: (props: React.ComponentProps<typeof TicketIcon>) => <TicketIcon weight="fill" {...props} /> },
     { path: '/ai',                    label: t('nav.ai'),        icon: BrainIcon,       activeIcon: (props: React.ComponentProps<typeof BrainIcon>) => <BrainIcon weight="fill" {...props} /> },
-    { path: '/business/settlement',   label: 'Earn',             icon: MoneyIcon,       activeIcon: (props: React.ComponentProps<typeof MoneyIcon>) => <MoneyIcon weight="fill" {...props} /> },
+    { path: '/business/settlement',   label: t('nav.earn'),      icon: MoneyIcon,       activeIcon: (props: React.ComponentProps<typeof MoneyIcon>) => <MoneyIcon weight="fill" {...props} /> },
     { path: '/business/profile',      label: t('nav.profile'),   icon: UserCircleIcon,  activeIcon: (props: React.ComponentProps<typeof UserCircleIcon>) => <UserCircleIcon weight="fill" {...props} /> },
   ];
 

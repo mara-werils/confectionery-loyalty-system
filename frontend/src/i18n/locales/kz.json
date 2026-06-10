@@ -346,7 +346,8 @@
     "gift": "Сыйлық",
     "ecosystem": "Серіктестер",
     "explorer": "Эксплорер",
-    "sweetpass": "Алдын ала тапсырыс"
+    "sweetpass": "Алдын ала тапсырыс",
+    "earn": "Табыс"
   },
   "sweetpass": {
     "title": "Sweet Pass",
@@ -520,6 +521,41 @@
         "desc": "Максималды табыстылық"
       }
     }
+  },
+  "settlement": {
+    "title": "Комиссиялық табыс",
+    "subtitle": "Он-чейн кіріс есебі · TON Testnet",
+    "yourRate": "Сіздің комиссиялық мөлшерлемеңіз",
+    "ofEveryPurchase": "әр сатып алудан",
+    "tierLocked": "{{tier}} деңгейі · FunC смарт-контрактында бекітілген",
+    "allTiers": "Барлық деңгейлер",
+    "pendingCommission": "Жиналған комиссия",
+    "progressToMin": "Ең төменгі төлемге дейінгі прогресс",
+    "minPayout": "Ең төменгі төлем: {{min}} TON · Смарт-контрактпен бақыланады",
+    "broadcasting": "Блокчейнге жіберілуде…",
+    "claimBtn": "{{amount}} TON комиссиясын алу",
+    "accumulateBtn": "Алу үшін {{min}} TON жинаңыз",
+    "smartContract": "Смарт-контракт",
+    "verify": "Тексеру",
+    "totalDistributed": "Барлығы төленді",
+    "platformReserve": "Платформа резерві",
+    "payoutsMade": "Жасалған төлемдер",
+    "immutableNote": "Комиссиялық мөлшерлемелер (3% / 5% / 7%) FunC-та өзгермейтін түрде кодталған. Төлемдер trustless — делдалсыз.",
+    "reserveWarning": "Контракт резерві: {{balance}} TON. Жылдам төлемдер үшін контрактты 5+ TON-ға толтырыңыз. Комиссия он-чейн жинала береді.",
+    "payoutHistory": "Төлемдер тарихы",
+    "totalPaid": "Барлығы {{amount}} TON",
+    "noPayouts": "Әзірге төлемдер жоқ",
+    "noPayoutsHint": "Алғашқы комиссияны алу үшін 1 TON жинаңыз",
+    "howItWorks": "Бұл қалай жұмыс істейді",
+    "step1Title": "Сатып алу тіркелді",
+    "step1Desc": "Әр POS-транзакция он-чейн recordTransaction() шақырады",
+    "step2Title": "Комиссия жиналады",
+    "step2Desc": "Сіздің {{pct}} комиссияңыз смарт-контрактта жиналады",
+    "step3Title": "1 TON-нан бастап алу",
+    "step3Desc": "≥ 1 TON жиналғанда «Алу» басыңыз — контракт TON-ды әмияныңызға жібереді",
+    "toastDispatched": "{{amount}} TON он-чейн жіберілді!",
+    "toastQueued": "{{amount}} TON комиссиясы тіркелді — төлем кезекте",
+    "toastFailed": "Төлем қатесі"
   },
   "ai": {
     "title": "AI Аналитика",
