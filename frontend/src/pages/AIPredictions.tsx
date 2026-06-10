@@ -79,12 +79,14 @@ interface RewardRec {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-const RISK_CONFIG: Record<RiskLevel, { label: string; color: string; bg: string; border: string; ring: string }> = {
-  LOW:      { label: 'Низкий',    color: 'text-green-400',  bg: 'bg-green-400/10',  border: 'border-green-400/20',  ring: '#4ade80' },
-  MEDIUM:   { label: 'Средний',   color: 'text-yellow-400', bg: 'bg-yellow-400/10', border: 'border-yellow-400/20', ring: '#facc15' },
-  HIGH:     { label: 'Высокий',   color: 'text-orange-400', bg: 'bg-orange-400/10', border: 'border-orange-400/20', ring: '#fb923c' },
-  CRITICAL: { label: 'Критический', color: 'text-red-400',  bg: 'bg-red-400/10',    border: 'border-red-400/20',    ring: '#f87171' },
+const RISK_CONFIG: Record<RiskLevel, { color: string; bg: string; border: string; ring: string }> = {
+  LOW:      { color: 'text-green-400',  bg: 'bg-green-400/10',  border: 'border-green-400/20',  ring: '#4ade80' },
+  MEDIUM:   { color: 'text-yellow-400', bg: 'bg-yellow-400/10', border: 'border-yellow-400/20', ring: '#facc15' },
+  HIGH:     { color: 'text-orange-400', bg: 'bg-orange-400/10', border: 'border-orange-400/20', ring: '#fb923c' },
+  CRITICAL: { color: 'text-red-400',    bg: 'bg-red-400/10',    border: 'border-red-400/20',    ring: '#f87171' },
 };
+
+const DATE_LOCALE: Record<string, string> = { ru: 'ru-RU', en: 'en-US', kz: 'kk-KZ' };
 
 const TIER_BADGE: Record<string, string> = {
   GOLD:   'text-amber-400 bg-amber-400/10 border border-amber-400/20',
@@ -128,13 +130,14 @@ function RiskGauge({ score, level }: { score: number; level: RiskLevel }) {
 
 // Custom Recharts Tooltip
 function ForecastTooltip({ active, payload, label }: { active?: boolean; payload?: { value: number; name: string }[]; label?: string }) {
+  const { t } = useTranslation();
   if (!active || !payload?.length) return null;
   return (
     <div className="rounded-lg px-3 py-2 text-xs shadow-xl" style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)' }}>
       <p className="mb-1" style={{ color: 'var(--sweet-text-muted)' }}>{label}</p>
       {payload.map((p) => (
         <p key={p.name} className="font-semibold" style={{ color: 'var(--sweet-text)' }}>
-          {p.name === 'actual' ? 'Факт' : 'Прогноз'}: {Number(p.value).toLocaleString()} KZT
+          {p.name === 'actual' ? t('ai.actual') : t('ai.predicted')}: {Number(p.value).toLocaleString()} KZT
         </p>
       ))}
     </div>
@@ -228,22 +231,22 @@ export default function AIPredictions() {
           <div className="flex items-center gap-2">
             <BrainIcon className="w-5 h-5" style={{ color: '#fb7185' }} />
             <h2 className="text-sm font-bold" style={{ color: 'var(--sweet-text)' }}>
-              AI Auto-Interventions
+              {t('ai.interventionsTitle')}
             </h2>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold px-2 py-0.5 rounded-full"
               style={{ background: 'rgba(251,113,133,0.15)', color: '#fb7185' }}>
-              Today: {interventions?.todayCount ?? 0}
+              {t('ai.interventionsToday')}: {interventions?.todayCount ?? 0}
             </span>
           </div>
         </div>
 
         <div className="grid grid-cols-3 gap-3">
           {[
-            { label: 'Saved Today', value: interventions?.todayCount ?? 0, color: '#fb7185' },
-            { label: 'SWEET Sent', value: interventions?.totalBonusSentToday ?? 0, color: '#f59e0b' },
-            { label: 'All-Time Saves', value: interventions?.totalCount ?? 0, color: '#34d399' },
+            { label: t('ai.savedToday'), value: interventions?.todayCount ?? 0, color: '#fb7185' },
+            { label: t('ai.sweetSent'), value: interventions?.totalBonusSentToday ?? 0, color: '#f59e0b' },
+            { label: t('ai.allTimeSaves'), value: interventions?.totalCount ?? 0, color: '#34d399' },
           ].map(s => (
             <div key={s.label} className="rounded-xl p-3 text-center"
               style={{ background: 'var(--sweet-input)', border: '1px solid var(--sweet-border)' }}>
@@ -258,7 +261,7 @@ export default function AIPredictions() {
         {interventions?.recent && interventions.recent.length > 0 && (
           <div className="space-y-2">
             <p className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--sweet-text-faint)' }}>
-              Recent Auto-Interventions
+              {t('ai.recentInterventions')}
             </p>
             {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             {interventions.recent.slice(0, 3).map((item: any) => (
@@ -282,7 +285,7 @@ export default function AIPredictions() {
         )}
 
         <p className="text-[11px]" style={{ color: 'var(--sweet-text-faint)' }}>
-          ML model runs daily · Automatically sends SWEET bonuses to at-risk partners · No human action required
+          {t('ai.interventionsNote')}
         </p>
       </motion.div>
 
@@ -324,15 +327,15 @@ export default function AIPredictions() {
                           {partner.tier}
                         </span>
                         <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${cfg.color} ${cfg.bg} ${cfg.border}`}>
-                          {cfg.label}
+                          {t(`ai.riskLevels.${partner.riskLevel}`)}
                         </span>
                       </div>
                       {/* Signals */}
                       <div className="mt-2 grid grid-cols-3 gap-x-4 gap-y-1">
                         {[
-                          { label: 'Неактивен', value: partner.signals.daysSinceLastTx === 999 ? '—' : `${partner.signals.daysSinceLastTx}д` },
-                          { label: 'Тр. (30д)', value: partner.signals.txLast30Days },
-                          { label: 'Спад част.', value: `${partner.signals.frequencyDrop}%` },
+                          { label: t('ai.signalInactive'), value: partner.signals.daysSinceLastTx === 999 ? '—' : `${partner.signals.daysSinceLastTx}${t('ai.daysShort')}` },
+                          { label: t('ai.signalTx30d'), value: partner.signals.txLast30Days },
+                          { label: t('ai.signalFreqDrop'), value: `${partner.signals.frequencyDrop}%` },
                         ].map(s => (
                           <div key={s.label}>
                             <p className="text-[9px] uppercase tracking-wide" style={{ color: 'var(--sweet-text-faint)' }}>{s.label}</p>
@@ -434,7 +437,7 @@ export default function AIPredictions() {
                   />
                   <YAxis tick={{ fontSize: 9, fill: '#52525b' }} />
                   <Tooltip content={<ForecastTooltip />} />
-                  <ReferenceLine x={todayStr} stroke="#52525b" strokeDasharray="4 4" label={{ value: 'Сегодня', fill: '#71717a', fontSize: 9 }} />
+                  <ReferenceLine x={todayStr} stroke="#52525b" strokeDasharray="4 4" label={{ value: t('ai.today'), fill: '#71717a', fontSize: 9 }} />
                   <Area
                     type="monotone"
                     dataKey="actual"
@@ -578,32 +581,25 @@ const SEVERITY_CONFIG: Record<string, { color: string; bg: string; border: strin
   NONE:     { color: '#4ade80', bg: 'rgba(74,222,128,0.10)',   border: 'rgba(74,222,128,0.25)' },
 };
 
-const ANOMALY_TYPE_LABEL: Record<string, string> = {
-  POINT_FARMING: 'Фарминг баллов',
-  SPIKE: 'Всплеск активности',
-  OUTLIER: 'Аномальная сумма',
-  DUPLICATE: 'Дублирование',
-  TIMING: 'Подозрительное время',
-  TIER_ABUSE: 'Злоупотребление уровнем',
-};
-
 // ─── AI BI Report Component ───────────────────────────────────────────────
 
 function AIReportSection() {
+  const { t, i18n } = useTranslation();
   const [report, setReport] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [generatedAt, setGeneratedAt] = useState<string | null>(null);
+  const dateLocale = DATE_LOCALE[i18n.language] ?? 'ru-RU';
 
   const handleGenerate = async () => {
     setLoading(true);
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const res: any = await api.ai.generateReport();
+      const res: any = await api.ai.generateReport(i18n.language);
       const data = res.data?.data ?? res.data;
       setReport(data.report);
       setGeneratedAt(data.generatedAt);
     } catch {
-      setReport('Ошибка генерации отчёта. Убедитесь что Claude CLI настроен на сервере.');
+      setReport(t('ai.reportError'));
     }
     setLoading(false);
   };
@@ -614,7 +610,7 @@ function AIReportSection() {
         <div className="flex items-center gap-2">
           <FileTextIcon className="w-4 h-4" style={{ color: 'var(--sweet-text-muted)' }} />
           <h2 className="text-sm font-semibold" style={{ color: 'var(--sweet-text)' }}>
-            AI Бизнес-отчёт
+            {t('ai.reportTitle')}
           </h2>
         </div>
         <motion.button
@@ -639,12 +635,12 @@ function AIReportSection() {
           {loading ? (
             <>
               <SpinnerGapIcon className="w-3.5 h-3.5 animate-spin" />
-              Генерация...
+              {t('ai.generating')}
             </>
           ) : (
             <>
               <BrainIcon className="w-3.5 h-3.5" />
-              Сгенерировать
+              {t('ai.generate')}
             </>
           )}
         </motion.button>
@@ -670,10 +666,10 @@ function AIReportSection() {
               </div>
             </div>
             <p className="text-xs font-medium" style={{ color: 'var(--sweet-text-secondary)' }}>
-              AI анализирует данные экосистемы...
+              {t('ai.reportAnalyzing')}
             </p>
             <p className="text-[10px]" style={{ color: 'var(--sweet-text-faint)' }}>
-              Сбор метрик → Анализ трендов → Генерация отчёта
+              {t('ai.reportSteps')}
             </p>
           </motion.div>
         )}
@@ -699,11 +695,11 @@ function AIReportSection() {
                 </div>
                 <div>
                   <p className="text-[11px] font-bold" style={{ color: 'var(--sweet-text)' }}>
-                    Сгенерировано AI-аналитиком
+                    {t('ai.generatedBy')}
                   </p>
                   {generatedAt && (
                     <p className="text-[9px]" style={{ color: 'var(--sweet-text-faint)' }}>
-                      {new Date(generatedAt).toLocaleString('ru-RU')}
+                      {new Date(generatedAt).toLocaleString(dateLocale)}
                     </p>
                   )}
                 </div>
@@ -750,10 +746,10 @@ function AIReportSection() {
         <div className="rounded-xl p-6 text-center" style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)' }}>
           <FileTextIcon className="w-8 h-8 mx-auto mb-2" style={{ color: 'var(--sweet-text-faint)' }} />
           <p className="text-xs" style={{ color: 'var(--sweet-text-muted)' }}>
-            Нажмите «Сгенерировать» для создания AI-отчёта за неделю
+            {t('ai.reportEmptyTitle')}
           </p>
           <p className="text-[10px] mt-1" style={{ color: 'var(--sweet-text-faint)' }}>
-            AI проанализирует все метрики и создаст детальный отчёт
+            {t('ai.reportEmptyHint')}
           </p>
         </div>
       )}
@@ -913,20 +909,31 @@ interface AnomalyResult {
 }
 
 function AIAnomalySection() {
+  const { t, i18n } = useTranslation();
   const [result, setResult] = useState<AnomalyResult | null>(null);
   const [loading, setLoading] = useState(false);
+  const dateLocale = DATE_LOCALE[i18n.language] ?? 'ru-RU';
 
   const handleScan = async () => {
     setLoading(true);
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const res: any = await api.ai.detectAnomalies();
+      const res: any = await api.ai.detectAnomalies(i18n.language);
       const data = res.data?.data ?? res.data;
-      setResult(data);
+      // Normalize: AI responses may omit fields the UI renders unconditionally
+      setResult({
+        ...data,
+        anomalies: data?.anomalies ?? [],
+        summary: data?.summary ?? '',
+        riskLevel: data?.riskLevel ?? 'NONE',
+        analyzedCount: data?.analyzedCount ?? 0,
+        stats: data?.stats ?? { avgAmount: 0, maxAmount: 0, stdDev: 0 },
+        generatedAt: data?.generatedAt ?? new Date().toISOString(),
+      });
     } catch {
       setResult({
         anomalies: [],
-        summary: 'Ошибка анализа. Убедитесь что Claude CLI настроен на сервере.',
+        summary: t('ai.scanError'),
         riskLevel: 'NONE',
         analyzedCount: 0,
         stats: { avgAmount: 0, maxAmount: 0, stdDev: 0 },
@@ -944,7 +951,7 @@ function AIAnomalySection() {
         <div className="flex items-center gap-2">
           <ShieldWarningIcon className="w-4 h-4" style={{ color: 'var(--sweet-text-muted)' }} />
           <h2 className="text-sm font-semibold" style={{ color: 'var(--sweet-text)' }}>
-            AI Детектор аномалий
+            {t('ai.anomalyTitle')}
           </h2>
         </div>
         <motion.button
@@ -968,12 +975,12 @@ function AIAnomalySection() {
           {loading ? (
             <>
               <SpinnerGapIcon className="w-3.5 h-3.5 animate-spin" />
-              Сканирование...
+              {t('ai.scanning')}
             </>
           ) : (
             <>
               <ShieldWarningIcon className="w-3.5 h-3.5" />
-              Запустить скан
+              {t('ai.runScan')}
             </>
           )}
         </motion.button>
@@ -999,10 +1006,10 @@ function AIAnomalySection() {
               </div>
             </div>
             <p className="text-xs font-medium" style={{ color: 'var(--sweet-text-secondary)' }}>
-              AI сканирует транзакции за 48 часов...
+              {t('ai.scanningDesc')}
             </p>
             <p className="text-[10px]" style={{ color: 'var(--sweet-text-faint)' }}>
-              Статистический анализ → Поиск паттернов → Оценка рисков
+              {t('ai.scanSteps')}
             </p>
           </motion.div>
         )}
@@ -1028,7 +1035,7 @@ function AIAnomalySection() {
                     <ShieldCheckIcon className="w-5 h-5" style={{ color: '#4ade80' }} />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <p className="text-sm font-bold" style={{ color: '#4ade80' }}>Аномалий не обнаружено</p>
+                    <p className="text-sm font-bold" style={{ color: '#4ade80' }}>{t('ai.noAnomalies')}</p>
                     <p className="text-[11px] mt-1" style={{ color: 'var(--sweet-text-muted)', lineHeight: 1.5 }}>
                       {result.summary}
                     </p>
@@ -1036,10 +1043,10 @@ function AIAnomalySection() {
                 </div>
                 <div className="flex items-center justify-between mt-3 pt-3" style={{ borderTop: '1px solid var(--sweet-border)' }}>
                   <span className="text-[10px]" style={{ color: 'var(--sweet-text-faint)' }}>
-                    Проверено {result.analyzedCount} транзакций · Ср. сумма {result.stats.avgAmount.toLocaleString()} ₸
+                    {t('ai.scanStats', { num: result.analyzedCount, avg: result.stats.avgAmount.toLocaleString() })}
                   </span>
                   <span className="text-[10px]" style={{ color: 'var(--sweet-text-faint)' }}>
-                    {new Date(result.generatedAt).toLocaleString('ru-RU')}
+                    {new Date(result.generatedAt).toLocaleString(dateLocale)}
                   </span>
                 </div>
               </div>
@@ -1057,11 +1064,11 @@ function AIAnomalySection() {
                     <div className="flex items-center gap-2">
                       <ShieldWarningIcon className="w-5 h-5" style={{ color: riskCfg.color }} />
                       <span className="text-xs font-bold" style={{ color: riskCfg.color }}>
-                        Уровень риска: {{ LOW: 'Низкий', MEDIUM: 'Средний', HIGH: 'Высокий', CRITICAL: 'Критический' }[result.riskLevel] ?? result.riskLevel}
+                        {t('ai.riskLevelLabel')}: {t(`ai.riskLevels.${result.riskLevel}`, { defaultValue: result.riskLevel })}
                       </span>
                     </div>
                     <span className="text-[10px]" style={{ color: 'var(--sweet-text-faint)' }}>
-                      {result.analyzedCount} транзакций · {result.anomalies.length} аномалий
+                      {t('ai.txAnomalyCount', { tx: result.analyzedCount, num: result.anomalies.length })}
                     </span>
                   </div>
                   <p className="text-xs" style={{ color: 'var(--sweet-text-secondary)', lineHeight: 1.6 }}>
@@ -1070,9 +1077,9 @@ function AIAnomalySection() {
 
                   <div className="grid grid-cols-3 gap-3">
                     {[
-                      { label: 'Средняя сумма', value: `${result.stats.avgAmount.toLocaleString()} ₸` },
-                      { label: 'Макс. сумма', value: `${result.stats.maxAmount.toLocaleString()} ₸` },
-                      { label: 'Аномалий', value: result.anomalies.length, color: '#f87171' },
+                      { label: t('ai.avgAmount'), value: `${result.stats.avgAmount.toLocaleString()} ₸` },
+                      { label: t('ai.maxAmount'), value: `${result.stats.maxAmount.toLocaleString()} ₸` },
+                      { label: t('ai.anomaliesCount'), value: result.anomalies.length, color: '#f87171' },
                     ].map(s => (
                       <div key={s.label} className="rounded-xl p-2.5 text-center"
                         style={{ background: 'var(--sweet-input)', border: '1px solid var(--sweet-border)' }}>
@@ -1107,7 +1114,7 @@ function AIAnomalySection() {
                           </span>
                           <span className="text-[9px] px-2 py-0.5 rounded-full font-medium"
                             style={{ background: 'var(--sweet-input)', color: 'var(--sweet-text-muted)', border: '1px solid var(--sweet-border)' }}>
-                            {ANOMALY_TYPE_LABEL[anomaly.type] ?? anomaly.type}
+                            {t(`ai.anomalyTypes.${anomaly.type}`, { defaultValue: anomaly.type })}
                           </span>
                         </div>
                         <p className="text-xs font-semibold" style={{ color: 'var(--sweet-text)' }}>
@@ -1118,12 +1125,12 @@ function AIAnomalySection() {
                         </p>
                         <div className="rounded-lg px-3 py-2" style={{ background: 'var(--sweet-input)', border: '1px solid var(--sweet-border)' }}>
                           <p className="text-[10px]" style={{ color: 'var(--sweet-text-faint)' }}>
-                            Доказательство: <span style={{ color: 'var(--sweet-text-muted)' }}>{anomaly.evidence}</span>
+                            {t('ai.evidence')}: <span style={{ color: 'var(--sweet-text-muted)' }}>{anomaly.evidence}</span>
                           </p>
                         </div>
                         <div className="rounded-lg px-3 py-2" style={{ background: cfg.bg, border: `1px solid ${cfg.border}` }}>
                           <p className="text-[10px]" style={{ color: cfg.color }}>
-                            Рекомендация: <span style={{ color: 'var(--sweet-text-secondary)' }}>{anomaly.recommendation}</span>
+                            {t('ai.recommendation')}: <span style={{ color: 'var(--sweet-text-secondary)' }}>{anomaly.recommendation}</span>
                           </p>
                         </div>
                       </motion.div>
@@ -1132,7 +1139,7 @@ function AIAnomalySection() {
                 </div>
 
                 <p className="text-[10px] text-center" style={{ color: 'var(--sweet-text-faint)' }}>
-                  Анализ выполнен · {new Date(result.generatedAt).toLocaleString('ru-RU')}
+                  {t('ai.analysisDone')} · {new Date(result.generatedAt).toLocaleString(dateLocale)}
                 </p>
               </>
             )}
@@ -1144,10 +1151,10 @@ function AIAnomalySection() {
         <div className="rounded-xl p-6 text-center" style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)' }}>
           <ShieldWarningIcon className="w-8 h-8 mx-auto mb-2" style={{ color: 'var(--sweet-text-faint)' }} />
           <p className="text-xs" style={{ color: 'var(--sweet-text-muted)' }}>
-            Нажмите «Запустить скан» для анализа транзакций за 48 часов
+            {t('ai.scanEmptyTitle')}
           </p>
           <p className="text-[10px] mt-1" style={{ color: 'var(--sweet-text-faint)' }}>
-            AI проверит фарминг баллов, всплески, дубликаты и подозрительные паттерны
+            {t('ai.scanEmptyHint')}
           </p>
         </div>
       )}
