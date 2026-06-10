@@ -37,6 +37,7 @@ const Ecosystem = lazy(() => import('./pages/customer/Ecosystem'));
 const Explorer = lazy(() => import('./pages/customer/Explorer'));
 const SweetPass = lazy(() => import('./pages/customer/SweetPass'));
 const SweetPassPartner = lazy(() => import('./pages/business/SweetPassPartner'));
+const Tokenomics = lazy(() => import('./pages/customer/Tokenomics'));
 
 // Components
 import Layout from './components/Layout';
@@ -145,6 +146,7 @@ function App() {
           <Route path="/customer/sweetpass" element={<SweetPass />} />
           <Route path="/customer/ecosystem" element={<Ecosystem />} />
           <Route path="/customer/explorer" element={<Explorer />} />
+          <Route path="/customer/tokenomics" element={<Tokenomics />} />
           <Route path="/achievements" element={<Achievements />} />
           <Route path="/history" element={<History />} />
           <Route path="/stats" element={<Stats />} />

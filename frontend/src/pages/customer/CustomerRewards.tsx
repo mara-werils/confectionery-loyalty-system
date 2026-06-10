@@ -110,6 +110,11 @@ const TEXTS: Translations = {
   'pw-1-desc': { en: 'Extra cashback on next purchase at any partner', ru: 'Дополнительные 5% кэшбэка на следующую покупку', kz: 'Келесі сатып алуда қосымша 5% кэшбэк' },
 };
 
+// Product photo per reward id (frontend/public/reward_img/)
+const REWARD_IMG: Record<string, string> = Object.fromEntries(
+  REWARDS.map((r) => [r.id, `/reward_img/${r.id}.jpg`])
+);
+
 const CATEGORY_ICON: Record<Category, typeof TagIcon> = {
   DISCOUNT: TagIcon,
   PRODUCT: GiftIcon,
@@ -432,6 +437,7 @@ function RewardCard({
   const need = reward.pointsRequired - balance;
   const CatIcon = CATEGORY_ICON[reward.category];
   const catColors = CATEGORY_COLOR[reward.category];
+  const photo = REWARD_IMG[reward.id];
 
   return (
     <div
@@ -443,6 +449,23 @@ function RewardCard({
         transition: 'border-color 0.25s, opacity 0.25s',
       }}
     >
+      {/* Product photo, fading into the card background */}
+      {photo && (
+        <div className="relative h-32 overflow-hidden">
+          <img
+            src={photo}
+            alt={getText(reward.titleKey)}
+            loading="lazy"
+            className="w-full h-full object-cover"
+            style={{ filter: canAfford ? 'none' : 'saturate(0.45)' }}
+            onError={(e) => { (e.currentTarget.parentElement as HTMLElement).style.display = 'none'; }}
+          />
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{ background: 'linear-gradient(to bottom, transparent 35%, var(--sweet-card) 100%)' }}
+          />
+        </div>
+      )}
 
       <div className="p-4">
         {/* Partner + Category */}

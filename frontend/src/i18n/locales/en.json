@@ -923,5 +923,31 @@
     "noPartnersHint": "Partners will appear here once they join the coalition",
     "poweredBy": "Coalition powered by TON Blockchain",
     "thesis": "AITU Diploma Project 2026 — Smart-Contract Loyalty System"
+  },
+  "tokenomics": {
+    "title": "How SWEET works",
+    "subtitle": "One token connects customers, confectioneries and the platform — every step enforced by smart contracts on TON.",
+    "step": "Step",
+    "onChain": "Verifiable on-chain",
+    "s1Title": "Purchase at a confectionery",
+    "s1Desc": "You pay in KZT as usual — at any partner of the network.",
+    "s2Title": "Partner POS awards cashback",
+    "s2Desc": "The cashier scans your wallet QR. 10–15% of the bill converts to SWEET depending on your tier.",
+    "s3Title": "SWEET lands in your TON wallet",
+    "s3Desc": "1 SWEET = 1 KZT. The jetton transfer is recorded on the TON blockchain — verifiable by anyone.",
+    "s4Title": "Spend it your way",
+    "s4Desc": "Rewards and coupons, gifts to friends, prepaid pre-orders held by an escrow smart contract.",
+    "s5Title": "Platform earns transparently",
+    "s5Desc": "A 3–7% commission accrues to the Revenue Distribution contract — payouts are enforced by code, not promises.",
+    "tiersTitle": "Loyalty tiers",
+    "bronze": "Bronze",
+    "silver": "Silver",
+    "gold": "Gold",
+    "cashback": "cashback",
+    "multiplier": "Points",
+    "from": "from",
+    "contractsTitle": "Live on TON testnet",
+    "contractsDesc": "Four smart contracts run the economy. Tap any to inspect it in the public explorer.",
+    "footer": "1 SWEET = 1 KZT · TEP-74 jetton · 9 decimals · TON testnet"
   }
 }

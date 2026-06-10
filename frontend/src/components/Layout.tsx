@@ -14,10 +14,12 @@ import {
   PaperPlaneTiltIcon,
   MoneyIcon,
   TicketIcon,
+  CoinsIcon,
 } from '@phosphor-icons/react';
 import clsx from 'clsx';
 import { changeLanguage, languages } from '../i18n';
 import { useTheme } from '../hooks/useTheme';
+import GlobalCelebration from './GlobalCelebration';
 
 interface LayoutProps {
   variant?: 'business' | 'customer';
@@ -53,8 +55,12 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
       className="min-h-screen flex flex-col items-center transition-colors"
       style={{ background: 'var(--sweet-bg)' }}
     >
+      {/* App-wide cashback celebration (customer only) */}
+      {variant === 'customer' && <GlobalCelebration />}
+
       {/* Top bar: theme toggle + language switcher */}
       <div className="w-full max-w-2xl px-4 pt-4 flex justify-between z-50">
+        <div className="flex items-center gap-1.5">
         <button
           onClick={toggle}
           className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95"
@@ -76,6 +82,22 @@ export default function Layout({ variant = 'business' }: LayoutProps) {
             </motion.span>
           </AnimatePresence>
         </button>
+
+        {variant === 'customer' && (
+          <NavLink
+            to="/customer/tokenomics"
+            className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95"
+            style={({ isActive }) => ({
+              background: 'var(--sweet-accent-dim)',
+              color: 'var(--sweet-accent)',
+              boxShadow: isActive ? '0 0 0 1px var(--sweet-accent)' : 'none',
+            })}
+            title={t('tokenomics.title') || 'How SWEET works'}
+          >
+            <CoinsIcon className="w-4 h-4" />
+          </NavLink>
+        )}
+        </div>
 
         <div className="flex items-center gap-0.5">
           {languages.map((l) => (
