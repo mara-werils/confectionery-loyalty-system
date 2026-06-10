@@ -346,7 +346,8 @@
     "gift": "Подарок",
     "ecosystem": "Партнёры",
     "explorer": "Эксплорер",
-    "sweetpass": "Предзаказ"
+    "sweetpass": "Предзаказ",
+    "earn": "Доход"
   },
   "sweetpass": {
     "title": "Sweet Pass",
@@ -520,6 +521,41 @@
         "desc": "Максимальная доходность"
       }
     }
+  },
+  "settlement": {
+    "title": "Комиссионный доход",
+    "subtitle": "Он-чейн расчёт выручки · TON Testnet",
+    "yourRate": "Ваша комиссионная ставка",
+    "ofEveryPurchase": "с каждой покупки",
+    "tierLocked": "Уровень {{tier}} · Зафиксировано в FunC смарт-контракте",
+    "allTiers": "Все уровни",
+    "pendingCommission": "Накопленная комиссия",
+    "progressToMin": "Прогресс до минимальной выплаты",
+    "minPayout": "Минимальная выплата: {{min}} TON · Контролируется смарт-контрактом",
+    "broadcasting": "Отправка в блокчейн…",
+    "claimBtn": "Получить комиссию {{amount}} TON",
+    "accumulateBtn": "Накопите {{min}} TON для вывода",
+    "smartContract": "Смарт-контракт",
+    "verify": "Проверить",
+    "totalDistributed": "Всего выплачено",
+    "platformReserve": "Резерв платформы",
+    "payoutsMade": "Выплат сделано",
+    "immutableNote": "Комиссионные ставки (3% / 5% / 7%) неизменно закодированы в FunC. Выплаты trustless — без посредников.",
+    "reserveWarning": "Резерв контракта: {{balance}} TON. Пополните контракт на 5+ TON для мгновенных выплат. Комиссия продолжает накапливаться он-чейн.",
+    "payoutHistory": "История выплат",
+    "totalPaid": "Всего {{amount}} TON",
+    "noPayouts": "Выплат пока нет",
+    "noPayoutsHint": "Накопите 1 TON, чтобы получить первую комиссию",
+    "howItWorks": "Как это работает",
+    "step1Title": "Покупка записана",
+    "step1Desc": "Каждая POS-транзакция вызывает recordTransaction() он-чейн",
+    "step2Title": "Комиссия накапливается",
+    "step2Desc": "Ваша комиссия {{pct}} накапливается в смарт-контракте",
+    "step3Title": "Вывод от 1 TON",
+    "step3Desc": "Когда накопится ≥ 1 TON, нажмите «Получить» — контракт отправит TON на ваш кошелёк",
+    "toastDispatched": "{{amount}} TON отправлено он-чейн!",
+    "toastQueued": "Комиссия {{amount}} TON записана — выплата в очереди",
+    "toastFailed": "Ошибка выплаты"
   },
   "ai": {
     "title": "AI Аналитика",

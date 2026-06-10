@@ -346,7 +346,8 @@
     "gift": "Gift",
     "ecosystem": "Partners",
     "explorer": "Explorer",
-    "sweetpass": "Pre-order"
+    "sweetpass": "Pre-order",
+    "earn": "Earn"
   },
   "sweetpass": {
     "title": "Sweet Pass",
@@ -520,6 +521,41 @@
         "desc": "Maximum yield"
       }
     }
+  },
+  "settlement": {
+    "title": "Commission Earnings",
+    "subtitle": "On-chain revenue settlement · TON Testnet",
+    "yourRate": "Your Commission Rate",
+    "ofEveryPurchase": "of every purchase",
+    "tierLocked": "{{tier}} tier · Locked in FunC smart contract",
+    "allTiers": "All tiers",
+    "pendingCommission": "Pending Commission",
+    "progressToMin": "Progress to minimum payout",
+    "minPayout": "Minimum payout: {{min}} TON · Enforced by smart contract",
+    "broadcasting": "Broadcasting on-chain…",
+    "claimBtn": "Claim {{amount}} TON Commission",
+    "accumulateBtn": "Accumulate {{min}} TON to claim",
+    "smartContract": "Smart Contract",
+    "verify": "Verify",
+    "totalDistributed": "Total Distributed",
+    "platformReserve": "Platform Reserve",
+    "payoutsMade": "Payouts Made",
+    "immutableNote": "Commission rates (3% / 5% / 7%) are immutably encoded in FunC. Payouts are trustless — no intermediary.",
+    "reserveWarning": "Contract reserve: {{balance}} TON. Fund contract with 5+ TON to enable instant payouts. Commission is still accumulating on-chain now.",
+    "payoutHistory": "Payout History",
+    "totalPaid": "{{amount}} TON total",
+    "noPayouts": "No payouts yet",
+    "noPayoutsHint": "Accumulate 1 TON to claim your first commission",
+    "howItWorks": "How it works",
+    "step1Title": "Purchase recorded",
+    "step1Desc": "Each POS transaction triggers recordTransaction() on-chain",
+    "step2Title": "Commission accrues",
+    "step2Desc": "Your {{pct}} commission accumulates in the smart contract",
+    "step3Title": "Claim at 1 TON",
+    "step3Desc": "When ≥ 1 TON pending, click Claim — contract sends real TON to your wallet",
+    "toastDispatched": "{{amount}} TON dispatched on-chain!",
+    "toastQueued": "{{amount}} TON commission recorded — payout queued",
+    "toastFailed": "Distribution failed"
   },
   "ai": {
     "title": "AI Insights",

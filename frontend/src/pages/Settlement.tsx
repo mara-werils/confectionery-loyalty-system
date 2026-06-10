@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   MoneyIcon,
@@ -61,13 +62,15 @@ function truncate(addr: string) {
   return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
 }
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-}
+const DATE_LOCALE: Record<string, string> = { ru: 'ru-RU', en: 'en-US', kz: 'kk-KZ' };
 
 // ─── Component ─────────────────────────────────────────────────────────────
 export default function Settlement() {
+  const { t, i18n } = useTranslation();
   const qc = useQueryClient();
+  const dateLocale = DATE_LOCALE[i18n.language] ?? 'en-US';
+  const formatDate = (iso: string) =>
+    new Date(iso).toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' });
 
   // Status query (refetch every 20s)
   const { data: statusData, isLoading: statusLoading, refetch: refetchStatus } = useQuery<{ data: SettlementStatus }>({
@@ -91,14 +94,14 @@ export default function Settlement() {
     mutationFn: () => api.settlement.distribute(),
     onSuccess: (res: { data: { amountTon: string; txRef: string; explorerUrl: string; onChain: boolean } }) => {
       if (res.data.onChain) {
-        toast.success(`✅ ${res.data.amountTon} TON dispatched on-chain!`);
+        toast.success(`✅ ${t('settlement.toastDispatched', { amount: res.data.amountTon })}`);
       } else {
-        toast.success(`✅ ${res.data.amountTon} TON commission recorded — payout queued`);
+        toast.success(`✅ ${t('settlement.toastQueued', { amount: res.data.amountTon })}`);
       }
       qc.invalidateQueries({ queryKey: ['settlement'] });
     },
     onError: (err: Error) => {
-      toast.error(err.message || 'Distribution failed');
+      toast.error(err.message || t('settlement.toastFailed'));
     },
   });
 
@@ -116,11 +119,11 @@ export default function Settlement() {
         <div className="flex items-center gap-2 mb-0.5">
           <MoneyIcon className="w-5 h-5" style={{ color: 'var(--sweet-accent)' }} />
           <h1 className="text-lg font-bold tracking-tight" style={{ color: 'var(--sweet-text)' }}>
-            Commission Earnings
+            {t('settlement.title')}
           </h1>
         </div>
         <p className="text-xs" style={{ color: 'var(--sweet-text-muted)' }}>
-          On-chain revenue settlement · TON Testnet
+          {t('settlement.subtitle')}
         </p>
       </motion.div>
 
@@ -144,24 +147,24 @@ export default function Settlement() {
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-widest mb-0.5"
                style={{ color: 'var(--sweet-text-muted)' }}>
-              Your Commission Rate
+              {t('settlement.yourRate')}
             </p>
             <div className="flex items-baseline gap-2">
               <span className={`text-4xl font-black bg-gradient-to-r ${tierStyle.gradient} bg-clip-text text-transparent`}>
                 {tierStyle.pct}
               </span>
               <span className="text-sm font-semibold" style={{ color: 'var(--sweet-text-secondary)' }}>
-                of every purchase
+                {t('settlement.ofEveryPurchase')}
               </span>
             </div>
             <p className="text-xs mt-1" style={{ color: 'var(--sweet-text-muted)' }}>
-              {tier} tier · Locked in FunC smart contract
+              {t('settlement.tierLocked', { tier })}
             </p>
           </div>
 
           <div className="text-right">
             <div className="text-xs font-medium mb-1" style={{ color: 'var(--sweet-text-muted)' }}>
-              All tiers
+              {t('settlement.allTiers')}
             </div>
             {[
               { t: 'Bronze', r: '3%' },
@@ -195,7 +198,7 @@ export default function Settlement() {
         <div className="flex items-center justify-between">
           <p className="text-[10px] font-semibold uppercase tracking-widest"
              style={{ color: 'var(--sweet-text-muted)' }}>
-            Pending Commission
+            {t('settlement.pendingCommission')}
           </p>
           <button
             onClick={() => refetchStatus()}
@@ -230,7 +233,7 @@ export default function Settlement() {
             {/* Progress bar */}
             <div className="space-y-1.5">
               <div className="flex justify-between text-xs" style={{ color: 'var(--sweet-text-muted)' }}>
-                <span>Progress to minimum payout</span>
+                <span>{t('settlement.progressToMin')}</span>
                 <span>{Math.min(status?.pending.progressPct ?? 0, 100).toFixed(0)}%</span>
               </div>
               <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--sweet-input)' }}>
@@ -246,8 +249,7 @@ export default function Settlement() {
                 />
               </div>
               <p className="text-[10px]" style={{ color: 'var(--sweet-text-faint)' }}>
-                Minimum payout: {status?.pending.minPayoutTon ?? '1.0000'} TON
-                · Enforced by smart contract
+                {t('settlement.minPayout', { min: status?.pending.minPayoutTon ?? '1.0000' })}
               </p>
             </div>
 
@@ -274,17 +276,17 @@ export default function Settlement() {
               {distributeMutation.isPending ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Broadcasting on-chain…
+                  {t('settlement.broadcasting')}
                 </>
               ) : status?.pending.canDistribute ? (
                 <>
                   <MoneyIcon className="w-4 h-4" />
-                  Claim {status.pending.ton} TON Commission
+                  {t('settlement.claimBtn', { amount: status.pending.ton })}
                 </>
               ) : (
                 <>
                   <ClockIcon className="w-4 h-4" />
-                  Accumulate {status?.pending.minPayoutTon ?? '1.0000'} TON to claim
+                  {t('settlement.accumulateBtn', { min: status?.pending.minPayoutTon ?? '1.0000' })}
                 </>
               )}
             </motion.button>
@@ -307,7 +309,7 @@ export default function Settlement() {
           <CubeTransparentIcon className="w-4 h-4" style={{ color: 'var(--sweet-accent)' }} />
           <p className="text-[10px] font-semibold uppercase tracking-widest"
              style={{ color: 'var(--sweet-text-muted)' }}>
-            Smart Contract
+            {t('settlement.smartContract')}
           </p>
         </div>
 
@@ -330,7 +332,7 @@ export default function Settlement() {
               color: 'var(--sweet-accent)',
             }}
           >
-            Verify
+            {t('settlement.verify')}
             <ArrowSquareOutIcon className="w-3 h-3" />
           </a>
         </div>
@@ -339,9 +341,9 @@ export default function Settlement() {
         {status && (
           <div className="grid grid-cols-3 gap-2 pt-1">
             {[
-              { label: 'Total Distributed', value: `${status.contract.totalDistributedTon} TON` },
-              { label: 'Platform Reserve', value: `${status.contract.platformBalanceTon} TON` },
-              { label: 'Payouts Made',     value: status.contract.payoutCount },
+              { label: t('settlement.totalDistributed'), value: `${status.contract.totalDistributedTon} TON` },
+              { label: t('settlement.platformReserve'), value: `${status.contract.platformBalanceTon} TON` },
+              { label: t('settlement.payoutsMade'),     value: status.contract.payoutCount },
             ].map(({ label, value }) => (
               <div
                 key={label}
@@ -365,8 +367,7 @@ export default function Settlement() {
         >
           <ShieldCheckIcon className="w-3.5 h-3.5 mt-0.5 shrink-0" />
           <span>
-            Commission rates (3% / 5% / 7%) are immutably encoded in FunC.
-            Payouts are trustless — no intermediary.
+            {t('settlement.immutableNote')}
           </span>
         </div>
 
@@ -378,9 +379,7 @@ export default function Settlement() {
           >
             <ClockIcon className="w-3.5 h-3.5 mt-0.5 shrink-0" />
             <span>
-              Contract reserve: {status.contract.contractBalanceTon} TON.
-              Fund contract with 5+ TON to enable instant payouts.
-              Commission is still accumulating on-chain now.
+              {t('settlement.reserveWarning', { balance: status.contract.contractBalanceTon })}
             </span>
           </div>
         )}
@@ -402,12 +401,12 @@ export default function Settlement() {
             <CoinsIcon className="w-4 h-4" style={{ color: 'var(--sweet-accent)' }} />
             <p className="text-[10px] font-semibold uppercase tracking-widest"
                style={{ color: 'var(--sweet-text-muted)' }}>
-              Payout History
+              {t('settlement.payoutHistory')}
             </p>
           </div>
           {history && (
             <span className="text-xs font-bold" style={{ color: 'var(--sweet-accent)' }}>
-              {history.totalPaidTon} TON total
+              {t('settlement.totalPaid', { amount: history.totalPaidTon })}
             </span>
           )}
         </div>
@@ -420,10 +419,10 @@ export default function Settlement() {
           <div className="py-6 text-center">
             <MoneyIcon className="w-8 h-8 mx-auto mb-2 opacity-20" style={{ color: 'var(--sweet-text)' }} />
             <p className="text-sm" style={{ color: 'var(--sweet-text-muted)' }}>
-              No payouts yet
+              {t('settlement.noPayouts')}
             </p>
             <p className="text-xs mt-0.5" style={{ color: 'var(--sweet-text-faint)' }}>
-              Accumulate 1 TON to claim your first commission
+              {t('settlement.noPayoutsHint')}
             </p>
           </div>
         ) : (
@@ -498,24 +497,24 @@ export default function Settlement() {
       >
         <p className="text-[10px] font-semibold uppercase tracking-widest"
            style={{ color: 'var(--sweet-text-muted)' }}>
-          How it works
+          {t('settlement.howItWorks')}
         </p>
         <div className="space-y-2.5">
           {[
             {
               step: '1',
-              title: 'Purchase recorded',
-              desc: 'Each POS transaction triggers recordTransaction() on-chain',
+              title: t('settlement.step1Title'),
+              desc: t('settlement.step1Desc'),
             },
             {
               step: '2',
-              title: 'Commission accrues',
-              desc: `Your ${tierStyle.pct} commission accumulates in the smart contract`,
+              title: t('settlement.step2Title'),
+              desc: t('settlement.step2Desc', { pct: tierStyle.pct }),
             },
             {
               step: '3',
-              title: 'Claim at 1 TON',
-              desc: 'When ≥ 1 TON pending, click Claim — contract sends real TON to your wallet',
+              title: t('settlement.step3Title'),
+              desc: t('settlement.step3Desc'),
             },
           ].map(({ step, title, desc }) => (
             <div key={step} className="flex items-start gap-3">
