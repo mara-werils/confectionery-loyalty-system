@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2BB7A6"/>
+      <stop offset="1" stop-color="#178577"/>
+    </linearGradient>
+    <radialGradient id="h" cx="0.5" cy="0.32" r="0.75">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#g)"/>
+  <rect width="64" height="64" rx="16" fill="url(#h)"/>
+  <text x="32" y="33" font-family="-apple-system,'Segoe UI',Roboto,sans-serif" font-size="23" font-weight="700" fill="#FFF8EE" text-anchor="middle" dominant-baseline="central" letter-spacing="-0.5">OC</text>
+</svg>
