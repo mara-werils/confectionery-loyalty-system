@@ -55,13 +55,13 @@ interface IssuedCoupon {
 
 const PARTNERS: Partner[] = [
   { id: 'homemacaron', name: 'Home Macaron', shortName: 'Home Macaron', logo: '/confectionary_logos/home_macaron.jpg', initial: 'HM', city: 'Алматы' },
-  { id: 'sweets_art', name: 'Sweets. The Art of Cake', shortName: 'Sweets Art', logo: null, initial: 'SA', city: 'Алматы' },
-  { id: 'musmus', name: 'Дом десертов MUS-MUS', shortName: 'MUS-MUS', logo: null, initial: 'MM', city: 'Алматы' },
-  { id: 'ocake', name: 'O-Cake', shortName: 'O-Cake', logo: null, initial: 'OC', city: 'Алматы' },
-  { id: 'cakelab', name: 'CakeLab Astana', shortName: 'CakeLab', logo: null, initial: 'CL', city: 'Астана' },
-  { id: 'patisserie', name: 'Patisserie de Luxe', shortName: 'Patisserie', logo: null, initial: 'PL', city: 'Алматы' },
-  { id: 'hmgreen', name: 'Home Macaron GreenLine', shortName: 'HM GreenLine', logo: null, initial: 'HG', city: 'Алматы' },
-  { id: 'marlen', name: 'Марлен', shortName: 'Марлен', logo: null, initial: 'М', city: 'Астана' },
+  { id: 'sweets_art', name: 'Sweets. The Art of Cake', shortName: 'Sweets Art', logo: '/confectionary_logos/sweets_art.svg', initial: 'SA', city: 'Алматы' },
+  { id: 'musmus', name: 'Дом десертов MUS-MUS', shortName: 'MUS-MUS', logo: '/confectionary_logos/mus_mus.svg', initial: 'MM', city: 'Алматы' },
+  { id: 'ocake', name: 'O-Cake', shortName: 'O-Cake', logo: '/confectionary_logos/o_cake.svg', initial: 'OC', city: 'Алматы' },
+  { id: 'cakelab', name: 'CakeLab Astana', shortName: 'CakeLab', logo: '/confectionary_logos/cakelab.svg', initial: 'CL', city: 'Астана' },
+  { id: 'patisserie', name: 'Patisserie de Luxe', shortName: 'Patisserie', logo: '/confectionary_logos/patisserie.svg', initial: 'PL', city: 'Алматы' },
+  { id: 'hmgreen', name: 'Home Macaron GreenLine', shortName: 'HM GreenLine', logo: '/confectionary_logos/hm_greenline.svg', initial: 'HG', city: 'Алматы' },
+  { id: 'marlen', name: 'Марлен', shortName: 'Марлен', logo: '/confectionary_logos/marlen.svg', initial: 'М', city: 'Астана' },
   { id: 'platform', name: 'Sweet Platform', shortName: 'Platform', logo: null, initial: 'SW', city: 'Все партнёры' },
 ];
 
