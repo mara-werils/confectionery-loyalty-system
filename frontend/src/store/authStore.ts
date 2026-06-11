@@ -21,7 +21,7 @@ interface AuthState {
   isAuthenticated: boolean;
   spentPoints: number;
   avatar: string | null;
-  activeCoupons: Array<{ code: string; rewardTitleKey: string; partnerName: string }>;
+  activeCoupons: Array<{ code: string; rewardTitleKey: string; rewardTitle?: string; partnerName: string }>;
   hasBusinessSbt: boolean;
   sweetBalance: number;
 
@@ -34,8 +34,8 @@ interface AuthState {
   logout: () => void;
   addSpentPoints: (points: number) => void;
   setAvatar: (base64: string | null) => void;
-  addCoupon: (coupon: { code: string; rewardTitleKey: string; partnerName: string }) => void;
-  setCoupons: (coupons: Array<{ code: string; rewardTitleKey: string; partnerName: string }>) => void;
+  addCoupon: (coupon: { code: string; rewardTitleKey: string; rewardTitle?: string; partnerName: string }) => void;
+  setCoupons: (coupons: Array<{ code: string; rewardTitleKey: string; rewardTitle?: string; partnerName: string }>) => void;
   setHasBusinessSbt: (has: boolean) => void;
   setSweetBalance: (balance: number) => void;
 }
@@ -98,11 +98,13 @@ export const useAuthStore = create<AuthState>()(
           token: null,
           refreshToken: null,
           user: null,
+          walletAddress: null,
           role: null,
           isAuthenticated: false,
           spentPoints: 0,
           activeCoupons: [],
           hasBusinessSbt: false,
+          sweetBalance: 0,
         }),
     }),
     {

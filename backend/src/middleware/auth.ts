@@ -66,8 +66,12 @@ export const authenticate = async (
           where: { id: decoded.sub },
         });
 
-        if (!partner || partner.status === 'BANNED') {
-          throw new AppError('Account not found or banned', 401, 'ACCOUNT_INVALID');
+        if (!partner) {
+          throw new AppError('Token references a non-existent account', 401, 'TOKEN_EXPIRED');
+        }
+
+        if (partner.status === 'BANNED') {
+          throw new AppError('Account is banned', 401, 'ACCOUNT_INVALID');
         }
 
         const partnerData = {
@@ -84,8 +88,12 @@ export const authenticate = async (
         where: { id: decoded.sub },
       });
 
-      if (!admin || !admin.isActive) {
-        throw new AppError('Admin account not found or inactive', 401, 'ACCOUNT_INVALID');
+      if (!admin) {
+        throw new AppError('Token references a non-existent admin', 401, 'TOKEN_EXPIRED');
+      }
+
+      if (!admin.isActive) {
+        throw new AppError('Admin account is inactive', 401, 'ACCOUNT_INVALID');
       }
     }
 

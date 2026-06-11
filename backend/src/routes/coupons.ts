@@ -61,7 +61,10 @@ const createSchema = z.object({
  */
 router.post('/', authenticate, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const partnerId = req.partner!.id;
+    if (!req.partner) {
+      throw new AppError('Partner authentication required', 401, 'UNAUTHORIZED');
+    }
+    const partnerId = req.partner.id;
     const { rewardId, rewardTitle: inlineTitle, pointsRequired: inlinePoints, rewardCategory: inlineCat } = createSchema.parse(req.body);
 
     // Resolve reward — check DB first, auto-seed if it's a static frontend reward
@@ -188,12 +191,16 @@ router.get('/verify/:code', authenticate, async (req: Request, res: Response, ne
   try {
     const { code } = req.params;
 
-    // Check Redis first — avoids a DB round-trip for recently issued coupons
+    // Check Redis first — but skip cache for ACTIVE coupons (could be stale post-redemption)
     const cachedRaw = await cache.get(`coupon:${code}`);
     if (cachedRaw) {
       const cached = JSON.parse(cachedRaw);
-      const isValid = cached.status === 'ACTIVE' && new Date(cached.expiresAt) > new Date();
-      return successResponse(res, { ...cached, isValid });
+      // Serve from cache only when status is final (REDEEMED / EXPIRED) — safe to trust.
+      // For ACTIVE we always hit DB to ensure we don't return a stale status.
+      if (cached.status !== 'ACTIVE') {
+        const isValid = false; // REDEEMED / EXPIRED are never valid
+        return successResponse(res, { ...cached, isValid });
+      }
     }
 
     const coupon = await prisma.coupon.findUnique({
@@ -244,7 +251,10 @@ router.get('/verify/:code', authenticate, async (req: Request, res: Response, ne
  */
 router.get('/', authenticate, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const partnerId = req.partner!.id;
+    if (!req.partner) {
+      throw new AppError('Partner authentication required', 401, 'UNAUTHORIZED');
+    }
+    const partnerId = req.partner.id;
 
     // Auto-expire old coupons
     await prisma.coupon.updateMany({
@@ -286,33 +296,37 @@ router.post('/:code/redeem', authenticate, async (req: Request, res: Response, n
   try {
     const { code } = req.params;
 
+    // First verify the coupon exists and check its state
     const coupon = await prisma.coupon.findUnique({ where: { code } });
     if (!coupon) throw new AppError('Coupon not found', 404, 'COUPON_NOT_FOUND');
     if (coupon.status === 'REDEEMED') throw new AppError('Coupon already redeemed', 400, 'ALREADY_REDEEMED');
-    if (coupon.status === 'EXPIRED') throw new AppError('Coupon has expired', 400, 'COUPON_EXPIRED');
-    if (coupon.expiresAt < new Date()) throw new AppError('Coupon has expired', 400, 'COUPON_EXPIRED');
-
-    const redeemedAt = new Date();
-    const updated = await prisma.coupon.update({
-      where: { code },
-      data: { status: 'REDEEMED', redeemedAt },
-    });
-
-    // Update cache so verify endpoint immediately returns REDEEMED status
-    const existingCache = await cache.get(`coupon:${code}`);
-    if (existingCache) {
-      const parsed = JSON.parse(existingCache);
-      await cache.set(`coupon:${code}`, JSON.stringify({
-        ...parsed,
-        status: 'REDEEMED',
-        redeemedAt: redeemedAt.toISOString(),
-      }), COUPON_CACHE_TTL);
+    if (coupon.status === 'EXPIRED' || coupon.expiresAt < new Date()) {
+      throw new AppError('Coupon has expired', 400, 'COUPON_EXPIRED');
     }
 
+    const redeemedAt = new Date();
+    // Atomic update: only succeeds if status is still ACTIVE — prevents race condition
+    // from concurrent requests that both passed the status check above
+    const result = await prisma.coupon.updateMany({
+      where: { code, status: 'ACTIVE' },
+      data: { status: 'REDEEMED', redeemedAt },
+    });
+    if (result.count === 0) {
+      throw new AppError('Coupon already redeemed', 400, 'ALREADY_REDEEMED');
+    }
+    // Always overwrite cache — even on miss — so next verify never returns stale ACTIVE
+    const existingCache = await cache.get(`coupon:${code}`);
+    const base = existingCache ? JSON.parse(existingCache) : { code: coupon.code, rewardTitle: coupon.rewardTitle };
+    await cache.set(`coupon:${code}`, JSON.stringify({
+      ...base,
+      status: 'REDEEMED',
+      redeemedAt: redeemedAt.toISOString(),
+    }), COUPON_CACHE_TTL);
+
     return successResponse(res, {
-      code: updated.code,
-      rewardTitle: updated.rewardTitle,
-      redeemedAt: updated.redeemedAt?.toISOString(),
+      code: coupon.code,
+      rewardTitle: coupon.rewardTitle,
+      redeemedAt: redeemedAt.toISOString(),
     }, 'Coupon redeemed successfully');
   } catch (error) {
     return next(error);

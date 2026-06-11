@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  DocumentPlusIcon,
+  FilePlusIcon,
   CheckCircleIcon,
-  BuildingStorefrontIcon,
-  ArrowsRightLeftIcon,
+  StorefrontIcon,
+  ArrowsLeftRightIcon,
   CurrencyDollarIcon,
   GiftIcon,
   ArrowRightIcon,
   ClockIcon,
-  ServerIcon,
-} from '@heroicons/react/24/outline';
+  HardDrivesIcon,
+} from '@phosphor-icons/react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -56,10 +56,13 @@ export default function AdminDashboard() {
   };
   const [walletAddress, setWalletAddress] = useState('');
   const [isMinting, setIsMinting] = useState(false);
+  const [mintWallet, setMintWallet] = useState('');
+  const [mintAmount, setMintAmount] = useState('');
+  const [isMintingSweet, setIsMintingSweet] = useState(false);
 
   const { data: partnersData } = useQuery({
     queryKey: ['admin', 'partners'],
-    queryFn: () => api.partners.list({ page: 1, limit: 1 }),
+    queryFn: () => api.partners.list({ page: 1, limit: 100 }),
     staleTime: 60000,
   });
 
@@ -75,6 +78,12 @@ export default function AdminDashboard() {
     staleTime: 30000,
   });
 
+  const { data: ecosystemData } = useQuery({
+    queryKey: ['admin', 'ecosystem'],
+    queryFn: () => api.partners.ecosystem(),
+    staleTime: 60000,
+  });
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const partners = (partnersData as any)?.data || [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -83,24 +92,46 @@ export default function AdminDashboard() {
   const rewards = (rewardsData as any)?.data || (rewardsData as any) || [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const auditLogs: any[] = (auditData as any)?.data || [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const ecoStats = (ecosystemData as any)?.data?.stats || {};
 
   const activeRewards = Array.isArray(rewards)
     ? rewards.filter((r: { isActive?: boolean }) => r.isActive !== false).length
     : 0;
 
   const stats = [
-    { label: t('adminDash.totalPartners'), value: totalPartners, icon: BuildingStorefrontIcon, color: 'text-stone-300 bg-stone-400/10 border-stone-400/20' },
-    { label: t('adminDash.transactions'), value: '---', icon: ArrowsRightLeftIcon, color: 'text-stone-300 bg-stone-400/10 border-stone-400/20' },
-    { label: t('adminDash.sweetIssued'), value: '---', icon: CurrencyDollarIcon, color: 'text-amber-400 bg-amber-400/10 border-amber-400/20' },
+    { label: t('adminDash.totalPartners'), value: totalPartners, icon: StorefrontIcon, color: 'text-stone-300 bg-stone-400/10 border-stone-400/20' },
+    { label: t('adminDash.transactions'), value: ecoStats.totalTransactions ?? '---', icon: ArrowsLeftRightIcon, color: 'text-stone-300 bg-stone-400/10 border-stone-400/20' },
+    { label: t('adminDash.sweetIssued'), value: ecoStats.totalSweetIssued ? ecoStats.totalSweetIssued.toLocaleString() : '---', icon: CurrencyDollarIcon, color: 'text-amber-400 bg-amber-400/10 border-amber-400/20' },
     { label: t('adminDash.activeRewards'), value: activeRewards, icon: GiftIcon, color: 'text-amber-400 bg-amber-400/10 border-amber-400/20' },
   ];
 
   const quickActions = [
     { label: t('adminDash.addReward'), path: '/admin/rewards', icon: GiftIcon },
-    { label: t('adminDash.partners'), path: '/admin/partners', icon: BuildingStorefrontIcon },
+    { label: t('adminDash.partners'), path: '/admin/partners', icon: StorefrontIcon },
     { label: t('adminDash.auditLog'), path: '/admin/audit', icon: ClockIcon },
-    { label: t('adminDash.settings'), path: '/admin/settings', icon: ServerIcon },
+    { label: t('adminDash.settings'), path: '/admin/settings', icon: HardDrivesIcon },
   ];
+
+  const handleMintSweet = async () => {
+    if (!mintWallet || !mintAmount) {
+      toast.error('Enter wallet and amount');
+      return;
+    }
+    setIsMintingSweet(true);
+    toast.loading(`Minting ${mintAmount} SWEET...`, { id: 'sweetMint' });
+    try {
+      await api.admin.mintTokens({ targetWallet: mintWallet, amount: Number(mintAmount) });
+      toast.success(`${mintAmount} SWEET minted!`, { id: 'sweetMint' });
+      setMintWallet('');
+      setMintAmount('');
+    } catch (err: unknown) {
+      const error = err as { message?: string };
+      toast.error(error?.message || 'Mint failed', { id: 'sweetMint' });
+    } finally {
+      setIsMintingSweet(false);
+    }
+  };
 
   const handleIssueSbt = async () => {
     if (!walletAddress) {
@@ -182,7 +213,7 @@ export default function AdminDashboard() {
         {/* SBT Management */}
         <GlassCard delay={0.2} className="p-5">
           <h3 className="text-sm font-semibold text-stone-400 mb-4 uppercase tracking-wider flex items-center gap-2">
-            <DocumentPlusIcon className="w-4 h-4" />
+            <FilePlusIcon className="w-4 h-4" />
             {t('adminDash.sbtManagement')}
           </h3>
           <div className="space-y-3">
@@ -199,7 +230,7 @@ export default function AdminDashboard() {
                 disabled={isMinting || !walletAddress}
                 className="flex-1 bg-amber-500 hover:bg-amber-400 disabled:opacity-40 text-black font-bold py-2.5 rounded-xl transition-all text-sm flex items-center justify-center gap-2"
               >
-                {hasBusinessSbt ? <CheckCircleIcon className="w-4 h-4" /> : <DocumentPlusIcon className="w-4 h-4" />}
+                {hasBusinessSbt ? <CheckCircleIcon className="w-4 h-4" /> : <FilePlusIcon className="w-4 h-4" />}
                 {isMinting ? t('adminDash.minting') : t('adminDash.issueSbt')}
               </button>
               <button
@@ -213,10 +244,44 @@ export default function AdminDashboard() {
           </div>
         </GlassCard>
 
+        {/* Mint SWEET Tokens */}
+        <GlassCard delay={0.22} className="p-5">
+          <h3 className="text-sm font-semibold text-stone-400 mb-4 uppercase tracking-wider flex items-center gap-2">
+            <CurrencyDollarIcon className="w-4 h-4" />
+            Mint SWEET Tokens
+          </h3>
+          <div className="space-y-3">
+            <input
+              type="text"
+              value={mintWallet}
+              onChange={(e) => setMintWallet(e.target.value)}
+              className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500/50 transition-colors font-mono"
+              placeholder="UQ... wallet address"
+            />
+            <input
+              type="number"
+              value={mintAmount}
+              onChange={(e) => setMintAmount(e.target.value)}
+              className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500/50 transition-colors"
+              placeholder="Amount (SWEET)"
+            />
+            <button
+              onClick={handleMintSweet}
+              disabled={isMintingSweet || !mintWallet || !mintAmount}
+              className="w-full bg-amber-500 hover:bg-amber-400 disabled:opacity-40 text-black font-bold py-2.5 rounded-xl transition-all text-sm flex items-center justify-center gap-2"
+            >
+              <CurrencyDollarIcon className="w-4 h-4" />
+              {isMintingSweet ? 'Minting...' : 'Mint SWEET'}
+            </button>
+          </div>
+        </GlassCard>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* System Health */}
         <GlassCard delay={0.25} className="p-5">
           <h3 className="text-sm font-semibold text-stone-400 mb-4 uppercase tracking-wider flex items-center gap-2">
-            <ServerIcon className="w-4 h-4" />
+            <HardDrivesIcon className="w-4 h-4" />
             {t('adminDash.systemHealth')}
           </h3>
           <div className="space-y-3">

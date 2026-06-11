@@ -1,21 +1,20 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useTonWallet } from '@tonconnect/ui-react';
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 
-// Pages
+// Pages — eagerly loaded (critical path)
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
-
 import History from './pages/History';
 import Profile from './pages/Profile';
-import Blockchain from './pages/Blockchain';
-import Swap from './pages/Swap';
 import Referrals from './pages/Referrals';
 import Stats from './pages/Stats';
 
-import AIPredictions from './pages/AIPredictions';
-import Achievements from './pages/Achievements';
-import Governance from './pages/Governance';
+// Pages — lazy loaded (heavy / secondary)
+const AIPredictions = lazy(() => import('./pages/AIPredictions'));
+const Achievements = lazy(() => import('./pages/Achievements'));
+const Governance = lazy(() => import('./pages/Governance'));
+const LiveDashboard = lazy(() => import('./pages/LiveDashboard'));
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -28,10 +27,17 @@ import AdminSettings from './pages/admin/AdminSettings';
 // New role-based pages
 import BusinessRegister from './pages/business/BusinessRegister';
 import CouponVerify from './pages/business/CouponVerify';
-import Analytics from './pages/business/Analytics';
+const Analytics = lazy(() => import('./pages/business/Analytics'));
+const Settlement = lazy(() => import('./pages/Settlement'));
 import CustomerDashboard from './pages/customer/CustomerDashboard';
 import CustomerRewards from './pages/customer/CustomerRewards';
-import Staking from './pages/customer/Staking';
+const SpinWheel = lazy(() => import('./pages/customer/SpinWheel'));
+const GiftTokens = lazy(() => import('./pages/customer/GiftTokens'));
+const Ecosystem = lazy(() => import('./pages/customer/Ecosystem'));
+const Explorer = lazy(() => import('./pages/customer/Explorer'));
+const SweetPass = lazy(() => import('./pages/customer/SweetPass'));
+const SweetPassPartner = lazy(() => import('./pages/business/SweetPassPartner'));
+const Tokenomics = lazy(() => import('./pages/customer/Tokenomics'));
 
 // Components
 import Layout from './components/Layout';
@@ -85,10 +91,18 @@ function App() {
     }
   }, [tg?.themeParams]);
 
+  const LazyFallback = (
+    <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--sweet-bg)' }}>
+      <div className="w-8 h-8 border-2 border-amber-400/30 border-t-amber-400 rounded-full animate-spin" />
+    </div>
+  );
+
   return (
+    <Suspense fallback={LazyFallback}>
     <Routes>
-      {/* Public route */}
+      {/* Public routes — no auth required */}
       <Route path="/" element={<Home />} />
+      <Route path="/live" element={<LiveDashboard />} />
       
       {/* Admin Routes with Auth Gate + Admin Layout */}
       <Route path="/admin" element={<AdminAuthGate />}>
@@ -109,13 +123,16 @@ function App() {
         <Route element={<RoleGuard allowedRole="business"><Layout variant="business" /></RoleGuard>}>
           <Route path="/business/dashboard" element={<Dashboard />} />
           <Route path="/business/verify-coupon" element={<CouponVerify />} />
+          <Route path="/business/sweetpass" element={<SweetPassPartner />} />
           <Route path="/ai" element={<AIPredictions />} />
-          <Route path="/blockchain" element={<Blockchain />} />
-          <Route path="/swap" element={<Swap />} />
           <Route path="/referrals" element={<Referrals />} />
-          <Route path="/governance" element={<Governance />} />
           <Route path="/analytics" element={<Analytics />} />
+          <Route path="/governance" element={<Governance />} />
+          <Route path="/business/settlement" element={<Settlement />} />
           <Route path="/business/profile" element={<Profile />} />
+          {/* Disabled features: redirect to dashboard */}
+          <Route path="/blockchain" element={<Navigate to="/business/dashboard" replace />} />
+          <Route path="/swap" element={<Navigate to="/business/dashboard" replace />} />
         </Route>
       </Route>
 
@@ -124,12 +141,19 @@ function App() {
         <Route element={<RoleGuard allowedRole="customer"><Layout variant="customer" /></RoleGuard>}>
           <Route path="/customer/dashboard" element={<CustomerDashboard />} />
           <Route path="/customer/rewards" element={<CustomerRewards />} />
+          <Route path="/customer/spin" element={<SpinWheel />} />
+          <Route path="/customer/gift" element={<GiftTokens />} />
+          <Route path="/customer/sweetpass" element={<SweetPass />} />
+          <Route path="/customer/ecosystem" element={<Ecosystem />} />
+          <Route path="/customer/explorer" element={<Explorer />} />
+          <Route path="/customer/tokenomics" element={<Tokenomics />} />
           <Route path="/achievements" element={<Achievements />} />
           <Route path="/history" element={<History />} />
           <Route path="/stats" element={<Stats />} />
-          <Route path="/staking" element={<Staking />} />
-          <Route path="/customer/governance" element={<Governance />} />
           <Route path="/customer/profile" element={<Profile />} />
+          <Route path="/customer/governance" element={<Governance />} />
+          {/* Disabled features: redirect to dashboard */}
+          <Route path="/staking" element={<Navigate to="/customer/dashboard" replace />} />
         </Route>
       </Route>
 
@@ -141,6 +165,7 @@ function App() {
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </Suspense>
   );
 }
 

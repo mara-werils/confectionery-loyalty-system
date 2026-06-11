@@ -2,14 +2,14 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTonWallet, useTonConnectUI } from '@tonconnect/ui-react';
 import {
-  ArrowsRightLeftIcon,
-  ChevronDownIcon,
-  Cog8ToothIcon,
+  ArrowsLeftRightIcon,
+  CaretDownIcon,
+  GearIcon,
   CurrencyDollarIcon,
-  SparklesIcon,
-  InformationCircleIcon,
-  ArrowTopRightOnSquareIcon,
-} from '@heroicons/react/24/outline';
+  StarIcon,
+  InfoIcon,
+  ArrowSquareOutIcon,
+} from '@phosphor-icons/react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import { GlassCard } from '../components/GlassCard';
@@ -111,204 +111,379 @@ export default function Swap() {
       : (Number(amountStr) * sweetPrice * TON_PRICE_USD).toFixed(4);
   };
 
+  const isSwapDisabled = !payAmount || Number(payAmount) <= 0;
+
   return (
-    <div className="min-h-screen p-4 md:p-8 pb-32 text-white flex flex-col items-center pt-10 md:pt-20">
+    <div
+      className="min-h-screen p-4 md:p-8 pb-32 flex flex-col items-center pt-10 md:pt-20"
+      style={{ color: 'var(--sweet-text)' }}
+    >
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
         className="w-full max-w-md"
       >
-        <div className="flex justify-between items-center mb-6 px-2">
+        {/* Page Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.06, duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+          className="flex justify-between items-center mb-6 px-1"
+        >
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-              <ArrowsRightLeftIcon className="w-6 h-6" />
+            <h1
+              className="text-2xl font-bold tracking-tight flex items-center gap-2"
+              style={{ color: 'var(--sweet-text)' }}
+            >
+              <ArrowsLeftRightIcon className="w-6 h-6" style={{ color: 'var(--sweet-accent)' }} />
               {t('swap.title')}
             </h1>
-            <p className="text-sm text-stone-500 mt-1">{t('swap.subtitle')}</p>
-          </div>
-          <a
-            href={DEDUST_SWAP_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="p-2 hover:bg-white/10 rounded-full transition-colors"
-            title="Open DeDust DEX"
-          >
-            <Cog8ToothIcon className="w-5 h-5 text-stone-400" />
-          </a>
-        </div>
-
-        {/* DeDust badge */}
-        <div className="flex items-center justify-between mb-4 px-1">
-          <span className="text-xs text-stone-500">Powered by</span>
-          <a
-            href={DEDUST_SWAP_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-900 border border-stone-700 text-xs font-semibold text-stone-300 hover:border-stone-500 transition-colors"
-          >
-            <span className="w-2 h-2 rounded-full bg-amber-400"></span>
-            DeDust DEX
-            <ArrowTopRightOnSquareIcon className="w-3 h-3" />
-          </a>
-        </div>
-
-        <GlassCard className="!p-1">
-          <div className="bg-black/40 rounded-3xl p-4">
-
-            {/* Pay Section */}
-            <div className="bg-[#0f0f11] border border-white/5 rounded-2xl p-4 mb-1 hover:border-white/10 transition-colors">
-              <div className="flex justify-between mb-2">
-                <span className="text-xs text-stone-500 font-medium">{t('swap.youPay')}</span>
-                <span className="text-xs text-stone-500 font-mono">
-                  {t('swap.balance')}: {balances[payToken].toLocaleString()}
-                </span>
-              </div>
-              <div className="flex items-center gap-4">
-                <input
-                  type="number"
-                  placeholder="0.0"
-                  value={payAmount}
-                  onChange={handlePayChange}
-                  className="bg-transparent text-3xl font-mono text-white focus:outline-none w-full placeholder:text-stone-700"
-                />
-                <button className="flex items-center gap-2 bg-stone-800 hover:bg-stone-700 px-3 py-1.5 rounded-full transition-colors whitespace-nowrap">
-                  {payToken === 'TON' ? (
-                    <div className="w-6 h-6 rounded-full bg-stone-600 flex items-center justify-center">
-                      <CurrencyDollarIcon className="w-4 h-4 text-white" />
-                    </div>
-                  ) : (
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-stone-700 to-stone-900 border border-white/10 flex items-center justify-center">
-                      <SparklesIcon className="w-4 h-4 text-white" />
-                    </div>
-                  )}
-                  <span className="font-bold">{payToken}</span>
-                  <ChevronDownIcon className="w-4 h-4 text-stone-400" />
-                </button>
-              </div>
-              <div className="flex justify-between items-center mt-2 h-6">
-                <span className="text-xs text-stone-500 font-mono">${getUsdValue(payAmount, payToken)}</span>
-                <button
-                  onClick={handleMax}
-                  className="text-[10px] font-bold tracking-wider uppercase text-amber-400 hover:text-amber-300 px-2 py-0.5 rounded bg-amber-500/10"
-                >
-                  {t('swap.max')}
-                </button>
-              </div>
-            </div>
-
-            {/* Flip Button */}
-            <div className="relative h-2 flex justify-center items-center z-10">
-              <button
-                onClick={handleFlip}
-                className="absolute bg-stone-900 border-4 border-[#0f0f11] p-1.5 rounded-xl hover:bg-stone-800 transition-colors"
-              >
-                <ArrowsRightLeftIcon className="w-4 h-4 text-white rotate-90" />
-              </button>
-            </div>
-
-            {/* Receive Section */}
-            <div className="bg-[#0f0f11] border border-white/5 rounded-2xl p-4 mt-1 hover:border-white/10 transition-colors">
-              <div className="flex justify-between mb-2">
-                <span className="text-xs text-stone-500 font-medium">{t('swap.youReceive')}</span>
-                <span className="text-xs text-stone-500 font-mono">
-                  {t('swap.balance')}: {balances[receiveToken].toLocaleString()}
-                </span>
-              </div>
-              <div className="flex items-center gap-4">
-                <input
-                  type="number"
-                  placeholder="0.0"
-                  value={receiveAmount}
-                  readOnly
-                  className="bg-transparent text-3xl font-mono text-stone-300 focus:outline-none w-full placeholder:text-stone-700"
-                />
-                <button className="flex items-center gap-2 bg-stone-800 hover:bg-stone-700 px-3 py-1.5 rounded-full transition-colors whitespace-nowrap">
-                  {receiveToken === 'TON' ? (
-                    <div className="w-6 h-6 rounded-full bg-stone-600 flex items-center justify-center">
-                      <CurrencyDollarIcon className="w-4 h-4 text-white" />
-                    </div>
-                  ) : (
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-stone-700 to-stone-900 border border-white/10 flex items-center justify-center">
-                      <SparklesIcon className="w-4 h-4 text-white" />
-                    </div>
-                  )}
-                  <span className="font-bold">{receiveToken}</span>
-                  <ChevronDownIcon className="w-4 h-4 text-stone-400" />
-                </button>
-              </div>
-              <div className="flex justify-between mt-2 h-6">
-                <span className="text-xs text-stone-500 font-mono">${getUsdValue(receiveAmount, receiveToken)}</span>
-              </div>
-            </div>
-
-            {/* Price Info */}
-            <AnimatePresence>
-              {payAmount && Number(payAmount) > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="overflow-hidden mt-4 px-2"
-                >
-                  <div className="flex justify-between items-center text-xs text-stone-500 py-1">
-                    <span className="flex items-center gap-1">
-                      {t('swap.rate')} <InformationCircleIcon className="w-3 h-3" />
-                    </span>
-                    <span className="font-mono">1 SWEET = {sweetPrice} TON</span>
-                  </div>
-                  <div className="flex justify-between items-center text-xs text-stone-500 py-1">
-                    <span>{t('swap.networkFee')}</span>
-                    <span className="font-mono">~0.01 TON</span>
-                  </div>
-                  <div className="flex justify-between items-center text-xs text-stone-500 py-1">
-                    <span>{t('swap.priceImpact')}</span>
-                    <span className="text-green-400">&lt; 0.1%</span>
-                  </div>
-                  <div className="flex justify-between items-center text-xs text-stone-500 py-1 border-t border-stone-800/60 pt-2 mt-1">
-                    <span>DEX</span>
-                    <a
-                      href={DEDUST_SWAP_URL}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex items-center gap-1 text-amber-400 hover:text-amber-300"
-                    >
-                      DeDust Protocol <ArrowTopRightOnSquareIcon className="w-3 h-3" />
-                    </a>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Action Button */}
-            <button
-              onClick={handleSwap}
-              disabled={!payAmount || Number(payAmount) <= 0}
-              className={`w-full mt-4 py-4 rounded-xl font-bold tracking-wide transition-all shadow-[0_0_20px_rgba(255,255,255,0.05)]
-                ${!wallet
-                  ? 'bg-amber-500 hover:bg-amber-400 text-black'
-                  : (!payAmount || Number(payAmount) <= 0)
-                  ? 'bg-white/10 text-white/40 cursor-not-allowed'
-                  : 'bg-amber-500 text-black hover:bg-amber-400 hover:shadow-[0_0_30px_rgba(245,158,11,0.15)]'
-                }`}
+            <p
+              className="text-sm mt-1"
+              style={{ color: 'var(--sweet-text-muted)' }}
             >
-              {!wallet
-                ? t('swap.connectWallet')
-                : (!payAmount || Number(payAmount) <= 0)
-                ? t('swap.swapbtn')
-                : (
-                  <span className="flex items-center justify-center gap-2">
-                    {t('swap.swapbtn')} via DeDust
-                    <ArrowTopRightOnSquareIcon className="w-4 h-4" />
-                  </span>
-                )
-              }
-            </button>
-
-            <p className="text-center text-[10px] text-stone-600 mt-3">
-              Swap executes on DeDust DEX — a non-custodial TON protocol
+              {t('swap.subtitle')}
             </p>
           </div>
-        </GlassCard>
+          <a
+            href={DEDUST_SWAP_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="p-2 rounded-full transition-colors"
+            style={{ color: 'var(--sweet-text-secondary)' }}
+            title="Open DeDust DEX"
+          >
+            <GearIcon className="w-5 h-5" />
+          </a>
+        </motion.div>
+
+        {/* DeDust badge */}
+        <motion.div
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.12, duration: 0.36, ease: [0.22, 1, 0.36, 1] }}
+          className="flex items-center justify-between mb-4 px-1"
+        >
+          <span
+            className="text-xs"
+            style={{ color: 'var(--sweet-text-muted)' }}
+          >
+            Powered by
+          </span>
+          <a
+            href={DEDUST_SWAP_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-colors"
+            style={{
+              background: 'var(--sweet-card)',
+              border: '1px solid var(--sweet-border)',
+              color: 'var(--sweet-text-secondary)',
+            }}
+          >
+            <span className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0" />
+            DeDust DEX
+            <ArrowSquareOutIcon className="w-3 h-3" />
+          </a>
+        </motion.div>
+
+        {/* Main swap card — keep GlassCard import, override bg via inline style wrapper */}
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.18, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <GlassCard className="!p-1" hoverable={false}>
+            {/* Inner panel */}
+            <div
+              className="rounded-3xl p-4"
+              style={{ background: 'var(--sweet-card)' }}
+            >
+
+              {/* Pay Section */}
+              <div
+                className="rounded-2xl p-4 mb-1 transition-colors"
+                style={{
+                  background: 'var(--sweet-input)',
+                  border: '1px solid var(--sweet-border)',
+                }}
+              >
+                <div className="flex justify-between mb-2">
+                  <span
+                    className="text-xs font-medium"
+                    style={{ color: 'var(--sweet-text-muted)' }}
+                  >
+                    {t('swap.youPay')}
+                  </span>
+                  <span
+                    className="text-xs font-mono"
+                    style={{ color: 'var(--sweet-text-muted)' }}
+                  >
+                    {t('swap.balance')}: {balances[payToken].toLocaleString()}
+                  </span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <input
+                    type="number"
+                    placeholder="0.0"
+                    value={payAmount}
+                    onChange={handlePayChange}
+                    className="bg-transparent text-3xl font-mono focus:outline-none w-full"
+                    style={{
+                      color: 'var(--sweet-text)',
+                      caretColor: 'var(--sweet-accent)',
+                    }}
+                  />
+                  <button
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-full transition-colors whitespace-nowrap"
+                    style={{
+                      background: 'var(--sweet-card)',
+                      border: '1px solid var(--sweet-border)',
+                      color: 'var(--sweet-text)',
+                    }}
+                  >
+                    {payToken === 'TON' ? (
+                      <div
+                        className="w-6 h-6 rounded-full flex items-center justify-center"
+                        style={{ background: 'var(--sweet-card-hover)', border: '1px solid var(--sweet-border)' }}
+                      >
+                        <CurrencyDollarIcon className="w-4 h-4" style={{ color: 'var(--sweet-text-secondary)' }} />
+                      </div>
+                    ) : (
+                      <div
+                        className="w-6 h-6 rounded-full flex items-center justify-center"
+                        style={{
+                          background: 'var(--sweet-accent-dim)',
+                          border: '1px solid var(--sweet-border)',
+                        }}
+                      >
+                        <StarIcon className="w-4 h-4" style={{ color: 'var(--sweet-accent)' }} />
+                      </div>
+                    )}
+                    <span className="font-bold text-sm">{payToken}</span>
+                    <CaretDownIcon className="w-4 h-4" style={{ color: 'var(--sweet-text-muted)' }} />
+                  </button>
+                </div>
+                <div className="flex justify-between items-center mt-2 h-6">
+                  <span
+                    className="text-xs font-mono"
+                    style={{ color: 'var(--sweet-text-muted)' }}
+                  >
+                    ${getUsdValue(payAmount, payToken)}
+                  </span>
+                  <button
+                    onClick={handleMax}
+                    className="text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded"
+                    style={{
+                      color: 'var(--sweet-accent)',
+                      background: 'var(--sweet-accent-dim)',
+                    }}
+                  >
+                    {t('swap.max')}
+                  </button>
+                </div>
+              </div>
+
+              {/* Flip Button */}
+              <div className="relative h-2 flex justify-center items-center z-10">
+                <motion.button
+                  onClick={handleFlip}
+                  whileTap={{ rotate: 180, scale: 0.9 }}
+                  transition={{ duration: 0.25 }}
+                  className="absolute p-1.5 rounded-xl transition-colors"
+                  style={{
+                    background: 'var(--sweet-card-hover)',
+                    border: `4px solid var(--sweet-card)`,
+                    color: 'var(--sweet-text)',
+                  }}
+                >
+                  <ArrowsLeftRightIcon className="w-4 h-4 rotate-90" />
+                </motion.button>
+              </div>
+
+              {/* Receive Section */}
+              <div
+                className="rounded-2xl p-4 mt-1 transition-colors"
+                style={{
+                  background: 'var(--sweet-input)',
+                  border: '1px solid var(--sweet-border)',
+                }}
+              >
+                <div className="flex justify-between mb-2">
+                  <span
+                    className="text-xs font-medium"
+                    style={{ color: 'var(--sweet-text-muted)' }}
+                  >
+                    {t('swap.youReceive')}
+                  </span>
+                  <span
+                    className="text-xs font-mono"
+                    style={{ color: 'var(--sweet-text-muted)' }}
+                  >
+                    {t('swap.balance')}: {balances[receiveToken].toLocaleString()}
+                  </span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <input
+                    type="number"
+                    placeholder="0.0"
+                    value={receiveAmount}
+                    readOnly
+                    className="bg-transparent text-3xl font-mono focus:outline-none w-full"
+                    style={{ color: 'var(--sweet-text-secondary)' }}
+                  />
+                  <button
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-full transition-colors whitespace-nowrap"
+                    style={{
+                      background: 'var(--sweet-card)',
+                      border: '1px solid var(--sweet-border)',
+                      color: 'var(--sweet-text)',
+                    }}
+                  >
+                    {receiveToken === 'TON' ? (
+                      <div
+                        className="w-6 h-6 rounded-full flex items-center justify-center"
+                        style={{ background: 'var(--sweet-card-hover)', border: '1px solid var(--sweet-border)' }}
+                      >
+                        <CurrencyDollarIcon className="w-4 h-4" style={{ color: 'var(--sweet-text-secondary)' }} />
+                      </div>
+                    ) : (
+                      <div
+                        className="w-6 h-6 rounded-full flex items-center justify-center"
+                        style={{
+                          background: 'var(--sweet-accent-dim)',
+                          border: '1px solid var(--sweet-border)',
+                        }}
+                      >
+                        <StarIcon className="w-4 h-4" style={{ color: 'var(--sweet-accent)' }} />
+                      </div>
+                    )}
+                    <span className="font-bold text-sm">{receiveToken}</span>
+                    <CaretDownIcon className="w-4 h-4" style={{ color: 'var(--sweet-text-muted)' }} />
+                  </button>
+                </div>
+                <div className="flex justify-between mt-2 h-6">
+                  <span
+                    className="text-xs font-mono"
+                    style={{ color: 'var(--sweet-text-muted)' }}
+                  >
+                    ${getUsdValue(receiveAmount, receiveToken)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Price Info */}
+              <AnimatePresence>
+                {payAmount && Number(payAmount) > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="overflow-hidden mt-4 px-1"
+                  >
+                    <div
+                      className="rounded-xl px-3 py-2 space-y-0.5"
+                      style={{
+                        background: 'var(--sweet-input)',
+                        border: '1px solid var(--sweet-border)',
+                      }}
+                    >
+                      <div
+                        className="flex justify-between items-center text-xs py-1"
+                        style={{ color: 'var(--sweet-text-muted)' }}
+                      >
+                        <span className="flex items-center gap-1">
+                          {t('swap.rate')} <InfoIcon className="w-3 h-3" />
+                        </span>
+                        <span className="font-mono">1 SWEET = {sweetPrice} TON</span>
+                      </div>
+                      <div
+                        className="flex justify-between items-center text-xs py-1"
+                        style={{ color: 'var(--sweet-text-muted)' }}
+                      >
+                        <span>{t('swap.networkFee')}</span>
+                        <span className="font-mono">~0.01 TON</span>
+                      </div>
+                      <div
+                        className="flex justify-between items-center text-xs py-1"
+                        style={{ color: 'var(--sweet-text-muted)' }}
+                      >
+                        <span>{t('swap.priceImpact')}</span>
+                        <span className="text-green-400">&lt; 0.1%</span>
+                      </div>
+                      <div
+                        className="flex justify-between items-center text-xs py-1 mt-1 pt-2"
+                        style={{
+                          color: 'var(--sweet-text-muted)',
+                          borderTop: '1px solid var(--sweet-border)',
+                        }}
+                      >
+                        <span>DEX</span>
+                        <a
+                          href={DEDUST_SWAP_URL}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center gap-1 hover:opacity-80 transition-opacity"
+                          style={{ color: 'var(--sweet-accent)' }}
+                        >
+                          DeDust Protocol <ArrowSquareOutIcon className="w-3 h-3" />
+                        </a>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Action Button */}
+              <motion.button
+                onClick={handleSwap}
+                disabled={isSwapDisabled && !!wallet}
+                whileTap={!isSwapDisabled || !wallet ? { scale: 0.97 } : {}}
+                className="w-full mt-4 py-4 rounded-xl font-bold tracking-wide transition-all"
+                style={
+                  !wallet
+                    ? {
+                        background: '#f59e0b',
+                        color: '#000',
+                        boxShadow: '0 0 24px rgba(245,158,11,0.2)',
+                      }
+                    : isSwapDisabled
+                    ? {
+                        background: 'var(--sweet-card-hover)',
+                        color: 'var(--sweet-text-faint)',
+                        cursor: 'not-allowed',
+                        border: '1px solid var(--sweet-border)',
+                      }
+                    : {
+                        background: '#f59e0b',
+                        color: '#000',
+                        boxShadow: '0 0 28px rgba(245,158,11,0.25)',
+                      }
+                }
+              >
+                {!wallet
+                  ? t('swap.connectWallet')
+                  : isSwapDisabled
+                  ? t('swap.swapbtn')
+                  : (
+                    <span className="flex items-center justify-center gap-2">
+                      {t('swap.swapbtn')} via DeDust
+                      <ArrowSquareOutIcon className="w-4 h-4" />
+                    </span>
+                  )
+                }
+              </motion.button>
+
+              <p
+                className="text-center text-[10px] mt-3"
+                style={{ color: 'var(--sweet-text-faint)' }}
+              >
+                Swap executes on DeDust DEX — a non-custodial TON protocol
+              </p>
+            </div>
+          </GlassCard>
+        </motion.div>
       </motion.div>
     </div>
   );

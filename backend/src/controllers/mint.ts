@@ -8,6 +8,7 @@ import { logger } from '../utils/logger';
 import { successResponse } from '../utils/response';
 import { AppError } from '../middleware/errorHandler';
 import { io } from '../index';
+import { prisma } from '../utils/prisma';
 
 const mintSchema = z.object({
   targetWallet: z.string().describe('TON Wallet address of the user'),
@@ -20,10 +21,10 @@ async function retryFn<T>(fn: () => Promise<T>, retries: number = 5, delayMs: nu
     for (let i = 0; i < retries; i++) {
         try {
             return await fn();
-        } catch (err) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const e = err as any;
-            if (e?.response?.status === 429 || e?.message?.includes('429')) {
+        } catch (err: unknown) {
+            const e = err instanceof Error ? err : new Error(String(err));
+            const status = (err as { response?: { status?: number } })?.response?.status;
+            if (status === 429 || e.message?.includes('429')) {
                 logger.warn(`Rate limited (429), waiting ${delayMs / 1000}s before retry ${i + 1}/${retries}...`);
                 await sleep(delayMs);
                 delayMs *= 2; // exponential backoff
@@ -90,6 +91,44 @@ export const mintLoyaltyTokens = async (req: Request, res: Response, next: NextF
     }));
 
     logger.info(`Mint transaction broadcasted successfully. Seqno: ${seqno}`);
+
+    // Update DB balance so frontend shows correct amount immediately
+    try {
+      const parsedAddr = targetWallet.includes(':') ? Address.parseRaw(targetWallet) : Address.parse(targetWallet);
+      const rawAddr = parsedAddr.toRawString();
+      const friendlyAddr = parsedAddr.toString({ bounceable: true, testOnly: true });
+
+      const partner = await prisma.partner.findFirst({
+        where: {
+          OR: [
+            { walletAddress: targetWallet },
+            { walletAddress: rawAddr },
+            { walletAddress: friendlyAddr },
+          ],
+        },
+      });
+
+      if (partner) {
+        await prisma.loyaltyPoints.upsert({
+          where: { partnerId: partner.id },
+          update: {
+            balance: { increment: BigInt(amount) },
+            lifetimeEarned: { increment: BigInt(amount) },
+          },
+          create: {
+            partnerId: partner.id,
+            balance: BigInt(amount),
+            lifetimeEarned: BigInt(amount),
+            lifetimeRedeemed: 0n,
+          },
+        });
+        logger.info(`DB balance updated for partner ${partner.companyName}: +${amount} SWEET`);
+      } else {
+        logger.warn(`No partner found in DB for wallet ${targetWallet}, blockchain mint still succeeded`);
+      }
+    } catch (dbErr) {
+      logger.warn('Failed to update DB after mint (non-critical, blockchain mint succeeded):', dbErr);
+    }
 
     // Notify the target wallet in real-time via Socket.io
     io.to(`wallet:${targetWallet}`).emit('tokens:received', {

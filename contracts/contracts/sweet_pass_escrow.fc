@@ -1,0 +1,284 @@
+#include "imports/stdlib.fc";
+;; ============================================================================
+;; SWEET PASS ESCROW - Prepaid pre-order escrow for the loyalty system
+;; ============================================================================
+;; A singleton contract that custodies SWEET jettons for prepaid pre-orders.
+;;
+;; Flow:
+;;   1. Customer signs a TEP-74 jetton transfer of SWEET to THIS contract with a
+;;      forward payload describing the order (order_id, partner, deadline).
+;;      The contract's own jetton wallet credits the deposit and notifies this
+;;      contract via op::transfer_notification -> order becomes FUNDED.
+;;   2. On pickup, the backend admin sends op::escrow_release -> the contract
+;;      transfers the escrowed SWEET to the confectionery (partner).
+;;   3. If the deadline passes without fulfilment, ANYONE (a keeper) may send
+;;      op::escrow_refund -> the contract refunds the customer. The contract
+;;      itself enforces that refund is only possible after the deadline and only
+;;      while the order is still FUNDED, so no trusted intervention is required.
+;;
+;; Race safety (TON actors process messages sequentially):
+;;   - The status guard (must be FUNDED) makes every transition idempotent.
+;;   - Release and refund cannot interleave: whichever message lands first flips
+;;     FUNDED -> RELEASED / REFUNDED; the second sees a non-FUNDED state and is
+;;     rejected. Double-release, release-after-refund and refund-after-release
+;;     are therefore all impossible.
+;;   - refund is additionally gated by now() >= deadline.
+;; ============================================================================
+;; Standard: TEP-74 (Jetton Standard) interop
+;; Author: AITU Diploma Team
+;; ============================================================================
+
+#include "imports/jetton-utils.fc";
+#include "imports/op-codes.fc";
+#include "imports/params.fc";
+
+;; ============================================================================
+;; CONSTANTS
+;; ============================================================================
+
+;; Order lifecycle
+const int STATUS_FUNDED   = 1;
+const int STATUS_RELEASED = 2;
+const int STATUS_REFUNDED = 3;
+
+;; Error codes
+const int ERR_NOT_ADMIN          = 73;   ;; matches the rest of the system
+const int ERR_NOT_JETTON_WALLET  = 710;  ;; deposit notification not from our SWEET wallet
+const int ERR_BAD_PAYLOAD        = 711;  ;; deposit missing the order payload
+const int ERR_ORDER_NOT_FOUND    = 720;
+const int ERR_BAD_STATUS         = 721;  ;; order not in FUNDED state
+const int ERR_DEADLINE_NOT_PASSED = 722; ;; refund attempted before deadline
+
+;; ============================================================================
+;; STORAGE LAYOUT
+;; ============================================================================
+;; admin_address:MsgAddress jetton_master_address:MsgAddress
+;; jetton_wallet_code:^Cell order_count:uint32 orders:Dict<uint64, order_data>
+
+global slice storage::admin_address;
+global slice storage::jetton_master_address;
+global cell  storage::jetton_wallet_code;
+global int   storage::order_count;
+global cell  storage::orders;
+
+() load_data() impure inline {
+    slice ds = get_data().begin_parse();
+    storage::admin_address         = ds~load_msg_addr();
+    storage::jetton_master_address = ds~load_msg_addr();
+    storage::jetton_wallet_code    = ds~load_ref();
+    storage::order_count           = ds~load_uint(32);
+    storage::orders                = ds~load_dict();
+}
+
+() save_data() impure inline {
+    set_data(begin_cell()
+        .store_slice(storage::admin_address)
+        .store_slice(storage::jetton_master_address)
+        .store_ref(storage::jetton_wallet_code)
+        .store_uint(storage::order_count, 32)
+        .store_dict(storage::orders)
+    .end_cell());
+}
+
+;; ============================================================================
+;; HELPER FUNCTIONS
+;; ============================================================================
+
+;; Pack one order record (two addresses + amount + deadline + status fit in one cell)
+cell pack_order(slice customer, slice partner, int amount, int deadline, int status) inline {
+    return begin_cell()
+        .store_slice(customer)
+        .store_slice(partner)
+        .store_coins(amount)
+        .store_uint(deadline, 64)
+        .store_uint(status, 8)
+    .end_cell();
+}
+
+(slice, slice, int, int, int) unpack_order(cell data) inline {
+    slice ds = data.begin_parse();
+    slice customer = ds~load_msg_addr();
+    slice partner  = ds~load_msg_addr();
+    int amount     = ds~load_coins();
+    int deadline   = ds~load_uint(64);
+    int status     = ds~load_uint(8);
+    return (customer, partner, amount, deadline, status);
+}
+
+;; The escrow's own SWEET jetton wallet (where the escrowed balance actually lives).
+slice escrow_jetton_wallet() inline {
+    return calculate_user_jetton_wallet_address(
+        my_address(),
+        storage::jetton_master_address,
+        storage::jetton_wallet_code
+    );
+}
+
+;; Transfer escrowed SWEET out to `to_address`. Carries all remaining inbound TON
+;; (mode 64) so the caller funds the jetton transfer fees.
+() send_escrowed_jetton(slice to_address, int jetton_amount, int query_id) impure inline {
+    cell transfer_body = begin_cell()
+        .store_uint(op::transfer(), 32)
+        .store_uint(query_id, 64)
+        .store_coins(jetton_amount)
+        .store_slice(to_address)   ;; destination owner
+        .store_slice(to_address)   ;; response_destination (dust returns to recipient)
+        .store_uint(0, 1)          ;; no custom_payload
+        .store_coins(0)            ;; forward_ton_amount
+        .store_uint(0, 1)          ;; empty forward_payload
+    .end_cell();
+
+    var msg = begin_cell()
+        .store_uint(0x18, 6)       ;; bounceable internal message
+        .store_slice(escrow_jetton_wallet())
+        .store_coins(0)            ;; value provided by send mode 64
+        .store_uint(1, 1 + 4 + 4 + 64 + 32 + 1 + 1) ;; body stored as ref
+        .store_ref(transfer_body)
+    .end_cell();
+
+    send_raw_message(msg, 64); ;; carry all remaining value of the inbound message
+}
+
+;; ============================================================================
+;; INTERNAL MESSAGE HANDLER
+;; ============================================================================
+
+() recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
+    if (in_msg_body.slice_empty?()) {
+        return (); ;; accept plain TON top-ups (gas reserve)
+    }
+
+    slice cs = in_msg_full.begin_parse();
+    int flags = cs~load_uint(4);
+    if (flags & 1) {
+        return (); ;; ignore bounced messages
+    }
+
+    slice sender_address = cs~load_msg_addr();
+
+    load_data();
+
+    int op = in_msg_body~load_uint(32);
+    int query_id = in_msg_body~load_uint(64);
+
+    ;; ========================================================================
+    ;; OP: TRANSFER NOTIFICATION - SWEET deposit arrived -> create FUNDED order
+    ;; ========================================================================
+    if (op == op::transfer_notification()) {
+        ;; Only our own SWEET jetton wallet may notify us (rejects spoofed tokens)
+        throw_unless(ERR_NOT_JETTON_WALLET, equal_slices(sender_address, escrow_jetton_wallet()));
+
+        int jetton_amount  = in_msg_body~load_coins();
+        slice from_address = in_msg_body~load_msg_addr(); ;; the depositing customer
+
+        ;; forward_payload is a maybe-ref carrying the order details
+        int has_ref = in_msg_body~load_uint(1);
+        throw_unless(ERR_BAD_PAYLOAD, has_ref);
+        slice ps = in_msg_body~load_ref().begin_parse();
+        int order_id   = ps~load_uint(64);
+        slice partner  = ps~load_msg_addr();
+        int deadline   = ps~load_uint(64);
+
+        ;; Create the order only if it does not already exist (idempotent deposit)
+        (_, int found) = storage::orders.udict_get_ref?(64, order_id);
+        if (found) {
+            return (); ;; duplicate deposit for an existing order — accept silently
+        }
+
+        cell order_data = pack_order(from_address, partner, jetton_amount, deadline, STATUS_FUNDED);
+        storage::orders~udict_set_ref(64, order_id, order_data);
+        storage::order_count += 1;
+
+        save_data();
+        return ();
+    }
+
+    ;; ========================================================================
+    ;; OP: ESCROW RELEASE - admin confirms fulfilment -> pay the partner
+    ;; ========================================================================
+    if (op == op::escrow_release()) {
+        throw_unless(ERR_NOT_ADMIN, equal_slices(sender_address, storage::admin_address));
+
+        int order_id = in_msg_body~load_uint(64);
+        (cell order_cell, int found) = storage::orders.udict_get_ref?(64, order_id);
+        throw_unless(ERR_ORDER_NOT_FOUND, found);
+
+        (slice customer, slice partner, int amount, int deadline, int status) = unpack_order(order_cell);
+        throw_unless(ERR_BAD_STATUS, status == STATUS_FUNDED);
+
+        cell updated = pack_order(customer, partner, amount, deadline, STATUS_RELEASED);
+        storage::orders~udict_set_ref(64, order_id, updated);
+        save_data();
+
+        send_escrowed_jetton(partner, amount, query_id);
+        return ();
+    }
+
+    ;; ========================================================================
+    ;; OP: ESCROW REFUND - permissionless after deadline -> refund the customer
+    ;; ========================================================================
+    if (op == op::escrow_refund()) {
+        int order_id = in_msg_body~load_uint(64);
+        (cell order_cell, int found) = storage::orders.udict_get_ref?(64, order_id);
+        throw_unless(ERR_ORDER_NOT_FOUND, found);
+
+        (slice customer, slice partner, int amount, int deadline, int status) = unpack_order(order_cell);
+        throw_unless(ERR_BAD_STATUS, status == STATUS_FUNDED);
+        throw_unless(ERR_DEADLINE_NOT_PASSED, now() >= deadline);
+
+        cell updated = pack_order(customer, partner, amount, deadline, STATUS_REFUNDED);
+        storage::orders~udict_set_ref(64, order_id, updated);
+        save_data();
+
+        send_escrowed_jetton(customer, amount, query_id);
+        return ();
+    }
+
+    ;; ========================================================================
+    ;; OP: CHANGE ADMIN
+    ;; ========================================================================
+    if (op == op::change_admin()) {
+        throw_unless(ERR_NOT_ADMIN, equal_slices(sender_address, storage::admin_address));
+        storage::admin_address = in_msg_body~load_msg_addr();
+        save_data();
+        return ();
+    }
+
+    throw(0xffff); ;; unknown operation
+}
+
+;; ============================================================================
+;; GET METHODS
+;; ============================================================================
+
+slice get_admin() method_id {
+    load_data();
+    return storage::admin_address;
+}
+
+int get_order_count() method_id {
+    load_data();
+    return storage::order_count;
+}
+
+;; Returns (customer, partner, amount, deadline, status). status == 0 => not found.
+(slice, slice, int, int, int) get_order(int order_id) method_id {
+    load_data();
+    (cell order_cell, int found) = storage::orders.udict_get_ref?(64, order_id);
+    if (~ found) {
+        return (null(), null(), 0, 0, 0);
+    }
+    return unpack_order(order_cell);
+}
+
+;; The contract's own SWEET jetton wallet — useful for off-chain indexing.
+slice get_escrow_jetton_wallet() method_id {
+    load_data();
+    return escrow_jetton_wallet();
+}
+
+;; The configured SWEET jetton master.
+slice get_jetton_master() method_id {
+    load_data();
+    return storage::jetton_master_address;
+}

@@ -17,10 +17,10 @@ import {
   Legend,
 } from 'recharts';
 import {
-  ArrowTrendingUpIcon,
-  ArrowTrendingDownIcon,
-  ArrowDownTrayIcon,
-} from '@heroicons/react/24/outline';
+  TrendUpIcon,
+  TrendDownIcon,
+  DownloadSimpleIcon,
+} from '@phosphor-icons/react';
 import clsx from 'clsx';
 import toast from 'react-hot-toast';
 
@@ -79,18 +79,12 @@ function generateHeatmapData(dayLabels: string[]) {
   for (let d = 0; d < 7; d++) {
     for (let h = 0; h < 24; h++) {
       let base = 0;
-      // Morning rush 8-10
       if (h >= 8 && h <= 10) base = 25 + Math.random() * 20;
-      // Lunch 12-14
       else if (h >= 12 && h <= 14) base = 30 + Math.random() * 25;
-      // After work 17-19
       else if (h >= 17 && h <= 19) base = 20 + Math.random() * 18;
-      // Evening 20-22
       else if (h >= 20 && h <= 22) base = 10 + Math.random() * 12;
-      // Night
       else if (h >= 0 && h <= 6) base = Math.random() * 3;
       else base = 5 + Math.random() * 10;
-      // Weekends slightly different
       if (d >= 5) {
         if (h >= 10 && h <= 16) base = 30 + Math.random() * 20;
         else if (h >= 0 && h <= 8) base = Math.random() * 2;
@@ -122,17 +116,18 @@ function KpiCard({ title, value, trend, suffix, idx }: { title: string; value: s
       variants={fadeUp}
       initial="hidden"
       animate="visible"
-      className="bg-stone-900 border border-stone-800 rounded-2xl p-4 flex flex-col gap-1"
+      className="rounded-2xl p-4 flex flex-col gap-1"
+      style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)' }}
     >
-      <span className="text-stone-400 text-xs font-medium">{title}</span>
-      <span className="text-white text-xl font-bold tracking-tight">
+      <span className="text-xs font-medium" style={{ color: 'var(--sweet-text-muted)' }}>{title}</span>
+      <span className="text-xl font-bold tracking-tight" style={{ color: 'var(--sweet-text)' }}>
         {value}
-        {suffix && <span className="text-sm font-normal text-stone-400 ml-1">{suffix}</span>}
+        {suffix && <span className="text-sm font-normal ml-1" style={{ color: 'var(--sweet-text-muted)' }}>{suffix}</span>}
       </span>
-      <div className={clsx('flex items-center gap-1 text-xs font-medium', positive ? 'text-green-400' : 'text-red-400')}>
-        {positive ? <ArrowTrendingUpIcon className="w-3.5 h-3.5" /> : <ArrowTrendingDownIcon className="w-3.5 h-3.5" />}
+      <div className={clsx('flex items-center gap-1 text-xs font-medium', positive ? 'text-green-500' : 'text-red-500')}>
+        {positive ? <TrendUpIcon className="w-3.5 h-3.5" /> : <TrendDownIcon className="w-3.5 h-3.5" />}
         <span>{positive ? '+' : ''}{trend}%</span>
-        <span className="text-stone-500 ml-1">{t('analyticsPage.vsPrevPeriod')}</span>
+        <span className="ml-1" style={{ color: 'var(--sweet-text-muted)' }}>{t('analyticsPage.vsPrevPeriod')}</span>
       </div>
     </motion.div>
   );
@@ -144,17 +139,16 @@ function formatCurrency(n: number) {
   return n.toString();
 }
 
-// Custom tooltip for the area chart
 function RevenueTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number; dataKey: string }>; label?: string }) {
   const { t } = useTranslation();
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-stone-900 border border-stone-700 rounded-xl px-3 py-2 shadow-xl text-xs">
-      <p className="text-stone-400 mb-1">{label}</p>
+    <div className="rounded-xl px-3 py-2 shadow-xl text-xs" style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)' }}>
+      <p className="mb-1" style={{ color: 'var(--sweet-text-muted)' }}>{label}</p>
       {payload.map((p) => (
-        <p key={p.dataKey} className="text-white font-medium">
+        <p key={p.dataKey} className="font-medium" style={{ color: 'var(--sweet-text)' }}>
           {p.dataKey === 'revenue' ? t('analyticsPage.revenue') : t('analyticsPage.vsPrevPeriod')}:{' '}
-          <span className={p.dataKey === 'revenue' ? 'text-amber-400' : 'text-stone-400'}>
+          <span className={p.dataKey === 'revenue' ? 'text-amber-500' : ''} style={p.dataKey !== 'revenue' ? { color: 'var(--sweet-text-muted)' } : {}}>
             {p.value.toLocaleString('ru-RU')} T
           </span>
         </p>
@@ -163,7 +157,6 @@ function RevenueTooltip({ active, payload, label }: { active?: boolean; payload?
   );
 }
 
-// Pie chart custom label
 function PieLabel({ cx, cy, midAngle, innerRadius, outerRadius, percent }: { cx: number; cy: number; midAngle: number; innerRadius: number; outerRadius: number; percent: number }) {
   const RADIAN = Math.PI / 180;
   const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
@@ -203,13 +196,15 @@ export default function Analytics() {
     all: t('analyticsPage.periods.all'),
   };
 
-  // Generate segmentation data with i18n
   const segmentationData = [
     { name: t('analyticsPage.new'), value: 186, color: '#a8a29e' },
     { name: t('analyticsPage.active'), value: 412, color: '#f59e0b' },
     { name: t('analyticsPage.sleeping'), value: 298, color: '#57534e' },
     { name: t('analyticsPage.vip'), value: 128, color: '#fbbf24' },
   ];
+
+  const cardStyle = { background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)' };
+  const axisColor = 'var(--sweet-text-muted)';
 
   return (
     <div className="space-y-5 pb-8">
@@ -220,16 +215,17 @@ export default function Analytics() {
         transition={{ duration: 0.4 }}
         className="flex items-center justify-between"
       >
-        <h1 className="text-2xl font-bold text-white">{t('analyticsPage.title')}</h1>
-        <div className="flex gap-1 bg-stone-900 border border-stone-800 rounded-xl p-0.5">
+        <h1 className="text-2xl font-bold" style={{ color: 'var(--sweet-text)' }}>{t('analyticsPage.title')}</h1>
+        <div className="flex gap-1 rounded-xl p-0.5" style={cardStyle}>
           {(Object.keys(periodLabels) as Period[]).map((p) => (
             <button
               key={p}
               onClick={() => setPeriod(p)}
               className={clsx(
                 'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all',
-                period === p ? 'bg-amber-500/20 text-amber-400 ring-1 ring-amber-500/30' : 'text-stone-500 hover:text-stone-300'
+                period === p ? 'bg-amber-500/20 text-amber-500 ring-1 ring-amber-500/30' : 'hover:opacity-80'
               )}
+              style={period !== p ? { color: 'var(--sweet-text-muted)' } : {}}
             >
               {periodLabels[p]}
             </button>
@@ -246,14 +242,8 @@ export default function Analytics() {
       </div>
 
       {/* Revenue Chart */}
-      <motion.div
-        custom={4}
-        variants={fadeUp}
-        initial="hidden"
-        animate="visible"
-        className="bg-stone-900 border border-stone-800 rounded-2xl p-4"
-      >
-        <h2 className="text-white text-sm font-semibold mb-3">{t('analyticsPage.revenueDynamics')}</h2>
+      <motion.div custom={4} variants={fadeUp} initial="hidden" animate="visible" className="rounded-2xl p-4" style={cardStyle}>
+        <h2 className="text-sm font-semibold mb-3" style={{ color: 'var(--sweet-text)' }}>{t('analyticsPage.revenueDynamics')}</h2>
         <ResponsiveContainer width="100%" height={220}>
           <AreaChart data={revenueChartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
             <defs>
@@ -266,9 +256,9 @@ export default function Analytics() {
                 <stop offset="100%" stopColor="#57534e" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#292524" vertical={false} />
-            <XAxis dataKey="date" tick={{ fill: '#78716c', fontSize: 10 }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
-            <YAxis tick={{ fill: '#78716c', fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}k`} />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--sweet-border)" vertical={false} />
+            <XAxis dataKey="date" tick={{ fill: axisColor, fontSize: 10 }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
+            <YAxis tick={{ fill: axisColor, fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}k`} />
             <Tooltip content={<RevenueTooltip />} />
             <Area type="monotone" dataKey="prevRevenue" stroke="#57534e" strokeWidth={1.5} fill="url(#gradPrev)" dot={false} />
             <Area type="monotone" dataKey="revenue" stroke="#f59e0b" strokeWidth={2} fill="url(#gradRevenue)" dot={false} />
@@ -277,30 +267,24 @@ export default function Analytics() {
       </motion.div>
 
       {/* Cohort Retention Heatmap */}
-      <motion.div
-        custom={5}
-        variants={fadeUp}
-        initial="hidden"
-        animate="visible"
-        className="bg-stone-900 border border-stone-800 rounded-2xl p-4"
-      >
-        <h2 className="text-white text-sm font-semibold mb-3">{t('analyticsPage.cohortRetention')}</h2>
+      <motion.div custom={5} variants={fadeUp} initial="hidden" animate="visible" className="rounded-2xl p-4" style={cardStyle}>
+        <h2 className="text-sm font-semibold mb-3" style={{ color: 'var(--sweet-text)' }}>{t('analyticsPage.cohortRetention')}</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
               <tr>
-                <th className="text-left text-stone-500 font-medium pb-2 pr-3 whitespace-nowrap">{t('analyticsPage.cohort')}</th>
+                <th className="text-left font-medium pb-2 pr-3 whitespace-nowrap" style={{ color: 'var(--sweet-text-muted)' }}>{t('analyticsPage.cohort')}</th>
                 {['M0', 'M1', 'M2', 'M3', 'M4', 'M5'].map((m) => (
-                  <th key={m} className="text-center text-stone-500 font-medium pb-2 px-1 min-w-[36px]">{m}</th>
+                  <th key={m} className="text-center font-medium pb-2 px-1 min-w-[36px]" style={{ color: 'var(--sweet-text-muted)' }}>{m}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {cohortData.map((row) => (
                 <tr key={row.month}>
-                  <td className="text-stone-400 font-medium pr-3 py-1 whitespace-nowrap">{row.month}</td>
+                  <td className="font-medium pr-3 py-1 whitespace-nowrap" style={{ color: 'var(--sweet-text-secondary)' }}>{row.month}</td>
                   {row.values.map((val, ci) => {
-                    if (val === null) return <td key={ci} className="px-1 py-1"><div className="w-full h-7 rounded bg-stone-800/40" /></td>;
+                    if (val === null) return <td key={ci} className="px-1 py-1"><div className="w-full h-7 rounded" style={{ background: 'var(--sweet-border)' }} /></td>;
                     const intensity = val / 100;
                     return (
                       <td key={ci} className="px-1 py-1">
@@ -308,7 +292,7 @@ export default function Analytics() {
                           className="w-full h-7 rounded flex items-center justify-center text-[10px] font-semibold"
                           style={{
                             backgroundColor: `rgba(245, 158, 11, ${0.1 + intensity * 0.7})`,
-                            color: intensity > 0.4 ? '#fff' : '#a8a29e',
+                            color: intensity > 0.4 ? '#fff' : 'var(--sweet-text-secondary)',
                           }}
                         >
                           {val}%
@@ -323,24 +307,17 @@ export default function Analytics() {
         </div>
       </motion.div>
 
-      {/* Top Rewards & Segmentation side by side on larger, stacked on mobile */}
+      {/* Top Rewards & Segmentation */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {/* Top Rewards */}
-        <motion.div
-          custom={6}
-          variants={fadeUp}
-          initial="hidden"
-          animate="visible"
-          className="bg-stone-900 border border-stone-800 rounded-2xl p-4"
-        >
-          <h2 className="text-white text-sm font-semibold mb-3">{t('analyticsPage.topRewardsByUsage')}</h2>
+        <motion.div custom={6} variants={fadeUp} initial="hidden" animate="visible" className="rounded-2xl p-4" style={cardStyle}>
+          <h2 className="text-sm font-semibold mb-3" style={{ color: 'var(--sweet-text)' }}>{t('analyticsPage.topRewardsByUsage')}</h2>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={topRewards} layout="vertical" margin={{ top: 0, right: 10, left: 0, bottom: 0 }}>
-              <XAxis type="number" tick={{ fill: '#78716c', fontSize: 10 }} tickLine={false} axisLine={false} />
-              <YAxis type="category" dataKey="name" tick={{ fill: '#a8a29e', fontSize: 10 }} tickLine={false} axisLine={false} width={110} />
+              <XAxis type="number" tick={{ fill: axisColor, fontSize: 10 }} tickLine={false} axisLine={false} />
+              <YAxis type="category" dataKey="name" tick={{ fill: axisColor, fontSize: 10 }} tickLine={false} axisLine={false} width={110} />
               <Tooltip
-                contentStyle={{ backgroundColor: '#1c1917', border: '1px solid #44403c', borderRadius: '8px', fontSize: '12px' }}
-                labelStyle={{ color: '#a8a29e' }}
+                contentStyle={{ backgroundColor: 'var(--sweet-card)', border: '1px solid var(--sweet-border)', borderRadius: '8px', fontSize: '12px' }}
+                labelStyle={{ color: 'var(--sweet-text-muted)' }}
                 itemStyle={{ color: '#fbbf24' }}
                 formatter={(v: number) => [`${v} ${t('analyticsPage.used')}`, t('analyticsPage.used')]}
               />
@@ -353,15 +330,8 @@ export default function Analytics() {
           </ResponsiveContainer>
         </motion.div>
 
-        {/* Customer Segmentation */}
-        <motion.div
-          custom={7}
-          variants={fadeUp}
-          initial="hidden"
-          animate="visible"
-          className="bg-stone-900 border border-stone-800 rounded-2xl p-4"
-        >
-          <h2 className="text-white text-sm font-semibold mb-3">{t('analyticsPage.customerSegmentation')}</h2>
+        <motion.div custom={7} variants={fadeUp} initial="hidden" animate="visible" className="rounded-2xl p-4" style={cardStyle}>
+          <h2 className="text-sm font-semibold mb-3" style={{ color: 'var(--sweet-text)' }}>{t('analyticsPage.customerSegmentation')}</h2>
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
               <Pie
@@ -374,7 +344,7 @@ export default function Analytics() {
                 labelLine={false}
                 label={PieLabel}
                 strokeWidth={2}
-                stroke="#1c1917"
+                stroke="var(--sweet-card)"
               >
                 {segmentationData.map((s, i) => (
                   <Cell key={i} fill={s.color} />
@@ -386,11 +356,11 @@ export default function Analytics() {
                 iconSize={8}
                 formatter={(value: string) => {
                   const seg = segmentationData.find((s) => s.name === value);
-                  return <span className="text-stone-400 text-[10px] ml-1">{value} ({seg?.value})</span>;
+                  return <span style={{ color: 'var(--sweet-text-muted)', fontSize: '10px', marginLeft: '4px' }}>{value} ({seg?.value})</span>;
                 }}
               />
               <Tooltip
-                contentStyle={{ backgroundColor: '#1c1917', border: '1px solid #44403c', borderRadius: '8px', fontSize: '12px' }}
+                contentStyle={{ backgroundColor: 'var(--sweet-card)', border: '1px solid var(--sweet-border)', borderRadius: '8px', fontSize: '12px' }}
                 formatter={(v: number, name: string) => [`${v} ${t('analyticsPage.people')}`, name]}
               />
             </PieChart>
@@ -399,27 +369,19 @@ export default function Analytics() {
       </div>
 
       {/* Transaction Heatmap */}
-      <motion.div
-        custom={8}
-        variants={fadeUp}
-        initial="hidden"
-        animate="visible"
-        className="bg-stone-900 border border-stone-800 rounded-2xl p-4"
-      >
-        <h2 className="text-white text-sm font-semibold mb-3">{t('analyticsPage.activityByTime')}</h2>
+      <motion.div custom={8} variants={fadeUp} initial="hidden" animate="visible" className="rounded-2xl p-4" style={cardStyle}>
+        <h2 className="text-sm font-semibold mb-3" style={{ color: 'var(--sweet-text)' }}>{t('analyticsPage.activityByTime')}</h2>
         <div className="overflow-x-auto">
           <div className="min-w-[600px]">
-            {/* Hours header */}
             <div className="flex items-center mb-1">
               <div className="w-8 shrink-0" />
               {Array.from({ length: 24 }, (_, h) => (
-                <div key={h} className="flex-1 text-center text-[8px] text-stone-600">{h.toString().padStart(2, '0')}</div>
+                <div key={h} className="flex-1 text-center text-[8px]" style={{ color: 'var(--sweet-text-faint)' }}>{h.toString().padStart(2, '0')}</div>
               ))}
             </div>
-            {/* Rows */}
             {dayLabels.map((day) => (
               <div key={day} className="flex items-center mb-0.5">
-                <div className="w-8 shrink-0 text-[10px] text-stone-500 font-medium">{day}</div>
+                <div className="w-8 shrink-0 text-[10px] font-medium" style={{ color: 'var(--sweet-text-muted)' }}>{day}</div>
                 {Array.from({ length: 24 }, (_, h) => {
                   const cell = heatmap.find((c) => c.day === day && c.hour === h);
                   const val = cell?.count ?? 0;
@@ -430,7 +392,7 @@ export default function Analytics() {
                       className="flex-1 aspect-square rounded-[3px] mx-[1px] cursor-default"
                       style={{
                         backgroundColor: intensity < 0.05
-                          ? '#292524'
+                          ? 'var(--sweet-border)'
                           : `rgba(245, 158, 11, ${0.15 + intensity * 0.75})`,
                       }}
                       title={`${day} ${h}:00 — ${val} ${t('analyticsPage.transactions')}`}
@@ -439,9 +401,8 @@ export default function Analytics() {
                 })}
               </div>
             ))}
-            {/* Legend */}
             <div className="flex items-center justify-end gap-1 mt-2">
-              <span className="text-[9px] text-stone-600">{t('analyticsPage.few')}</span>
+              <span className="text-[9px]" style={{ color: 'var(--sweet-text-faint)' }}>{t('analyticsPage.few')}</span>
               {[0.1, 0.3, 0.5, 0.7, 0.9].map((v) => (
                 <div
                   key={v}
@@ -449,24 +410,23 @@ export default function Analytics() {
                   style={{ backgroundColor: `rgba(245, 158, 11, ${0.15 + v * 0.75})` }}
                 />
               ))}
-              <span className="text-[9px] text-stone-600">{t('analyticsPage.many')}</span>
+              <span className="text-[9px]" style={{ color: 'var(--sweet-text-faint)' }}>{t('analyticsPage.many')}</span>
             </div>
           </div>
         </div>
       </motion.div>
 
       {/* Export Button */}
-      <motion.button
-        custom={9}
-        variants={fadeUp}
-        initial="hidden"
-        animate="visible"
-        onClick={() => toast(t('analyticsPage.generatingReport'), { icon: '📄', style: { background: '#1c1917', color: '#fff', border: '1px solid #44403c' } })}
-        className="w-full flex items-center justify-center gap-2 bg-stone-900 border border-stone-800 rounded-2xl py-3.5 text-sm font-semibold text-stone-300 hover:text-white hover:border-stone-700 transition-all active:scale-[0.98]"
-      >
-        <ArrowDownTrayIcon className="w-4.5 h-4.5" />
-        {t('analyticsPage.exportPdf')}
-      </motion.button>
+      <motion.div custom={9} variants={fadeUp} initial="hidden" animate="visible" className="flex justify-end">
+        <button
+          onClick={() => toast(t('analyticsPage.generatingReport'), { icon: '📄' })}
+          className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-medium transition-all active:scale-[0.97]"
+          style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)', color: 'var(--sweet-text-muted)' }}
+        >
+          <DownloadSimpleIcon className="w-3.5 h-3.5" />
+          {t('analyticsPage.exportPdf')}
+        </button>
+      </motion.div>
     </div>
   );
 }

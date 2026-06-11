@@ -62,6 +62,34 @@ enum CouponStatus {
   EXPIRED
 }
 
+enum ProposalStatus {
+  PENDING
+  ACTIVE
+  PASSED
+  REJECTED
+}
+
+enum VoteChoice {
+  FOR
+  AGAINST
+  ABSTAIN
+}
+
+enum ProposalCategory {
+  SYSTEM_PARAMS
+  NEW_FEATURES
+  PARTNERSHIPS
+  OTHER
+}
+
+/// Sweet Pass prepaid pre-order lifecycle (mirrors the on-chain escrow state machine)
+enum PreOrderStatus {
+  PENDING_DEPOSIT // created off-chain, awaiting the customer's on-chain SWEET deposit
+  FUNDED          // deposit confirmed on-chain, escrow holds the SWEET
+  RELEASED        // partner fulfilled the order, escrow paid the confectionery
+  REFUNDED        // deadline passed without fulfilment, escrow refunded the customer
+}
+
 // ============================================================================
 // MODELS
 // ============================================================================
@@ -93,6 +121,12 @@ model Partner {
   referredBy    Partner?      @relation("Referrals", fields: [referredById], references: [id])
   referrals     Partner[]     @relation("Referrals")
   achievements  PartnerAchievement[]
+  spinHistory   SpinHistory[]
+  dailyCheckins DailyCheckin[]
+  proposals     Proposal[]         @relation("ProposerProposals")
+  votes         Vote[]             @relation("PartnerVotes")
+  churnInterventions ChurnIntervention[]
+  preOrders     PreOrder[]
 
   @@map("partners")
 }
@@ -335,3 +369,150 @@ model PartnerAchievement {
   @@map("partner_achievements")
 }
 
+/// Spin Wheel history
+model SpinHistory {
+  id        String   @id @default(cuid())
+  partnerId String   @map("partner_id")
+  prize     Int
+  createdAt DateTime @default(now()) @map("created_at")
+
+  partner   Partner  @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  @@index([partnerId, createdAt])
+  @@map("spin_history")
+}
+
+/// Daily check-in streak tracking
+model DailyCheckin {
+  id        String   @id @default(cuid())
+  partnerId String   @map("partner_id")
+  streak    Int      @default(1)
+  bonus     Int
+  createdAt DateTime @default(now()) @map("created_at")
+
+  partner   Partner  @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  @@index([partnerId, createdAt])
+  @@map("daily_checkins")
+}
+
+/// Token gift transfers between users
+model TokenGift {
+  id             String   @id @default(cuid())
+  senderWallet   String   @map("sender_wallet")
+  receiverWallet String   @map("receiver_wallet")
+  amount         Int
+  message        String?
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@index([senderWallet])
+  @@index([receiverWallet])
+  @@map("token_gifts")
+}
+
+/// DAO Governance Proposal
+model Proposal {
+  id           String           @id @default(cuid())
+  title        String
+  description  String
+  category     ProposalCategory @default(OTHER)
+  status       ProposalStatus   @default(PENDING)
+  proposerId   String           @map("proposer_id")
+
+  votesFor     BigInt           @default(0) @map("votes_for")
+  votesAgainst BigInt           @default(0) @map("votes_against")
+  votesAbstain BigInt           @default(0) @map("votes_abstain")
+  totalVoters  Int              @default(0) @map("total_voters")
+  quorum       Int              @default(60)
+
+  votingEndsAt DateTime         @map("voting_ends_at")
+  createdAt    DateTime         @default(now()) @map("created_at")
+  updatedAt    DateTime         @updatedAt @map("updated_at")
+
+  proposer     Partner          @relation("ProposerProposals", fields: [proposerId], references: [id], onDelete: Cascade)
+  votes        Vote[]
+
+  @@index([status])
+  @@index([createdAt])
+  @@map("proposals")
+}
+
+/// DAO Vote cast by a partner
+model Vote {
+  id          String     @id @default(cuid())
+  proposalId  String     @map("proposal_id")
+  partnerId   String     @map("partner_id")
+  choice      VoteChoice
+  votingPower BigInt     @map("voting_power")
+  createdAt   DateTime   @default(now()) @map("created_at")
+
+  proposal    Proposal   @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  partner     Partner    @relation("PartnerVotes", fields: [partnerId], references: [id], onDelete: Cascade)
+
+  @@unique([proposalId, partnerId])
+  @@index([proposalId])
+  @@map("votes")
+}
+
+/// Sweet Pass prepaid pre-order escrowed on-chain.
+/// The customer locks SWEET in the SweetPassEscrow contract for a future pickup;
+/// on fulfilment the partner is paid, otherwise the deposit auto-refunds after the deadline.
+model PreOrder {
+  id              String         @id @default(cuid())
+  /// On-chain escrow order id (uint64). Unique key shared with the smart contract.
+  orderId         BigInt         @unique @map("order_id")
+
+  /// Customer wallet (TonConnect) that deposits and receives any refund.
+  customerWallet  String         @map("customer_wallet")
+  /// Partner (confectionery) that fulfils the order and receives the payout.
+  partnerId       String         @map("partner_id")
+  /// Partner's on-chain wallet that the escrow pays on release.
+  partnerWallet   String         @map("partner_wallet")
+
+  /// What was ordered, e.g. "Napoleon cake (2 kg)".
+  itemDescription String         @map("item_description")
+  /// Escrowed amount in nano-SWEET (9 decimals).
+  amount          BigInt
+  /// Prepaid value in KZT (SWEET is pegged 1:1 to KZT). Used for demo metrics.
+  amountKzt       BigInt         @map("amount_kzt")
+
+  status          PreOrderStatus @default(PENDING_DEPOSIT)
+  /// Pickup deadline; after this a permissionless refund becomes possible on-chain.
+  deadline        DateTime
+
+  // Blockchain references — proof the funds really moved on testnet.
+  depositTxHash   String?        @map("deposit_tx_hash")
+  releaseTxHash   String?        @map("release_tx_hash")
+  refundTxHash    String?        @map("refund_tx_hash")
+
+  // Lifecycle timestamps
+  fundedAt        DateTime?      @map("funded_at")
+  releasedAt      DateTime?      @map("released_at")
+  refundedAt      DateTime?      @map("refunded_at")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+
+  partner         Partner        @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  @@index([customerWallet])
+  @@index([partnerId])
+  @@index([status])
+  @@index([deadline])
+  @@map("pre_orders")
+}
+
+/// ML Churn auto-intervention record
+model ChurnIntervention {
+  id          String   @id @default(cuid())
+  partnerId   String   @map("partner_id")
+  riskScore   Int      @map("risk_score")
+  riskLevel   String   @map("risk_level")
+  bonusSent   Int      @map("bonus_sent")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  partner     Partner  @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  @@index([partnerId])
+  @@index([createdAt])
+  @@map("churn_interventions")
+}

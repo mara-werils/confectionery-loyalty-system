@@ -4,49 +4,195 @@
 
 @layer base {
   :root {
-    --background: 20 14% 4%;
-    --foreground: 0 0% 98%;
-    --card: 20 10% 7%;
-    --card-foreground: 0 0% 98%;
-    --popover: 20 10% 6%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 30 90% 52%;
-    --primary-foreground: 20 14% 4%;
-    --secondary: 20 6% 15%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 20 6% 15%;
-    --muted-foreground: 20 5% 55%;
-    --accent: 30 90% 52%;
-    --accent-foreground: 20 14% 4%;
+    --background: 24 12% 5%;
+    --foreground: 35 20% 95%;
+    --card: 24 10% 8%;
+    --card-foreground: 35 20% 95%;
+    --popover: 24 10% 7%;
+    --popover-foreground: 35 20% 95%;
+    --primary: 32 95% 55%;
+    --primary-foreground: 24 12% 5%;
+    --secondary: 24 8% 14%;
+    --secondary-foreground: 35 20% 95%;
+    --muted: 24 8% 14%;
+    --muted-foreground: 24 10% 50%;
+    --accent: 32 95% 55%;
+    --accent-foreground: 24 12% 5%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 20 6% 15%;
-    --input: 20 6% 15%;
-    --ring: 30 90% 52%;
+    --border: 24 10% 16%;
+    --input: 24 10% 16%;
+    --ring: 32 95% 55%;
+
+    /* Semantic theme tokens */
+    --sweet-bg: #100c0a;
+    --sweet-card: #1a1412;
+    --sweet-card-hover: #221a15;
+    --sweet-input: #120e0b;
+    --sweet-border: #2a2018;
+    --sweet-border-light: #342a20;
+    --sweet-nav: #1a1412;
+    --sweet-nav-active: #2a2018;
+    --sweet-text: #f5f0eb;
+    --sweet-text-secondary: #a89888;
+    --sweet-text-muted: #6b5c4f;
+    --sweet-text-faint: #4a3f35;
+    --sweet-accent: #f59e0b;
+    --sweet-accent-dim: rgba(245, 158, 11, 0.12);
+    --sweet-glow: rgba(245, 158, 11, 0.08);
+    /* UI/UX Pro Max: purple CTA + font stack */
+    --sweet-cta: #8b5cf6;
+    --sweet-cta-dim: rgba(139, 92, 246, 0.12);
+    --sweet-font-heading: 'Orbitron', 'Exo 2', sans-serif;
+    --sweet-font-body: 'Exo 2', sans-serif;
+
+    /* Skeleton shimmer colors */
+    --skeleton-base: rgba(255, 255, 255, 0.04);
+    --skeleton-shine: rgba(255, 255, 255, 0.09);
+
+    /* Transaction type accents */
+    --tx-purchase: #34d399;
+    --tx-purchase-bg: rgba(52, 211, 153, 0.07);
+    --tx-purchase-border: rgba(52, 211, 153, 0.18);
+    --tx-bonus: #60a5fa;
+    --tx-bonus-bg: rgba(96, 165, 250, 0.07);
+    --tx-bonus-border: rgba(96, 165, 250, 0.18);
+    --tx-referral: #a78bfa;
+    --tx-referral-bg: rgba(167, 139, 250, 0.07);
+    --tx-referral-border: rgba(167, 139, 250, 0.18);
+    --tx-promotion: #fbbf24;
+    --tx-promotion-bg: rgba(251, 191, 36, 0.07);
+    --tx-promotion-border: rgba(251, 191, 36, 0.18);
+    --tx-redemption: #f87171;
+    --tx-redemption-bg: rgba(248, 113, 113, 0.07);
+    --tx-redemption-border: rgba(248, 113, 113, 0.18);
+  }
+
+  .theme-light {
+    --sweet-bg: #faf7f4;
+    --sweet-card: #ffffff;
+    --sweet-card-hover: #f5f0eb;
+    --sweet-input: #f0ebe5;
+    --sweet-border: #e0d5c8;
+    --sweet-border-light: #ebe3d8;
+    --sweet-nav: #ffffff;
+    --sweet-nav-active: #f5f0eb;
+    --sweet-text: #1a1412;
+    --sweet-text-secondary: #6b5c4f;
+    --sweet-text-muted: #9a8b7d;
+    --sweet-text-faint: #c4b8aa;
+    --sweet-accent: #d97706;
+    --sweet-accent-dim: rgba(217, 119, 6, 0.1);
+    --sweet-glow: rgba(217, 119, 6, 0.05);
+
+    /* Skeleton shimmer colors — light theme */
+    --skeleton-base: rgba(0, 0, 0, 0.05);
+    --skeleton-shine: rgba(0, 0, 0, 0.09);
   }
 
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
-    @apply antialiased selection:bg-amber-500/30 selection:text-white;
-    background: #0d0b0a;
+    background-color: var(--sweet-bg);
+    color: var(--sweet-text);
+    font-family: var(--sweet-font-body);
+    @apply antialiased;
     min-height: 100vh;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  /* UI/UX Pro Max: cursor-pointer on all interactive elements */
+  button, [role="button"], a, label[for], select, [tabindex]:not([tabindex="-1"]) {
+    cursor: pointer;
+  }
+
+  /* UI/UX Pro Max: prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* Selection color */
+  ::selection {
+    background: var(--sweet-accent-dim);
+    color: var(--sweet-text);
+  }
+
+  /* UI/UX Pro Max: Orbitron for page-level headings */
+  h1 {
+    font-family: var(--sweet-font-heading);
+    letter-spacing: 0.02em;
+  }
+
+  /* Focus ring — accessibility */
+  :focus-visible {
+    outline: 2px solid var(--sweet-accent);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  /* Thin, themed scrollbar */
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--sweet-border-light);
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--sweet-text-faint);
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--sweet-border-light) transparent;
   }
 }
 
 @layer components {
+  /* Theme-aware card */
+  .sweet-card {
+    background: var(--sweet-card);
+    border: 1px solid var(--sweet-border);
+    transition: background-color 0.3s, border-color 0.3s;
+  }
+  .sweet-card:hover {
+    background: var(--sweet-card-hover);
+  }
+  .sweet-input {
+    background: var(--sweet-input);
+    border: 1px solid var(--sweet-border);
+    color: var(--sweet-text);
+    transition: background-color 0.3s, border-color 0.3s;
+  }
+  .sweet-input::placeholder {
+    color: var(--sweet-text-faint);
+  }
+  .sweet-input:focus {
+    border-color: var(--sweet-accent);
+    outline: none;
+  }
+
   .glass-panel {
-    @apply bg-stone-900 border border-stone-800 shadow-sm rounded-2xl;
+    background: var(--sweet-card);
+    border: 1px solid var(--sweet-border);
+    @apply shadow-sm rounded-2xl;
+    transition: background-color 0.3s, border-color 0.3s;
   }
 
   .glass-button {
-    @apply relative overflow-hidden rounded-xl px-6 py-3 font-semibold text-white transition-all duration-200;
-    background: #1c1917;
-    border: 1px solid #292524;
+    @apply relative overflow-hidden rounded-xl px-6 py-3 font-semibold transition-all duration-200;
+    background: var(--sweet-card);
+    border: 1px solid var(--sweet-border-light);
+    color: var(--sweet-text);
   }
   .glass-button:hover {
-    background: #292524;
-    border-color: #44403c;
+    background: var(--sweet-card-hover);
+    border-color: var(--sweet-text-faint);
   }
   .glass-button:active {
     transform: translateY(1px);
@@ -54,12 +200,12 @@
 
   .glass-button-primary {
     @apply relative overflow-hidden rounded-xl px-6 py-3 font-semibold transition-all duration-200;
-    background: #f59e0b;
-    color: #0d0b0a;
-    border: 1px solid #fbbf24;
+    background: var(--sweet-accent);
+    color: var(--sweet-bg);
+    border: 1px solid transparent;
   }
   .glass-button-primary:hover {
-    background: #fbbf24;
+    filter: brightness(1.08);
   }
   .glass-button-primary:active {
     transform: translateY(1px);
@@ -68,4 +214,120 @@
   .text-gradient-gold {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-orange-500;
   }
+
+  /* UI/UX Pro Max: Orbitron heading class */
+  .font-heading {
+    font-family: var(--sweet-font-heading);
+    letter-spacing: 0.03em;
+  }
+
+  /* UI/UX Pro Max: accent glow effect for dark mode */
+  .sweet-glow-accent {
+    text-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+  }
+  .sweet-glow-cta {
+    box-shadow: 0 0 16px rgba(139, 92, 246, 0.25);
+  }
+
+  /* UI/UX Pro Max: CTA button with purple accent */
+  .btn-cta {
+    background: var(--sweet-cta);
+    color: #fff;
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-weight: 600;
+    font-family: var(--sweet-font-body);
+    transition: all 200ms ease;
+    cursor: pointer;
+    border: none;
+  }
+  .btn-cta:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(139, 92, 246, 0.3);
+  }
+
+  /* No-scrollbar utility */
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Skeleton shimmer — theme-aware */
+  .skeleton {
+    position: relative;
+    overflow: hidden;
+    background: var(--skeleton-base);
+  }
+  .skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--skeleton-shine) 50%,
+      transparent 100%
+    );
+    animation: shimmer 1.8s ease-in-out infinite;
+  }
+
+  /* Sweet shimmer — premium card highlight */
+  .sweet-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+  .sweet-shimmer::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 40%,
+      rgba(245, 158, 11, 0.06) 50%,
+      transparent 60%
+    );
+    background-size: 200% 100%;
+    animation: sweet-shimmer-move 3s ease-in-out infinite;
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
+  /* Page transition wrapper */
+  .page-enter {
+    animation: page-in 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .page-exit {
+    animation: page-out 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+
+/* ── Keyframes ─────────────────────────────── */
+
+@keyframes shimmer {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes sweet-shimmer-move {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes page-out {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-8px); }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
 }

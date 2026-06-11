@@ -6,6 +6,12 @@ import { generateToken, generateRefreshToken, authenticate } from '../middleware
 import { authRateLimiter } from '../middleware/rateLimiter';
 import { AppError } from '../middleware/errorHandler';
 import { verifyWalletSignature, verifyNonce } from '../services/ton';
+import { config } from '../config';
+import { Address } from '@ton/core';
+
+function normalizeAddress(addr: string): string {
+  try { return Address.parse(addr).toRawString(); } catch { return addr; }
+}
 
 const router = Router();
 
@@ -80,7 +86,11 @@ router.post(
       // In production this uses @ton/crypto signVerify.
       // TonConnect UI does not expose signData, so we accept the wallet address
       // as proof of ownership (wallet connection itself is the auth factor).
-      const sigSkipped = data.signature.startsWith('wallet-owned-');
+      // TonConnect UI does not expose signData, so wallet-connection-as-proof
+      // is the auth factor. The bypass is only allowed in development.
+      const sigSkipped =
+        config.app.env === 'development' &&
+        data.signature.startsWith('wallet-owned-');
       if (!sigSkipped) {
         const isValid = await verifyWalletSignature(
           data.publicKey,
@@ -393,13 +403,20 @@ router.post(
   authRateLimiter,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { walletAddress } = customerAuthSchema.parse(req.body);
+      const { walletAddress: rawAddr } = customerAuthSchema.parse(req.body);
+      const walletAddress = normalizeAddress(rawAddr);
 
-      // Find or create a customer partner record
+      // Find or create a customer partner record — try normalized, then original
       let partner = await prisma.partner.findUnique({
         where: { walletAddress },
         include: { loyaltyPoints: true },
       });
+      if (!partner && walletAddress !== rawAddr) {
+        partner = await prisma.partner.findUnique({
+          where: { walletAddress: rawAddr },
+          include: { loyaltyPoints: true },
+        });
+      }
 
       if (!partner) {
         partner = await prisma.partner.create({

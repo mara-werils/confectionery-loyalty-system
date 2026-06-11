@@ -18,21 +18,66 @@ This project implements a complete loyalty system for confectionery businesses (
 - **Real-time Updates**: WebSocket notifications for instant feedback
 - **Tier System**: Bronze, Silver, Gold tiers with increasing benefits
 
-### Architecture
+## Tech Stack
 
-```
+### Backend
+- Node.js
+- TypeScript
+- Express.js
+- PostgreSQL
+- Prisma ORM
+- Redis
 
- Frontend Backend PostgreSQL
- (Telegram Mini (Express.js) Database
- App)
+### Frontend
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- TonConnect UI
 
+### Blockchain Layer
+- FunC
+- TON Core
+- TON Blueprint
 
+### DevOps
+- Vercel Deployment
+- Docker
+- Docker Compose
+- GitHub Actions
 
+---
 
+## Architecture
 
- TonConnect TON Blockchain
- (Wallet) (Smart Contracts
-
+```text
+┌─────────────────────┐
+│ Telegram Mini App   │
+│ (React + Vite)      │
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│ TonConnect Wallet   │
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│ TON Blockchain      │
+│ Smart Contracts     │
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│ Backend API         │
+│ (Express.js)        │
+└───────┬─────┬───────┘
+        │     │
+        ▼     ▼
+ ┌─────────┐ ┌─────────┐
+ │Redis    │ │PostgreSQL│
+ │Cache    │ │Database  │
+ └─────────┘ └─────────┘
 ```
 
 ## Quick Start
@@ -89,34 +134,36 @@ This project implements a complete loyalty system for confectionery businesses (
 
 ## Project Structure
 
-```
+``` python
  contracts/ # TON smart contracts (FunC)
- contracts/ # FunC source files
- wrappers/ # TypeScript wrappers
- tests/ # Contract tests
- scripts/ # Deployment scripts
+    contracts/ # FunC source files
+    wrappers/ # TypeScript wrappers
+    tests/ # Contract tests
+    scripts/ # Deployment scripts
 
  backend/ # Express.js API
- src/
- config/ # Configuration
- middleware/ # Express middleware
- routes/ # API routes
- services/ # Business logic
- utils/ # Utilities
- prisma/ # Database schema
+    src/
+    config/ # Configuration
+    middleware/ # Express middleware
+    routes/ # API routes
+    services/ # Business logic
+    utils/ # Utilities
+    prisma/ # Database schema
 
  frontend/ # React Telegram Mini App
- src/
- components/ # React components
- pages/ # Page components
- hooks/ # Custom hooks
- services/ # API services
- store/ # Zustand store
- public/ # Static assets
+    src/
+    components/ # React components
+    pages/ # Page components
+    hooks/ # Custom hooks
+    services/ # API services
+    store/ # Zustand store
+    public/ # Static assets
+
+ bot/ # Telegram bot server
+    src/
 
  docker/ # Docker configurations
  .github/ # GitHub Actions
- docs/ # Documentation
 ```
 
 ## Configuration

@@ -1,0 +1,11 @@
+{
+  "remoteName": "origin",
+  "projects": [
+    {
+      "id": "prj_6UlwYB8PlUnMeIcwSssmF4rOGNNW",
+      "name": "confectionery-loyalty-system-frontend",
+      "directory": "frontend",
+      "orgId": "team_GeiKbtxd2YeO7O0XIwY0a01t"
+    }
+  ]
+}

@@ -1,4 +1,10 @@
 {
+  "purchaseNotification": {
+    "from": "from {{name}}",
+    "tokensAwarded": "Tokens awarded",
+    "confirming": "Confirming on TON blockchain...",
+    "confirmedOnTon": "Confirmed on TON"
+  },
   "common": {
     "loading": "Loading...",
     "error": "Error",
@@ -91,7 +97,20 @@
     "justNow": "just now",
     "minsAgo": "{{n}} min ago",
     "hoursAgo": "{{n}} h ago",
-    "daysAgo": "{{n}} d ago"
+    "daysAgo": "{{n}} d ago",
+    "verifiedTon": "TON",
+    "verifiedOnTon": "Verified on TON Testnet",
+    "viewOnChain": "View on blockchain",
+    "viewTx": "View transaction",
+    "blockchainInfo": "Blockchain Info",
+    "blockchainDetails": "Blockchain Details",
+    "network": "Network",
+    "yourWallet": "Your Wallet",
+    "copyAddress": "Copy address",
+    "smartContract": "Smart Contract",
+    "myCoupons": "Active Coupons",
+    "nextReward": "Next Reward",
+    "moreToUnlock": "{{amount}} more SWEET to unlock your first reward"
   },
   "rewards": {
     "title": "Rewards Catalog",
@@ -137,14 +156,18 @@
     "platformWide": "Platform-wide",
     "couponTitle": "Your Coupon",
     "couponReady": "Show this code to the cashier at",
+    "claimError": "Failed to claim reward. Please try logging in again.",
     "close": "Close",
     "allPartners": "All Partners",
     "partners": {
       "homemacaron": "Home Macaron",
-      "shokoladnitsa": "Shokoladnitsa",
-      "pieceofcake": "Piece of Cake",
-      "coffeemania": "Coffee Mania",
-      "bonapart": "Bonapart"
+      "sweets_art": "Sweets. The Art of Cake",
+      "musmus": "MUS-MUS",
+      "ocake": "O-Cake",
+      "cakelab": "CakeLab Astana",
+      "patisserie": "Patisserie de Luxe",
+      "hmgreen": "Home Macaron GreenLine",
+      "marlen": "Марлен"
     }
   },
   "profile": {
@@ -162,6 +185,7 @@
     "version": "Sweet Loyalty v1.0.0",
     "diploma": "AITU Diploma Project 2026",
     "securityTitle": "Security",
+    "editProfile": "Edit Profile",
     "securityDesc": "Manage your account security",
     "securityToast": "Security settings are secured for MVP",
     "notificationsTitle": "Notifications",
@@ -289,7 +313,20 @@
     "allTimeRewards": "All-time distributed rewards",
     "period24h": "Last 24 hours",
     "period7d": "Last 7 days",
-    "period30d": "Last 30 days"
+    "period30d": "Last 30 days",
+    "simulatePurchase": "Simulate Purchase",
+    "simulatePurchaseSubtitle": "Issue SWEET tokens to a customer",
+    "purchaseAmountLabel": "Purchase Amount (KZT)",
+    "customerWalletLabel": "Customer Wallet Address",
+    "selectItems": "Items purchased (optional)",
+    "issueSweet": "Issue SWEET Tokens",
+    "issuingSweet": "Issuing...",
+    "simulateSuccess": "SWEET issued successfully!",
+    "simulateError": "Failed to simulate purchase",
+    "pointsIssued": "Points Issued",
+    "tierMultiplier": "Tier Multiplier",
+    "txHashLabel": "Tx Hash",
+    "customerNotified": "Customer notified in real-time"
   },
   "nav": {
     "pos": "POS",
@@ -304,7 +341,118 @@
     "ai": "AI",
     "referrals": "Refs",
     "governance": "DAO",
-    "analytics": "Analytics"
+    "analytics": "Analytics",
+    "spin": "Spin",
+    "gift": "Gift",
+    "ecosystem": "Partners",
+    "explorer": "Explorer",
+    "sweetpass": "Pre-order",
+    "earn": "Earn"
+  },
+  "sweetpass": {
+    "title": "Sweet Pass",
+    "subtitle": "Prepay your order. A smart contract holds your SWEET in escrow and auto-refunds if it is not ready by the deadline.",
+    "newOrder": "New pre-order",
+    "confectionery": "Confectionery",
+    "item": "What are you ordering?",
+    "amount": "Deposit amount (KZT)",
+    "deadline": "Pickup deadline",
+    "connect": "Connect wallet to prepay",
+    "lockDeposit": "Prepay & lock in escrow",
+    "locking": "Locking in escrow…",
+    "insufficient": "Not enough SWEET to cover this order",
+    "insufficientBtn": "Not enough SWEET",
+    "mLocked": "Locked in escrow",
+    "mPreorders": "{{count}} pre-orders",
+    "mGuaranteed": "Guaranteed revenue",
+    "mFulfilled": "{{count}} fulfilled",
+    "mWriteoffs": "Write-offs prevented",
+    "mCommitted": "committed demand",
+    "status": {
+      "PENDING_DEPOSIT": "Awaiting deposit",
+      "FUNDED": "Locked in escrow",
+      "RELEASED": "Fulfilled",
+      "REFUNDED": "Refunded"
+    },
+    "myOrders": "My pre-orders",
+    "empty": "No pre-orders yet. Lock your first deposit above.",
+    "why": "Your deposit is held by an on-chain escrow contract — not the shop. The confectionery only gets paid when you pick up your order. If they miss the deadline, the contract refunds you automatically, no questions asked.",
+    "partnerTitle": "Sweet Pass — Pre-orders",
+    "partnerSubtitle": "Customers prepay into escrow. Confirm pickup to release the funds to you. Unfulfilled orders auto-refund after the deadline.",
+    "awaitingPickup": "Awaiting pickup",
+    "noPending": "No prepaid orders waiting for pickup.",
+    "confirmPickup": "Confirm pickup & release",
+    "history": "History"
+  },
+  "explorer": {
+    "title": "Blockchain Explorer",
+    "subtitle": "All SWEET transactions verified on TON blockchain",
+    "connected": "Connected to TON Testnet",
+    "lastUpdated": "Updated",
+    "confirmed": "Confirmed",
+    "copyHash": "Copy hash",
+    "viewOnExplorer": "View on TON Explorer",
+    "jettonContract": "Jetton Smart Contract (SWEET)",
+    "viewContract": "View",
+    "loadMore": "Load more",
+    "footerNote": "All transactions are permanently recorded on the TON blockchain and publicly verifiable.",
+    "stats": {
+      "totalTx": "On-chain Txns",
+      "onChainVerified": "Verified on TON",
+      "totalMinted": "Total Minted",
+      "allTime": "All-time SWEET",
+      "network": "Network",
+      "contract": "Contract"
+    },
+    "types": {
+      "PURCHASE": "Purchase",
+      "BONUS": "Bonus",
+      "REFERRAL": "Referral",
+      "PROMOTION": "Promotion",
+      "REDEMPTION": "Redemption"
+    },
+    "empty": {
+      "title": "No on-chain transactions yet",
+      "subtitle": "Once purchases are recorded on TON blockchain, they will appear here in real time."
+    }
+  },
+  "spinWheel": {
+    "title": "Spin & Win",
+    "subtitle": "Spin the wheel once a day to win bonus SWEET tokens!",
+    "spin": "SPIN!",
+    "spinning": "Spinning...",
+    "won": "Added to your balance!",
+    "alreadySpun": "Already spun today!",
+    "nextIn": "Next spin in",
+    "comeBack": "Come back tomorrow!",
+    "prizes": "Prize Pool"
+  },
+  "checkin": {
+    "dailyBonus": "Daily Bonus",
+    "startStreak": "Start your streak!",
+    "claimed": "Claimed"
+  },
+  "gift": {
+    "title": "Gift SWEET",
+    "subtitle": "Send SWEET tokens to a friend. Only possible with blockchain!",
+    "yourBalance": "Your Balance",
+    "recipient": "Recipient Wallet",
+    "amount": "Amount",
+    "message": "Message (optional)",
+    "messagePlaceholder": "Happy birthday!",
+    "sending": "Sending",
+    "to": "To",
+    "sendButton": "Send Gift",
+    "recepientMissing": "Enter a recipient wallet address",
+    "amountMissing": "Enter an amount to send",
+    "amountExceeds": "The amount exceeds balance",
+    "sent": "Sent!",
+    "sentSuccess": "Sent!",
+    "sentTo": "Sent to",
+    "receivedFrom": "Received from",
+    "history": "Gift History",
+    "whyBlockchain": "Why blockchain matters",
+    "whyBlockchainDesc": "Traditional loyalty points (Starbucks Stars, airline miles) cannot be gifted or transferred. With SWEET tokens on TON blockchain, you truly own your rewards and can share them freely."
   },
   "staking": {
     "title": "Staking",
@@ -374,6 +522,41 @@
       }
     }
   },
+  "settlement": {
+    "title": "Commission Earnings",
+    "subtitle": "On-chain revenue settlement · TON Testnet",
+    "yourRate": "Your Commission Rate",
+    "ofEveryPurchase": "of every purchase",
+    "tierLocked": "{{tier}} tier · Locked in FunC smart contract",
+    "allTiers": "All tiers",
+    "pendingCommission": "Pending Commission",
+    "progressToMin": "Progress to minimum payout",
+    "minPayout": "Minimum payout: {{min}} TON · Enforced by smart contract",
+    "broadcasting": "Broadcasting on-chain…",
+    "claimBtn": "Claim {{amount}} TON Commission",
+    "accumulateBtn": "Accumulate {{min}} TON to claim",
+    "smartContract": "Smart Contract",
+    "verify": "Verify",
+    "totalDistributed": "Total Distributed",
+    "platformReserve": "Platform Reserve",
+    "payoutsMade": "Payouts Made",
+    "immutableNote": "Commission rates (3% / 5% / 7%) are immutably encoded in FunC. Payouts are trustless — no intermediary.",
+    "reserveWarning": "Contract reserve: {{balance}} TON. Fund contract with 5+ TON to enable instant payouts. Commission is still accumulating on-chain now.",
+    "payoutHistory": "Payout History",
+    "totalPaid": "{{amount}} TON total",
+    "noPayouts": "No payouts yet",
+    "noPayoutsHint": "Accumulate 1 TON to claim your first commission",
+    "howItWorks": "How it works",
+    "step1Title": "Purchase recorded",
+    "step1Desc": "Each POS transaction triggers recordTransaction() on-chain",
+    "step2Title": "Commission accrues",
+    "step2Desc": "Your {{pct}} commission accumulates in the smart contract",
+    "step3Title": "Claim at 1 TON",
+    "step3Desc": "When ≥ 1 TON pending, click Claim — contract sends real TON to your wallet",
+    "toastDispatched": "{{amount}} TON dispatched on-chain!",
+    "toastQueued": "{{amount}} TON commission recorded — payout queued",
+    "toastFailed": "Distribution failed"
+  },
   "ai": {
     "title": "AI Insights",
     "subtitle": "Predictive analytics · Updated in real-time",
@@ -393,7 +576,61 @@
     "modelNote": "Linear regression model trained on 90 days of transaction data",
     "recsTitle": "Smart Reward Picks",
     "noRecs": "Earn more points to unlock recommendations.",
-    "relevance": "Relevance"
+    "relevance": "Relevance",
+    "actual": "Actual",
+    "predicted": "Forecast",
+    "today": "Today",
+    "daysShort": "d",
+    "signalInactive": "Inactive",
+    "signalTx30d": "Tx (30d)",
+    "signalFreqDrop": "Freq. drop",
+    "riskLevels": {
+      "LOW": "Low",
+      "MEDIUM": "Medium",
+      "HIGH": "High",
+      "CRITICAL": "Critical"
+    },
+    "interventionsTitle": "AI Auto-Interventions",
+    "interventionsToday": "Today",
+    "savedToday": "Saved Today",
+    "sweetSent": "SWEET Sent",
+    "allTimeSaves": "All-Time Saves",
+    "recentInterventions": "Recent Auto-Interventions",
+    "interventionsNote": "ML model runs daily · Automatically sends SWEET bonuses to at-risk partners · No human action required",
+    "reportTitle": "AI Business Report",
+    "generate": "Generate",
+    "generating": "Generating...",
+    "reportAnalyzing": "AI is analyzing ecosystem data...",
+    "reportSteps": "Collecting metrics → Analyzing trends → Generating report",
+    "generatedBy": "Generated by AI analyst",
+    "reportError": "Failed to generate the report. Make sure Claude CLI is configured on the server.",
+    "reportEmptyTitle": "Press \"Generate\" to create a weekly AI report",
+    "reportEmptyHint": "AI will analyze all metrics and produce a detailed report",
+    "anomalyTitle": "AI Anomaly Detector",
+    "runScan": "Run Scan",
+    "scanning": "Scanning...",
+    "scanningDesc": "AI is scanning transactions from the last 48 hours...",
+    "scanSteps": "Statistical analysis → Pattern search → Risk assessment",
+    "scanError": "Analysis failed. Make sure Claude CLI is configured on the server.",
+    "noAnomalies": "No anomalies detected",
+    "scanStats": "Checked {{num}} transactions · Avg amount {{avg}} ₸",
+    "riskLevelLabel": "Risk level",
+    "txAnomalyCount": "{{tx}} transactions · {{num}} anomalies",
+    "avgAmount": "Avg amount",
+    "maxAmount": "Max amount",
+    "anomaliesCount": "Anomalies",
+    "evidence": "Evidence",
+    "analysisDone": "Analysis completed",
+    "scanEmptyTitle": "Press \"Run Scan\" to analyze transactions from the last 48 hours",
+    "scanEmptyHint": "AI will check for point farming, spikes, duplicates and suspicious patterns",
+    "anomalyTypes": {
+      "POINT_FARMING": "Point farming",
+      "SPIKE": "Activity spike",
+      "OUTLIER": "Amount outlier",
+      "DUPLICATE": "Duplicates",
+      "TIMING": "Suspicious timing",
+      "TIER_ABUSE": "Tier abuse"
+    }
   },
   "verify": {
     "title": "Verify Coupon",
@@ -497,11 +734,31 @@
     },
     "pastProposalsTitle": "Past Proposals",
     "pastProposals": {
-      "1": { "title": "Launch referral program", "result": "94% for", "date": "Mar 12, 2026" },
-      "2": { "title": "Extend coupon validity to 60 days", "result": "78% for", "date": "Feb 28, 2026" },
-      "3": { "title": "Add USDT payment", "result": "38% for", "date": "Feb 15, 2026" },
-      "4": { "title": "Reduce swap fee to 0.5%", "result": "85% for", "date": "Feb 3, 2026" },
-      "5": { "title": "NFT collection rebranding", "result": "42% for", "date": "Jan 20, 2026" }
+      "1": {
+        "title": "Launch referral program",
+        "result": "94% for",
+        "date": "Mar 12, 2026"
+      },
+      "2": {
+        "title": "Extend coupon validity to 60 days",
+        "result": "78% for",
+        "date": "Feb 28, 2026"
+      },
+      "3": {
+        "title": "Add USDT payment",
+        "result": "38% for",
+        "date": "Feb 15, 2026"
+      },
+      "4": {
+        "title": "Reduce swap fee to 0.5%",
+        "result": "85% for",
+        "date": "Feb 3, 2026"
+      },
+      "5": {
+        "title": "NFT collection rebranding",
+        "result": "42% for",
+        "date": "Jan 20, 2026"
+      }
     },
     "form": {
       "title": "Title",
@@ -737,5 +994,50 @@
     "fri": "Fri",
     "sat": "Sat",
     "sun": "Sun"
+  },
+  "ecosystem": {
+    "badge": "Coalition Network",
+    "title": "Sweet Ecosystem",
+    "subtitle": "Earn and spend SWEET tokens at {{count}} partner confectioneries across Kazakhstan",
+    "networkTitle": "Coalition Network Map",
+    "networkCaption": "Each node is a partner confectionery — all connected via SWEET tokens on TON blockchain",
+    "statPartners": "Partners",
+    "statSweet": "SWEET issued",
+    "statTx": "Transactions",
+    "statAvg": "Avg reward",
+    "filterAll": "All Tiers",
+    "filterGold": "Gold",
+    "filterSilver": "Silver",
+    "filterBronze": "Bronze",
+    "noPartners": "No partners found",
+    "noPartnersHint": "Partners will appear here once they join the coalition",
+    "poweredBy": "Coalition powered by TON Blockchain",
+    "thesis": "AITU Diploma Project 2026 — Smart-Contract Loyalty System"
+  },
+  "tokenomics": {
+    "title": "How SWEET works",
+    "subtitle": "One token connects customers, confectioneries and the platform — every step enforced by smart contracts on TON.",
+    "step": "Step",
+    "onChain": "Verifiable on-chain",
+    "s1Title": "Purchase at a confectionery",
+    "s1Desc": "You pay in KZT as usual — at any partner of the network.",
+    "s2Title": "Partner POS awards cashback",
+    "s2Desc": "The cashier scans your wallet QR. 10–15% of the bill converts to SWEET depending on your tier.",
+    "s3Title": "SWEET lands in your TON wallet",
+    "s3Desc": "1 SWEET = 1 KZT. The jetton transfer is recorded on the TON blockchain — verifiable by anyone.",
+    "s4Title": "Spend it your way",
+    "s4Desc": "Rewards and coupons, gifts to friends, prepaid pre-orders held by an escrow smart contract.",
+    "s5Title": "Platform earns transparently",
+    "s5Desc": "A 3–7% commission accrues to the Revenue Distribution contract — payouts are enforced by code, not promises.",
+    "tiersTitle": "Loyalty tiers",
+    "bronze": "Bronze",
+    "silver": "Silver",
+    "gold": "Gold",
+    "cashback": "cashback",
+    "multiplier": "Points",
+    "from": "from",
+    "contractsTitle": "Live on TON testnet",
+    "contractsDesc": "Four smart contracts run the economy. Tap any to inspect it in the public explorer.",
+    "footer": "1 SWEET = 1 KZT · TEP-74 jetton · 9 decimals · TON testnet"
   }
 }

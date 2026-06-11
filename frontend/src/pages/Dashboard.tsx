@@ -1,34 +1,43 @@
 import { lazy, Suspense, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { EcosystemService } from '../services/ecosystem';
 import { useTonWallet } from '@tonconnect/ui-react';
 import { useTranslation } from 'react-i18next';
 import {
-  BuildingLibraryIcon,
+  BankIcon,
   ChartBarIcon,
-  UserGroupIcon,
+  UsersThreeIcon,
   CreditCardIcon,
   QrCodeIcon,
-  XMarkIcon,
+  XIcon,
   ArrowUpRightIcon,
-  CheckCircleIcon,
-  ClipboardDocumentIcon,
-  ExclamationCircleIcon,
-} from '@heroicons/react/24/outline';
+  ClipboardTextIcon,
+  WarningCircleIcon,
+  ShoppingBagIcon,
+  FlaskIcon,
+  CoinsIcon,
+  LightningIcon,
+  CakeIcon,
+  CurrencyDollarIcon,
+  TrendUpIcon,
+  CheckCircleIcon as CheckCircleSolidIcon,
+} from '@phosphor-icons/react';
 import toast from 'react-hot-toast';
 import { useAnalyticsGrowth, useAnalyticsSummary } from '../hooks/useApi';
+import { api } from '../services/api';
+import { useAuthStore } from '../store/authStore';
+import Skeleton from '../components/Skeleton';
+import AnimatedNumber from '../components/AnimatedNumber';
 
 const Scanner = lazy(() =>
   import('@yudiel/react-qr-scanner').then((module) => ({ default: module.Scanner }))
 );
 
-// Validate TON address format (UQ.../EQ.../kQ...)
+const CASHBACK_RATE = 0.10;
+
 function isValidTonAddress(addr: string): boolean {
   if (!addr) return false;
-  // Friendly format: base64url 48 chars starting with UQ, EQ, kQ, 0Q, etc.
   if (/^[A-Za-z0-9_-]{48}$/.test(addr)) return true;
-  // Raw format: workchain:hex
   if (/^-?[0-9]+:[0-9a-fA-F]{64}$/.test(addr)) return true;
   return false;
 }
@@ -41,9 +50,208 @@ interface TxReceipt {
   txId: string;
 }
 
+interface SimulateReceipt {
+  pointsEarned: number;
+  amount: number;
+  customerWallet: string;
+  partnerName: string;
+  tierMultiplier: number;
+  txHash: string;
+  items: string[];
+  timestamp: string;
+}
+
+const DEMO_CUSTOMERS = [
+  { label: 'Айгерим (Bronze)', wallet: 'UQBvI0aFLnw2QbZgjMPryQSb4XYiQa3zzDLNTqFKiG8G_WAc' },
+  { label: 'Нурсултан (Silver)', wallet: 'UQDtFpEwcFAEcRe5mLVh2N6C7oMVjE2BrJMRoV3YCRx0xBGl' },
+  { label: 'Дана (Gold)', wallet: 'UQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixG_7Wy2oqqwnT' },
+];
+
+const DEMO_ITEMS = [
+  'Napoleon Cake',
+  'Eclair Set',
+  'Coffee & Croissant',
+  'Macaron Box (6 pcs)',
+  'Honey Cake Slice',
+  'Tiramisu',
+  'Choco Fondant',
+  'Baklava Assortment',
+];
+
+const MOCK_ACTIVITIES = [
+  { id: 1, type: 'earn', user: 'Айгерим', amount: 150, partner: 'Home Macaron', ago: '2m ago' },
+  { id: 2, type: 'redeem', user: 'Нурсултан', amount: 500, partner: 'MUS-MUS', ago: '8m ago' },
+  { id: 3, type: 'join', user: 'Дана', amount: 0, partner: 'Partner Network', ago: '15m ago' },
+  { id: 4, type: 'earn', user: 'Арман', amount: 240, partner: 'O-Cake', ago: '23m ago' },
+  { id: 5, type: 'earn', user: 'Камила', amount: 80, partner: 'Quiynar', ago: '41m ago' },
+];
+
+const activityMeta: Record<string, { icon: React.ReactNode; colorStyle: React.CSSProperties; label: string }> = {
+  earn: {
+    icon: <LightningIcon style={{ width: 14, height: 14 }} />,
+    colorStyle: { color: '#34d399', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)' },
+    label: 'Earned',
+  },
+  redeem: {
+    icon: <CakeIcon style={{ width: 14, height: 14 }} />,
+    colorStyle: { color: '#fbbf24', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)' },
+    label: 'Redeemed',
+  },
+  join: {
+    icon: <UsersThreeIcon style={{ width: 14, height: 14 }} />,
+    colorStyle: { color: '#38bdf8', background: 'rgba(14,165,233,0.1)', border: '1px solid rgba(14,165,233,0.2)' },
+    label: 'Joined',
+  },
+};
+
+// ─── Receipt row ──────────────────────────────────────────────────────────────
+function ReceiptRow({ label, children, last }: { label: string; children: React.ReactNode; last?: boolean }) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '11px 0',
+        borderBottom: last ? 'none' : '1px solid var(--sweet-border)',
+      }}
+    >
+      <span style={{ fontSize: 12, color: 'var(--sweet-text-muted)' }}>{label}</span>
+      <span>{children}</span>
+    </div>
+  );
+}
+
+// ─── Stat card ────────────────────────────────────────────────────────────────
+interface StatCardProps {
+  title: string;
+  value: number | null;
+  suffix?: string;
+  trend?: string;
+  trendUp?: boolean;
+  icon: React.ReactNode;
+  accentColor?: 'amber' | 'emerald';
+  loading?: boolean;
+}
+
+function StatCard({ title, value, suffix, trend, trendUp = true, icon, accentColor = 'amber', loading }: StatCardProps) {
+  const iconStyle: React.CSSProperties =
+    accentColor === 'emerald'
+      ? { color: '#34d399', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)' }
+      : { color: 'var(--sweet-accent)', background: 'var(--sweet-accent-dim)', border: '1px solid var(--sweet-border-light)' };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      style={{
+        borderRadius: 18,
+        padding: '20px',
+        position: 'relative',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        background: 'var(--sweet-card)',
+        border: '1px solid var(--sweet-border)',
+      }}
+    >
+      {/* Ambient glow */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          opacity: 0.25,
+          pointerEvents: 'none',
+          background: 'radial-gradient(ellipse 120px 80px at 85% 15%, var(--sweet-accent-dim), transparent)',
+        }}
+      />
+      <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', flex: 1 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
+          <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--sweet-text-muted)', lineHeight: 1.4, margin: 0 }}>
+            {title}
+          </p>
+          <div
+            style={{
+              width: 32, height: 32, borderRadius: 10,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0,
+              ...iconStyle,
+            }}
+          >
+            {icon}
+          </div>
+        </div>
+
+        <div style={{ marginTop: 'auto' }}>
+          {loading && value === null ? (
+            <Skeleton className="h-8 w-28 mb-3" rounded="md" />
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 10 }}>
+              <span style={{ color: 'var(--sweet-text)' }}>
+                <AnimatedNumber value={value ?? 0} className="text-2xl font-bold tracking-tight" />
+              </span>
+              {suffix && (
+                <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--sweet-text-muted)' }}>{suffix}</span>
+              )}
+            </div>
+          )}
+
+          {trend && (
+            <p style={{ fontSize: 11, display: 'flex', alignItems: 'center', gap: 4, fontWeight: 600, color: trendUp ? '#34d399' : '#f87171', margin: 0 }}>
+              <TrendUpIcon style={{ width: 12, height: 12, transform: trendUp ? 'none' : 'rotate(180deg)' }} />
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{trend}</span>
+            </p>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+// ─── Section header ───────────────────────────────────────────────────────────
+function SectionHeader({ icon, title, badge }: { icon: React.ReactNode; title: string; badge?: React.ReactNode }) {
+  return (
+    <div
+      style={{
+        padding: '14px 20px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 12,
+        borderBottom: '1px solid var(--sweet-border)',
+        background: 'var(--sweet-accent-dim)',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        {icon}
+        <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--sweet-text)', letterSpacing: '-0.01em' }}>{title}</span>
+      </div>
+      {badge}
+    </div>
+  );
+}
+
+// ─── Input field ──────────────────────────────────────────────────────────────
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  borderRadius: 12,
+  padding: '11px 14px',
+  fontSize: 13,
+  background: 'var(--sweet-input)',
+  border: '1px solid var(--sweet-border)',
+  color: 'var(--sweet-text)',
+  outline: 'none',
+  transition: 'border-color 0.15s',
+  boxSizing: 'border-box',
+};
+
+// ─── Main component ───────────────────────────────────────────────────────────
 export default function Dashboard() {
   const { t } = useTranslation();
+  const { user } = useAuthStore();
   const [balance, setBalance] = useState<{ sweet: number; ton: number; kztEquivalent: number } | null>(null);
+  const [balanceLoading, setBalanceLoading] = useState(true);
   const [loading, setLoading] = useState(false);
   const [posAmount, setPosAmount] = useState<number | ''>('');
   const [chartPeriod, setChartPeriod] = useState<'day' | 'week' | 'month'>('week');
@@ -52,22 +260,37 @@ export default function Dashboard() {
   const [showScanner, setShowScanner] = useState(false);
   const [addressError, setAddressError] = useState<string>('');
   const [receipt, setReceipt] = useState<TxReceipt | null>(null);
+  const [simAmount, setSimAmount] = useState<number | ''>('');
+  const [simWallet, setSimWallet] = useState('');
+  const [simItems, setSimItems] = useState<string[]>([]);
+  const [simLoading, setSimLoading] = useState(false);
+  const [simReceipt, setSimReceipt] = useState<SimulateReceipt | null>(null);
+  const [simSuccess, setSimSuccess] = useState(false);
 
   const { data: growthData } = useAnalyticsGrowth(chartPeriod);
-  const { data: summaryData } = useAnalyticsSummary();
+  const { data: summaryData, isLoading: summaryLoading } = useAnalyticsSummary();
 
-  const chartData: { name: string; value: number }[] = growthData?.data?.map(
-    (d: { date: string; totalPoints: number }) => ({
-      name: new Date(d.date).toLocaleDateString('en', { weekday: 'short', month: 'short', day: 'numeric' }),
-      value: d.totalPoints,
+  const chartData: { name: string; value: number }[] = Array.isArray(growthData?.data)
+    ? growthData.data.map((d: { date?: string; totalPoints?: number }, index: number) => {
+      const parsedDate = d?.date ? new Date(d.date) : null;
+      const isValidDate = !!parsedDate && !Number.isNaN(parsedDate.getTime());
+      return {
+        name: isValidDate
+          ? parsedDate.toLocaleDateString('en', { weekday: 'short', month: 'short', day: 'numeric' })
+          : `#${index + 1}`,
+        value: typeof d?.totalPoints === 'number' && Number.isFinite(d.totalPoints) ? d.totalPoints : 0,
+      };
     })
-  ) || [];
+    : [];
 
-  const summary = summaryData?.data;
+  const summary = summaryData && typeof summaryData === 'object' && 'data' in summaryData
+    ? (summaryData as { data?: { totalPartners?: number; totalTransactions?: number } }).data
+    : undefined;
 
   useEffect(() => {
     if (wallet?.account.address) {
-      loadData(wallet.account.address);
+      setBalanceLoading(true);
+      loadData(wallet.account.address).finally(() => setBalanceLoading(false));
     }
   }, [wallet?.account.address]);
 
@@ -106,7 +329,7 @@ export default function Dashboard() {
       toast.error('Invalid TON wallet address');
       return;
     }
-    const cashback = Math.floor(purchaseAmt * 0.1);
+    const cashback = Math.floor(purchaseAmt * CASHBACK_RATE);
     setLoading(true);
     try {
       toast.loading(`Sending ${cashback} SWEET...`, { id: 'transfer' });
@@ -121,334 +344,1020 @@ export default function Dashboard() {
       });
       setPosAmount('');
       setClientWalletAddress('');
-      // Refresh balance
       if (wallet?.account.address) loadData(wallet.account.address);
-    } catch {
-      toast.error(t('dashboard.transferFailed') || 'Transfer failed', { id: 'transfer' });
+    } catch (err: unknown) {
+      let message = t('dashboard.transferFailed') || 'Transfer failed';
+      if (err && typeof err === 'object') {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const axiosErr = err as any;
+        const serverMsg = axiosErr?.response?.data?.message || axiosErr?.response?.data?.error;
+        const status = axiosErr?.response?.status;
+        if (status === 429) {
+          message = 'TON API rate limited — please wait 30s and retry';
+        } else if (serverMsg) {
+          message = serverMsg;
+        } else if (axiosErr?.message === 'Network Error') {
+          message = 'Cannot reach server — check your connection';
+        } else if (axiosErr?.message) {
+          message = axiosErr.message;
+        }
+      }
+      toast.error(message, { id: 'transfer' });
     }
     setLoading(false);
   };
 
+  const handleSimulatePurchase = async () => {
+    const amount = Number(simAmount);
+    if (amount <= 0) {
+      toast.error(t('dashboard.enterValidAmount') || 'Enter a valid purchase amount');
+      return;
+    }
+    if (!simWallet.trim()) {
+      toast.error(t('dashboard.enterWalletAddress') || 'Enter a customer wallet address');
+      return;
+    }
+    if (!user?.id) {
+      toast.error('Not authenticated. Please log in.');
+      return;
+    }
+
+    setSimLoading(true);
+    setSimSuccess(false);
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const res: any = await api.loyalty.simulatePurchase({
+        partnerId: user.id,
+        customerWallet: simWallet.trim(),
+        amount,
+        items: simItems.length > 0 ? simItems : undefined,
+      });
+
+      const d = res?.data;
+      const receiptData: SimulateReceipt = {
+        pointsEarned: Number(d?.transaction?.pointsEarned ?? 0),
+        amount,
+        customerWallet: simWallet.trim(),
+        partnerName: d?.partner?.companyName ?? 'Your Store',
+        tierMultiplier: d?.tierMultiplier ?? 1,
+        txHash: d?.transaction?.txHash ?? '',
+        items: simItems,
+        timestamp: new Date().toLocaleString(),
+      };
+      setSimSuccess(true);
+      setTimeout(() => {
+        setSimReceipt(receiptData);
+        setSimSuccess(false);
+        toast.success(t('dashboard.simulateSuccess') || 'SWEET issued successfully!');
+        setSimAmount('');
+        setSimWallet('');
+        setSimItems([]);
+      }, 900);
+    } catch (err: unknown) {
+      let msg = t('dashboard.simulateError') || 'Failed to issue SWEET tokens';
+      if (err && typeof err === 'object') {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const axiosErr = err as any;
+        const serverMsg = axiosErr?.response?.data?.message || axiosErr?.response?.data?.error;
+        const status = axiosErr?.response?.status;
+        if (status === 429) {
+          msg = 'TON API rate limited — please wait 30s and retry';
+        } else if (status === 401 || status === 403) {
+          msg = 'Session expired — please log in again';
+        } else if (serverMsg) {
+          msg = serverMsg;
+        } else if (axiosErr?.message === 'Network Error') {
+          msg = 'Cannot reach server — check your connection';
+        } else if (axiosErr?.message) {
+          msg = axiosErr.message;
+        }
+      }
+      toast.error(msg);
+      setSimSuccess(false);
+    }
+    setSimLoading(false);
+  };
+
+  const toggleItem = (item: string) => {
+    setSimItems((prev) =>
+      prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]
+    );
+  };
+
+  const maxChartVal = chartData.length > 0 ? Math.max(...chartData.map((d) => d.value), 1) : 1;
+
   return (
-    <div className="min-h-screen p-4 md:p-8 pb-32 text-stone-100 font-sans tracking-normal bg-[#0d0b0a]">
-      {/* Header */}
-      <div className="mb-8 border-b border-stone-800/80 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4 mt-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">
-            {t('dashboard.title')}
-          </h1>
-          <p className="text-stone-400 mt-1.5 text-sm">{t('dashboard.subtitle')}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-green-500/10 border border-green-500/20 text-xs font-medium text-green-400">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+    <div style={{ minHeight: '100vh', paddingBottom: 128, background: 'var(--sweet-bg)', color: 'var(--sweet-text)' }}>
+      <div style={{ maxWidth: 1152, margin: '0 auto', padding: '24px 16px 0' }}>
+
+        {/* ── Header ──────────────────────────────────────────────────────── */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          style={{ marginBottom: 28, display: 'flex', flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}
+        >
+          <div>
+            <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--sweet-text)', margin: 0, lineHeight: 1.2 }}>
+              {t('dashboard.title')}
+            </h1>
+            <p style={{ marginTop: 5, fontSize: 13, color: 'var(--sweet-text-muted)' }}>
+              {t('dashboard.subtitle')}
+            </p>
+          </div>
+          <span
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '6px 12px',
+              borderRadius: 9999,
+              fontSize: 11, fontWeight: 700,
+              background: 'rgba(16,185,129,0.1)',
+              border: '1px solid rgba(16,185,129,0.25)',
+              color: '#34d399',
+              flexShrink: 0,
+            }}
+          >
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#34d399', display: 'inline-block', animation: 'pulse 2s infinite' }} />
             {t('blockchain.operational') || 'System Operational'}
           </span>
-        </div>
-      </div>
+        </motion.div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        {/* Token Balance */}
-        <div className="bg-stone-900 border border-stone-800/80 rounded-xl p-5 shadow-sm">
-          <div className="flex justify-between items-start mb-4">
-            <h3 className="text-sm font-medium text-stone-400">{t('dashboard.treasuryHoldings') || 'Treasury Holdings'}</h3>
-            <BuildingLibraryIcon className="w-5 h-5 text-stone-500" />
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-semibold text-white tracking-tight">
-              {balance ? balance.sweet.toLocaleString() : <span className="animate-pulse text-stone-600">—</span>}
-              <span className="text-sm text-stone-500 ml-1.5 font-normal">SWEET</span>
-            </span>
-          </div>
-          <p className="text-xs text-green-400 mt-2 flex items-center gap-1">
-            <ArrowUpRightIcon className="w-3 h-3" /> {t('dashboard.vsLastMonth')}
-          </p>
-        </div>
-
-        {/* Partners */}
-        <div className="bg-stone-900 border border-stone-800/80 rounded-xl p-5 shadow-sm">
-          <div className="flex justify-between items-start mb-4">
-            <h3 className="text-sm font-medium text-stone-400">{t('dashboard.activeCustomers') || 'Active Partners'}</h3>
-            <UserGroupIcon className="w-5 h-5 text-stone-500" />
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-semibold text-white tracking-tight">
-              {summary?.totalPartners != null
-                ? summary.totalPartners.toLocaleString()
-                : <span className="inline-block w-12 h-7 bg-stone-800 rounded animate-pulse" />}
-            </span>
-          </div>
-          <p className="text-xs text-green-400 mt-2 flex items-center gap-1">
-            <ArrowUpRightIcon className="w-3 h-3" /> {t('dashboard.vsLastMonth')}
-          </p>
+        {/* ── KPI Grid ────────────────────────────────────────────────────── */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 14, marginBottom: 28, alignItems: 'stretch' }}>
+          <StatCard
+            title={t('dashboard.treasuryHoldings') || 'Treasury Holdings'}
+            value={balance?.sweet ?? null}
+            suffix="SWEET"
+            trend={t('dashboard.vsLastMonth') || '+12% vs last month'}
+            trendUp
+            icon={<BankIcon style={{ width: 16, height: 16 }} />}
+            accentColor="amber"
+            loading={balanceLoading && !balance}
+          />
+          <StatCard
+            title={t('dashboard.activeCustomers') || 'Active Partners'}
+            value={summary?.totalPartners ?? null}
+            trend="+8% this week"
+            trendUp
+            icon={<UsersThreeIcon style={{ width: 16, height: 16 }} />}
+            accentColor="emerald"
+            loading={summaryLoading}
+          />
+          <StatCard
+            title={t('dashboard.totalTransactions') || 'Points Issued'}
+            value={summary?.totalTransactions ?? null}
+            trend={t('dashboard.allTimeRewards') || 'All-time distributed'}
+            trendUp
+            icon={<ChartBarIcon style={{ width: 16, height: 16 }} />}
+            accentColor="amber"
+            loading={summaryLoading}
+          />
         </div>
 
-        {/* Transactions */}
-        <div className="bg-stone-900 border border-stone-800/80 rounded-xl p-5 shadow-sm">
-          <div className="flex justify-between items-start mb-4">
-            <h3 className="text-sm font-medium text-stone-400">{t('dashboard.totalTransactions') || 'Total Transactions'}</h3>
-            <ChartBarIcon className="w-5 h-5 text-stone-500" />
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-semibold text-white tracking-tight">
-              {summary?.totalTransactions != null
-                ? summary.totalTransactions.toLocaleString()
-                : <span className="inline-block w-16 h-7 bg-stone-800 rounded animate-pulse" />}
-            </span>
-          </div>
-          <p className="text-xs text-stone-500 mt-2">{t('dashboard.allTimeRewards') || 'All-time distributed rewards'}</p>
-        </div>
-      </div>
+        {/* ── POS / Cashback Terminal ──────────────────────────────────────── */}
+        <motion.section
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          style={{
+            marginBottom: 28,
+            borderRadius: 20,
+            overflow: 'hidden',
+            background: 'var(--sweet-card)',
+            border: '1px solid var(--sweet-border)',
+            boxShadow: '0 0 0 1px var(--sweet-accent-dim), 0 4px 28px rgba(0,0,0,0.12)',
+          }}
+        >
+              <SectionHeader
+                icon={
+                  <div
+                    style={{
+                      width: 32, height: 32, borderRadius: 9,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      background: 'var(--sweet-input)',
+                      border: '1px solid var(--sweet-border)',
+                      color: 'var(--sweet-text-muted)',
+                    }}
+                  >
+                    <CreditCardIcon style={{ width: 15, height: 15 }} />
+                  </div>
+                }
+                title={t('dashboard.cashbackTerminal') || 'Point of Sale Terminal'}
+              />
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* POS Terminal */}
-        <div className="lg:col-span-5 xl:col-span-4">
-          <div className="bg-stone-900 border border-stone-800/80 rounded-xl flex flex-col h-full shadow-sm">
-            <div className="px-5 py-4 border-b border-stone-800/80">
-              <h2 className="text-base font-semibold text-white flex items-center gap-2">
-                <CreditCardIcon className="w-5 h-5 text-stone-400" />
-                {t('dashboard.cashbackTerminal') || 'Point of Sale Terminal'}
-              </h2>
-            </div>
-            
-            <div className="p-5 flex-1 flex flex-col space-y-6">
+              <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 18 }}>
+                {/* Amount */}
+                <div>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--sweet-text-muted)', marginBottom: 8 }}>
+                    {t('dashboard.enterPurchaseAmount') || 'Transaction Amount (KZT)'}
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <span style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)', fontSize: 13, fontWeight: 800, color: 'var(--sweet-accent)', userSelect: 'none' }}>
+                      &#x20B8;
+                    </span>
+                    <input
+                      type="number"
+                      style={{ ...inputStyle, paddingLeft: 30 }}
+                      placeholder="0.00"
+                      value={posAmount}
+                      onChange={(e) => setPosAmount(Number(e.target.value) || '')}
+                      onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--sweet-accent)')}
+                      onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--sweet-border)')}
+                    />
+                  </div>
+                </div>
+
+                {/* Wallet + QR */}
+                <div>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--sweet-text-muted)', marginBottom: 8 }}>
+                    {t('dashboard.scanCustomerQr') || 'Customer Wallet Address'}
+                  </label>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <div style={{ position: 'relative', flex: 1, minWidth: 0 }}>
+                      <input
+                        type="text"
+                        style={{
+                          ...inputStyle,
+                          fontFamily: 'monospace',
+                          fontSize: 11,
+                          color: 'var(--sweet-text-secondary)',
+                          borderColor: addressError
+                            ? 'rgba(239,68,68,0.5)'
+                            : clientWalletAddress && !addressError
+                            ? 'rgba(16,185,129,0.5)'
+                            : 'var(--sweet-border)',
+                        }}
+                        placeholder="UQ... or EQ..."
+                        value={clientWalletAddress}
+                        onChange={(e) => handleAddressChange(e.target.value)}
+                      />
+                      {clientWalletAddress && addressError && (
+                        <div style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)' }}>
+                          <WarningCircleIcon style={{ width: 15, height: 15, color: '#f87171' }} />
+                        </div>
+                      )}
+                    </div>
+                    <motion.button
+                      whileTap={{ scale: 0.93 }}
+                      onClick={() => setShowScanner(true)}
+                      style={{
+                        flexShrink: 0, padding: '11px 12px', borderRadius: 12,
+                        background: 'var(--sweet-input)', border: '1px solid var(--sweet-border)',
+                        color: 'var(--sweet-text-muted)', cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}
+                      title="Scan QR"
+                    >
+                      <QrCodeIcon style={{ width: 18, height: 18 }} />
+                    </motion.button>
+                  </div>
+                  {addressError && <p style={{ fontSize: 11, color: '#f87171', marginTop: 5 }}>{addressError}</p>}
+                  {clientWalletAddress && !addressError && (
+                    <p style={{ fontSize: 11, color: '#34d399', marginTop: 5 }}>Valid TON address</p>
+                  )}
+                </div>
+
+                {/* Cashback preview */}
+                <div
+                  style={{
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    padding: '12px 16px', borderRadius: 12,
+                    background: 'var(--sweet-input)', border: '1px solid var(--sweet-border)',
+                  }}
+                >
+                  <span style={{ fontSize: 12, color: 'var(--sweet-text-muted)' }}>
+                    {t('dashboard.cashbackReward') || 'Loyalty Reward'} ({CASHBACK_RATE * 100}%)
+                  </span>
+                  <span style={{ fontFamily: 'monospace', fontSize: 14, fontWeight: 800, color: 'var(--sweet-accent)' }}>
+                    +{Math.floor(Number(posAmount) * CASHBACK_RATE)} SWEET
+                  </span>
+                </div>
+
+                {/* CTA */}
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  disabled={loading || !wallet || Number(posAmount) <= 0 || !!addressError || !clientWalletAddress}
+                  onClick={handleTransfer}
+                  style={{
+                    width: '100%',
+                    fontWeight: 800,
+                    padding: '13px',
+                    borderRadius: 14,
+                    border: 'none',
+                    background: 'var(--sweet-accent)',
+                    color: '#0d0b0a',
+                    fontSize: 13,
+                    cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                    opacity: (loading || !wallet || Number(posAmount) <= 0 || !!addressError || !clientWalletAddress) ? 0.5 : 1,
+                    transition: 'opacity 0.15s',
+                  }}
+                >
+                  {loading ? (
+                    <><div style={{ width: 15, height: 15, border: '2px solid rgba(0,0,0,0.25)', borderTopColor: '#000', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} /> Sending...</>
+                  ) : !wallet ? (
+                    t('dashboard.connectWalletFirst')
+                  ) : (
+                    t('dashboard.processPayment') || 'Authorize Transaction'
+                  )}
+                </motion.button>
+              </div>
+        </motion.section>
+
+        {/* ── Bottom grid ──────────────────────────────────────────────────── */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 20 }}>
+
+          {/* Simulate Purchase (Demo) */}
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+          >
+            <div
+              style={{
+                borderRadius: 20,
+                display: 'flex',
+                flexDirection: 'column',
+                background: 'var(--sweet-card)',
+                border: '1px solid var(--sweet-border)',
+                overflow: 'hidden',
+              }}
+            >
+          <SectionHeader
+            icon={
+              <div
+                style={{
+                  width: 38, height: 38, borderRadius: 10,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: 'rgba(245,158,11,0.15)',
+                  border: '1px solid rgba(245,158,11,0.3)',
+                  color: 'var(--sweet-accent)',
+                  flexShrink: 0,
+                }}
+              >
+                <ShoppingBagIcon style={{ width: 18, height: 18 }} />
+              </div>
+            }
+            title={t('dashboard.simulatePurchase') || 'Simulate Purchase'}
+            badge={
+              <span
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 5,
+                  padding: '3px 10px', borderRadius: 9999,
+                  fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em',
+                  background: 'var(--sweet-accent-dim)',
+                  border: '1px solid rgba(245,158,11,0.3)',
+                  color: 'var(--sweet-accent)',
+                }}
+              >
+                <FlaskIcon style={{ width: 10, height: 10 }} />
+                Demo
+              </span>
+            }
+          />
+
+          <div style={{ padding: '20px 20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 18, marginBottom: 20 }}>
+
+              {/* Amount */}
               <div>
-                <label className="block text-sm font-medium text-stone-400 mb-2">
-                  {t('dashboard.enterPurchaseAmount') || 'Transaction Amount (KZT)'}
+                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--sweet-text-muted)', marginBottom: 8 }}>
+                  {t('dashboard.purchaseAmountLabel') || 'Purchase Amount'}
                 </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-500 font-medium">₸</span>
+                <div style={{ position: 'relative' }}>
+                  <span style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)', fontSize: 13, fontWeight: 800, color: 'var(--sweet-accent)', userSelect: 'none' }}>
+                    &#x20B8;
+                  </span>
                   <input
                     type="number"
-                    className="w-full bg-stone-950 border border-stone-800 rounded-lg pl-8 pr-4 py-2.5 text-white text-sm focus:outline-none focus:border-stone-500 focus:ring-1 focus:ring-stone-500 transition-all min-w-0"
-                    placeholder="0.00"
-                    value={posAmount}
-                    onChange={(e) => setPosAmount(Number(e.target.value) || '')}
+                    style={{ ...inputStyle, paddingLeft: 30 }}
+                    placeholder="1 200"
+                    value={simAmount}
+                    onChange={(e) => setSimAmount(Number(e.target.value) || '')}
+                    min={1}
+                    onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--sweet-accent)')}
+                    onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--sweet-border)')}
+                  />
+                </div>
+                <AnimatePresence>
+                  {Number(simAmount) > 0 && (
+                    <motion.p
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      style={{ fontSize: 11, marginTop: 7, fontFamily: 'monospace', fontWeight: 800, color: 'var(--sweet-accent)' }}
+                    >
+                      = {Math.floor(Number(simAmount)).toLocaleString()} SWEET base
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Customer wallet */}
+              <div>
+                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--sweet-text-muted)', marginBottom: 8 }}>
+                  {t('dashboard.customerWalletLabel') || 'Customer Wallet'}
+                </label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <select
+                    style={{ ...inputStyle, color: 'var(--sweet-text-secondary)' }}
+                    value=""
+                    onChange={(e) => { if (e.target.value) setSimWallet(e.target.value); }}
+                    onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--sweet-accent)')}
+                    onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--sweet-border)')}
+                  >
+                    <option value="">Quick-fill demo customer...</option>
+                    {DEMO_CUSTOMERS.map((c) => (
+                      <option key={c.wallet} value={c.wallet}>{c.label}</option>
+                    ))}
+                  </select>
+                  <input
+                    type="text"
+                    style={{
+                      ...inputStyle,
+                      fontFamily: 'monospace',
+                      fontSize: 11,
+                      color: 'var(--sweet-text-secondary)',
+                      borderColor: simWallet && isValidTonAddress(simWallet) ? 'rgba(16,185,129,0.5)' : 'var(--sweet-border)',
+                    }}
+                    placeholder="UQ... or EQ..."
+                    value={simWallet}
+                    onChange={(e) => setSimWallet(e.target.value)}
+                    onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--sweet-accent)')}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor =
+                        simWallet && isValidTonAddress(simWallet) ? 'rgba(16,185,129,0.5)' : 'var(--sweet-border)';
+                    }}
                   />
                 </div>
               </div>
 
+              {/* Items */}
               <div>
-                <label className="block text-sm font-medium text-stone-400 mb-2">
-                  {t('dashboard.scanCustomerQr') || 'Customer Wallet Address'}
+                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--sweet-text-muted)', marginBottom: 8 }}>
+                  {t('dashboard.selectItems') || 'Items (optional)'}
                 </label>
-                <div className="relative flex gap-2">
-                  <div className="relative flex-1 min-w-0">
-                    <input
-                      type="text"
-                      className={`w-full bg-stone-950 border rounded-lg px-3 py-2.5 text-stone-300 text-sm font-mono focus:outline-none focus:ring-1 transition-all placeholder:text-stone-600 ${
-                        addressError
-                          ? 'border-red-500/50 focus:border-red-500 focus:ring-red-500/20'
-                          : clientWalletAddress && !addressError
-                          ? 'border-green-500/50 focus:border-green-500 focus:ring-green-500/20'
-                          : 'border-stone-800 focus:border-stone-500 focus:ring-stone-500'
-                      }`}
-                      placeholder="UQ... or EQ..."
-                      value={clientWalletAddress}
-                      onChange={(e) => handleAddressChange(e.target.value)}
-                    />
-                    {clientWalletAddress && (
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                        {addressError
-                          ? <ExclamationCircleIcon className="w-4 h-4 text-red-400" />
-                          : <CheckCircleIcon className="w-4 h-4 text-green-400" />
-                        }
-                      </div>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => setShowScanner(true)}
-                    className="shrink-0 bg-stone-800 hover:bg-stone-700 text-stone-300 px-3 py-2.5 rounded-lg transition-colors border border-stone-700"
-                    title="Scan QR"
-                  >
-                    <QrCodeIcon className="w-5 h-5" />
-                  </button>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {DEMO_ITEMS.map((item) => {
+                    const selected = simItems.includes(item);
+                    return (
+                      <motion.button
+                        key={item}
+                        type="button"
+                        whileTap={{ scale: 0.93 }}
+                        onClick={() => toggleItem(item)}
+                        style={{
+                          fontSize: 11,
+                          padding: '5px 10px',
+                          borderRadius: 8,
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          transition: 'all 0.14s',
+                          ...(selected
+                            ? { background: 'var(--sweet-accent-dim)', border: '1px solid rgba(245,158,11,0.4)', color: 'var(--sweet-accent)' }
+                            : { background: 'var(--sweet-input)', border: '1px solid var(--sweet-border)', color: 'var(--sweet-text-muted)' }),
+                        }}
+                      >
+                        {item}
+                      </motion.button>
+                    );
+                  })}
                 </div>
-                {addressError && (
-                  <p className="text-xs text-red-400 mt-1">{addressError}</p>
+              </div>
+            </div>
+
+            {/* Submit row */}
+            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 12, paddingTop: 18, borderTop: '1px solid var(--sweet-border)', flexWrap: 'wrap' }}>
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={handleSimulatePurchase}
+                disabled={simLoading || simSuccess || Number(simAmount) <= 0 || !simWallet.trim()}
+                style={{
+                  flex: '0 0 auto',
+                  minWidth: 200,
+                  fontWeight: 800,
+                  padding: '13px 24px',
+                  borderRadius: 14,
+                  border: 'none',
+                  background: 'var(--sweet-accent)',
+                  color: '#0d0b0a',
+                  fontSize: 13,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  opacity: (simLoading || simSuccess || Number(simAmount) <= 0 || !simWallet.trim()) ? 0.5 : 1,
+                  transition: 'opacity 0.15s',
+                }}
+              >
+                <AnimatePresence mode="wait">
+                  {simSuccess ? (
+                    <motion.span key="success" initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <CheckCircleSolidIcon weight="fill" style={{ width: 18, height: 18 }} />
+                      Issued!
+                    </motion.span>
+                  ) : simLoading ? (
+                    <motion.span key="loading" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div style={{ width: 15, height: 15, border: '2px solid rgba(0,0,0,0.25)', borderTopColor: '#000', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+                      {t('dashboard.issuingSweet') || 'Issuing...'}
+                    </motion.span>
+                  ) : (
+                    <motion.span key="idle" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <CoinsIcon style={{ width: 15, height: 15 }} />
+                      {t('dashboard.issueSweet') || 'Issue SWEET Tokens'}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </motion.button>
+
+              <AnimatePresence>
+                {Number(simAmount) > 0 && simWallet && (
+                  <motion.div
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 8,
+                      padding: '10px 14px',
+                      borderRadius: 12,
+                      background: 'var(--sweet-input)',
+                      border: '1px solid var(--sweet-border)',
+                    }}
+                  >
+                    <CurrencyDollarIcon style={{ width: 15, height: 15, color: 'var(--sweet-text-muted)', flexShrink: 0 }} />
+                    <span style={{ fontSize: 11, color: 'var(--sweet-text-muted)' }}>Est. reward:</span>
+                    <span style={{ fontSize: 13, fontWeight: 800, fontFamily: 'monospace', color: 'var(--sweet-accent)' }}>
+                      +{Math.floor(Number(simAmount)).toLocaleString()} SWEET
+                    </span>
+                    <span style={{ fontSize: 11, color: 'var(--sweet-text-faint)' }}>base</span>
+                  </motion.div>
                 )}
-                {clientWalletAddress && !addressError && (
-                  <p className="text-xs text-green-400 mt-1">Valid TON address</p>
-                )}
+              </AnimatePresence>
+            </div>
+          </div>
+            </div>
+          </motion.div>
+
+          {/* Right column */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+
+            {/* Chart */}
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              style={{
+                borderRadius: 20,
+                padding: 20,
+                background: 'var(--sweet-card)',
+                border: '1px solid var(--sweet-border)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+                  <TrendUpIcon style={{ width: 15, height: 15, color: 'var(--sweet-accent)' }} />
+                  <h3 style={{ fontSize: 13, fontWeight: 800, color: 'var(--sweet-text)', margin: 0 }}>
+                    {t('dashboard.ecosystemGrowth') || 'Transaction Volume'}
+                  </h3>
+                </div>
+                <select
+                  style={{
+                    ...inputStyle,
+                    width: 'auto',
+                    padding: '6px 10px',
+                    fontSize: 11,
+                    color: 'var(--sweet-text-secondary)',
+                  }}
+                  value={chartPeriod}
+                  onChange={(e) => setChartPeriod(e.target.value as 'day' | 'week' | 'month')}
+                >
+                  <option value="day">{t('dashboard.period24h') || '24 hours'}</option>
+                  <option value="week">{t('dashboard.period7d') || '7 days'}</option>
+                  <option value="month">{t('dashboard.period30d') || '30 days'}</option>
+                </select>
               </div>
 
-              <div className="bg-stone-950/50 border border-stone-800/80 px-4 py-3 rounded-lg flex justify-between items-center mt-auto">
-                <span className="text-sm text-stone-400 truncate pr-2">{t('dashboard.cashbackReward') || 'Loyalty Reward'} (10%)</span>
-                <span className="font-mono text-sm font-medium text-stone-200 shrink-0">
-                  +{Math.floor(Number(posAmount) * 0.1)} SWEET
+              <div style={{ height: 160 }}>
+                {chartData.length === 0 ? (
+                  <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <p style={{ fontSize: 12, color: 'var(--sweet-text-faint)' }}>No growth data yet</p>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: 5, height: '100%' }}>
+                    {chartData.slice(-14).map((row, i) => {
+                      const pct = Math.round((row.value / maxChartVal) * 100);
+                      return (
+                        <motion.div
+                          key={row.name}
+                          style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, transformOrigin: 'bottom' }}
+                          initial={{ scaleY: 0 }}
+                          animate={{ scaleY: 1 }}
+                          transition={{ delay: i * 0.04, type: 'spring', stiffness: 200, damping: 18 }}
+                        >
+                          <div style={{ position: 'relative', width: '100%', flex: 1, display: 'flex', alignItems: 'flex-end' }}>
+                            <div
+                              style={{
+                                width: '100%',
+                                borderRadius: '4px 4px 0 0',
+                                height: `${Math.max(pct, 4)}%`,
+                                background: 'linear-gradient(180deg, var(--sweet-accent) 0%, rgba(245,158,11,0.3) 100%)',
+                                opacity: 0.85,
+                              }}
+                            />
+                          </div>
+                          <span style={{ fontSize: 8, color: 'var(--sweet-text-faint)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%', textAlign: 'center' }}>
+                            {row.name.split(' ')[0]}
+                          </span>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+
+            {/* Activity Feed */}
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 }}
+              style={{
+                borderRadius: 20,
+                padding: 20,
+                background: 'var(--sweet-card)',
+                border: '1px solid var(--sweet-border)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+                  <LightningIcon style={{ width: 15, height: 15, color: 'var(--sweet-accent)' }} />
+                  <h3 style={{ fontSize: 13, fontWeight: 800, color: 'var(--sweet-text)', margin: 0 }}>Live Activity</h3>
+                </div>
+                <span
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 5,
+                    fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em',
+                    padding: '3px 9px', borderRadius: 9999,
+                    background: 'rgba(16,185,129,0.1)',
+                    color: '#34d399',
+                    border: '1px solid rgba(16,185,129,0.2)',
+                  }}
+                >
+                  <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#34d399', animation: 'pulse 2s infinite' }} />
+                  Live
                 </span>
               </div>
 
-              <button
-                disabled={loading || !wallet || Number(posAmount) <= 0 || !!addressError || !clientWalletAddress}
-                onClick={handleTransfer}
-                className="w-full bg-amber-500 text-black font-semibold py-3 rounded-lg hover:bg-amber-400 active:bg-amber-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {loading ? (
-                  <><div className="w-4 h-4 border-2 border-stone-400 border-t-stone-900 rounded-full animate-spin" /> Sending...</>
-                ) : !wallet ? (
-                  t('dashboard.connectWalletFirst')
-                ) : (
-                  t('dashboard.processPayment') || 'Authorize Transaction'
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
+              <div>
+                {MOCK_ACTIVITIES.map((act, idx) => {
+                  const meta = activityMeta[act.type] ?? activityMeta.earn;
+                  return (
+                    <div key={act.id} style={{ display: 'flex', alignItems: 'stretch', gap: 12 }}>
+                      {/* Timeline dot + line */}
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 28, flexShrink: 0 }}>
+                        <div
+                          style={{
+                            width: 28, height: 28, borderRadius: '50%',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            flexShrink: 0,
+                            ...meta.colorStyle,
+                          }}
+                        >
+                          {meta.icon}
+                        </div>
+                        {idx < MOCK_ACTIVITIES.length - 1 && (
+                          <div style={{ width: 1, flex: 1, marginTop: 4, background: 'var(--sweet-border)', minHeight: 16 }} />
+                        )}
+                      </div>
 
-        {/* Chart */}
-        <div className="lg:col-span-7 xl:col-span-8">
-          <div className="bg-stone-900 border border-stone-800/80 rounded-xl p-5 h-[420px] shadow-sm flex flex-col">
-            <div className="mb-6 flex justify-between items-center">
-              <h3 className="text-base font-semibold text-white">{t('dashboard.ecosystemGrowth') || 'Transaction Volume'}</h3>
-              <select
-                className="bg-stone-950 border border-stone-800 text-sm text-stone-300 rounded-md px-2 py-1 outline-none"
-                value={chartPeriod}
-                onChange={(e) => setChartPeriod(e.target.value as 'day' | 'week' | 'month')}
-              >
-                <option value="day">{t('dashboard.period24h') || '24 hours'}</option>
-                <option value="week">{t('dashboard.period7d') || '7 days'}</option>
-                <option value="month">{t('dashboard.period30d') || '30 days'}</option>
-              </select>
-            </div>
-            <div className="flex-1 w-full relative">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#ffffff" stopOpacity={0.1} />
-                      <stop offset="95%" stopColor="#ffffff" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <XAxis dataKey="name" stroke="#52525b" tick={{ fontSize: 12, fill: '#71717a' }} axisLine={false} tickLine={false} dy={10} />
-                  <YAxis stroke="#52525b" tick={{ fontSize: 12, fill: '#71717a' }} axisLine={false} tickLine={false} dx={-10} />
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#292524" />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#1c1917', // stone-900
-                      border: '1px solid #292524', // stone-800
-                      borderRadius: '8px',
-                      fontSize: '12px',
-                      color: '#fff',
-                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
-                    }}
-                    itemStyle={{ color: '#e4e4e7' }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="value"
-                    stroke="#a1a1aa" // stone-400
-                    strokeWidth={2}
-                    fillOpacity={1}
-                    fill="url(#colorValue)"
-                    activeDot={{ r: 4, strokeWidth: 0, fill: '#fff' }}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
+                      {/* Content */}
+                      <div style={{ flex: 1, paddingBottom: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                        <div>
+                          <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--sweet-text)', margin: 0 }}>
+                            {act.user}
+                            <span style={{ fontWeight: 400, color: 'var(--sweet-text-muted)' }}> {meta.label.toLowerCase()}</span>
+                            {act.amount > 0 && (
+                              <span style={{ fontWeight: 800, color: 'var(--sweet-accent)' }}> +{act.amount.toLocaleString()} SWEET</span>
+                            )}
+                          </p>
+                          {act.partner && (
+                            <p style={{ fontSize: 11, color: 'var(--sweet-text-faint)', marginTop: 2 }}>at {act.partner}</p>
+                          )}
+                        </div>
+                        <span style={{ fontSize: 11, color: 'var(--sweet-text-faint)', flexShrink: 0 }}>{act.ago}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </motion.div>
+
           </div>
         </div>
       </div>
 
-      {/* QR Scanner Modal */}
-      {showScanner && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <motion.div 
-            initial={{ scale: 0.95, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="bg-stone-900 border border-stone-800 rounded-xl w-full max-w-sm overflow-hidden relative shadow-2xl"
-          >
-            <div className="flex justify-between items-center p-4 border-b border-stone-800">
-              <h3 className="font-semibold text-white text-sm">{t('dashboard.scannerTitle') || 'Scan Wallet QR'}</h3>
-              <button onClick={() => setShowScanner(false)} className="text-stone-500 hover:text-white transition-colors bg-stone-800 rounded-md p-1">
-                <XMarkIcon className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="bg-black relative aspect-square">
-              <Suspense
-                fallback={
-                  <div className="absolute inset-0 flex items-center justify-center bg-black">
-                    <div className="w-8 h-8 border-2 border-stone-700 border-t-amber-400 rounded-full animate-spin" />
-                  </div>
-                }
-              >
-                <Scanner
-                  onScan={(result) => {
-                    if (result && result.length > 0) {
-                      let address = result[0].rawValue;
-                      if (address.startsWith('ton://transfer/')) {
-                         address = address.replace('ton://transfer/', '').split('?')[0];
-                      }
-                      setClientWalletAddress(address);
-                      setShowScanner(false);
-                      toast.success(t('dashboard.walletTarget') || 'Wallet address captured!');
-                    }
-                  }}
-                />
-              </Suspense>
-            </div>
-          </motion.div>
-        </div>
-      )}
-
-      {/* Receipt / Confirmation Modal */}
+      {/* ── QR Scanner Modal ─────────────────────────────────────────────── */}
       <AnimatePresence>
-        {receipt && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        {showScanner && (
+          <div
+            style={{
+              position: 'fixed', inset: 0, zIndex: 100,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16,
+              background: 'rgba(0,0,0,0.82)',
+              backdropFilter: 'blur(8px)',
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0.94, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.94, opacity: 0 }}
+              style={{
+                width: '100%', maxWidth: 380, overflow: 'hidden', position: 'relative',
+                borderRadius: 20, boxShadow: '0 20px 60px rgba(0,0,0,0.4)',
+                background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  padding: '14px 16px',
+                  borderBottom: '1px solid var(--sweet-border)',
+                }}
+              >
+                <h3 style={{ fontWeight: 800, fontSize: 14, color: 'var(--sweet-text)', margin: 0 }}>
+                  {t('dashboard.scannerTitle') || 'Scan Wallet QR'}
+                </h3>
+                <button
+                  onClick={() => setShowScanner(false)}
+                  style={{
+                    padding: '6px 8px', borderRadius: 10, cursor: 'pointer',
+                    background: 'var(--sweet-input)', border: '1px solid var(--sweet-border)',
+                    color: 'var(--sweet-text-muted)', display: 'flex', alignItems: 'center',
+                  }}
+                >
+                  <XIcon style={{ width: 15, height: 15 }} />
+                </button>
+              </div>
+              <div style={{ background: '#000', position: 'relative', aspectRatio: '1' }}>
+                <Suspense
+                  fallback={
+                    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#000' }}>
+                      <div style={{ width: 30, height: 30, border: '2px solid rgba(255,255,255,0.15)', borderTopColor: '#f59e0b', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+                    </div>
+                  }
+                >
+                  <Scanner
+                    onScan={(result) => {
+                      if (result && result.length > 0) {
+                        let address = result[0].rawValue;
+                        if (address.startsWith('ton://transfer/')) {
+                          address = address.replace('ton://transfer/', '').split('?')[0];
+                        }
+                        setClientWalletAddress(address);
+                        setShowScanner(false);
+                        toast.success(t('dashboard.walletTarget') || 'Wallet address captured!');
+                      }
+                    }}
+                  />
+                </Suspense>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Sim Receipt Modal ────────────────────────────────────────────── */}
+      <AnimatePresence>
+        {simReceipt && (
+          <div
+            style={{
+              position: 'fixed', inset: 0, zIndex: 100,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16,
+              background: 'rgba(0,0,0,0.82)',
+              backdropFilter: 'blur(8px)',
+            }}
+          >
             <motion.div
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="bg-stone-900 border border-stone-800 rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl"
+              transition={{ type: 'spring', stiffness: 260, damping: 22 }}
+              style={{
+                width: '100%', maxWidth: 380, overflow: 'hidden', borderRadius: 22,
+                boxShadow: '0 24px 64px rgba(0,0,0,0.45)',
+                background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)',
+              }}
             >
-              {/* Success header */}
-              <div className="bg-green-500/10 border-b border-green-500/20 px-6 py-5 text-center">
-                <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <CheckCircleIcon className="w-7 h-7 text-green-400" />
-                </div>
-                <h3 className="text-lg font-bold text-white">Transaction Successful</h3>
-                <p className="text-xs text-stone-400 mt-1">SWEET tokens sent to customer wallet</p>
+              {/* Receipt header */}
+              <div
+                style={{
+                  padding: '28px 24px',
+                  textAlign: 'center',
+                  background: 'var(--sweet-accent-dim)',
+                  borderBottom: '1px solid var(--sweet-border)',
+                }}
+              >
+                <motion.div
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.15, type: 'spring', stiffness: 200 }}
+                  style={{
+                    width: 64, height: 64, borderRadius: '50%',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    margin: '0 auto 14px',
+                    background: 'var(--sweet-accent-dim)',
+                    border: '2px solid rgba(245,158,11,0.4)',
+                  }}
+                >
+                  <CoinsIcon style={{ width: 30, height: 30, color: 'var(--sweet-accent)' }} />
+                </motion.div>
+                <h3 style={{ fontSize: 17, fontWeight: 800, color: 'var(--sweet-text)', margin: 0 }}>SWEET Issued!</h3>
+                <p style={{ fontSize: 12, marginTop: 5, color: 'var(--sweet-text-muted)' }}>
+                  {t('dashboard.customerNotified') || 'Customer notified in real-time'}
+                </p>
               </div>
 
-              {/* Receipt details */}
-              <div className="p-5 space-y-3">
-                <div className="flex justify-between items-center py-2 border-b border-stone-800/60">
-                  <span className="text-xs text-stone-500">Purchase Amount</span>
-                  <span className="text-sm font-semibold text-white">₸{receipt.amount.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-stone-800/60">
-                  <span className="text-xs text-stone-500">Cashback (10%)</span>
-                  <span className="text-sm font-bold text-green-400">+{receipt.cashback.toLocaleString()} SWEET</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-stone-800/60">
-                  <span className="text-xs text-stone-500">Customer Wallet</span>
-                  <span className="text-xs font-mono text-stone-300">
-                    {receipt.clientWallet.slice(0, 8)}...{receipt.clientWallet.slice(-6)}
+              {/* Receipt rows */}
+              <div style={{ padding: '4px 20px' }}>
+                <ReceiptRow label="Purchase Amount">
+                  <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--sweet-text)' }}>&#x20B8;{simReceipt.amount.toLocaleString()}</span>
+                </ReceiptRow>
+                <ReceiptRow label={t('dashboard.pointsIssued') || 'Points Issued'}>
+                  <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--sweet-accent)' }}>+{simReceipt.pointsEarned.toLocaleString()} SWEET</span>
+                </ReceiptRow>
+                <ReceiptRow label={t('dashboard.tierMultiplier') || 'Tier Multiplier'}>
+                  <span style={{ fontSize: 13, fontFamily: 'monospace', fontWeight: 700, color: 'var(--sweet-text)' }}>&#xD7;{simReceipt.tierMultiplier}</span>
+                </ReceiptRow>
+                <ReceiptRow label="Partner">
+                  <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--sweet-text)' }}>{simReceipt.partnerName}</span>
+                </ReceiptRow>
+                <ReceiptRow label="Customer">
+                  <span style={{ fontSize: 11, fontFamily: 'monospace', fontWeight: 700, color: 'var(--sweet-text)' }}>
+                    {simReceipt.customerWallet.slice(0, 8)}...{simReceipt.customerWallet.slice(-6)}
                   </span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-stone-800/60">
-                  <span className="text-xs text-stone-500">Time</span>
-                  <span className="text-xs text-stone-300">{receipt.timestamp}</span>
-                </div>
-                <div className="flex justify-between items-center py-2">
-                  <span className="text-xs text-stone-500">Transaction ID</span>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-mono text-stone-400">{receipt.txId}</span>
-                    <button onClick={() => { navigator.clipboard.writeText(receipt.txId); toast.success('Copied!', { duration: 1000 }); }}>
-                      <ClipboardDocumentIcon className="w-3.5 h-3.5 text-stone-600 hover:text-stone-300" />
-                    </button>
+                </ReceiptRow>
+                {simReceipt.items.length > 0 && (
+                  <div style={{ padding: '11px 0', borderBottom: '1px solid var(--sweet-border)' }}>
+                    <p style={{ fontSize: 11, color: 'var(--sweet-text-muted)', marginBottom: 8 }}>Items</p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                      {simReceipt.items.map((item) => (
+                        <span
+                          key={item}
+                          style={{
+                            fontSize: 10, padding: '3px 8px', borderRadius: 6, fontWeight: 600,
+                            background: 'var(--sweet-accent-dim)',
+                            color: 'var(--sweet-accent)',
+                            border: '1px solid rgba(245,158,11,0.25)',
+                          }}
+                        >
+                          {item}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
+                <ReceiptRow label={t('dashboard.txHashLabel') || 'Tx Hash'} last>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 10, fontFamily: 'monospace', color: 'var(--sweet-text-faint)' }}>
+                      {simReceipt.txHash ? `${simReceipt.txHash.slice(0, 10)}...${simReceipt.txHash.slice(-6)}` : '\u2014'}
+                    </span>
+                    {simReceipt.txHash && (
+                      <button
+                        onClick={() => { navigator.clipboard.writeText(simReceipt.txHash); toast.success('Copied!', { duration: 1000 }); }}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}
+                      >
+                        <ClipboardTextIcon style={{ width: 13, height: 13, color: 'var(--sweet-text-faint)' }} />
+                      </button>
+                    )}
+                  </div>
+                </ReceiptRow>
               </div>
 
-              <div className="px-5 pb-5">
-                <button
-                  onClick={() => setReceipt(null)}
-                  className="w-full py-3 bg-amber-500 text-black font-bold rounded-xl hover:bg-amber-400 transition-colors text-sm"
+              <div style={{ padding: '4px 20px 20px' }}>
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => setSimReceipt(null)}
+                  style={{
+                    width: '100%', padding: '13px', fontWeight: 800, borderRadius: 14,
+                    border: 'none', background: 'var(--sweet-accent)', color: '#0d0b0a',
+                    fontSize: 13, cursor: 'pointer',
+                  }}
                 >
                   Done
-                </button>
+                </motion.button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* ── POS Receipt Modal ────────────────────────────────────────────── */}
+      <AnimatePresence>
+        {receipt && (
+          <div
+            style={{
+              position: 'fixed', inset: 0, zIndex: 100,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16,
+              background: 'rgba(0,0,0,0.82)',
+              backdropFilter: 'blur(8px)',
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ type: 'spring', stiffness: 260, damping: 22 }}
+              style={{
+                width: '100%', maxWidth: 380, overflow: 'hidden', borderRadius: 22,
+                boxShadow: '0 24px 64px rgba(0,0,0,0.45)',
+                background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)',
+              }}
+            >
+              {/* Success header */}
+              <div
+                style={{
+                  padding: '28px 24px',
+                  textAlign: 'center',
+                  background: 'rgba(16,185,129,0.07)',
+                  borderBottom: '1px solid var(--sweet-border)',
+                }}
+              >
+                <motion.div
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.1, type: 'spring', stiffness: 220 }}
+                  style={{
+                    width: 64, height: 64, borderRadius: '50%',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    margin: '0 auto 14px',
+                    background: 'rgba(16,185,129,0.12)',
+                    border: '2px solid rgba(16,185,129,0.35)',
+                  }}
+                >
+                  <CheckCircleSolidIcon weight="fill" style={{ width: 34, height: 34, color: '#34d399' }} />
+                </motion.div>
+                <h3 style={{ fontSize: 17, fontWeight: 800, color: 'var(--sweet-text)', margin: 0 }}>Transaction Successful</h3>
+                <p style={{ fontSize: 12, marginTop: 5, color: 'var(--sweet-text-muted)' }}>SWEET tokens sent to customer wallet</p>
+              </div>
+
+              {/* Rows */}
+              <div style={{ padding: '4px 20px' }}>
+                <ReceiptRow label="Purchase Amount">
+                  <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--sweet-text)' }}>&#x20B8;{receipt.amount.toLocaleString()}</span>
+                </ReceiptRow>
+                <ReceiptRow label="Cashback (10%)">
+                  <span style={{ fontSize: 13, fontWeight: 800, color: '#34d399' }}>+{receipt.cashback.toLocaleString()} SWEET</span>
+                </ReceiptRow>
+                <ReceiptRow label="Customer Wallet">
+                  <span style={{ fontSize: 11, fontFamily: 'monospace', fontWeight: 700, color: 'var(--sweet-text)' }}>
+                    {receipt.clientWallet.slice(0, 8)}...{receipt.clientWallet.slice(-6)}
+                  </span>
+                </ReceiptRow>
+                <ReceiptRow label="Time">
+                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--sweet-text)' }}>{receipt.timestamp}</span>
+                </ReceiptRow>
+                <ReceiptRow label="Transaction ID" last>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 11, fontFamily: 'monospace', color: 'var(--sweet-text-secondary)' }}>{receipt.txId}</span>
+                    <button
+                      onClick={() => { navigator.clipboard.writeText(receipt.txId); toast.success('Copied!', { duration: 1000 }); }}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}
+                    >
+                      <ClipboardTextIcon style={{ width: 13, height: 13, color: 'var(--sweet-text-faint)' }} />
+                    </button>
+                  </div>
+                </ReceiptRow>
+              </div>
+
+              <div style={{ padding: '4px 20px 20px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <a
+                  href={`https://testnet.tonviewer.com/transaction/${receipt.txId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+                    padding: '11px', fontWeight: 700, borderRadius: 12, fontSize: 12,
+                    textDecoration: 'none',
+                    border: '1px solid var(--sweet-border)',
+                    color: 'var(--sweet-text-secondary)',
+                    background: 'var(--sweet-input)',
+                  }}
+                >
+                  <ArrowUpRightIcon style={{ width: 14, height: 14 }} />
+                  View on TON Explorer
+                </a>
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => setReceipt(null)}
+                  style={{
+                    width: '100%', padding: '13px', fontWeight: 800, borderRadius: 14,
+                    border: 'none', background: 'var(--sweet-accent)', color: '#0d0b0a',
+                    fontSize: 13, cursor: 'pointer',
+                  }}
+                >
+                  Done
+                </motion.button>
               </div>
             </motion.div>
           </div>

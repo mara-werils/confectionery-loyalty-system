@@ -110,7 +110,8 @@ router.get(
         // Partner summary - own data
         const partnerId = req.user!.id;
 
-        const [partner, transactionStats, recentTransactions, claimedRewards] = await Promise.all([
+        const [partner, transactionStats, recentTransactions, claimedRewards,
+          totalPartners, totalTransactions, totalPointsAgg] = await Promise.all([
           prisma.partner.findUnique({
             where: { id: partnerId },
             include: { loyaltyPoints: true },
@@ -129,15 +130,20 @@ router.get(
             where: { partnerId },
             take: 5,
             orderBy: { createdAt: 'desc' },
-            include: {
-              reward: {
-                select: { title: true },
-              },
-            },
+            include: { reward: { select: { title: true } } },
           }),
+          // Ecosystem metrics (visible on partner dashboard)
+          prisma.partner.count({ where: { status: 'ACTIVE' } }),
+          prisma.transaction.count(),
+          prisma.loyaltyPoints.aggregate({ _sum: { lifetimeEarned: true } }),
         ]);
 
         return successResponse(res, {
+          // Ecosystem-level fields (matches admin shape so Dashboard.tsx works for all roles)
+          totalPartners,
+          totalTransactions,
+          totalPointsIssued: Number(totalPointsAgg._sum.lifetimeEarned ?? 0n),
+          // Partner-specific data
           balance: {
             current: (partner?.loyaltyPoints?.balance || 0n).toString(),
             lifetimeEarned: (partner?.loyaltyPoints?.lifetimeEarned || 0n).toString(),

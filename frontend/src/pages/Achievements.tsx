@@ -2,17 +2,17 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   TrophyIcon,
-  LockClosedIcon,
-  ArrowTopRightOnSquareIcon,
-  SparklesIcon,
-  CheckBadgeIcon,
+  LockIcon,
+  ArrowSquareOutIcon,
+  StarIcon,
+  SealCheckIcon,
   CubeTransparentIcon,
-} from '@heroicons/react/24/outline';
-import { TrophyIcon as TrophySolid } from '@heroicons/react/24/solid';
+} from '@phosphor-icons/react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../services/api';
 import { useAuthStore } from '../store/authStore';
 import toast from 'react-hot-toast';
+import confetti from 'canvas-confetti';
 import { useTranslation } from 'react-i18next';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -63,9 +63,10 @@ const TON_VIEWER_BASE = 'https://testnet.tonviewer.com/transaction/';
 function ProgressBar({ value, max, unlocked }: { value: number; max: number; unlocked: boolean }) {
   const pct = max === 0 ? 100 : Math.min(100, (value / max) * 100);
   return (
-    <div className="w-full h-1.5 bg-stone-800 rounded-full overflow-hidden mt-3">
+    <div className="w-full h-1.5 rounded-full overflow-hidden mt-3" style={{ background: 'var(--sweet-border)' }}>
       <motion.div
-        className={`h-full rounded-full ${unlocked ? 'bg-amber-400' : 'bg-stone-600'}`}
+        className={`h-full rounded-full ${unlocked ? 'bg-amber-400' : ''}`}
+        style={unlocked ? undefined : { background: 'var(--sweet-border-light)' }}
         initial={{ width: 0 }}
         animate={{ width: `${pct}%` }}
         transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }}
@@ -86,7 +87,7 @@ function NFTBadge({ txHash }: { txHash: string }) {
     >
       <CubeTransparentIcon className="w-3 h-3" />
       {t('achievements.nftOnchain')}
-      <ArrowTopRightOnSquareIcon className="w-2.5 h-2.5" />
+      <ArrowSquareOutIcon className="w-2.5 h-2.5" />
     </a>
   );
 }
@@ -104,11 +105,13 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
       onClick={() => setExpanded(v => !v)}
-      className={`relative rounded-xl border p-4 cursor-pointer transition-colors ${
-        unlocked
-          ? 'bg-stone-900 border-yellow-500/30 hover:border-yellow-500/50'
-          : 'bg-stone-900 border-stone-800/80 hover:border-stone-700'
-      }`}
+      className="relative rounded-xl p-4 cursor-pointer transition-colors"
+      style={{
+        background: 'var(--sweet-card)',
+        border: unlocked
+          ? '1px solid rgba(234,179,8,0.3)'
+          : '1px solid var(--sweet-border)',
+      }}
     >
       {/* Glow ring for unlocked */}
       {unlocked && (
@@ -117,22 +120,23 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
 
       <div className="flex items-start gap-3">
         {/* Icon */}
-        <div className={`relative w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 ${
-          unlocked ? 'bg-yellow-400/10' : 'bg-stone-800'
-        }`}>
+        <div
+          className="relative w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
+          style={{ background: unlocked ? 'rgba(234,179,8,0.1)' : 'var(--sweet-card-hover)' }}
+        >
           <span className={unlocked ? '' : 'grayscale opacity-40'}>{emoji}</span>
 
           {/* NFT sparkle indicator */}
           {unlocked && achievement.nftTxHash && (
             <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-500 flex items-center justify-center">
-              <SparklesIcon className="w-2.5 h-2.5 text-white" />
+              <StarIcon className="w-2.5 h-2.5 text-white" />
             </div>
           )}
 
           {/* Lock overlay for locked */}
           {!unlocked && (
-            <div className="absolute inset-0 rounded-xl flex items-center justify-center bg-stone-900/60">
-              <LockClosedIcon className="w-4 h-4 text-stone-600" />
+            <div className="absolute inset-0 rounded-xl flex items-center justify-center" style={{ background: 'var(--sweet-card-hover)', opacity: 0.6 }}>
+              <LockIcon className="w-4 h-4" style={{ color: 'var(--sweet-text-faint)' }} />
             </div>
           )}
         </div>
@@ -140,18 +144,18 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
         {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
-            <p className={`text-sm font-bold ${unlocked ? 'text-white' : 'text-stone-400'}`}>
+            <p className="text-sm font-bold" style={{ color: unlocked ? 'var(--sweet-text)' : 'var(--sweet-text-secondary)' }}>
               {achievement.name}
             </p>
             {unlocked
-              ? <CheckBadgeIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" />
-              : <span className="text-[10px] text-stone-600 flex-shrink-0">
+              ? <SealCheckIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" />
+              : <span className="text-[10px] flex-shrink-0" style={{ color: 'var(--sweet-text-faint)' }}>
                   {achievement.progress}/{achievement.requirement}
                 </span>
             }
           </div>
 
-          <p className="text-xs text-stone-500 mt-0.5 line-clamp-1">{achievement.description}</p>
+          <p className="text-xs mt-0.5 line-clamp-1" style={{ color: 'var(--sweet-text-muted)' }}>{achievement.description}</p>
 
           {/* NFT badge row */}
           {unlocked && achievement.nftTxHash && (
@@ -162,7 +166,7 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
 
           {/* Points reward */}
           {achievement.points > 0 && (
-            <p className={`text-[10px] mt-1 font-semibold ${unlocked ? 'text-yellow-400' : 'text-stone-600'}`}>
+            <p className="text-[10px] mt-1 font-semibold" style={{ color: unlocked ? 'rgb(250,204,21)' : 'var(--sweet-text-faint)' }}>
               +{achievement.points.toLocaleString()} SWEET
             </p>
           )}
@@ -182,9 +186,9 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="mt-3 pt-3 border-t border-stone-800 space-y-2">
+            <div className="mt-3 pt-3 space-y-2" style={{ borderTop: '1px solid var(--sweet-border)' }}>
               {unlocked && achievement.unlockedAt && (
-                <p className="text-[11px] text-stone-500">
+                <p className="text-[11px]" style={{ color: 'var(--sweet-text-muted)' }}>
                   {t('achievements.unlockedAt')}: {new Date(achievement.unlockedAt).toLocaleDateString(undefined, {
                     day: '2-digit', month: 'short', year: 'numeric',
                   })}
@@ -197,7 +201,7 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
                     <CubeTransparentIcon className="w-3.5 h-3.5 text-amber-400" />
                     <span className="text-[11px] font-semibold text-amber-300">{t('achievements.sbtLabel')}</span>
                   </div>
-                  <p className="text-[10px] text-stone-500 font-mono break-all">{achievement.nftTxHash}</p>
+                  <p className="text-[10px] font-mono break-all" style={{ color: 'var(--sweet-text-muted)' }}>{achievement.nftTxHash}</p>
                   <a
                     href={`${TON_VIEWER_BASE}${achievement.nftTxHash}`}
                     target="_blank"
@@ -206,15 +210,15 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
                     className="inline-flex items-center gap-1 text-[10px] text-amber-400 hover:text-amber-300 underline underline-offset-2"
                   >
                     {t('achievements.viewTx')}
-                    <ArrowTopRightOnSquareIcon className="w-3 h-3" />
+                    <ArrowSquareOutIcon className="w-3 h-3" />
                   </a>
                 </div>
               ) : unlocked ? (
-                <div className="rounded-lg bg-stone-800/50 px-3 py-2">
-                  <p className="text-[10px] text-stone-500">{t('achievements.nftMinting')}</p>
+                <div className="rounded-lg px-3 py-2" style={{ background: 'var(--sweet-card-hover)' }}>
+                  <p className="text-[10px]" style={{ color: 'var(--sweet-text-muted)' }}>{t('achievements.nftMinting')}</p>
                 </div>
               ) : (
-                <p className="text-[11px] text-stone-500">
+                <p className="text-[11px]" style={{ color: 'var(--sweet-text-muted)' }}>
                   {t('achievements.remaining')} {achievement.requirement - achievement.progress}
                 </p>
               )}
@@ -246,6 +250,7 @@ export default function Achievements() {
     onSuccess: (res) => {
       const newly: string[] = (res as { data: { newlyUnlocked: string[] } }).data.newlyUnlocked;
       if (newly.length > 0) {
+        confetti({ particleCount: 150, spread: 80, origin: { y: 0.5 } });
         toast.success(t('achievements.newlyUnlocked', { items: newly.join(', ') }), { duration: 4000 });
       } else {
         toast(t('achievements.noNew'));
@@ -276,14 +281,15 @@ export default function Achievements() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-xl bg-yellow-400/15 border border-yellow-400/25 flex items-center justify-center">
-              <TrophySolid className="w-4 h-4 text-yellow-400" />
+              <TrophyIcon weight="fill" className="w-4 h-4 text-yellow-400" />
             </div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">{t('achievements.title')}</h1>
+            <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--sweet-text)' }}>{t('achievements.title')}</h1>
           </div>
           <button
             onClick={() => checkMutation.mutate()}
             disabled={checkMutation.isPending}
-            className="text-xs px-3 py-1.5 rounded-full bg-stone-800 border border-stone-700 text-stone-300 hover:bg-stone-700 transition-colors disabled:opacity-50"
+            className="text-xs px-3 py-1.5 rounded-full transition-colors disabled:opacity-50"
+            style={{ background: 'var(--sweet-card-hover)', border: '1px solid var(--sweet-border)', color: 'var(--sweet-text-secondary)' }}
           >
             {checkMutation.isPending ? t('achievements.checking') : t('achievements.check')}
           </button>
@@ -303,9 +309,9 @@ export default function Achievements() {
             { label: t('achievements.stats.progress'),  value: `${completionPct}%`,                       color: 'text-green-400' },
             { label: t('achievements.stats.nftMinted'), value: nftCount,                                  color: 'text-amber-400' },
           ].map(s => (
-            <div key={s.label} className="bg-stone-900 border border-stone-800 rounded-xl p-3 text-center">
+            <div key={s.label} className="rounded-xl p-3 text-center" style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)' }}>
               <p className={`text-xl font-black ${s.color}`}>{s.value}</p>
-              <p className="text-[10px] text-stone-500 mt-0.5">{s.label}</p>
+              <p className="text-[10px] mt-0.5" style={{ color: 'var(--sweet-text-muted)' }}>{s.label}</p>
             </div>
           ))}
         </motion.div>
@@ -324,7 +330,7 @@ export default function Achievements() {
             <p className="text-xs font-semibold text-amber-300">
               {nftCount} {t('achievements.sbtBanner')}
             </p>
-            <p className="text-[10px] text-stone-500 mt-0.5">
+            <p className="text-[10px] mt-0.5" style={{ color: 'var(--sweet-text-muted)' }}>
               {t('achievements.sbtBannerDesc')}
             </p>
           </div>
@@ -335,15 +341,16 @@ export default function Achievements() {
       <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
         {categories.map(cat => {
           const emoji = cat === 'all' ? null : CATEGORY_EMOJI[cat];
+          const isActive = activeCategory === cat;
           return (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
-                activeCategory === cat
-                  ? 'bg-white text-black'
-                  : 'bg-stone-900 border border-stone-800 text-stone-400 hover:border-stone-600'
-              }`}
+              className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors"
+              style={isActive
+                ? { background: 'var(--sweet-text)', color: 'var(--sweet-bg)' }
+                : { background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)', color: 'var(--sweet-text-secondary)' }
+              }
             >
               {emoji ? `${emoji} ${t(`achievements.categories.${cat}`)}` : t('achievements.categories.all')}
             </button>
@@ -355,13 +362,13 @@ export default function Achievements() {
       {isLoading ? (
         <div className="space-y-3">
           {[1, 2, 3, 4].map(i => (
-            <div key={i} className="h-20 rounded-xl bg-stone-900 border border-stone-800 animate-pulse" />
+            <div key={i} className="h-20 rounded-xl animate-pulse" style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)' }} />
           ))}
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-12">
-          <TrophyIcon className="w-12 h-12 text-stone-700 mx-auto mb-3" />
-          <p className="text-stone-500 text-sm">{t('achievements.emptyCategory')}</p>
+          <TrophyIcon className="w-12 h-12 mx-auto mb-3" style={{ color: 'var(--sweet-text-faint)' }} />
+          <p className="text-sm" style={{ color: 'var(--sweet-text-muted)' }}>{t('achievements.emptyCategory')}</p>
         </div>
       ) : (
         <div className="space-y-3">

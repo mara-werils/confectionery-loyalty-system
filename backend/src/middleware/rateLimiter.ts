@@ -15,6 +15,21 @@ export const rateLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Stricter rate limit for POS confirmations (release/refund pokes the chain)
+export const posRateLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 20, // 20 confirmations / minute / IP
+  message: {
+    success: false,
+    message: 'Too many POS confirmations, please slow down',
+    error: {
+      code: 'POS_RATE_LIMIT_EXCEEDED',
+    },
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Stricter rate limit for auth endpoints
 export const authRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes

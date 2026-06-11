@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Tab } from '@headlessui/react';
-import { ClockIcon, GiftIcon, ArrowDownTrayIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import clsx from 'clsx';
+import { ClockIcon, GiftIcon, DownloadSimpleIcon, MagnifyingGlassIcon } from '@phosphor-icons/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 
@@ -55,6 +55,31 @@ function exportToCSV(data: Record<string, unknown>[], filename: string, t: (key:
   toast.success(t('history.csvExported'));
 }
 
+const containerVariants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.07 } },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 14 },
+  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 260, damping: 22 } },
+};
+
+function ClaimStatusBadge({ status }: { status: string }) {
+  const styles: Record<string, React.CSSProperties> = {
+    FULFILLED: { background: 'rgba(16,185,129,0.12)', color: '#34d399', border: '1px solid rgba(16,185,129,0.25)' },
+    PENDING:   { background: 'rgba(245,158,11,0.12)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.25)' },
+  };
+  const fallback: React.CSSProperties = { background: 'rgba(239,68,68,0.12)', color: '#f87171', border: '1px solid rgba(239,68,68,0.25)' };
+  return (
+    <span
+      style={{ ...(styles[status] ?? fallback), display: 'inline-block', padding: '2px 10px', borderRadius: 9999, fontSize: 11, fontWeight: 700, letterSpacing: '0.02em' }}
+    >
+      {status}
+    </span>
+  );
+}
+
 export default function History() {
   const { t } = useTranslation();
   const { token } = useAuthStore();
@@ -74,6 +99,7 @@ export default function History() {
     description?: string;
     partnerName?: string;
     createdAt: string;
+    txHash?: string;
   }[] = transactionsData?.data || [];
 
   const claims: {
@@ -143,100 +169,219 @@ export default function History() {
   };
 
   return (
-    <div className="px-4 py-6">
+    <div style={{ minHeight: '100vh', padding: '24px 16px 96px', background: 'var(--sweet-bg)', color: 'var(--sweet-text)' }}>
+
       {/* Header */}
-      <div className="mb-8 pl-1 flex items-center justify-between">
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35 }}
+        style={{ marginBottom: 32, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}
+      >
         <div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">{t('history.title')}</h1>
-          <p className="text-stone-400 mt-1">{t('history.subtitle')}</p>
+          <h1 style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--sweet-text)', lineHeight: 1.15, margin: 0 }}>
+            {t('history.title')}
+          </h1>
+          <p style={{ marginTop: 5, fontSize: 13, color: 'var(--sweet-text-secondary)', lineHeight: 1.5 }}>
+            {t('history.subtitle')}
+          </p>
         </div>
         {token && (
-          <button
+          <motion.button
+            whileTap={{ scale: 0.96 }}
             onClick={handleExport}
-            className="flex items-center gap-1.5 px-3 py-2 bg-stone-900 border border-stone-800 rounded-xl text-xs font-medium text-stone-400 hover:text-white hover:border-stone-600 transition-colors"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '8px 14px',
+              borderRadius: 12,
+              border: '1px solid var(--sweet-border)',
+              background: 'var(--sweet-card)',
+              color: 'var(--sweet-text-secondary)',
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: 'pointer',
+              flexShrink: 0,
+              whiteSpace: 'nowrap',
+            }}
             title="Export CSV"
           >
-            <ArrowDownTrayIcon className="w-4 h-4" />
+            <DownloadSimpleIcon style={{ width: 15, height: 15 }} />
             CSV
-          </button>
+          </motion.button>
         )}
-      </div>
+      </motion.div>
 
       {/* Search + Date Range Filters */}
-      <div className="mb-5 space-y-3">
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        style={{ marginBottom: 20, display: 'flex', flexDirection: 'column', gap: 10 }}
+      >
         {/* Search */}
-        <div className="relative">
-          <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-500 pointer-events-none" />
+        <div style={{ position: 'relative' }}>
+          <MagnifyingGlassIcon
+            style={{
+              position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)',
+              width: 15, height: 15, color: 'var(--sweet-text-muted)', pointerEvents: 'none',
+            }}
+          />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t('history.searchPlaceholder')}
-            className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-stone-900 border border-stone-800 text-sm text-white placeholder-stone-600 focus:outline-none focus:border-stone-600 transition-colors"
+            style={{
+              width: '100%',
+              paddingLeft: 38,
+              paddingRight: 16,
+              paddingTop: 11,
+              paddingBottom: 11,
+              borderRadius: 14,
+              border: '1px solid var(--sweet-border)',
+              background: 'var(--sweet-input)',
+              color: 'var(--sweet-text)',
+              fontSize: 13,
+              outline: 'none',
+              boxSizing: 'border-box',
+              transition: 'border-color 0.15s',
+            }}
+            onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--sweet-accent)')}
+            onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--sweet-border)')}
           />
         </div>
 
         {/* Date range tab row */}
-        <div className="flex gap-1.5">
-          {DATE_RANGES.map((range) => (
-            <button
-              key={range}
-              onClick={() => setDateRange(range)}
-              className={clsx(
-                'flex-1 py-1.5 rounded-lg text-xs font-semibold transition-colors',
-                dateRange === range
-                  ? 'bg-white text-black'
-                  : 'bg-stone-900 text-stone-500 hover:text-stone-300 border border-stone-800 hover:border-stone-700'
-              )}
-            >
-              {t(`history.dateRange.${range}`)}
-            </button>
-          ))}
+        <div style={{ display: 'flex', gap: 6 }}>
+          {DATE_RANGES.map((range) => {
+            const active = dateRange === range;
+            return (
+              <motion.button
+                key={range}
+                whileTap={{ scale: 0.94 }}
+                onClick={() => setDateRange(range)}
+                style={{
+                  flex: 1,
+                  padding: '7px 4px',
+                  borderRadius: 10,
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: '0.01em',
+                  border: `1px solid ${active ? 'var(--sweet-accent)' : 'var(--sweet-border)'}`,
+                  background: active ? 'var(--sweet-accent)' : 'var(--sweet-card)',
+                  color: active ? '#0d0b0a' : 'var(--sweet-text-muted)',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s',
+                }}
+              >
+                {t(`history.dateRange.${range}`)}
+              </motion.button>
+            );
+          })}
         </div>
-      </div>
+      </motion.div>
 
       {/* Tabs */}
       <Tab.Group selectedIndex={selectedTab} onChange={setSelectedTab}>
-        <Tab.List className="flex gap-2 mb-6">
-          {tabs.map((tab) => (
-            <Tab
-              key={tab.key}
-              className={({ selected }) =>
-                clsx(
-                  'flex items-center justify-center gap-2 flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors focus:outline-none',
-                  selected
-                    ? 'bg-white text-black'
-                    : 'bg-stone-900 text-stone-400 hover:text-stone-200 border border-stone-800 hover:border-stone-700'
-                )
-              }
-            >
-              <tab.icon className="w-5 h-5" />
-              {tab.key === 'transactions' ? t('history.tabs.transactions') : t('history.tabs.claims')}
-            </Tab>
-          ))}
-        </Tab.List>
+        <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+          <Tab.List
+            style={{
+              display: 'flex',
+              gap: 8,
+              marginBottom: 24,
+              padding: 4,
+              borderRadius: 16,
+              background: 'var(--sweet-card)',
+              border: '1px solid var(--sweet-border)',
+            }}
+          >
+            {tabs.map((tab, tabIdx) => (
+              <Tab
+                key={tab.key}
+                className="focus:outline-none"
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 7,
+                  padding: '10px 8px',
+                  borderRadius: 12,
+                  fontSize: 13,
+                  fontWeight: 700,
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'all 0.18s',
+                  ...(selectedTab === tabIdx
+                    ? { background: 'var(--sweet-accent)', color: '#0d0b0a', boxShadow: '0 2px 8px rgba(245,158,11,0.25)' }
+                    : { background: 'transparent', color: 'var(--sweet-text-secondary)' }),
+                }}
+              >
+                <tab.icon style={{ width: 16, height: 16 }} />
+                {tab.key === 'transactions' ? t('history.tabs.transactions') : t('history.tabs.claims')}
+              </Tab>
+            ))}
+          </Tab.List>
+        </motion.div>
 
         <Tab.Panels>
           {/* Transactions Panel */}
           <Tab.Panel>
-            <div className="card">
+            <div
+              style={{
+                borderRadius: 18,
+                border: '1px solid var(--sweet-border)',
+                background: 'var(--sweet-card)',
+                overflow: 'hidden',
+              }}
+            >
               {isLoading ? (
-                <div className="space-y-4">
+                <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {[1, 2, 3, 4, 5].map((i) => (
-                    <div key={i} className="skeleton h-16 rounded-xl" />
+                    <div
+                      key={i}
+                      style={{
+                        height: 64,
+                        borderRadius: 12,
+                        background: 'var(--sweet-input)',
+                        animation: 'pulse 1.5s ease-in-out infinite',
+                      }}
+                    />
                   ))}
                 </div>
               ) : filteredTransactions.length > 0 ? (
-                <div>
+                <motion.div
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="show"
+                >
                   {filteredTransactions.map((tx, index) => (
-                    <TransactionItem key={tx.id} {...tx} partnerName={tx.partnerName} index={index} />
+                    <motion.div key={tx.id} variants={itemVariants}>
+                      <TransactionItem {...tx} partnerName={tx.partnerName} index={index} txHash={tx.txHash} />
+                    </motion.div>
                   ))}
-                </div>
+                </motion.div>
               ) : (
-                <div className="text-center py-12 text-stone-500">
-                  <ClockIcon className="w-16 h-16 mx-auto mb-4 text-stone-700" />
-                  <p className="text-lg font-medium text-white">{t('history.noTransactions')}</p>
-                  <p className="text-sm mt-1">{t('history.noTransactionsHint')}</p>
+                <div style={{ textAlign: 'center', padding: '52px 24px' }}>
+                  <div
+                    style={{
+                      width: 64, height: 64, borderRadius: '50%',
+                      background: 'var(--sweet-input)',
+                      border: '1px solid var(--sweet-border)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      margin: '0 auto 16px',
+                    }}
+                  >
+                    <ClockIcon style={{ width: 28, height: 28, color: 'var(--sweet-text-faint)' }} />
+                  </div>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--sweet-text)', margin: 0 }}>
+                    {t('history.noTransactions')}
+                  </p>
+                  <p style={{ fontSize: 13, color: 'var(--sweet-text-muted)', marginTop: 6 }}>
+                    {t('history.noTransactionsHint')}
+                  </p>
                 </div>
               )}
             </div>
@@ -244,63 +389,116 @@ export default function History() {
 
           {/* Claims Panel */}
           <Tab.Panel>
-            <div className="space-y-4">
-              {historyLoading ? (
-                <div className="space-y-4">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="skeleton h-16 rounded-xl" />
-                  ))}
-                </div>
-              ) : filteredClaims.length > 0 ? (
-                filteredClaims.map((claim) => (
+            {historyLoading ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {[1, 2, 3].map((i) => (
                   <div
-                    key={claim.id}
-                    className="bg-stone-900 border border-stone-800 rounded-2xl p-4"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 bg-orange-500/10 rounded-xl border border-orange-500/20 shrink-0">
-                        <GiftIcon className="w-5 h-5 text-orange-400" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-white truncate">
-                          {claim.reward?.title || 'Reward'}
-                        </h3>
-                        <p className="text-sm text-stone-500 mt-0.5">
-                          {new Date(claim.createdAt).toLocaleDateString('ru-RU', {
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric',
-                          })}
-                        </p>
-                      </div>
-                      <div className="text-right shrink-0">
-                        <span
-                          className={clsx(
-                            'inline-block px-2.5 py-1 rounded-full text-xs font-semibold',
-                            claim.status === 'FULFILLED'
-                              ? 'bg-green-500/15 text-green-400 border border-green-500/25'
-                              : claim.status === 'PENDING'
-                              ? 'bg-amber-500/15 text-amber-400 border border-amber-500/25'
-                              : 'bg-red-500/15 text-red-400 border border-red-500/25'
-                          )}
+                    key={i}
+                    style={{
+                      height: 72,
+                      borderRadius: 16,
+                      background: 'var(--sweet-card)',
+                      border: '1px solid var(--sweet-border)',
+                      animation: 'pulse 1.5s ease-in-out infinite',
+                    }}
+                  />
+                ))}
+              </div>
+            ) : filteredClaims.length > 0 ? (
+              <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                animate="show"
+                style={{ display: 'flex', flexDirection: 'column', gap: 10 }}
+              >
+                <AnimatePresence>
+                  {filteredClaims.map((claim) => (
+                    <motion.div
+                      key={claim.id}
+                      variants={itemVariants}
+                      layout
+                      style={{
+                        borderRadius: 16,
+                        border: '1px solid var(--sweet-border)',
+                        background: 'var(--sweet-card)',
+                        padding: '14px 16px',
+                        transition: 'background 0.15s',
+                      }}
+                      whileHover={{ background: 'var(--sweet-card-hover)' } as never}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                        {/* Icon */}
+                        <div
+                          style={{
+                            width: 44, height: 44,
+                            borderRadius: 12,
+                            background: 'rgba(245,158,11,0.1)',
+                            border: '1px solid rgba(245,158,11,0.2)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            flexShrink: 0,
+                          }}
                         >
-                          {claim.status}
-                        </span>
-                        <p className="text-sm text-stone-400 font-mono mt-1">
-                          -{Number(claim.pointsSpent).toLocaleString()} pts
-                        </p>
+                          <GiftIcon style={{ width: 20, height: 20, color: '#f59e0b' }} />
+                        </div>
+
+                        {/* Info */}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <h3 style={{ fontWeight: 700, fontSize: 14, color: 'var(--sweet-text)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {claim.reward?.title || 'Reward'}
+                          </h3>
+                          <p style={{ fontSize: 12, color: 'var(--sweet-text-muted)', marginTop: 2 }}>
+                            {new Date(claim.createdAt).toLocaleDateString('ru-RU', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                            })}
+                          </p>
+                        </div>
+
+                        {/* Right */}
+                        <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                          <ClaimStatusBadge status={claim.status} />
+                          <p style={{ fontSize: 12, fontFamily: 'monospace', fontWeight: 700, color: 'var(--sweet-text-secondary)', marginTop: 5 }}>
+                            -{Number(claim.pointsSpent).toLocaleString()} pts
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="bg-stone-900 border border-stone-800 rounded-2xl text-center py-12">
-                  <GiftIcon className="w-16 h-16 mx-auto mb-4 text-stone-700" />
-                  <p className="text-lg font-medium text-white">{t('history.noClaims')}</p>
-                  <p className="text-sm mt-1 text-stone-500">{t('history.noClaimsHint')}</p>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </motion.div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.97 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.1 }}
+                style={{
+                  borderRadius: 18,
+                  border: '1px solid var(--sweet-border)',
+                  background: 'var(--sweet-card)',
+                  textAlign: 'center',
+                  padding: '52px 24px',
+                }}
+              >
+                <div
+                  style={{
+                    width: 64, height: 64, borderRadius: '50%',
+                    background: 'var(--sweet-input)',
+                    border: '1px solid var(--sweet-border)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    margin: '0 auto 16px',
+                  }}
+                >
+                  <GiftIcon style={{ width: 28, height: 28, color: 'var(--sweet-text-faint)' }} />
                 </div>
-              )}
-            </div>
+                <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--sweet-text)', margin: 0 }}>
+                  {t('history.noClaims')}
+                </p>
+                <p style={{ fontSize: 13, color: 'var(--sweet-text-muted)', marginTop: 6 }}>
+                  {t('history.noClaimsHint')}
+                </p>
+              </motion.div>
+            )}
           </Tab.Panel>
         </Tab.Panels>
       </Tab.Group>

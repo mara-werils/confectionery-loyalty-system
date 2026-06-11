@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-  Cog6ToothIcon,
+  GearSixIcon,
   CurrencyDollarIcon,
   ChartBarIcon,
-  WrenchScrewdriverIcon,
+  WrenchIcon,
   ShieldCheckIcon,
-  InformationCircleIcon,
-} from '@heroicons/react/24/outline';
+  InfoIcon,
+} from '@phosphor-icons/react';
 import { GlassCard } from '../../components/GlassCard';
 
 interface SettingsSection {
@@ -72,7 +72,7 @@ export default function AdminSettings() {
     {
       title: 'Системные переключатели',
       description: 'Режимы работы платформы',
-      icon: WrenchScrewdriverIcon,
+      icon: WrenchIcon,
       items: [
         { label: 'Режим обслуживания', description: 'Заблокировать доступ для пользователей', type: 'toggle', key: 'maintenanceMode', value: settings.maintenanceMode },
         { label: 'Регистрация открыта', description: 'Разрешить новым партнёрам регистрироваться', type: 'toggle', key: 'registrationOpen', value: settings.registrationOpen },
@@ -81,7 +81,7 @@ export default function AdminSettings() {
     {
       title: 'Купоны',
       description: 'Настройки системы купонов',
-      icon: Cog6ToothIcon,
+      icon: GearSixIcon,
       items: [
         { label: 'Срок действия купона', description: 'Количество дней до истечения', type: 'number', key: 'couponExpDays', value: settings.couponExpDays, suffix: 'дней' },
       ],
@@ -99,7 +99,7 @@ export default function AdminSettings() {
       {/* Info banner */}
       <GlassCard delay={0.05} className="p-4 border-amber-500/10">
         <div className="flex items-start gap-3">
-          <InformationCircleIcon className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+          <InfoIcon className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
           <div>
             <p className="text-sm text-amber-400 font-medium">Режим просмотра</p>
             <p className="text-xs text-stone-500 mt-0.5">

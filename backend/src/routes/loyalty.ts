@@ -7,6 +7,8 @@ import { AppError } from '../middleware/errorHandler';
 import { io } from '../index';
 import { mintLoyaltyTokens } from '../controllers/mint';
 import { transferLoyaltyTokens } from '../controllers/transfer';
+import { recordTransactionOnChain } from '../services/revenue.service';
+import { logger } from '../utils/logger';
 
 const router = Router();
 
@@ -47,6 +49,35 @@ router.get(
     }
   }
 );
+
+/**
+ * @swagger
+ * /loyalty/config:
+ *   get:
+ *     summary: Get loyalty program configuration
+ *     tags: [Loyalty]
+ *     responses:
+ *       200:
+ *         description: Config parameters
+ */
+router.get('/config', async (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    const cashbackSetting = await prisma.systemSetting.findUnique({
+      where: { key: 'cashback_rate' },
+    });
+    const cashbackRate = cashbackSetting ? parseFloat(cashbackSetting.value) : 0.10;
+
+    const tierSettings = {
+      BRONZE: { threshold: 0, cashback: 0.10 },
+      SILVER: { threshold: 5000, cashback: 0.12 },
+      GOLD: { threshold: 20000, cashback: 0.15 },
+    };
+
+    return successResponse(res, { cashbackRate, tiers: tierSettings });
+  } catch (error) {
+    return next(error);
+  }
+});
 
 /**
  * @swagger
@@ -263,6 +294,191 @@ router.post(
     }
   }
 );
+
+// ─── Simulate Purchase (FR1 Demo) ────────────────────────────────────────────
+
+/**
+ * @swagger
+ * /loyalty/simulate-purchase:
+ *   post:
+ *     summary: Simulate a customer purchase and issue SWEET loyalty tokens (Demo - FR1)
+ *     tags: [Loyalty]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - partnerId
+ *               - customerWallet
+ *               - amount
+ *             properties:
+ *               partnerId:
+ *                 type: string
+ *               customerWallet:
+ *                 type: string
+ *               amount:
+ *                 type: number
+ *                 description: Purchase amount in KZT
+ *               items:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *     responses:
+ *       201:
+ *         description: Purchase simulated, SWEET tokens issued
+ */
+const simulatePurchaseSchema = z.object({
+  partnerId: z.string(),
+  customerWallet: z.string().min(1),
+  amount: z.number().positive(),
+  items: z.array(z.string()).optional(),
+});
+
+const TIER_MULTIPLIERS = {
+  BRONZE: 1.0,
+  SILVER: 1.5,
+  GOLD: 2.0,
+} as const;
+
+router.post(
+  '/simulate-purchase',
+  authenticate,
+  requirePartner,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const data = simulatePurchaseSchema.parse(req.body);
+
+      // Look up the partner to get their tier
+      const partner = await prisma.partner.findUnique({
+        where: { id: data.partnerId },
+        include: { loyaltyPoints: true },
+      });
+
+      if (!partner) {
+        throw new AppError('Partner not found', 404, 'PARTNER_NOT_FOUND');
+      }
+
+      if (partner.status !== 'ACTIVE') {
+        throw new AppError('Partner account is not active', 400, 'ACCOUNT_NOT_ACTIVE');
+      }
+
+      // Calculate SWEET points: 1 KZT = 1 point * tier multiplier
+      const multiplier = TIER_MULTIPLIERS[partner.tier as keyof typeof TIER_MULTIPLIERS] ?? 1.0;
+      const basePoints = Math.floor(data.amount);
+      const pointsEarned = Math.floor(basePoints * multiplier);
+
+      // Generate a fake but realistic-looking tx hash for demo purposes
+      const fakeTxHash =
+        '0x' +
+        Array.from({ length: 64 }, () =>
+          Math.floor(Math.random() * 16).toString(16)
+        ).join('');
+
+      // Build description from items list (or fallback)
+      const itemsSummary =
+        data.items && data.items.length > 0
+          ? data.items.join(', ')
+          : 'Confectionery purchase';
+      const description = `${itemsSummary} — ₸${data.amount.toLocaleString('ru-KZ')}`;
+
+      // Create transaction record & update LoyaltyPoints atomically
+      const [transaction, updatedPoints] = await prisma.$transaction([
+        prisma.transaction.create({
+          data: {
+            partnerId: data.partnerId,
+            amount: BigInt(Math.round(data.amount * 100)),
+            pointsEarned: BigInt(pointsEarned),
+            type: 'PURCHASE',
+            description,
+            txHash: fakeTxHash,
+          },
+        }),
+        prisma.loyaltyPoints.update({
+          where: { partnerId: data.partnerId },
+          data: {
+            balance: { increment: BigInt(pointsEarned) },
+            lifetimeEarned: { increment: BigInt(pointsEarned) },
+          },
+        }),
+      ]);
+
+      // ── Real-time Socket.IO events ──────────────────────────────────────────
+
+      const activityPayload = {
+        type: 'purchase',
+        message: `+${pointsEarned} SWEET earned at ${partner.companyName}`,
+        amount: pointsEarned,
+        timestamp: new Date().toISOString(),
+      };
+
+      // 1. Broadcast to all connected clients (public live-feed)
+      io.emit('activity:new', activityPayload);
+
+      // 2. Notify the partner's own room (balance update)
+      io.to(`partner:${data.partnerId}`).emit('transaction:created', {
+        id: transaction.id,
+        amount: transaction.amount.toString(),
+        pointsEarned: transaction.pointsEarned.toString(),
+        type: transaction.type,
+        description,
+        txHash: fakeTxHash,
+      });
+
+      io.to(`partner:${data.partnerId}`).emit('balance:updated', {
+        balance: updatedPoints.balance.toString(),
+        lifetimeEarned: updatedPoints.lifetimeEarned.toString(),
+      });
+
+      // 3. Notify the customer's wallet room (real-time notification for them)
+      io.to(`wallet:${data.customerWallet}`).emit('purchase:awarded', {
+        partnerName: partner.companyName,
+        pointsEarned,
+        amount: data.amount,
+        items: data.items ?? [],
+        txHash: fakeTxHash,
+        timestamp: new Date().toISOString(),
+      });
+
+      // 4. Fire-and-forget: record commission in RevenueDistribution on-chain
+      recordTransactionOnChain(partner.walletAddress, data.amount, partner.tier).catch((err) =>
+        logger.warn('[Revenue] fire-and-forget recordTransaction failed:', err)
+      );
+
+      return successResponse(
+        res,
+        {
+          transaction: {
+            id: transaction.id,
+            amount: transaction.amount.toString(),
+            pointsEarned: pointsEarned.toString(),
+            type: transaction.type,
+            description,
+            txHash: fakeTxHash,
+            createdAt: transaction.createdAt,
+          },
+          partner: {
+            id: partner.id,
+            companyName: partner.companyName,
+            tier: partner.tier,
+          },
+          customerWallet: data.customerWallet,
+          tierMultiplier: multiplier,
+          newBalance: updatedPoints.balance.toString(),
+        },
+        `Purchase simulated: ${pointsEarned} SWEET issued to ${data.customerWallet}`,
+        201
+      );
+    } catch (error) {
+      return next(error);
+    }
+  }
+);
+
+// ─── Mint ─────────────────────────────────────────────────────────────────────
 
 /**
  * @swagger

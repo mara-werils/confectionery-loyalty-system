@@ -25,10 +25,23 @@ import referralRoutes from './routes/referrals';
 import achievementRoutes from './routes/achievements';
 import couponRoutes from './routes/coupons';
 import aiRoutes from './routes/ai';
+import spinRoutes from './routes/spin';
+import checkinRoutes from './routes/checkin';
+import giftRoutes from './routes/gift';
+import governanceRoutes from './routes/governance';
+import publicRoutes from './routes/public';
+import settlementRoutes from './routes/settlement';
+import sweetPassRoutes from './routes/sweetpass';
+import { startChurnCron } from './cron/churnCron';
+import { startEscrowRefundCron } from './cron/escrowRefundCron';
 
 
 // Initialize Express app
 const app = express();
+
+// Trust first proxy (Cloudflare / reverse-proxy) so rate-limiter sees real IPs
+app.set('trust proxy', 1);
+
 const httpServer = createServer(app);
 
 // Initialize Socket.IO
@@ -79,6 +92,11 @@ app.use(cors({
   },
   credentials: true,
 }));
+
+// BigInt → string serialization
+app.set('json replacer', (_key: string, value: unknown) =>
+  typeof value === 'bigint' ? value.toString() : value
+);
 
 // Request parsing
 app.use(express.json({ limit: '10mb' }));
@@ -142,6 +160,13 @@ app.use(`${apiPrefix}/coupons`, couponRoutes);
 app.use(`${apiPrefix}/admin`, adminRoutes);
 app.use('/webhook', webhookRoutes);
 app.use(`${apiPrefix}/ai`, aiRoutes);
+app.use(`${apiPrefix}/spin`, spinRoutes);
+app.use(`${apiPrefix}/checkin`, checkinRoutes);
+app.use(`${apiPrefix}/gift`, giftRoutes);
+app.use(`${apiPrefix}/governance`, governanceRoutes);
+app.use(`${apiPrefix}/public`, publicRoutes);
+app.use(`${apiPrefix}/settlement`, settlementRoutes);
+app.use(`${apiPrefix}/sweetpass`, sweetPassRoutes);
 
 // ============================================================================
 // SOCKET.IO
@@ -192,6 +217,12 @@ if (config.app.env !== 'test') {
     logger.info(`📚 API Documentation: http://localhost:${PORT}/api/docs`);
     logger.info(`🔗 API Prefix: ${apiPrefix}`);
     logger.info(`🌐 Environment: ${config.app.env}`);
+
+    // Start ML Churn Auto-Intervention cron
+    startChurnCron();
+
+    // Start Sweet Pass auto-refund keeper (permissionless refunds after deadline)
+    startEscrowRefundCron();
 
     // Start Telegram bot if token is configured
     const botToken = process.env.TELEGRAM_BOT_TOKEN;

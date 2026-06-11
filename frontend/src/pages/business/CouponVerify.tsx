@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useRef, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
   QrCodeIcon,
@@ -7,9 +7,28 @@ import {
   XCircleIcon,
   MagnifyingGlassIcon,
   GiftIcon,
-} from '@heroicons/react/24/outline';
+  XIcon,
+} from '@phosphor-icons/react';
+import { Scanner } from '@yudiel/react-qr-scanner';
 import toast from 'react-hot-toast';
 import { api } from '../../services/api';
+
+// Fallback map for raw translation keys stored in DB
+const REWARD_TITLE_FALLBACK: Record<string, string> = {
+  'hm-1-title': '10% Discount on Macarons',
+  'hm-2-title': 'Free Box of 6 Macarons',
+  'sa-1-title': '15% off Custom Cakes',
+  'sa-2-title': 'VIP Cake Tasting',
+  'mm-1-title': 'Free Dessert of the Day',
+  'mm-2-title': '20% off Dessert Sets',
+  'oc-1-title': 'Free Mini Cake',
+  'cl-1-title': '10% off 3D Cakes',
+  'pl-1-title': 'Free Eclair Set (4 pcs)',
+  'hg-1-title': '10% off at GreenLine',
+  'mr-1-title': 'Free Coffee with Pastry',
+  'pw-1-title': '+5% Cashback Boost',
+};
+const resolveTitle = (raw: string) => REWARD_TITLE_FALLBACK[raw] ?? raw;
 
 interface CouponInfo {
   code: string;
@@ -31,9 +50,14 @@ export default function CouponVerify() {
   const [isLoading, setIsLoading] = useState(false);
   const [isRedeeming, setIsRedeeming] = useState(false);
   const [coupon, setCoupon] = useState<CouponInfo | null>(null);
+  const [showScanner, setShowScanner] = useState(false);
+  // Guard: prevents the continuous scanner from firing verify multiple times
+  const scanLockRef = useRef(false);
+  // Guard: blocks double-tap on "Mark as Used" before React re-renders the disabled state
+  const redeemingRef = useRef(false);
 
-  const handleVerify = async () => {
-    const trimmed = code.trim().toUpperCase();
+  const handleVerify = async (overrideCode?: string) => {
+    const trimmed = (overrideCode ?? code).trim().toUpperCase();
     if (!trimmed) return;
     setIsLoading(true);
     setCoupon(null);
@@ -44,11 +68,13 @@ export default function CouponVerify() {
       toast.error((err as Error).message || t('verify.notFound'));
     } finally {
       setIsLoading(false);
+      scanLockRef.current = false; // unlock after request finishes
     }
   };
 
   const handleRedeem = async () => {
-    if (!coupon) return;
+    if (!coupon || redeemingRef.current) return;
+    redeemingRef.current = true; // sync lock — blocks before React re-renders
     setIsRedeeming(true);
     try {
       await api.coupons.redeem(coupon.code);
@@ -57,19 +83,35 @@ export default function CouponVerify() {
     } catch (err: unknown) {
       toast.error((err as Error).message || t('verify.redeemFailed'));
     } finally {
+      redeemingRef.current = false;
       setIsRedeeming(false);
     }
   };
+
+  // useCallback with stable ref-based guard — safe from stale closure issues
+  const handleScan = useCallback((results: Array<{ rawValue: string }>) => {
+    if (!results?.length || scanLockRef.current) return;
+    const raw = results[0].rawValue;
+    // QR format: "sweet-coupon:SWT-XXXXXX"
+    const extracted = raw.startsWith('sweet-coupon:') ? raw.slice(13) : raw;
+    const parsed = extracted.trim().toUpperCase();
+    if (!parsed) return;
+    scanLockRef.current = true; // lock immediately — released in handleVerify finally
+    setShowScanner(false);
+    setCode(parsed);
+    // Defer to next tick so state updates above flush before verify kicks off
+    setTimeout(() => handleVerify(parsed), 0);
+  }, []);
 
   return (
     <div className="px-4 py-6 space-y-6">
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="pl-1">
         <div className="flex items-center gap-3 mb-1">
-          <QrCodeIcon className="w-7 h-7 text-stone-400" />
-          <h1 className="text-3xl font-bold text-white tracking-tight">{t('verify.title')}</h1>
+          <QrCodeIcon className="w-7 h-7" style={{ color: 'var(--sweet-text-muted)' }} />
+          <h1 className="text-3xl font-bold tracking-tight" style={{ color: 'var(--sweet-text)' }}>{t('verify.title')}</h1>
         </div>
-        <p className="text-stone-400 mt-1">{t('verify.subtitle')}</p>
+        <p className="mt-1" style={{ color: 'var(--sweet-text-muted)' }}>{t('verify.subtitle')}</p>
       </motion.div>
 
       {/* Code input */}
@@ -77,7 +119,7 @@ export default function CouponVerify() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05 }}
-        className="flex gap-3"
+        className="flex gap-2"
       >
         <input
           type="text"
@@ -85,26 +127,124 @@ export default function CouponVerify() {
           onChange={(e) => setCode(e.target.value.toUpperCase())}
           onKeyDown={(e) => e.key === 'Enter' && handleVerify()}
           placeholder="SWT-XXXXXX"
-          className="flex-1 bg-stone-900 border border-stone-800 rounded-xl px-4 py-3.5 text-white font-mono text-sm uppercase tracking-widest placeholder:text-stone-600 focus:outline-none focus:border-stone-600 transition-colors"
+          className="sweet-input flex-1 min-w-0 rounded-xl px-4 py-3.5 font-mono text-sm uppercase tracking-widest focus:outline-none transition-colors"
           autoComplete="off"
           spellCheck={false}
         />
         <button
-          onClick={handleVerify}
-          disabled={isLoading || !code.trim()}
-          className="px-5 py-3.5 bg-amber-500 text-black rounded-xl font-semibold text-sm disabled:opacity-40 flex items-center gap-2 transition-opacity"
+          onClick={() => { (document.activeElement as HTMLElement)?.blur(); setShowScanner(true); }}
+          className="w-11 h-11 shrink-0 rounded-xl flex items-center justify-center transition-all self-center"
+          style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)', color: 'var(--sweet-text-muted)' }}
+          title="Scan QR"
         >
-          <MagnifyingGlassIcon className="w-4 h-4" />
-          {isLoading ? '...' : t('verify.check')}
+          <QrCodeIcon className="w-5 h-5" />
+        </button>
+        <button
+          onClick={() => handleVerify()}
+          disabled={isLoading || !code.trim()}
+          className="w-11 h-11 shrink-0 bg-amber-500 text-black rounded-xl disabled:opacity-40 flex items-center justify-center transition-opacity self-center"
+        >
+          {isLoading
+            ? <div style={{ width: 14, height: 14, border: '2px solid rgba(0,0,0,0.25)', borderTopColor: '#000', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+            : <MagnifyingGlassIcon className="w-4 h-4" />
+          }
         </button>
       </motion.div>
+
+      {/* QR Scanner overlay — flex-centered for reliable Telegram Mini App positioning */}
+      <AnimatePresence>
+        {showScanner && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center px-4"
+            style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)' }}
+            onClick={() => { scanLockRef.current = false; setShowScanner(false); }}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 20 }}
+              transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+              className="w-full rounded-3xl overflow-hidden"
+              style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)' }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Scanner header */}
+              <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid var(--sweet-border)' }}>
+                <div className="flex items-center gap-2.5">
+                  <QrCodeIcon className="w-5 h-5" style={{ color: 'var(--sweet-accent)' }} />
+                  <span className="font-semibold text-sm" style={{ color: 'var(--sweet-text)' }}>
+                    Scan Customer QR
+                  </span>
+                </div>
+                <button
+                  onClick={() => { scanLockRef.current = false; setShowScanner(false); }}
+                  className="p-2 rounded-xl transition-colors"
+                  style={{ background: 'var(--sweet-input)', color: 'var(--sweet-text-muted)' }}
+                >
+                  <XIcon className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Camera view — fixed height, override Scanner's built-in aspectRatio:1/1 */}
+              <div style={{ position: 'relative', height: 280, overflow: 'hidden' }}>
+                <Scanner
+                  onScan={handleScan}
+                  onError={(err) => {
+                    console.warn('QR scanner error:', err);
+                    toast.error('Camera error — use manual input');
+                    setShowScanner(false);
+                  }}
+                  styles={{
+                    container: {
+                      width: '100%',
+                      height: '280px',
+                      aspectRatio: 'unset',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      display: 'block',
+                    },
+                    video: {
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                    },
+                  }}
+                  constraints={{ facingMode: 'environment' }}
+                />
+                {/* Corner guides */}
+                <div className="absolute inset-0 pointer-events-none flex items-center justify-center" style={{ zIndex: 1 }}>
+                  <div className="relative w-48 h-48">
+                    {[
+                      'top-0 left-0 border-t-2 border-l-2 rounded-tl-lg',
+                      'top-0 right-0 border-t-2 border-r-2 rounded-tr-lg',
+                      'bottom-0 left-0 border-b-2 border-l-2 rounded-bl-lg',
+                      'bottom-0 right-0 border-b-2 border-r-2 rounded-br-lg',
+                    ].map((cls, i) => (
+                      <div key={i} className={`absolute w-8 h-8 ${cls}`} style={{ borderColor: 'var(--sweet-accent)' }} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <p className="text-center text-xs py-3" style={{ color: 'var(--sweet-text-muted)' }}>
+                Point camera at the customer's coupon QR code
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Coupon result */}
       {coupon && (
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-stone-900 border border-stone-800/80 rounded-2xl overflow-hidden"
+          className="rounded-2xl overflow-hidden"
+          style={{ background: 'var(--sweet-card)', border: '1px solid var(--sweet-border)' }}
         >
           {/* Status banner */}
           <div
@@ -119,9 +259,7 @@ export default function CouponVerify() {
             ) : (
               <XCircleIcon className="w-5 h-5 text-red-400 shrink-0" />
             )}
-            <span
-              className={`font-semibold text-sm ${coupon.isValid ? 'text-green-400' : 'text-red-400'}`}
-            >
+            <span className={`font-semibold text-sm ${coupon.isValid ? 'text-green-400' : 'text-red-400'}`}>
               {coupon.status === 'REDEEMED'
                 ? t('verify.alreadyRedeemed')
                 : coupon.status === 'EXPIRED'
@@ -137,12 +275,12 @@ export default function CouponVerify() {
                 <GiftIcon className="w-5 h-5 text-orange-400" />
               </div>
               <div>
-                <p className="font-semibold text-white">{coupon.rewardTitle}</p>
+                <p className="font-semibold" style={{ color: 'var(--sweet-text)' }}>{resolveTitle(coupon.rewardTitle)}</p>
                 {coupon.rewardDescription && (
-                  <p className="text-xs text-stone-500 mt-0.5">{coupon.rewardDescription}</p>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--sweet-text-muted)' }}>{coupon.rewardDescription}</p>
                 )}
                 {coupon.rewardCategory && (
-                  <span className="inline-block mt-1.5 text-xs px-2 py-0.5 bg-stone-800 text-stone-400 rounded-full">
+                  <span className="inline-block mt-1.5 text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--sweet-input)', color: 'var(--sweet-text-muted)', border: '1px solid var(--sweet-border)' }}>
                     {coupon.rewardCategory}
                   </span>
                 )}
@@ -150,34 +288,21 @@ export default function CouponVerify() {
             </div>
 
             <div className="grid grid-cols-2 gap-3 pt-1">
-              <div className="bg-stone-800/50 rounded-xl p-3">
-                <p className="text-xs text-stone-500 uppercase tracking-wider mb-1">{t('verify.issuedTo')}</p>
-                <p className="text-sm font-medium text-white truncate">
-                  {coupon.issuedTo || 'Customer'}
-                </p>
-              </div>
-              <div className="bg-stone-800/50 rounded-xl p-3">
-                <p className="text-xs text-stone-500 uppercase tracking-wider mb-1">{t('verify.points')}</p>
-                <p className="text-sm font-bold text-white font-mono">
-                  {Number(coupon.pointsSpent).toLocaleString()}
-                </p>
-              </div>
-              <div className="bg-stone-800/50 rounded-xl p-3">
-                <p className="text-xs text-stone-500 uppercase tracking-wider mb-1">{t('verify.code')}</p>
-                <p className="text-sm font-mono text-stone-300">{coupon.code}</p>
-              </div>
-              <div className="bg-stone-800/50 rounded-xl p-3">
-                <p className="text-xs text-stone-500 uppercase tracking-wider mb-1">
-                  {coupon.redeemedAt ? t('verify.redeemedLabel') : t('verify.expires')}
-                </p>
-                <p className="text-sm font-medium text-white">
-                  {new Date(coupon.redeemedAt || coupon.expiresAt).toLocaleDateString('ru-RU', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric',
-                  })}
-                </p>
-              </div>
+              {[
+                { label: t('verify.issuedTo'), value: coupon.issuedTo || 'Customer', mono: false },
+                { label: t('verify.points'), value: Number(coupon.pointsSpent).toLocaleString(), mono: true },
+                { label: t('verify.code'), value: coupon.code, mono: true },
+                {
+                  label: coupon.redeemedAt ? t('verify.redeemedLabel') : t('verify.expires'),
+                  value: new Date(coupon.redeemedAt || coupon.expiresAt).toLocaleDateString('ru-RU', { month: 'short', day: 'numeric', year: 'numeric' }),
+                  mono: false,
+                },
+              ].map(({ label, value, mono }) => (
+                <div key={label} className="rounded-xl p-3" style={{ background: 'var(--sweet-input)', border: '1px solid var(--sweet-border)' }}>
+                  <p className="text-xs uppercase tracking-wider mb-1" style={{ color: 'var(--sweet-text-muted)' }}>{label}</p>
+                  <p className={`text-sm font-medium truncate ${mono ? 'font-mono' : ''}`} style={{ color: 'var(--sweet-text)' }}>{value}</p>
+                </div>
+              ))}
             </div>
 
             {/* Redeem button */}
@@ -201,7 +326,8 @@ export default function CouponVerify() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.15 }}
-          className="text-center py-12 text-stone-700"
+          className="text-center py-12"
+          style={{ color: 'var(--sweet-text-faint)' }}
         >
           <QrCodeIcon className="w-16 h-16 mx-auto mb-4" />
           <p className="text-sm">{t('verify.hint')}</p>

@@ -33,13 +33,22 @@ axiosInstance.interceptors.response.use(
     const message = error.response?.data?.message || 'An error occurred';
     const code = error.response?.data?.error?.code;
 
-    // Handle token expiration
-    if (error.response?.status === 401 && code === 'TOKEN_EXPIRED') {
+    // Handle stale/invalid tokens — clear state and redirect to home
+    const STALE_TOKEN_CODES = ['TOKEN_EXPIRED', 'ACCOUNT_INVALID', 'UNAUTHORIZED', 'INVALID_TOKEN'];
+    if (
+      error.response?.status === 401 &&
+      (!code || STALE_TOKEN_CODES.includes(code)) &&
+      window.location.pathname !== '/'
+    ) {
       useAuthStore.getState().logout();
       window.location.href = '/';
     }
 
-    return Promise.reject(new Error(message));
+    // Preserve status and server message so callers can branch on them
+    const enriched: Error & { status?: number; serverMessage?: string } = new Error(message);
+    enriched.status = error.response?.status;
+    enriched.serverMessage = message;
+    return Promise.reject(enriched);
   }
 );
 
@@ -82,6 +91,8 @@ export const api = {
 
     update: (id: string, data: Partial<{ companyName: string; email: string }>) =>
       axiosInstance.patch(`/partners/${id}`, data),
+
+    ecosystem: () => axiosInstance.get('/partners/ecosystem'),
   },
 
   // Loyalty
@@ -93,6 +104,13 @@ export const api = {
 
     redeem: (rewardId: string) =>
       axiosInstance.post('/loyalty/redeem', { rewardId }),
+
+    simulatePurchase: (data: {
+      partnerId: string;
+      customerWallet: string;
+      amount: number;
+      items?: string[];
+    }) => axiosInstance.post('/loyalty/simulate-purchase', data),
   },
 
   // Transactions
@@ -104,6 +122,9 @@ export const api = {
 
     create: (data: { amount: number; type: string; description?: string }) =>
       axiosInstance.post('/transactions', data),
+
+    onChain: (params?: { page?: number; limit?: number }) =>
+      axiosInstance.get('/transactions/on-chain', { params }),
   },
 
   // Rewards
@@ -142,6 +163,9 @@ export const api = {
 
     getStats: () =>
       axiosInstance.get('/admin/stats'),
+
+    mintTokens: (data: { targetWallet: string; amount: number }) =>
+      axiosInstance.post('/loyalty/mint', data),
 
     getSettings: () =>
       axiosInstance.get('/admin/settings'),
@@ -182,6 +206,8 @@ export const api = {
     getChurnRisks: () => axiosInstance.get('/ai/churn'),
     getForecast: () => axiosInstance.get('/ai/forecast'),
     getRecommendations: () => axiosInstance.get('/ai/recommendations'),
+    generateReport: (lang?: string) => axiosInstance.post('/ai/report', { lang }),
+    detectAnomalies: (lang?: string) => axiosInstance.post('/ai/anomalies', { lang }),
   },
 
   // Referrals
@@ -197,6 +223,73 @@ export const api = {
     getAll:       () => axiosInstance.get('/achievements'),
     check:        () => axiosInstance.post('/achievements/check'),
     getLeaderboard: () => axiosInstance.get('/achievements/leaderboard'),
+  },
+
+  // Spin Wheel
+  spin: {
+    status: () => axiosInstance.get('/spin/status'),
+    play:   () => axiosInstance.post('/spin/play'),
+  },
+
+  // Daily Check-in
+  checkin: {
+    status: () => axiosInstance.get('/checkin/status'),
+    claim:  () => axiosInstance.post('/checkin/claim'),
+  },
+
+  // Gift Tokens
+  gift: {
+    send:    (receiverWallet: string, amount: number, message?: string) =>
+      axiosInstance.post('/gift/send', { receiverWallet, amount, message }),
+    history: () => axiosInstance.get('/gift/history'),
+  },
+
+  // DAO Governance
+  governance: {
+    getProposals: () => axiosInstance.get('/governance/proposals'),
+    createProposal: (data: { title: string; description: string; category: string; durationDays: number }) =>
+      axiosInstance.post('/governance/proposals', data),
+    vote: (proposalId: string, choice: 'FOR' | 'AGAINST' | 'ABSTAIN') =>
+      axiosInstance.post(`/governance/proposals/${proposalId}/vote`, { choice }),
+    getStats: () => axiosInstance.get('/governance/stats'),
+  },
+
+  // AI Churn Interventions
+  churn: {
+    getInterventions: (params?: { limit?: number }) =>
+      axiosInstance.get('/ai/interventions', { params }),
+  },
+
+  // Public / Live Dashboard (no auth)
+  public: {
+    getStats: () => axiosInstance.get('/public/stats'),
+  },
+
+  // On-Chain Revenue Settlement
+  settlement: {
+    getStatus: () => axiosInstance.get('/settlement/status'),
+    getHistory: () => axiosInstance.get('/settlement/history'),
+    distribute: () => axiosInstance.post('/settlement/distribute'),
+    globalStats: () => axiosInstance.get('/settlement/global-stats'),
+  },
+
+  // Sweet Pass — prepaid pre-order escrow
+  sweetpass: {
+    createOrder: (data: {
+      partnerId: string;
+      itemDescription: string;
+      amountKzt: number;
+      deadlineHours?: number;
+    }) => axiosInstance.post('/sweetpass/orders', data),
+    confirmDeposit: (orderId: string, txHash?: string) =>
+      axiosInstance.post(`/sweetpass/orders/${orderId}/confirm-deposit`, { txHash }),
+    release: (orderId: string) =>
+      axiosInstance.post(`/sweetpass/orders/${orderId}/release`),
+    refund: (orderId: string) =>
+      axiosInstance.post(`/sweetpass/orders/${orderId}/refund`),
+    listOrders: () => axiosInstance.get('/sweetpass/orders'),
+    getOrder: (orderId: string) => axiosInstance.get(`/sweetpass/orders/${orderId}`),
+    getMetrics: () => axiosInstance.get('/sweetpass/metrics'),
   },
 };
 
