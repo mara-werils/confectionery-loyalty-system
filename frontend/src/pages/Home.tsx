@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTonWallet } from '@tonconnect/ui-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { StorefrontIcon, UserIcon, StarIcon, ShieldCheckIcon, CubeTransparentIcon, CakeIcon } from '@phosphor-icons/react';
+import { StorefrontIcon, UserIcon, StarIcon, ShieldCheckIcon, CakeIcon } from '@phosphor-icons/react';
 import WalletConnect from '../components/WalletConnect';
 import { useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
@@ -358,18 +358,9 @@ export default function Home() {
 
               {/* Trust badges row */}
               <div className="flex flex-wrap items-center justify-center gap-2 mt-1">
-                <TrustBadge>
-                  <CubeTransparentIcon className="w-3.5 h-3.5" style={{ color: 'var(--sweet-accent)' }} />
-                  {t('home.poweredByTon')}
-                </TrustBadge>
-                <TrustBadge>
-                  <ShieldCheckIcon className="w-3.5 h-3.5" style={{ color: '#34d399' }} />
-                  Gasless transactions
-                </TrustBadge>
-                <TrustBadge>
-                  <StarIcon className="w-3.5 h-3.5" style={{ color: 'var(--sweet-accent)' }} />
-                  SWEET tokens
-                </TrustBadge>
+                <TrustBadge>{t('home.poweredByTon')}</TrustBadge>
+                <TrustBadge>Gasless transactions</TrustBadge>
+                <TrustBadge>SWEET tokens</TrustBadge>
               </div>
             </motion.div>
 
